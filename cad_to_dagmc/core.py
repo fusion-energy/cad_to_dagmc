@@ -83,24 +83,14 @@ def tessellate(
 
         merged_solid.mesh(tolerance, angularTolerance)
 
-        # vertices: List[Vector] = []
-        # triangles: List[Tuple[int, int, int]] = []
         offset = 0
-
-        all_vertices = {}
-        all_triangles = {}
 
         vertices: List[Vector] = []
         triangles: List[Tuple[int, int, int]] = []
 
         for s in merged_solid.Solids():
             
-            # vertices: List[Vector] = []
-            # triangles: List[Tuple[int, int, int]] = []
-
             for f in s.Faces():
-                
-                # todo use hashCode() to remove duplicate vertices
                 
                 loc = TopLoc_Location()
                 poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
@@ -118,9 +108,6 @@ def tessellate(
                     for v in (v.Transformed(Trsf) for v in poly.Nodes())
                 ]
 
-                print('offset', offset)
-                print('offset', offset)
-                print('offset', offset)
                 # add triangles
                 triangles += [
                     (
@@ -139,20 +126,72 @@ def tessellate(
 
                 offset += poly.NbNodes()
 
-        #     all_vertices[f.hashCode()] = vertices
-        #     all_triangles[f.hashCode()] = triangles
-
-        # return all_vertices, all_triangles
         return vertices, triangles
     
 
-def tessellate_parts(merged_solid, tolerance=1):
+def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0.1):
+        merged_solid.mesh(tolerance, angularTolerance)
 
-    vert_tri_dict = {}
-    for solid in merged_solid.Solids():
-        
-        for face in solid.Faces():
-            print('    ',face.hashCode())
+        offset = 0
+
+        vertices: List[Vector] = []
+        triangles: List[Tuple[int, int, int]] = []
+
+        all_vertices = {}
+        face_verticies = {}
+
+        loop_counter = 0
+
+        for s in merged_solid.Solids():
+            print(s.hashCode())
+            all_vertices[s.hashCode()] ={}
+            for f in s.Faces():
+                loop_counter = loop_counter+ 1
+                loc = TopLoc_Location()
+                poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
+                Trsf = loc.Transformation()
+
+                reverse = (
+                    True
+                    if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+                    else False
+                )
+
+                # add vertices
+                face_verticles = [
+                    (v.X(), v.Y(), v.Z())
+                    for v in (v.Transformed(Trsf) for v in poly.Nodes())
+                ]
+                vertices += face_verticles
+
+
+                # add triangles
+                face_triangles = [
+                    (
+                        t.Value(1) + offset - 1,
+                        t.Value(3) + offset - 1,
+                        t.Value(2) + offset - 1,
+                    )
+                    if reverse
+                    else (
+                        t.Value(1) + offset - 1,
+                        t.Value(2) + offset - 1,
+                        t.Value(3) + offset - 1,
+                    )
+                    for t in poly.Triangles()
+                ]
+                triangles += face_triangles
+
+                # solid_verticles
+
+                offset += poly.NbNodes()
+            
+                new_code = str(f.hashCode()) + '____' + str(loop_counter)
+                all_vertices[s.hashCode()][new_code] = 'a'#face_verticles
+
+        return all_vertices
+
+        # return vertices, triangles
         
 #     # meshes all the solids in the merged_solid and gets the triangles and vector_vertices
 #     vector_vertices, triangles = merged_solid.tessellate(tolerance=tolerance)
