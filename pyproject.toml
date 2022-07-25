@@ -1,0 +1,10 @@
+[build-system]
+requires = [
+    "setuptools >= 46.4.0",
+    "wheel",
+    "setuptools_scm[toml] >= 6.3.1",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "cad_to_dagmc/_version.py"
