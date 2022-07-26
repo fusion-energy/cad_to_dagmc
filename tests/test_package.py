@@ -18,6 +18,7 @@ Tests that check that:
 
 from cadquery import importers
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection
+
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
@@ -25,7 +26,6 @@ from vertices_to_h5m import vertices_to_h5m
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
-
 
 
 def transport_particles_on_h5m_geometry(
@@ -111,16 +111,16 @@ def transport_particles_on_h5m_geometry(
 
 
 def test_h5m_production_with_single_volume_list():
-#     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
+    #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = ['tests/extrude_rectangle.stp', 'tests/single_cube.stp']
+    stp_files = ["tests/extrude_rectangle.stp", "tests/single_cube.stp"]
     for stp_file in stp_files:
         test_h5m_filename = "single_tet.h5m"
 
         stp_file = cad_to_dagmc.load_stp_file(stp_file)
 
         merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices,triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,
@@ -133,17 +133,21 @@ def test_h5m_production_with_single_volume_list():
             h5m_filename=test_h5m_filename,
             material_tags=["mat1"],
         )
-def test_h5m_production_with_multi_volume_list():
-#     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = ['tests/multi_volume_cylinders.stp']
+
+def test_h5m_production_with_multi_volume_list():
+    #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
+
+    stp_files = ["tests/multi_volume_cylinders.stp"]
     for stp_file in stp_files:
         test_h5m_filename = "single_tet.h5m"
 
         stp_file = cad_to_dagmc.load_stp_file(stp_file)
 
         merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices,triangles = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
+        vertices, triangles = cad_to_dagmc.tessellate_parts(
+            merged_stp_file, tolerance=2
+        )
 
         # vertices_to_h5m(
         #     vertices=vertices,
@@ -157,10 +161,13 @@ def test_h5m_production_with_multi_volume_list():
         #     material_tags=["mat1"],
         # )
 
+
 import cad_to_dagmc
-stp_file=cad_to_dagmc.load_stp_file('tests/multi_volume_cylinders.stp')
+
+stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
 merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-data=cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
+data = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
 import json
-with open('data.json', 'w') as f:
+
+with open("data.json", "w") as f:
     json.dump(data, f, indent=2)
