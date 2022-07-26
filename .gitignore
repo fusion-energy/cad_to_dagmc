@@ -132,3 +132,5 @@ dmypy.json
 *.xml
 *.out
 *.h5m
+*.json
+cad_to_dagmc/_version.py
