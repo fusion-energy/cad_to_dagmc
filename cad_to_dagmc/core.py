@@ -1,4 +1,3 @@
-import numpy as np
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
 import dagmc_h5m_file_inspector as di
@@ -11,7 +10,7 @@ Tests that check that:
     - h5m files are created
     - h5m files contain the correct number of volumes
     - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC 
+    - h5m files can be used a transport geometry in DAGMC with OpenMC
 """
 
 
@@ -190,14 +189,3 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
             all_vertices[s.hashCode()][new_code] = "a"  # face_verticles
 
     return all_vertices
-
-    # return vertices, triangles
-
-
-#     # meshes all the solids in the merged_solid and gets the triangles and vector_vertices
-#     vector_vertices, triangles = merged_solid.tessellate(tolerance=tolerance)
-
-# #     for solid in merged_solid:
-# #         vector_vertices, triangles = solid.tessellate(tolerance=tolerance)
-#     vertices = [(vector.x, vector.y, vector.z) for vector in vector_vertices]
-#     return vertices,triangles
