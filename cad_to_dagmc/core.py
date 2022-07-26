@@ -1,4 +1,3 @@
-
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
 import dagmc_h5m_file_inspector as di
@@ -25,6 +24,8 @@ from vertices_to_h5m import vertices_to_h5m
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
+
+
 def load_stp_file(filename: str, scale_factor: float = 1.0):
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
@@ -39,10 +40,10 @@ def load_stp_file(filename: str, scale_factor: float = 1.0):
 
     part = importers.importStep(str(filename)).val()
 
-    if scale_factor==1:
+    if scale_factor == 1:
         scaled_part = part
     else:
-        scaled_part=part.scale(scale_factor)
+        scaled_part = part.scale(scale_factor)
 
     solid = scaled_part
 
