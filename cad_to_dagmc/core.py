@@ -14,7 +14,7 @@ Tests that check that:
 """
 
 
-from cadquery import importers 
+from cadquery import importers    
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection 
 
 # from cadquery.occ_impl import shapes
