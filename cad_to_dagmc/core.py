@@ -17,6 +17,7 @@ Tests that check that:
 
 from cadquery import importers
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection
+
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
@@ -24,6 +25,7 @@ from vertices_to_h5m import vertices_to_h5m
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
+
 
 def load_stp_file(filename: str, scale_factor: float = 1.0):
     """Loads a stp file and makes the 3D solid and wires available for use.
@@ -50,7 +52,7 @@ def load_stp_file(filename: str, scale_factor: float = 1.0):
 
 
 def merge_surfaces(geometry):
-    
+
     solids = geometry.Solids()
 
     bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
@@ -77,86 +79,124 @@ def merge_surfaces(geometry):
 
     return merged_solid
 
-def tessellate(
-   merged_solid, tolerance: float, angularTolerance: float = 0.1
-):
 
-        merged_solid.mesh(tolerance, angularTolerance)
+def tessellate(merged_solid, tolerance: float, angularTolerance: float = 0.1):
 
-        # vertices: List[Vector] = []
-        # triangles: List[Tuple[int, int, int]] = []
-        offset = 0
+    merged_solid.mesh(tolerance, angularTolerance)
 
-        all_vertices = {}
-        all_triangles = {}
+    offset = 0
 
-        vertices: List[Vector] = []
-        triangles: List[Tuple[int, int, int]] = []
+    vertices: List[Vector] = []
+    triangles: List[Tuple[int, int, int]] = []
 
-        for s in merged_solid.Solids():
-            
-            # vertices: List[Vector] = []
-            # triangles: List[Tuple[int, int, int]] = []
+    for s in merged_solid.Solids():
 
-            for f in s.Faces():
-                
-                # todo use hashCode() to remove duplicate vertices
-                
-                loc = TopLoc_Location()
-                poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
-                Trsf = loc.Transformation()
+        for f in s.Faces():
 
-                reverse = (
-                    True
-                    if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
-                    else False
+            loc = TopLoc_Location()
+            poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
+            Trsf = loc.Transformation()
+
+            reverse = (
+                True
+                if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+                else False
+            )
+
+            # add vertices
+            vertices += [
+                (v.X(), v.Y(), v.Z())
+                for v in (v.Transformed(Trsf) for v in poly.Nodes())
+            ]
+
+            # add triangles
+            triangles += [
+                (
+                    t.Value(1) + offset - 1,
+                    t.Value(3) + offset - 1,
+                    t.Value(2) + offset - 1,
                 )
+                if reverse
+                else (
+                    t.Value(1) + offset - 1,
+                    t.Value(2) + offset - 1,
+                    t.Value(3) + offset - 1,
+                )
+                for t in poly.Triangles()
+            ]
 
-                # add vertices
-                vertices += [
-                    (v.X(), v.Y(), v.Z())
-                    for v in (v.Transformed(Trsf) for v in poly.Nodes())
-                ]
+            offset += poly.NbNodes()
 
-                print('offset', offset)
-                print('offset', offset)
-                print('offset', offset)
-                # add triangles
-                triangles += [
-                    (
-                        t.Value(1) + offset - 1,
-                        t.Value(3) + offset - 1,
-                        t.Value(2) + offset - 1,
-                    )
-                    if reverse
-                    else (
-                        t.Value(1) + offset - 1,
-                        t.Value(2) + offset - 1,
-                        t.Value(3) + offset - 1,
-                    )
-                    for t in poly.Triangles()
-                ]
+    return vertices, triangles
 
-                offset += poly.NbNodes()
 
-        #     all_vertices[f.hashCode()] = vertices
-        #     all_triangles[f.hashCode()] = triangles
+def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0.1):
+    merged_solid.mesh(tolerance, angularTolerance)
 
-        # return all_vertices, all_triangles
-        return vertices, triangles
-    
+    offset = 0
 
-def tessellate_parts(merged_solid, tolerance=1):
+    vertices: List[Vector] = []
+    triangles: List[Tuple[int, int, int]] = []
 
-    vert_tri_dict = {}
-    for solid in merged_solid.Solids():
-        
-        for face in solid.Faces():
-            print('    ',face.hashCode())
-        
+    all_vertices = {}
+    face_verticies = {}
+
+    loop_counter = 0
+
+    for s in merged_solid.Solids():
+        print(s.hashCode())
+        all_vertices[s.hashCode()] = {}
+        for f in s.Faces():
+            loop_counter = loop_counter + 1
+            loc = TopLoc_Location()
+            poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
+            Trsf = loc.Transformation()
+
+            reverse = (
+                True
+                if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+                else False
+            )
+
+            # add vertices
+            face_verticles = [
+                (v.X(), v.Y(), v.Z())
+                for v in (v.Transformed(Trsf) for v in poly.Nodes())
+            ]
+            vertices += face_verticles
+
+            # add triangles
+            face_triangles = [
+                (
+                    t.Value(1) + offset - 1,
+                    t.Value(3) + offset - 1,
+                    t.Value(2) + offset - 1,
+                )
+                if reverse
+                else (
+                    t.Value(1) + offset - 1,
+                    t.Value(2) + offset - 1,
+                    t.Value(3) + offset - 1,
+                )
+                for t in poly.Triangles()
+            ]
+            triangles += face_triangles
+
+            # solid_verticles
+
+            offset += poly.NbNodes()
+
+            new_code = str(f.hashCode()) + "____" + str(loop_counter)
+            all_vertices[s.hashCode()][new_code] = "a"  # face_verticles
+
+    return all_vertices
+
+    # return vertices, triangles
+
+
 #     # meshes all the solids in the merged_solid and gets the triangles and vector_vertices
 #     vector_vertices, triangles = merged_solid.tessellate(tolerance=tolerance)
-    
+
 # #     for solid in merged_solid:
 # #         vector_vertices, triangles = solid.tessellate(tolerance=tolerance)
 #     vertices = [(vector.x, vector.y, vector.z) for vector in vector_vertices]
