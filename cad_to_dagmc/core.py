@@ -139,7 +139,7 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
 
     all_vertices = {}
     triangles_on_solids_faces = {}
-    faces_already_added=[]
+    faces_already_added = []
 
     loop_counter = 0
 

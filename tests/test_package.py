@@ -1,4 +1,3 @@
-
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
 import dagmc_h5m_file_inspector as di
@@ -159,10 +158,8 @@ def test_h5m_production_with_multi_volume_list():
         )
 
         transport_particles_on_h5m_geometry(
-            h5m_filename="test.h5m",
-            material_tags=mat_tags
+            h5m_filename="test.h5m", material_tags=mat_tags
         )
-
 
 
 # import cad_to_dagmc
