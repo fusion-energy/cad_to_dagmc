@@ -14,18 +14,16 @@ Tests that check that:
 """
 
 
-from cadquery import importers
-from OCP.GCPnts import GCPnts_QuasiUniformDeflection
+from cadquery import importers 
+from OCP.GCPnts import GCPnts_QuasiUniformDeflection 
 
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
-from vertices_to_h5m import vertices_to_h5m
+from vertices_to_h5m import vertices_to_h5m 
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
-
-
 def load_stp_file(filename: str, scale_factor: float = 1.0):
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
