@@ -1,4 +1,3 @@
-import numpy as np
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
 import dagmc_h5m_file_inspector as di
@@ -12,7 +11,7 @@ Tests that check that:
     - h5m files are created
     - h5m files contain the correct number of volumes
     - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC 
+    - h5m files can be used a transport geometry in DAGMC with OpenMC
 """
 
 
@@ -138,36 +137,37 @@ def test_h5m_production_with_single_volume_list():
 def test_h5m_production_with_multi_volume_list():
     #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = ["tests/multi_volume_cylinders.stp"]
-    for stp_file in stp_files:
-        test_h5m_filename = "single_tet.h5m"
+    stp_files = ["tests/multi_volume_cylinders.stp", "tests/two_disconnected_cubes.stp"]
+    material_tags = [
+        ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
+        ["mat1", "mat2"],
+    ]
+    for stp_file, mat_tags in zip(stp_files, material_tags):
 
-        stp_file = cad_to_dagmc.load_stp_file(stp_file)
-
-        merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
+        stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
+        merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
         vertices, triangles = cad_to_dagmc.tessellate_parts(
             merged_stp_file, tolerance=2
         )
 
-        # vertices_to_h5m(
-        #     vertices=vertices,
-        #     triangles=[triangles],
-        #     material_tags=["mat1"],
-        #     h5m_filename=test_h5m_filename,
-        # )
+        vertices_to_h5m(
+            vertices=vertices,
+            triangles=triangles,
+            material_tags=mat_tags,
+            h5m_filename="test.h5m",
+        )
 
-        # transport_particles_on_h5m_geometry(
-        #     h5m_filename=test_h5m_filename,
-        #     material_tags=["mat1"],
-        # )
+        transport_particles_on_h5m_geometry(
+            h5m_filename="test.h5m", material_tags=mat_tags
+        )
 
 
-import cad_to_dagmc
+# import cad_to_dagmc
+# import json
 
-stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
-merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-data = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
-import json
+# stp_file = cad_to_dagmc.load_stp_file("tests/two_disconnected_cubes.stp")
+# merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
+# vertices, triangles = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
 
-with open("data.json", "w") as f:
-    json.dump(data, f, indent=2)
+# with open("data.json", "w") as f:
+#     json.dump(data, f, indent=2)
