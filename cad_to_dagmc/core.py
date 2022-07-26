@@ -10,20 +10,22 @@ Tests that check that:
     - h5m files are created
     - h5m files contain the correct number of volumes
     - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC 
+    - h5m files can be used a transport geometry in DAGMC with OpenMC
 """
 
 
-from cadquery import importers    
-from OCP.GCPnts import GCPnts_QuasiUniformDeflection 
+from cadquery import importers
+from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
-from vertices_to_h5m import vertices_to_h5m 
+from vertices_to_h5m import vertices_to_h5m
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
+
+
 def load_stp_file(filename: str, scale_factor: float = 1.0):
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
@@ -187,14 +189,3 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
             all_vertices[s.hashCode()][new_code] = "a"  # face_verticles
 
     return all_vertices
-
-    # return vertices, triangles
-
-
-#     # meshes all the solids in the merged_solid and gets the triangles and vector_vertices
-#     vector_vertices, triangles = merged_solid.tessellate(tolerance=tolerance)
-
-# #     for solid in merged_solid:
-# #         vector_vertices, triangles = solid.tessellate(tolerance=tolerance)
-#     vertices = [(vector.x, vector.y, vector.z) for vector in vector_vertices]
-#     return vertices,triangles
