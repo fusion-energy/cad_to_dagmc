@@ -264,16 +264,16 @@ def tessellate_touching_parts(
 
             else:
                 print("found face in existing faces, reusing triangles")
-                
+
                 face_triangles = triangles_belonging_to_each_face[f.hashCode()]
-                
+
                 # for key_s, value in triangles_on_solids_faces.items():
                 #     for key_f, face in value.items():
                 #         if key_f == f.hashCode():
                 #             print(f"found face {f.hashCode()}")
                 #             face_triangles = triangles_on_solids_faces[key_s][key_f]
-                
-                            # triangles.append(face_triangles)
+
+                # triangles.append(face_triangles)
                 # triangles_on_solids_faces[s.hashCode()]
 
             # new_code = str(f.hashCode()) + "____" + str(loop_counter)
