@@ -3,7 +3,6 @@ from pathlib import Path
 import math
 
 
-
 from cadquery import importers
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 
