@@ -1,17 +1,7 @@
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
-import dagmc_h5m_file_inspector as di
-import openmc
-import openmc_data_downloader as odd
 import math
 
-"""
-Tests that check that:
-    - h5m files are created
-    - h5m files contain the correct number of volumes
-    - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC
-"""
 
 
 from cadquery import importers

@@ -1,0 +1,44 @@
+
+# This CI will launch a Docker image that contains all the dependencies required
+# within that image the pytest test suite is run 
+
+name: CI with install
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.cff'
+      - 'LICENSE.txt'
+      - 'readthedocs.yml'
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: openmc/openmc:develop
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: install package
+        run: |
+          pip install .
+          python -c "import cad_to_dagmc"
+
+      # - name: Run examples
+      #   run: |
+      #     python examples/
+
+      - name: Run tests
+        run: |
+          pip install .[tests]
+          pytest tests -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+
+      - name: Upload to codecov
+        uses: codecov/codecov-action@v2
