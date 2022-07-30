@@ -1,17 +1,6 @@
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
-import dagmc_h5m_file_inspector as di
-import openmc
-import openmc_data_downloader as odd
 import math
-
-"""
-Tests that check that:
-    - h5m files are created
-    - h5m files contain the correct number of volumes
-    - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC
-"""
 
 
 from cadquery import importers
@@ -219,6 +208,7 @@ def tessellate_touching_parts(
 
     all_vertices = {}
     triangles_on_solids_faces = {}
+    triangles_belonging_to_each_face = []
     faces_already_added = []
 
     loop_counter = 0
@@ -266,6 +256,7 @@ def tessellate_touching_parts(
                     for t in poly.Triangles()
                 ]
                 triangles.append(face_triangles)
+                triangles_belonging_to_each_face[f.hashCode()] = face_triangles
 
                 # solid_verticles
 
@@ -273,11 +264,15 @@ def tessellate_touching_parts(
 
             else:
                 print("found face in existing faces, reusing triangles")
-                for key_s, value in triangles_on_solids_faces.items():
-                    for key_f, face in value.items():
-                        if key_f == f.hashCode():
-                            print(f"found face {f.hashCode()}")
-                            face_triangles = triangles_on_solids_faces[key_s][key_f]
+                
+                face_triangles = triangles_belonging_to_each_face[f.hashCode()]
+                
+                # for key_s, value in triangles_on_solids_faces.items():
+                #     for key_f, face in value.items():
+                #         if key_f == f.hashCode():
+                #             print(f"found face {f.hashCode()}")
+                #             face_triangles = triangles_on_solids_faces[key_s][key_f]
+                
                             # triangles.append(face_triangles)
                 # triangles_on_solids_faces[s.hashCode()]
 
