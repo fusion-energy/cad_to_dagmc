@@ -38,7 +38,7 @@ def transport_particles_on_h5m_geometry(
 
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
-        mat_dag_material_tag.add_element("H", 1, "ao")
+        mat_dag_material_tag.add_nuclide("H1", 1, "ao")
         mat_dag_material_tag.set_density("g/cm3", 2)
 
         materials.append(mat_dag_material_tag)
@@ -165,28 +165,3 @@ def test_h5m_production_with_multi_volume_list():
         transport_particles_on_h5m_geometry(
             h5m_filename="test.h5m", material_tags=mat_tags
         )
-
-
-import cad_to_dagmc
-import json
-
-mat_tags = ["mat1", "mat2"]
-# mat_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"]
-stp_file = cad_to_dagmc.load_stp_file("tests/two_connected_cubes.stp")
-# stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
-merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate_touching_parts(
-    merged_stp_file, tolerance=2
-)
-
-with open("data.json", "w") as f:
-    json.dump([vertices, triangles], f, indent=1)
-
-vertices_to_h5m(
-    vertices=vertices,
-    triangles=triangles,
-    material_tags=mat_tags,
-    h5m_filename="test.h5m",
-)
-
-transport_particles_on_h5m_geometry(h5m_filename="test.h5m", material_tags=mat_tags)
