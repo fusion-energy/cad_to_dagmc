@@ -42,7 +42,9 @@ def test_h5m_with_single_volume_list():
         merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
 
         # merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=0.02, angularTolerance=0.01)
+        vertices, triangles = cad_to_dagmc.tessellate(
+            merged_cad_obj, tolerance=0.02, angularTolerance=0.01
+        )
 
         vertices_to_h5m(
             vertices=vertices,
