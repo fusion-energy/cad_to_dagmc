@@ -1,17 +1,6 @@
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
-import dagmc_h5m_file_inspector as di
-import openmc
-import openmc_data_downloader as odd
 import math
-
-"""
-Tests that check that:
-    - h5m files are created
-    - h5m files contain the correct number of volumes
-    - h5m files contain the correct material tags
-    - h5m files can be used a transport geometry in DAGMC with OpenMC
-"""
 
 
 from cadquery import importers
@@ -61,7 +50,7 @@ def merge_surfaces(geometry):
         return solids[0]
 
     for solid in solids:
-        print(type(solid))
+        # print(type(solid))
         # checks if solid is a compound as .val() is not needed for compounds
         if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             bldr.AddArgument(solid.wrapped)
@@ -144,7 +133,7 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
     loop_counter = 0
 
     for s in merged_solid.Solids():
-        print(s.hashCode())
+        # print(s.hashCode())
         # all_vertices[s.hashCode()] = {}
         triangles_on_solids_faces[s.hashCode()] = {}
         for f in s.Faces():
@@ -224,7 +213,7 @@ def tessellate_touching_parts(
     loop_counter = 0
 
     for s in merged_solid.Solids():
-        print(s.hashCode())
+        # print(s.hashCode())
         # all_vertices[s.hashCode()] = {}
         triangles_on_solids_faces[s.hashCode()] = {}
         for f in s.Faces():
@@ -272,11 +261,11 @@ def tessellate_touching_parts(
                 offset += poly.NbNodes()
 
             else:
-                print("found face in existing faces, reusing triangles")
+                # print("found face in existing faces, reusing triangles")
                 for key_s, value in triangles_on_solids_faces.items():
                     for key_f, face in value.items():
                         if key_f == f.hashCode():
-                            print(f"found face {f.hashCode()}")
+                            # print(f"found face {f.hashCode()}")
                             face_triangles = triangles_on_solids_faces[key_s][key_f]
                             # triangles.append(face_triangles)
                 # triangles_on_solids_faces[s.hashCode()]
@@ -289,14 +278,14 @@ def tessellate_touching_parts(
 
     list_of_triangles_per_solid = []
     for key, value in triangles_on_solids_faces.items():
-        print(key)
+        # print(key)
         triangles_on_solid = []
         for key, face in value.items():
-            print("    ", key, face)
+            # print("    ", key, face)
             triangles_on_solid = triangles_on_solid + face
         list_of_triangles_per_solid.append(triangles_on_solid)
-    for vertice in vertices:
-        print(vertice)
-    print(len(vertices))
+    # for vertice in vertices:
+    # print(vertice)
+    # print(len(vertices))
 
     return vertices, list_of_triangles_per_solid

@@ -1,30 +1,11 @@
-from vertices_to_h5m import vertices_to_h5m
-from pathlib import Path
-import dagmc_h5m_file_inspector as di
+# import dagmc_h5m_file_inspector as di
 import openmc
 import openmc_data_downloader as odd
-import math
-import cad_to_dagmc
+
 
 """
-Tests that check that:
-    - h5m files are created
-    - h5m files contain the correct number of volumes
-    - h5m files contain the correct material tags
     - h5m files can be used a transport geometry in DAGMC with OpenMC
 """
-
-
-from cadquery import importers
-from OCP.GCPnts import GCPnts_QuasiUniformDeflection
-
-# from cadquery.occ_impl import shapes
-import OCP
-import cadquery as cq
-from vertices_to_h5m import vertices_to_h5m
-from OCP.TopLoc import TopLoc_Location
-from OCP.BRep import BRep_Tool
-from OCP.TopAbs import TopAbs_Orientation
 
 
 def transport_particles_on_h5m_geometry(
@@ -110,26 +91,14 @@ def transport_particles_on_h5m_geometry(
 
 
 def test_h5m_production_with_single_volume_list():
-    #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
+    """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = ["tests/extrude_rectangle.stp", "tests/single_cube.stp"]
-    for stp_file in stp_files:
-        test_h5m_filename = "single_tet.h5m"
+    h5m_files = ["tests/extrude_rectangle.h5m", "tests/single_cube.h5m"]
 
-        stp_file = cad_to_dagmc.load_stp_file(stp_file)
-
-        merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
-
-        vertices_to_h5m(
-            vertices=vertices,
-            triangles=[triangles],
-            material_tags=["mat1"],
-            h5m_filename=test_h5m_filename,
-        )
+    for h5m_file in h5m_files:
 
         transport_particles_on_h5m_geometry(
-            h5m_filename=test_h5m_filename,
+            h5m_filename=h5m_file,
             material_tags=["mat1"],
         )
 
@@ -147,46 +116,13 @@ def test_h5m_production_with_multi_volume_list():
         ["mat1", "mat2"],
         ["mat1", "mat2"],
     ]
-    for stp_file, mat_tags in zip(stp_files, material_tags):
-
-        stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
-        merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate_touching_parts(
-            merged_stp_file, tolerance=2
-        )
-
-        vertices_to_h5m(
-            vertices=vertices,
-            triangles=triangles,
-            material_tags=mat_tags,
-            h5m_filename="test.h5m",
-        )
+    h5m_files = [
+        "tests/multi_volume_cylinders.h5m",
+        "tests/two_disconnected_cubes.h5m",
+        "tests/two_connected_cubes.h5m",
+    ]
+    for mat_tags, h5m_file in zip(material_tags, h5m_files):
 
         transport_particles_on_h5m_geometry(
-            h5m_filename="test.h5m", material_tags=mat_tags
+            h5m_filename=h5m_file, material_tags=mat_tags
         )
-
-
-import cad_to_dagmc
-import json
-
-mat_tags = ["mat1", "mat2"]
-# mat_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"]
-stp_file = cad_to_dagmc.load_stp_file("tests/two_connected_cubes.stp")
-# stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
-merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate_touching_parts(
-    merged_stp_file, tolerance=2
-)
-
-with open("data.json", "w") as f:
-    json.dump([vertices, triangles], f, indent=1)
-
-vertices_to_h5m(
-    vertices=vertices,
-    triangles=triangles,
-    material_tags=mat_tags,
-    h5m_filename="test.h5m",
-)
-
-transport_particles_on_h5m_geometry(h5m_filename="test.h5m", material_tags=mat_tags)

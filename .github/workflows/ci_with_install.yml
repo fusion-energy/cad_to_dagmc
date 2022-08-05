@@ -1,0 +1,59 @@
+
+# This CI will launch a Docker image that contains all the dependencies required
+# within that image the pytest test suite is run 
+
+name: CI with install
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.cff'
+      - 'LICENSE.txt'
+      - 'readthedocs.yml'
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: continuumio/miniconda3:4.12.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: install non pypi dependencies for cad creation
+        run: |
+          apt-get --allow-releaseinfo-change update
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
+          conda install -c conda-forge mamba
+          mamba install -c conda-forge moab
+          mamba install -c cadquery -c conda-forge cadquery=master
+
+      - name: install package
+        run: |
+          pip install .
+          python -c "import cad_to_dagmc"
+
+      - name: Run cad creation tests
+        run: |
+          pip install .[tests]
+          pytest tests/test_h5m_creation.py -v
+          # pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+
+      - name: install non pypi dependencies for neutronics
+        run: |
+          mamba uninstall moab
+          mamba uninstall cadquery
+          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
+
+      - name: Run simulation tests
+        run: |
+          pip install .[tests]
+          pytest tests/test_h5m_in_simulation.py -v
