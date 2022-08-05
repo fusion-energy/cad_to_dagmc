@@ -30,9 +30,23 @@ directly into vertices_to_h5m.
 
 # Install
 
+You will some dependencies installing (moab, pymoab and cadquery).
+
+```bash
+conda install -c conda-forge mamba
+mamba install -c conda-forge moab
+mamba install -c cadquery -c conda-forge cadquery=master
+```
+
+There you can install the ```cad_to_dagmc``` package
+
 ```bash
 pip install cad_to_dagmc
 ```
+
+To use the h5m geometry you will need a transport code with DAGMC enabled such as OpenMC.
+Just to note that currently the conda install for CadQuery and OpenMC can't be installed in the same conda environment.
+A work around for this is to create the h5m geometry in one conda environment and simulate with OpenMC in another conda environment.
 
 # Usage
 
