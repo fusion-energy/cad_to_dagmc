@@ -1,8 +1,8 @@
 [![CI with install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml)
 
-Single volumes pass :tests heavy_check_mark:
+Single volumes pass tests :heavy_check_mark:
 
-Multiple non touching volumes pass :tests heavy_check_mark:
+Multiple non touching volumes pass tests :heavy_check_mark:
 
 Multiple touching volumes FAIL tests :heavy_multiplication_x:
 
