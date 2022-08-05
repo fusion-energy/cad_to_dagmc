@@ -28,6 +28,10 @@ jobs:
 
       - name: install non pypi dependencies
         run: |
+          apt-get --allow-releaseinfo-change update
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
           conda install -c conda-forge mamba
           mamba install -c conda-forge moab
           mamba install -c cadquery -c conda-forge cadquery=master
@@ -40,7 +44,7 @@ jobs:
       - name: Run tests
         run: |
           pip install .[tests]
-          mamba install -c conda-forge openmc
+          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
           pytest tests -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
 
       - name: Upload to codecov
