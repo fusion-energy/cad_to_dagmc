@@ -25,7 +25,9 @@ def transport_particles_on_h5m_geometry(
         materials.append(mat_dag_material_tag)
 
     # downloads the nuclear data and sets the openmc_cross_sections environmental variable
-    odd.just_in_time_library_generator(libraries="ENDFB-7.1-NNDC", materials=materials, particles=['neutron'])
+    odd.just_in_time_library_generator(
+        libraries="ENDFB-7.1-NNDC", materials=materials, particles=["neutron"]
+    )
 
     # makes use of the dagmc geometry
     dag_univ = openmc.DAGMCUniverse(h5m_filename)
