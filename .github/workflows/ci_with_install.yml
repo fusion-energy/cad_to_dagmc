@@ -26,7 +26,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: install non pypi dependencies
+      - name: install non pypi dependencies for cad creation
         run: |
           apt-get --allow-releaseinfo-change update
           apt-get update -y
@@ -41,11 +41,18 @@ jobs:
           pip install .
           python -c "import cad_to_dagmc"
 
-      - name: Run tests
+      - name: Run cad creation tests
         run: |
           pip install .[tests]
-          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
-          pytest tests -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+          pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
 
-      - name: Upload to codecov
-        uses: codecov/codecov-action@v2
+      - name: install non pypi dependencies for neutronics
+        run: |
+          mamba uninstall moab
+          mamba uninstall cadquery
+          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
+
+      - name: Run cad creation tests
+        run: |
+          pip install .[tests]
+          pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
