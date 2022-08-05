@@ -106,20 +106,11 @@ def test_h5m_production_with_single_volume_list():
 def test_h5m_production_with_multi_volume_list():
     #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = [
-        "tests/multi_volume_cylinders.stp",
-        "tests/two_disconnected_cubes.stp",
-        "tests/two_connected_cubes.stp",
-    ]
     material_tags = [
         ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
-        ["mat1", "mat2"],
-        ["mat1", "mat2"],
     ]
     h5m_files = [
         "tests/multi_volume_cylinders.h5m",
-        "tests/two_disconnected_cubes.h5m",
-        "tests/two_connected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
 
