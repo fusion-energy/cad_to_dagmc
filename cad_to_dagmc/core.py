@@ -1,6 +1,5 @@
 from vertices_to_h5m import vertices_to_h5m
-from pathlib import Path
-import math
+from typing import Tuple
 
 
 from cadquery import importers
@@ -15,7 +14,11 @@ from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
 
-def load_stp_file(filename: str, scale_factor: float = 1.0, auto_merge=True):
+def load_stp_file(
+    filename: str,
+    scale_factor: float = 1.0,
+    auto_merge=True
+) -> cq.Compound:
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
         filename: the filename used to save the html graph.
@@ -78,7 +81,7 @@ def merge_surfaces(geometry):
 
 def tessellate_single_part(
     merged_solid, tolerance: float, angularTolerance: float = 0.1
-):
+) -> Tuple[list, list]:
 
     merged_solid.mesh(tolerance, angularTolerance)
 
