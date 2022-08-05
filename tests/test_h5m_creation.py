@@ -31,10 +31,10 @@ def test_h5m_with_single_volume_list():
 
     for stp_file, h5m_file in zip(stp_files, h5m_files):
 
-        stp_file = cad_to_dagmc.load_stp_file(stp_file)
+        merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
 
         # merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,
@@ -59,9 +59,9 @@ def test_h5m_with_multi_volume_not_touching():
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
 
-        stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
-        merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+        merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
+        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,
@@ -92,9 +92,9 @@ def test_h5m_with_multi_volume_touching():
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
 
-        stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
-        # merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+        merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
+        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,

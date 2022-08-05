@@ -47,6 +47,7 @@ def load_stp_file(filename: str, scale_factor: float = 1.0, auto_merge=True):
 
 
 def merge_surfaces(geometry):
+    """Merges surfaces in the geometry that are the same"""
 
     solids = geometry.Solids()
 
@@ -128,6 +129,7 @@ def tessellate_single_part(
 
 
 def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0.1):
+
     merged_solid.mesh(tolerance, angularTolerance)
 
     offset = 0
@@ -205,8 +207,10 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
     return vertices, list_of_triangles_per_solid
 
 
-def tessellate(merged_solid, tolerance: float = 0.1, angularTolerance: float = 0.1):
-    merged_solid.mesh(tolerance, angularTolerance)
+def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
+    """Creates a mesh / faceting / tessellation of the surface"""
+
+    parts.mesh(tolerance, angularTolerance)
 
     offset = 0
 
@@ -219,7 +223,7 @@ def tessellate(merged_solid, tolerance: float = 0.1, angularTolerance: float = 0
 
     loop_counter = 0
 
-    for s in merged_solid.Solids():
+    for s in parts.Solids():
         # print(s.hashCode())
         # all_vertices[s.hashCode()] = {}
         triangles_on_solids_faces[s.hashCode()] = {}

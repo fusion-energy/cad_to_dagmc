@@ -6,7 +6,7 @@ Multiple non touching volumes pass tests :heavy_check_mark:
 
 Multiple touching volumes FAIL tests :heavy_multiplication_x:
 
-Assiging material tags to correct voulmes NON EXISTENT tests :heavy_multiplication_x:
+Assigning material tags to correct volumes NON EXISTENT tests :heavy_multiplication_x:
 
 ___
 
@@ -52,19 +52,23 @@ A work around for this is to create the h5m geometry in one conda environment an
 
 # Usage
 
+Produces a tagged h5m file for a STP file with a single part / volume
+
 ```python
 import cad_to_dagmc
 
-stp_file = cad_to_dagmc.load_stp_file("tests/two_connected_cubes.stp")
+stp_file = cad_to_dagmc.load_stp_file("tests/single_cube.stp")
 vertices, triangles = cad_to_dagmc.tessellate(stp_file, tolerance=2)
 
 vertices_to_h5m(
     vertices=vertices,
     triangles=triangles,
-    material_tags=["mat1", "mat2"],
-    h5m_filename="test.h5m",
+    material_tags=["mat1"],
+    h5m_filename="dagmc.h5m",
 )
 ```
+
+Produces a tagged h5m file for a STP file with a multiple part / volume
 
 ```python
 import cad_to_dagmc
@@ -76,6 +80,6 @@ vertices_to_h5m(
     vertices=vertices,
     triangles=triangles,
     material_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
-    h5m_filename="test.h5m",
+    h5m_filename="dagmc.h5m",
 )
 ````
