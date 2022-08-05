@@ -6,7 +6,7 @@ Multiple non touching volumes pass tests :heavy_check_mark:
 
 Multiple touching volumes FAIL tests :heavy_multiplication_x:
 
-Assiging material tags to correct voulmes NON EXISTENT tests :heavy_multiplication_x:
+Assigning material tags to correct volumes NON EXISTENT tests :heavy_multiplication_x:
 
 ___
 
