@@ -26,20 +26,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: install non pypi dependencies
+        run: |
+          conda install -c conda-forge mamba
+          mamba install -c cadquery -c conda-forge cadquery=master
+
       - name: install package
         run: |
           pip install .
           python -c "import cad_to_dagmc"
 
-      - name: install non pypi dependencies
-        run: |
-          conda install -c conda-forge mamba
-          mamba install -c conda-forge openmc
-          mamba install -c cadquery -c conda-forge cadquery=master
-
       - name: Run tests
         run: |
           pip install .[tests]
+          mamba install -c conda-forge openmc
           pytest tests -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
 
       - name: Upload to codecov
