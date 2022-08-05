@@ -202,7 +202,7 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
     return vertices, list_of_triangles_per_solid
 
 
-def tessellate(merged_solid, tolerance: float, angularTolerance: float = 0.1):
+def tessellate(merged_solid, tolerance: float = 0.1, angularTolerance: float = 0.1):
     merged_solid.mesh(tolerance, angularTolerance)
 
     offset = 0
@@ -210,7 +210,7 @@ def tessellate(merged_solid, tolerance: float, angularTolerance: float = 0.1):
     vertices: List[Vector] = []
     triangles: List[Tuple[int, int, int]] = []
 
-    all_vertices = {}
+    # all_vertices = {}
     triangles_on_solids_faces = {}
     faces_already_added = []
 
