@@ -64,9 +64,7 @@ def test_h5m_production_with_multi_volume_not_touching():
 
         stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
         merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate(
-            merged_stp_file, tolerance=2
-        )
+        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,
@@ -79,6 +77,7 @@ def test_h5m_production_with_multi_volume_not_touching():
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
             tags_dict[counter] = loop_mat_tag
         assert di.get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
+
 
 def test_h5m_production_with_multi_volume_touching():
 
@@ -95,9 +94,7 @@ def test_h5m_production_with_multi_volume_touching():
 
         stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
         merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate(
-            merged_stp_file, tolerance=2
-        )
+        vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
 
         vertices_to_h5m(
             vertices=vertices,
