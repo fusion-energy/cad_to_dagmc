@@ -15,9 +15,7 @@ from OCP.TopAbs import TopAbs_Orientation
 
 
 def load_stp_file(
-    filename: str,
-    scale_factor: float = 1.0,
-    auto_merge=True
+    filename: str, scale_factor: float = 1.0, auto_merge=True
 ) -> cq.Compound:
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
