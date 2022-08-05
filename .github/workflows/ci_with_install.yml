@@ -53,7 +53,7 @@ jobs:
           mamba uninstall cadquery
           mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
 
-      - name: Run cad creation tests
+      - name: Run simulation tests
         run: |
           pip install .[tests]
-          pytest tests/test_h5m_in_simulation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+          pytest tests/test_h5m_in_simulation.py -v
