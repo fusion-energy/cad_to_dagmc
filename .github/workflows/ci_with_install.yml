@@ -31,9 +31,10 @@ jobs:
           pip install .
           python -c "import cad_to_dagmc"
 
-      # - name: Run examples
-      #   run: |
-      #     python examples/
+      - name: install non pypi dependencies
+        run: |
+          conda install -c conda-forge mamba
+          mamba install -c conda-forge moab
 
       - name: Run tests
         run: |
