@@ -129,7 +129,7 @@ def tessellate_single_part(
 
 
 def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0.1):
-    
+
     merged_solid.mesh(tolerance, angularTolerance)
 
     offset = 0
@@ -209,7 +209,7 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
 
 def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     """Creates a mesh / faceting / tessellation of the surface"""
-    
+
     parts.mesh(tolerance, angularTolerance)
 
     offset = 0
