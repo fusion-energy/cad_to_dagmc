@@ -26,15 +26,23 @@ from OCP.TopAbs import TopAbs_Orientation
 def test_h5m_with_single_volume_list():
     #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    stp_files = ["tests/extrude_rectangle.stp", "tests/single_cube.stp"]
-    h5m_files = ["tests/extrude_rectangle.h5m", "tests/single_cube.h5m"]
+    stp_files = [
+        "tests/extrude_rectangle.stp",
+        "tests/single_cube.stp",
+        "tests/single_volume_thin.stp",
+    ]
+    h5m_files = [
+        "tests/extrude_rectangle.h5m",
+        "tests/single_cube.h5m",
+        "tests/single_volume_thin.h5m",
+    ]
 
     for stp_file, h5m_file in zip(stp_files, h5m_files):
 
         merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
 
         # merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=0.02, angularTolerance=0.01)
 
         vertices_to_h5m(
             vertices=vertices,
