@@ -6,6 +6,8 @@ Multiple non touching volumes pass tests :heavy_check_mark:
 
 Multiple touching volumes FAIL tests :heavy_multiplication_x:
 
+Assiging material tags to correct voulmes NON EXISTENT tests :heavy_multiplication_x:
+
 ___
 
 A minimal package that uses CadQuery functionality to convert Cad geometry to DAGMC h5m files
@@ -53,39 +55,29 @@ A work around for this is to create the h5m geometry in one conda environment an
 ```python
 import cad_to_dagmc
 
-mat_tags=["mat1", "mat2"]
 stp_file = cad_to_dagmc.load_stp_file("tests/two_connected_cubes.stp")
 merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
+vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
 
 vertices_to_h5m(
     vertices=vertices,
     triangles=triangles,
-    material_tags=mat_tags,
+    material_tags=["mat1", "mat2"],
     h5m_filename="test.h5m",
-)
-
-transport_particles_on_h5m_geometry(
-    h5m_filename="test.h5m", material_tags=mat_tags
 )
 ```
 
 ```python
 import cad_to_dagmc
-import json
-mat_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"]
+
 stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
 merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate_parts(merged_stp_file, tolerance=2)
+vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
 
 vertices_to_h5m(
     vertices=vertices,
-    triangles=[triangles[0]],
-    material_tags=mat_tags,
+    triangles=triangles,
+    material_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
     h5m_filename="test.h5m",
-)
-
-transport_particles_on_h5m_geometry(
-    h5m_filename="test.h5m", material_tags=mat_tags
 )
 ````
