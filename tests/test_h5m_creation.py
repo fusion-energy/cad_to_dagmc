@@ -1,4 +1,3 @@
-
 # import dagmc_h5m_file_inspector as di
 import cad_to_dagmc
 from vertices_to_h5m import vertices_to_h5m
@@ -44,7 +43,7 @@ def test_h5m_production_with_single_volume_list():
             h5m_filename=h5m_file,
         )
 
-        assert di.get_volumes_and_materials_from_h5m(h5m_file) == {1: 'mat1'}
+        assert di.get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat1"}
 
 
 def test_h5m_production_with_multi_volume_list():
@@ -80,6 +79,6 @@ def test_h5m_production_with_multi_volume_list():
         )
 
         tags_dict = {}
-        for counter, loop_mat_tag  in enumerate(mat_tags, 1):
+        for counter, loop_mat_tag in enumerate(mat_tags, 1):
             tags_dict[counter] = loop_mat_tag
         assert di.get_volumes_and_materials_from_h5m(h5m_file) == tags_dict

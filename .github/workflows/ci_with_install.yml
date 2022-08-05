@@ -44,7 +44,8 @@ jobs:
       - name: Run cad creation tests
         run: |
           pip install .[tests]
-          pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+          pytest tests/test_h5m_creation.py -v
+          # pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
 
       - name: install non pypi dependencies for neutronics
         run: |
