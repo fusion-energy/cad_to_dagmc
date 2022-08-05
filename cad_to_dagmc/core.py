@@ -15,7 +15,7 @@ from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
 
-def load_stp_file(filename: str, scale_factor: float = 1.0):
+def load_stp_file(filename: str, scale_factor: float = 1.0, auto_merge=True):
     """Loads a stp file and makes the 3D solid and wires available for use.
     Args:
         filename: the filename used to save the html graph.
@@ -23,6 +23,10 @@ def load_stp_file(filename: str, scale_factor: float = 1.0):
             used to increase the size or decrease the size of the geometry.
             Useful when converting the geometry to cm for use in neutronics
             simulations.
+        auto_merge: whether or not to merge the surfaces. This defaults to True
+            as merged surfaces are needed to avoid overlapping meshes in some
+            cases. More details on the merging process in the DAGMC docs
+            https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html
     Returns:
         CadQuery.solid, CadQuery.Wires: solid and wires belonging to the object
     """
