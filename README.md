@@ -1,3 +1,13 @@
+[![CI with install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml)
+
+Single volumes pass :tests heavy_check_mark:
+
+Multiple non touching volumes pass :tests heavy_check_mark:
+
+Multiple touching volumes FAIL tests :heavy_multiplication_x:
+
+___
+
 A minimal package that uses CadQuery functionality to convert Cad geometry to DAGMC h5m files
 
 This particular method of producing DAGMC compatible h5m files from CAD geometry
