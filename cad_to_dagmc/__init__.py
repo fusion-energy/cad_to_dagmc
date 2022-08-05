@@ -3,5 +3,5 @@ from .core import (
     merge_surfaces,
     tessellate,
     tessellate_parts,
-    tessellate_touching_parts,
+    tessellate_single_part,
 )

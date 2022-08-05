@@ -68,7 +68,7 @@ def merge_surfaces(geometry):
     return merged_solid
 
 
-def tessellate(merged_solid, tolerance: float, angularTolerance: float = 0.1):
+def tessellate_single_part(merged_solid, tolerance: float, angularTolerance: float = 0.1):
 
     merged_solid.mesh(tolerance, angularTolerance)
 
@@ -196,7 +196,7 @@ def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0
     return vertices, list_of_triangles_per_solid
 
 
-def tessellate_touching_parts(
+def tessellate(
     merged_solid, tolerance: float, angularTolerance: float = 0.1
 ):
     merged_solid.mesh(tolerance, angularTolerance)

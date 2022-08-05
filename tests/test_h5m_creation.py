@@ -38,7 +38,7 @@ def test_h5m_production_with_single_volume_list():
 
         vertices_to_h5m(
             vertices=vertices,
-            triangles=[triangles],
+            triangles=triangles,
             material_tags=["mat1"],
             h5m_filename=h5m_file,
         )
@@ -67,7 +67,7 @@ def test_h5m_production_with_multi_volume_list():
 
         stp_file_object = cad_to_dagmc.load_stp_file(stp_file)
         merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate_touching_parts(
+        vertices, triangles = cad_to_dagmc.tessellate(
             merged_stp_file, tolerance=2
         )
 
