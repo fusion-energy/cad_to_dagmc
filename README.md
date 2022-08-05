@@ -56,8 +56,7 @@ A work around for this is to create the h5m geometry in one conda environment an
 import cad_to_dagmc
 
 stp_file = cad_to_dagmc.load_stp_file("tests/two_connected_cubes.stp")
-merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+vertices, triangles = cad_to_dagmc.tessellate(stp_file, tolerance=2)
 
 vertices_to_h5m(
     vertices=vertices,
@@ -71,8 +70,7 @@ vertices_to_h5m(
 import cad_to_dagmc
 
 stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
-merged_stp_file = cad_to_dagmc.merge_surfaces(stp_file)
-vertices, triangles = cad_to_dagmc.tessellate(merged_stp_file, tolerance=2)
+vertices, triangles = cad_to_dagmc.tessellate(stp_file, tolerance=2)
 
 vertices_to_h5m(
     vertices=vertices,
