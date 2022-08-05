@@ -285,7 +285,7 @@ def tessellate_touching_parts(
             triangles_on_solid = triangles_on_solid + face
         list_of_triangles_per_solid.append(triangles_on_solid)
     # for vertice in vertices:
-        # print(vertice)
+    # print(vertice)
     # print(len(vertices))
 
     return vertices, list_of_triangles_per_solid
