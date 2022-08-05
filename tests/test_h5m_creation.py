@@ -23,7 +23,7 @@ from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
 
-def test_h5m_production_with_single_volume_list():
+def test_h5m_with_single_volume_list():
     #     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
     stp_files = ["tests/extrude_rectangle.stp", "tests/single_cube.stp"]
@@ -46,7 +46,7 @@ def test_h5m_production_with_single_volume_list():
         assert di.get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat1"}
 
 
-def test_h5m_production_with_multi_volume_not_touching():
+def test_h5m_with_multi_volume_not_touching():
 
     stp_files = [
         "tests/two_disconnected_cubes.stp",
@@ -79,7 +79,7 @@ def test_h5m_production_with_multi_volume_not_touching():
         assert di.get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
-def test_h5m_production_with_multi_volume_touching():
+def test_h5m_with_multi_volume_touching():
 
     stp_files = [
         "tests/multi_volume_cylinders.stp",
