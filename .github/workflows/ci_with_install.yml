@@ -21,7 +21,7 @@ jobs:
   testing:
     runs-on: ubuntu-latest
     container:
-      image: openmc/openmc:develop-dagmc
+      image: continuumio/miniconda3:4.12.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -34,7 +34,8 @@ jobs:
       - name: install non pypi dependencies
         run: |
           conda install -c conda-forge mamba
-          mamba install -c conda-forge moab==5.3.1
+          mamba install -c conda-forge openmc
+          mamba install -c cadquery -c conda-forge cadquery=master
 
       - name: Run tests
         run: |
