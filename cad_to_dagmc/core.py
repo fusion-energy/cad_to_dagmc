@@ -87,6 +87,7 @@ def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     triangles = {}
 
     for f in parts.Faces():
+        print(f)
 
         loc = TopLoc_Location()
         poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
@@ -119,16 +120,19 @@ def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
             for t in poly.Triangles()
         ]
         triangles[f.hashCode()] = face_triangles
-        # print('face_triangles',face_triangles)
-        # solid_verticles
 
         offset += poly.NbNodes()
 
     list_of_triangles_per_solid = []
     for s in parts.Solids():
+        print(s)
         triangles_on_solid = []
         for f in s.Faces():
+            print(s,f)
             triangles_on_solid+=triangles[f.hashCode()]
         list_of_triangles_per_solid.append(triangles_on_solid)
-    # print(list_of_triangles_per_solid)
+    for vert in vertices:
+        print(vert)
+    for tri in list_of_triangles_per_solid:
+        print(tri)
     return vertices, list_of_triangles_per_solid
