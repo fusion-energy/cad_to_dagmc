@@ -76,137 +76,6 @@ def merge_surfaces(geometry):
     return merged_solid
 
 
-def tessellate_single_part(
-    merged_solid, tolerance: float, angularTolerance: float = 0.1
-):
-
-    merged_solid.mesh(tolerance, angularTolerance)
-
-    offset = 0
-
-    vertices: List[Vector] = []
-    triangles: List[Tuple[int, int, int]] = []
-
-    for s in merged_solid.Solids():
-
-        for f in s.Faces():
-
-            loc = TopLoc_Location()
-            poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
-            Trsf = loc.Transformation()
-
-            reverse = (
-                True
-                if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
-                else False
-            )
-
-            # add vertices
-            vertices += [
-                (v.X(), v.Y(), v.Z())
-                for v in (v.Transformed(Trsf) for v in poly.Nodes())
-            ]
-
-            # add triangles
-            triangles += [
-                (
-                    t.Value(1) + offset - 1,
-                    t.Value(3) + offset - 1,
-                    t.Value(2) + offset - 1,
-                )
-                if reverse
-                else (
-                    t.Value(1) + offset - 1,
-                    t.Value(2) + offset - 1,
-                    t.Value(3) + offset - 1,
-                )
-                for t in poly.Triangles()
-            ]
-
-            offset += poly.NbNodes()
-
-    return vertices, triangles
-
-
-def tessellate_parts(merged_solid, tolerance: float, angularTolerance: float = 0.1):
-
-    merged_solid.mesh(tolerance, angularTolerance)
-
-    offset = 0
-
-    vertices: List[Vector] = []
-    triangles: List[Tuple[int, int, int]] = []
-
-    all_vertices = {}
-    triangles_on_solids_faces = {}
-    faces_already_added = []
-
-    loop_counter = 0
-
-    for s in merged_solid.Solids():
-        # print(s.hashCode())
-        # all_vertices[s.hashCode()] = {}
-        triangles_on_solids_faces[s.hashCode()] = {}
-        for f in s.Faces():
-
-            if f.hashCode() not in faces_already_added:
-                faces_already_added.append(f.hashCode())
-
-                loop_counter = loop_counter + 1
-                loc = TopLoc_Location()
-                poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
-                Trsf = loc.Transformation()
-
-                reverse = (
-                    True
-                    if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
-                    else False
-                )
-
-                # add vertices
-                face_verticles = [
-                    (v.X(), v.Y(), v.Z())
-                    for v in (v.Transformed(Trsf) for v in poly.Nodes())
-                ]
-                vertices += face_verticles
-
-                # add triangles
-                face_triangles = [
-                    (
-                        t.Value(1) + offset - 1,
-                        t.Value(3) + offset - 1,
-                        t.Value(2) + offset - 1,
-                    )
-                    if reverse
-                    else (
-                        t.Value(1) + offset - 1,
-                        t.Value(2) + offset - 1,
-                        t.Value(3) + offset - 1,
-                    )
-                    for t in poly.Triangles()
-                ]
-                triangles.append(face_triangles)
-
-                # solid_verticles
-
-                offset += poly.NbNodes()
-
-                # new_code = str(f.hashCode()) + "____" + str(loop_counter)
-                triangles_on_solids_faces[s.hashCode()][f.hashCode()] = face_triangles
-                # face_verticles
-            else:
-                triangles_on_solids_faces[s.hashCode()][f.hashCode()] = face_triangles
-
-    list_of_triangles_per_solid = []
-    for key, value in triangles_on_solids_faces.items():
-        triangles_on_solid = []
-        for key, face in value.items():
-            triangles_on_solid = triangles_on_solid + face
-        list_of_triangles_per_solid.append(triangles_on_solid)
-
-    return vertices, list_of_triangles_per_solid
-
-
 def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     """Creates a mesh / faceting / tessellation of the surface"""
 
@@ -215,88 +84,55 @@ def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     offset = 0
 
     vertices: List[Vector] = []
-    triangles: List[Tuple[int, int, int]] = []
+    triangles = {}
 
-    # all_vertices = {}
-    triangles_on_solids_faces = {}
-    faces_already_added = []
+    for f in parts.Faces():
+        print(f)
 
-    loop_counter = 0
+        loc = TopLoc_Location()
+        poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
+        Trsf = loc.Transformation()
 
-    for s in parts.Solids():
-        # print(s.hashCode())
-        # all_vertices[s.hashCode()] = {}
-        triangles_on_solids_faces[s.hashCode()] = {}
-        for f in s.Faces():
+        reverse = (
+            True
+            if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+            else False
+        )
 
-            loop_counter = loop_counter + 1
-            loc = TopLoc_Location()
-            poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
-            Trsf = loc.Transformation()
+        # add vertices
+        face_verticles = [
+            (v.X(), v.Y(), v.Z()) for v in (v.Transformed(Trsf) for v in poly.Nodes())
+        ]
+        vertices += face_verticles
 
-            reverse = (
-                True
-                if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
-                else False
+        face_triangles = [
+            (
+                t.Value(1) + offset - 1,
+                t.Value(3) + offset - 1,
+                t.Value(2) + offset - 1,
             )
+            if reverse
+            else (
+                t.Value(1) + offset - 1,
+                t.Value(2) + offset - 1,
+                t.Value(3) + offset - 1,
+            )
+            for t in poly.Triangles()
+        ]
+        triangles[f.hashCode()] = face_triangles
 
-            # add vertices
-            face_verticles = [
-                (v.X(), v.Y(), v.Z())
-                for v in (v.Transformed(Trsf) for v in poly.Nodes())
-            ]
-            vertices += face_verticles
-
-            if f.hashCode() not in faces_already_added:
-                faces_already_added.append(f.hashCode())
-
-                # add triangles
-                face_triangles = [
-                    (
-                        t.Value(1) + offset - 1,
-                        t.Value(3) + offset - 1,
-                        t.Value(2) + offset - 1,
-                    )
-                    if reverse
-                    else (
-                        t.Value(1) + offset - 1,
-                        t.Value(2) + offset - 1,
-                        t.Value(3) + offset - 1,
-                    )
-                    for t in poly.Triangles()
-                ]
-                triangles.append(face_triangles)
-
-                # solid_verticles
-
-                offset += poly.NbNodes()
-
-            else:
-                # print("found face in existing faces, reusing triangles")
-                for key_s, value in triangles_on_solids_faces.items():
-                    for key_f, face in value.items():
-                        if key_f == f.hashCode():
-                            # print(f"found face {f.hashCode()}")
-                            face_triangles = triangles_on_solids_faces[key_s][key_f]
-                            # triangles.append(face_triangles)
-                # triangles_on_solids_faces[s.hashCode()]
-
-            # new_code = str(f.hashCode()) + "____" + str(loop_counter)
-            triangles_on_solids_faces[s.hashCode()][f.hashCode()] = face_triangles
-            # face_verticles
-        # else:
-        # triangles_on_solids_faces[s.hashCode()][f.hashCode()] = face_triangles
+        offset += poly.NbNodes()
 
     list_of_triangles_per_solid = []
-    for key, value in triangles_on_solids_faces.items():
-        # print(key)
+    for s in parts.Solids():
+        print(s)
         triangles_on_solid = []
-        for key, face in value.items():
-            # print("    ", key, face)
-            triangles_on_solid = triangles_on_solid + face
+        for f in s.Faces():
+            print(s, f)
+            triangles_on_solid += triangles[f.hashCode()]
         list_of_triangles_per_solid.append(triangles_on_solid)
-    # for vertice in vertices:
-    # print(vertice)
-    # print(len(vertices))
-
+    for vert in vertices:
+        print(vert)
+    for tri in list_of_triangles_per_solid:
+        print(tri)
     return vertices, list_of_triangles_per_solid
