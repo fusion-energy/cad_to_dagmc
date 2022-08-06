@@ -128,7 +128,7 @@ def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     for s in parts.Solids():
         triangles_on_solid = []
         for f in s.Faces():
-            triangles_on_solid+=triangles[f.hashCode()]
+            triangles_on_solid += triangles[f.hashCode()]
         list_of_triangles_per_solid.append(triangles_on_solid)
     # print(list_of_triangles_per_solid)
     return vertices, list_of_triangles_per_solid
