@@ -57,6 +57,7 @@ def transport_particles_on_h5m_geometry(
     settings.inactive = 0
     settings.run_mode = "fixed source"
     settings.source = my_source
+    settings.photon_transport = False
 
     # adds a tally to record the heat deposited in entire geometry
     cell_tally = openmc.Tally(name="heating")
@@ -93,7 +94,11 @@ def transport_particles_on_h5m_geometry(
 def test_h5m_with_single_volume_list():
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    h5m_files = ["tests/extrude_rectangle.h5m", "tests/single_cube.h5m"]
+    h5m_files = [
+        "tests/extrude_rectangle.h5m",
+        "tests/single_cube.h5m",
+        "tests/single_volume_thin.h5m",
+    ]
 
     for h5m_file in h5m_files:
 
