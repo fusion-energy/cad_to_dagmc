@@ -1,5 +1,1 @@
-from .core import (
-    load_stp_file,
-    merge_surfaces,
-    tessellate,
-)
+from .core import CadToDagmc

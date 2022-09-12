@@ -1,12 +1,5 @@
-import cad_to_dagmc
-from vertices_to_h5m import vertices_to_h5m
+from cad_to_dagmc import CadToDagmc
 
-
-# merged_cad_obj = cad_to_dagmc.load_stp_file("two_disconnected_cubes.stp")
-
-# vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
-
-
-merged_cad_obj = cad_to_dagmc.load_stp_file("two_connected_cubes.stp")
-
-vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
+my_model = CadToDagmc()
+my_model.add_stp_file('examples/two_connected_cubes.stp', material_tags=['part1', 'part2'])
+my_model.export_dagmc_h5m_file()
