@@ -1,5 +1,6 @@
 def make_dagmc_model():
     import paramak
+
     # all units in degrees
     inboard_angle_offset = 5
     outboard_angle_offset = 12
@@ -85,7 +86,10 @@ def make_dagmc_model():
         90 + inboard_angle_offset,
         270 - inboard_angle_offset,
         plasma=plasma,
-        offset_from_plasma=plasma_offset + cc_thickness + mult_thickness + outer_vv_thickness,
+        offset_from_plasma=plasma_offset
+        + cc_thickness
+        + mult_thickness
+        + outer_vv_thickness,
         rotation_angle=rotation_angle,
         name="inboard_tank",
         color=tank_c,
@@ -135,7 +139,10 @@ def make_dagmc_model():
         -90 + outboard_angle_offset,
         90 - outboard_angle_offset,
         plasma=plasma,
-        offset_from_plasma=plasma_offset + cc_thickness + mult_thickness + outer_vv_thickness,
+        offset_from_plasma=plasma_offset
+        + cc_thickness
+        + mult_thickness
+        + outer_vv_thickness,
         rotation_angle=rotation_angle,
         name="outboard_tank",
         color=tank_c,
@@ -181,7 +188,7 @@ def make_dagmc_model():
             ib_tank,
         ]
     )
-    print('export_dagmc_h5m')
+    print("export_dagmc_h5m")
     reactor.export_dagmc_h5m(filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=20)
 
 
@@ -190,6 +197,7 @@ def run_neutronics_simulation():
     import openmc
     import openmc_data_downloader as odd
     import math
+
     # simplified material definitions have been used to keen this example minimal
     mat_plasma = openmc.Material(name="plasma")
     mat_plasma.add_element("H", 1, "ao")
@@ -278,7 +286,9 @@ def run_neutronics_simulation():
     # these angles must be the same as the reflective angles
     angle = openmc.stats.Uniform(a=0.0, b=math.radians(90))
     # this makes the ring source using the three distributions and a radius
-    my_source.space = openmc.stats.CylindricalIndependent(r=radius, phi=angle, z=z_values, origin=(0.0, 0.0, 0.0))
+    my_source.space = openmc.stats.CylindricalIndependent(
+        r=radius, phi=angle, z=z_values, origin=(0.0, 0.0, 0.0)
+    )
     # sets the direction to isotropic
     my_source.angle = openmc.stats.Isotropic()
     # sets the energy distribution to a Muir distribution neutrons
@@ -299,7 +309,11 @@ def run_neutronics_simulation():
     # creates a mesh that covers the geometry
     mesh = openmc.RegularMesh()
     mesh.dimension = [100, 100, 100]
-    mesh.lower_left = [0, 0, -350]  # x,y,z coordinates start at 0 as this is a sector model
+    mesh.lower_left = [
+        0,
+        0,
+        -350,
+    ]  # x,y,z coordinates start at 0 as this is a sector model
     mesh.upper_right = [650, 650, 350]
 
     # makes a mesh tally using the previously created mesh and records heating on the mesh
@@ -312,10 +326,13 @@ def run_neutronics_simulation():
     tallies = openmc.Tallies([cell_tally, mesh_tally])
 
     # builds the openmc model
-    my_model = openmc.Model(materials=materials, geometry=geometry, settings=settings, tallies=tallies)
+    my_model = openmc.Model(
+        materials=materials, geometry=geometry, settings=settings, tallies=tallies
+    )
 
     # starts the simulation
     my_model.run()
+
 
 make_dagmc_model()
 run_neutronics_simulation()

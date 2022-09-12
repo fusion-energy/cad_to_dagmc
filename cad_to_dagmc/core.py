@@ -18,12 +18,15 @@ from OCP.TopAbs import TopAbs_Orientation
 from brep_to_h5m import mesh_brep, brep_to_h5m
 import brep_part_finder as bpf
 
-class CadToDagmc():
+
+class CadToDagmc:
     def __init__(self):
         self.parts = []
         self.material_tags = []
 
-    def add_stp_file(self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0):
+    def add_stp_file(
+        self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0
+    ):
         """Loads a stp file and makes the 3D solid and wires available for use.
         Args:
             filename: the filename used to save the html graph.
@@ -51,7 +54,9 @@ class CadToDagmc():
         for material_tag in material_tags:
             self.material_tags.append(material_tag)
 
-    def export_dagmc_h5m_file(self, filename='dagmc.h5m', min_mesh_size=1, max_mesh_size=10):
+    def export_dagmc_h5m_file(
+        self, filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=10
+    ):
 
         volume_atol: float = 0.000001
         center_atol: float = 0.000001
@@ -88,12 +93,12 @@ class CadToDagmc():
                 shape_properties[self.material_tags[counter]] = sub_solid_descriptions
 
         key_and_part_id = bpf.get_dict_of_part_ids(
-                brep_part_properties=brep_file_part_properties,
-                shape_properties=shape_properties,
-                volume_atol=volume_atol,
-                center_atol=center_atol,
-                bounding_box_atol=bounding_box_atol,
-            )
+            brep_part_properties=brep_file_part_properties,
+            shape_properties=shape_properties,
+            volume_atol=volume_atol,
+            center_atol=center_atol,
+            bounding_box_atol=bounding_box_atol,
+        )
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
@@ -120,7 +125,9 @@ class CadToDagmc():
         for solid in self.parts:
             # print(type(solid))
             # checks if solid is a compound as .val() is not needed for compounds
-            if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+            if isinstance(
+                solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+            ):
                 bldr.AddArgument(solid.wrapped)
             else:
                 bldr.AddArgument(solid.val().wrapped)
@@ -134,7 +141,6 @@ class CadToDagmc():
         merged_solid = cq.Compound(bldr.Shape())
 
         return merged_solid
-
 
     # def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     #     """Creates a mesh / faceting / tessellation of the surface"""
