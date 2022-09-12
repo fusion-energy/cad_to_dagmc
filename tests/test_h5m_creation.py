@@ -94,7 +94,7 @@ def test_h5m_with_multi_volume_touching():
 
         merged_cad_obj = cad_to_dagmc.load_stp_file(stp_file)
         # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
-        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=2)
+        vertices, triangles = cad_to_dagmc.tessellate(merged_cad_obj, tolerance=0.0002)
 
         vertices_to_h5m(
             vertices=vertices,
