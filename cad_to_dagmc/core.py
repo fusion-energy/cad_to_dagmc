@@ -148,7 +148,9 @@ class CadToDagmc():
         for solid in self.parts:
             print('merging', solid)
             # checks if solid is a compound as .val() is not needed for compounds
-            if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+            if isinstance(
+                solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+            ):
                 bldr.AddArgument(solid.wrapped)
             else:
                 bldr.AddArgument(solid.val().wrapped)
