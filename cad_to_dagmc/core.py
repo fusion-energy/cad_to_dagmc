@@ -1,6 +1,5 @@
 from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
-import math
 from tempfile import mkstemp
 
 from typing import Iterable
@@ -18,25 +17,26 @@ from OCP.TopAbs import TopAbs_Orientation
 from brep_to_h5m import mesh_brep, brep_to_h5m
 import brep_part_finder as bpf
 
+
 class CadToDagmc():
     def __init__(self):
         self.parts = []
         self.material_tags = []
 
     def add_stp_file(self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0):
-        """Loads a stp file and makes the 3D solid and wires available for use.
+        """Loads the parts from stp file into the model keeping track of the
+        parts and their material tags.
+
         Args:
             filename: the filename used to save the html graph.
+            material_tags: the names of the DAGMC material tags to assign. These
+                will need to be in the same order as the volumes in the STP file
+                and match the material tags used in the neutronics code (e.g.
+                OpenMC).
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
-            auto_merge: whether or not to merge the surfaces. This defaults to True
-                as merged surfaces are needed to avoid overlapping meshes in some
-                cases. More details on the merging process in the DAGMC docs
-                https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html
-        Returns:
-            CadQuery.solid, CadQuery.Wires: solid and wires belonging to the object
         """
 
         part = importers.importStep(str(filename)).val()
@@ -45,13 +45,29 @@ class CadToDagmc():
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
+        self.add_cadquery_object(scaled_part, material_tags)
 
-        for solid in scaled_part.Solids():
-            self.parts.append(solid)
+    def add_cadquery_object(self, object, material_tags):
+        """Loads the parts from CadQuery object into the model keeping track of
+        the parts and their material tags.
+        """
+
+        if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+            iterable_solids = object.Solids()
+        else:
+            print(type(object))
+            iterable_solids = object.val().Solids()
+        self.parts = self.parts + iterable_solids
         for material_tag in material_tags:
+            print(f'appending {material_tag}')
             self.material_tags.append(material_tag)
 
-    def export_dagmc_h5m_file(self, filename='dagmc.h5m', min_mesh_size=1, max_mesh_size=10):
+    def export_dagmc_h5m_file(
+        self,
+        filename='dagmc.h5m',
+        min_mesh_size=1,
+        max_mesh_size=10
+    ):
 
         volume_atol: float = 0.000001
         center_atol: float = 0.000001
@@ -60,36 +76,44 @@ class CadToDagmc():
         brep_shape = self._merge_surfaces()
 
         brep_file_part_properties = bpf.get_brep_part_properties_from_shape(brep_shape)
-        print(brep_file_part_properties)
+        # print(brep_file_part_properties)
 
-        shape_properties = {}
-        for counter, solid in enumerate(self.parts):
-            sub_solid_descriptions = []
+        # shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
+        
+        shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
 
-            # checks if the solid is a cq.Compound or not
-            # if isinstance(solid, cq.occ_impl.shapes.Compound):
-            iterable_solids = solid.Solids()
-            # else:
-            #     iterable_solids = solid.val().Solids()
+        material_tag_linked_to_shape_properties = []
 
-            for sub_solid in iterable_solids:
-                part_bb = sub_solid.BoundingBox()
-                part_center = sub_solid.Center()
-                sub_solid_description = {
-                    "volume": sub_solid.Volume(),
-                    "center": (part_center.x, part_center.y, part_center.z),
-                    "bounding_box": (
-                        (part_bb.xmin, part_bb.ymin, part_bb.zmin),
-                        (part_bb.xmax, part_bb.ymax, part_bb.zmax),
-                    ),
-                }
-                sub_solid_descriptions.append(sub_solid_description)
+        for mat_tag, (key, value) in zip(shape_properties.items, self.material_tags):
+            material_tag_linked_to_shape_properties.append((mat_tag, value))
 
-                shape_properties[self.material_tags[counter]] = sub_solid_descriptions
+        # for counter, solid in enumerate(self.parts):
+        #     sub_solid_descriptions = []
+
+        #     # checks if the solid is a cq.Compound or not
+        #     # if isinstance(solid, cq.occ_impl.shapes.Compound):
+        #     iterable_solids = solid.Solids()
+        #     # else:
+        #     #     iterable_solids = solid.val().Solids()
+
+        #     for sub_solid in iterable_solids:
+        #         part_bb = sub_solid.BoundingBox()
+        #         part_center = sub_solid.Center()
+        #         sub_solid_description = {
+        #             "volume": sub_solid.Volume(),
+        #             "center": (part_center.x, part_center.y, part_center.z),
+        #             "bounding_box": (
+        #                 (part_bb.xmin, part_bb.ymin, part_bb.zmin),
+        #                 (part_bb.xmax, part_bb.ymax, part_bb.zmax),
+        #             ),
+        #         }
+        #         sub_solid_descriptions.append(sub_solid_description)
+
+                # shape_properties.append((self.material_tags[counter], sub_solid_descriptions))
 
         key_and_part_id = bpf.get_dict_of_part_ids(
                 brep_part_properties=brep_file_part_properties,
-                shape_properties=shape_properties,
+                shape_properties=material_tag_linked_to_shape_properties,
                 volume_atol=volume_atol,
                 center_atol=center_atol,
                 bounding_box_atol=bounding_box_atol,
@@ -97,6 +121,8 @@ class CadToDagmc():
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
+
+        print('key_and_part_id', key_and_part_id)
 
         brep_to_h5m(
             brep_filename=tmp_brep_filename,
@@ -107,7 +133,9 @@ class CadToDagmc():
         )
 
     def _merge_surfaces(self):
-        """Merges surfaces in the geometry that are the same"""
+        """Merges surfaces in the geometry that are the same. More details on
+        the merging process in the DAGMC docs
+        https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html"""
 
         # solids = geometry.Solids()
 
@@ -118,7 +146,7 @@ class CadToDagmc():
             return self.parts[0]
 
         for solid in self.parts:
-            # print(type(solid))
+            print('merging', solid)
             # checks if solid is a compound as .val() is not needed for compounds
             if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
                 bldr.AddArgument(solid.wrapped)
@@ -135,7 +163,7 @@ class CadToDagmc():
 
         return merged_solid
 
-
+    # this didn't produce non overlapping water tight parts when the geometry was in contact with other surfaces
     # def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
     #     """Creates a mesh / faceting / tessellation of the surface"""
 
