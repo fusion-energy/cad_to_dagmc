@@ -1,4 +1,3 @@
-
 from cad_to_dagmc import CadToDagmc
 
 import dagmc_h5m_file_inspector as di
@@ -48,7 +47,7 @@ def test_h5m_with_multi_volume_not_touching():
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
 
         my_model = CadToDagmc()
-        my_model.add_stp_file(filename= stp_file, material_tags= mat_tags)
+        my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         assert my_model.material_tags == mat_tags
         # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
@@ -77,7 +76,7 @@ def test_h5m_with_multi_volume_touching():
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
 
         my_model = CadToDagmc()
-        my_model.add_stp_file(stp_file, material_tags= mat_tags)
+        my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
         assert my_model.material_tags == mat_tags
 

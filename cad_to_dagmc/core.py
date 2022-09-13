@@ -18,12 +18,14 @@ from brep_to_h5m import mesh_brep, brep_to_h5m
 import brep_part_finder as bpf
 
 
-class CadToDagmc():
+class CadToDagmc:
     def __init__(self):
         self.parts = []
         self.material_tags = []
 
-    def add_stp_file(self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0):
+    def add_stp_file(
+        self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0
+    ):
         """Loads the parts from stp file into the model keeping track of the
         parts and their material tags.
 
@@ -59,14 +61,11 @@ class CadToDagmc():
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
         for material_tag in material_tags:
-            print(f'appending {material_tag}')
+            print(f"appending {material_tag}")
             self.material_tags.append(material_tag)
 
     def export_dagmc_h5m_file(
-        self,
-        filename='dagmc.h5m',
-        min_mesh_size=1,
-        max_mesh_size=10
+        self, filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=10
     ):
 
         volume_atol: float = 0.000001
@@ -79,7 +78,7 @@ class CadToDagmc():
         # print(brep_file_part_properties)
 
         # shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
-        
+
         shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
 
         material_tag_linked_to_shape_properties = []
@@ -109,20 +108,20 @@ class CadToDagmc():
         #         }
         #         sub_solid_descriptions.append(sub_solid_description)
 
-                # shape_properties.append((self.material_tags[counter], sub_solid_descriptions))
+        # shape_properties.append((self.material_tags[counter], sub_solid_descriptions))
 
         key_and_part_id = bpf.get_dict_of_part_ids(
-                brep_part_properties=brep_file_part_properties,
-                shape_properties=material_tag_linked_to_shape_properties,
-                volume_atol=volume_atol,
-                center_atol=center_atol,
-                bounding_box_atol=bounding_box_atol,
-            )
+            brep_part_properties=brep_file_part_properties,
+            shape_properties=material_tag_linked_to_shape_properties,
+            volume_atol=volume_atol,
+            center_atol=center_atol,
+            bounding_box_atol=bounding_box_atol,
+        )
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
 
-        print('key_and_part_id', key_and_part_id)
+        print("key_and_part_id", key_and_part_id)
 
         brep_to_h5m(
             brep_filename=tmp_brep_filename,
@@ -146,7 +145,7 @@ class CadToDagmc():
             return self.parts[0]
 
         for solid in self.parts:
-            print('merging', solid)
+            print("merging", solid)
             # checks if solid is a compound as .val() is not needed for compounds
             if isinstance(
                 solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
