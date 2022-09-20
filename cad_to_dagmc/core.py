@@ -65,7 +65,7 @@ class CadToDagmc:
             self.material_tags.append(material_tag)
 
     def export_dagmc_h5m_file(
-        self, filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=10
+        self, filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=10,
     ):
 
         volume_atol: float = 0.000001
@@ -74,58 +74,30 @@ class CadToDagmc:
 
         brep_shape = self._merge_surfaces()
 
-        brep_file_part_properties = bpf.get_brep_part_properties_from_shape(brep_shape)
-        # print(brep_file_part_properties)
+        brep_file_part_properties = bpf.get_part_properties_from_shapes(brep_shape)
 
-        # shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
+        shape_properties = bpf.get_part_properties_from_shapes(self.parts)
 
-        shape_properties = bpf.get_brep_part_properties_from_shape(self.parts)
-
-        material_tag_linked_to_shape_properties = []
-
-        for mat_tag, (key, value) in zip(shape_properties.items, self.material_tags):
-            material_tag_linked_to_shape_properties.append((mat_tag, value))
-
-        # for counter, solid in enumerate(self.parts):
-        #     sub_solid_descriptions = []
-
-        #     # checks if the solid is a cq.Compound or not
-        #     # if isinstance(solid, cq.occ_impl.shapes.Compound):
-        #     iterable_solids = solid.Solids()
-        #     # else:
-        #     #     iterable_solids = solid.val().Solids()
-
-        #     for sub_solid in iterable_solids:
-        #         part_bb = sub_solid.BoundingBox()
-        #         part_center = sub_solid.Center()
-        #         sub_solid_description = {
-        #             "volume": sub_solid.Volume(),
-        #             "center": (part_center.x, part_center.y, part_center.z),
-        #             "bounding_box": (
-        #                 (part_bb.xmin, part_bb.ymin, part_bb.zmin),
-        #                 (part_bb.xmax, part_bb.ymax, part_bb.zmax),
-        #             ),
-        #         }
-        #         sub_solid_descriptions.append(sub_solid_description)
-
-        # shape_properties.append((self.material_tags[counter], sub_solid_descriptions))
-
-        key_and_part_id = bpf.get_dict_of_part_ids(
+        brep_and_shape_part_ids = bpf.get_matching_part_ids(
             brep_part_properties=brep_file_part_properties,
-            shape_properties=material_tag_linked_to_shape_properties,
+            shape_properties=shape_properties,
             volume_atol=volume_atol,
             center_atol=center_atol,
             bounding_box_atol=bounding_box_atol,
         )
 
+        material_tags_in_brep_order = []
+        for (brep_id, shape_id) in brep_and_shape_part_ids:
+            material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
+
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
 
-        print("key_and_part_id", key_and_part_id)
+        print("material_tags_in_brep_order", material_tags_in_brep_order)
 
         brep_to_h5m(
             brep_filename=tmp_brep_filename,
-            volumes_with_tags=key_and_part_id,
+            material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
