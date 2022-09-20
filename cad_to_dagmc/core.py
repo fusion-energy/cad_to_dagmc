@@ -65,7 +65,10 @@ class CadToDagmc:
             self.material_tags.append(material_tag)
 
     def export_dagmc_h5m_file(
-        self, filename="dagmc.h5m", min_mesh_size=1, max_mesh_size=10,
+        self,
+        filename="dagmc.h5m",
+        min_mesh_size=1,
+        max_mesh_size=10,
     ):
 
         volume_atol: float = 0.000001
