@@ -82,6 +82,10 @@ class CadToDagmc:
 
         brep_shape = self._merge_surfaces()
 
+        tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
+        brep_shape.exportBrep(tmp_brep_filename)
+        print('tmp_brep_filename', tmp_brep_filename)
+
         brep_file_part_properties = bpf.get_part_properties_from_shapes(brep_shape)
 
         shape_properties = bpf.get_part_properties_from_shapes(self.parts)
@@ -98,9 +102,6 @@ class CadToDagmc:
         for (brep_id, shape_id) in brep_and_shape_part_ids:
             material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
 
-        tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
-        brep_shape.exportBrep(tmp_brep_filename)
-        print('tmp_brep_filename', tmp_brep_filename)
 
         print("material_tags_in_brep_order", material_tags_in_brep_order)
 
