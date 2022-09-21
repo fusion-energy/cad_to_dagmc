@@ -19,8 +19,8 @@ requirements:
   run:
     - python {{ python }}
     - brep_part_finder
-    - cad_to_dagmc  # which brings in moab
-    # cadquery is also needed
+    - brep_to_h5m  # which brings in moab
+    - cadquery
 
 test:
   imports:

@@ -26,4 +26,4 @@ jobs:
         env:
           GIT_DESCRIBE_TAG: 0.1
         run: |
-            conda mambabuild conda -c fusion-energy -c conda-forge --config-file conda/conda_build_config.yaml
+            conda mambabuild conda -c fusion-energy -c cadquery -c conda-forge --config-file conda/conda_build_config.yaml
