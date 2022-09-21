@@ -47,13 +47,12 @@ jobs:
         run: |
           pip install .[tests]
           pytest tests/test_h5m_creation.py -v
-          # pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
 
       - name: install non pypi dependencies for neutronics
         run: |
           mamba uninstall moab
           mamba uninstall cadquery
-          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
+          mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
       - name: Run simulation tests
         run: |
