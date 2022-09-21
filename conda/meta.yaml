@@ -27,8 +27,8 @@ test:
     - cad_to_dagmc
   requires:
     - dagmc_h5m_file_inspector
-    - openmc
-    - openmc_data_downloader
+    # - openmc
+    # - openmc_data_downloader
   # source_files:
   #   - tests/
   #   - examples/
