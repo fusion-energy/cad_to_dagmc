@@ -52,34 +52,4 @@ A work around for this is to create the h5m geometry in one conda environment an
 
 # Usage
 
-Produces a tagged h5m file for a STP file with a single part / volume
-
-```python
-import cad_to_dagmc
-
-stp_file = cad_to_dagmc.load_stp_file("tests/single_cube.stp")
-vertices, triangles = cad_to_dagmc.tessellate(stp_file, tolerance=2)
-
-vertices_to_h5m(
-    vertices=vertices,
-    triangles=triangles,
-    material_tags=["mat1"],
-    h5m_filename="dagmc.h5m",
-)
-```
-
-Produces a tagged h5m file for a STP file with a multiple part / volume
-
-```python
-import cad_to_dagmc
-
-stp_file = cad_to_dagmc.load_stp_file("tests/multi_volume_cylinders.stp")
-vertices, triangles = cad_to_dagmc.tessellate(stp_file, tolerance=2)
-
-vertices_to_h5m(
-    vertices=vertices,
-    triangles=triangles,
-    material_tags=["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
-    h5m_filename="dagmc.h5m",
-)
-````
+See the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
