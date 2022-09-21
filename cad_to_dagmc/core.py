@@ -1,4 +1,4 @@
-from vertices_to_h5m import vertices_to_h5m
+
 from pathlib import Path
 from tempfile import mkstemp
 
@@ -9,12 +9,11 @@ from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
-from vertices_to_h5m import vertices_to_h5m
 from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
-from brep_to_h5m import mesh_brep, brep_to_h5m
+from brep_to_h5m import brep_to_h5m
 import brep_part_finder as bpf
 
 
