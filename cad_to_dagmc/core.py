@@ -60,6 +60,11 @@ class CadToDagmc:
             print(type(object))
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
+
+        if len(iterable_solids) != len(material_tags):
+            msg = f'Number of volumes {len(iterable_solids)} is not equal to number of material tags {len(material_tags)}'
+            raise ValueError(msg)
+
         for material_tag in material_tags:
             print(f"appending {material_tag}")
             self.material_tags.append(material_tag)
@@ -95,6 +100,7 @@ class CadToDagmc:
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
+        print('tmp_brep_filename', tmp_brep_filename)
 
         print("material_tags_in_brep_order", material_tags_in_brep_order)
 
