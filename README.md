@@ -1,12 +1,6 @@
 [![CI with install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml)
 
-Single volumes pass tests :heavy_check_mark:
-
-Multiple non touching volumes pass tests :heavy_check_mark:
-
-Multiple touching volumes FAIL tests :heavy_multiplication_x:
-
-Assigning material tags to correct volumes NON EXISTENT tests :heavy_multiplication_x:
+[![Upload Python Package](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/python-publish.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/python-publish.yml)
 
 ___
 
@@ -15,41 +9,56 @@ A minimal package that uses CadQuery functionality to convert Cad geometry to DA
 This particular method of producing DAGMC compatible h5m files from CAD geometry
 is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) objects to h5m file.
 
-The use of CadQuery based surface tesselation and then conversion of the
-vertices and triangle sets into h5m files directly (in memory) is relatively
-fast with minimal file IO and the resulting meshed volumes have low triangle
-count while maintaining a good representation of the volume as described in
-[this](https://www.sciencedirect.com/science/article/abs/pii/S0920379615301484)
-publication.
+One unique feature of this package is the ability to combine STP files with CadQuery objects.
+This allows for the addition of parametric geometry to static geometry.
 
-While this package concentrates on loading the CAD and meshing the surface it
-then hands off the vertices and triangles sets to
-[vertices_to_h5m](https://github.com/fusion-energy/vertices_to_h5m) which
-converts these into a h5m geometry file.
-Due to the modularity of this workflow if you have a preferred meshing
-algorithm then it is entirely possible to pipe your own vertices and triangles
-directly into vertices_to_h5m.
+# Install (Conda)
 
-# Install
+Creates a new empty Conda environment
+```bash
+conda create --name new_env python=3.9
+```
 
-You will some dependencies installing (moab, pymoab and cadquery).
+Installs cad_to_dagmc and dependencies
+```bash
+conda install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
+```
+# Install (Mamba)
 
+Creates a new empty Conda environment
+```bash
+conda create --name new_env python=3.9
+```
+
+Installs Mamba
+```bash
+conda install -c conda-forge mamba
+```
+
+Installs cad_to_dagmc and dependencies
+```bash
+mamba install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
+```
+
+# Install (Conda + pip)
+
+You will need to install some dependencies that are not available via PyPi.
 ```bash
 conda install -c conda-forge mamba
 mamba install -c conda-forge moab
 mamba install -c cadquery -c conda-forge cadquery=master
 ```
 
-There you can install the ```cad_to_dagmc``` package
+Then you can install the cad_to_dagmc package with ```pip```
 
 ```bash
 pip install cad_to_dagmc
 ```
 
+# Usage
+
 To use the h5m geometry you will need a transport code with DAGMC enabled such as OpenMC.
 Just to note that currently the conda install for CadQuery and OpenMC can't be installed in the same conda environment.
 A work around for this is to create the h5m geometry in one conda environment and simulate with OpenMC in another conda environment.
 
-# Usage
-
-See the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
