@@ -1,6 +1,6 @@
-from cgitb import reset
 import cadquery as cq
 from cadquery import Assembly
+from cad_to_dagmc import CadToDagmc
 
 result = sphere = cq.Workplane().moveTo(100, 0).sphere(5)
 
