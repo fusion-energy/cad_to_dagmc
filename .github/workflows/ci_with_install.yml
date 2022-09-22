@@ -32,7 +32,6 @@ jobs:
           apt-get update -y
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
-          conda install -c conda-forge mamba
           conda install -c cadquery -c conda-forge cadquery=master
           conda install -c conda-forge moab
           conda install -c conda-forge gmsh
@@ -48,11 +47,22 @@ jobs:
           pip install .[tests]
           pytest tests/test_h5m_creation.py -v
 
+      - name: Run examples
+        run: |
+          python examples/cadquery_assembly.py
+          python examples/cadquery_compound.py
+          python examples/cadquery_object_and_stp_file.py
+          python examples/cadquery_objects_and_stp_files.py
+          python examples/multiple_cadquery_objects.py
+          python examples/multiple_stp_files.py
+          python examples/single_cadquery_object.py
+          python examples/single_stp_file.py
+
       - name: install non pypi dependencies for neutronics
         run: |
           conda remove moab -y
           conda remove cadquery -y
-          mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
+          conda install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
       - name: Run simulation tests
         run: |
