@@ -2,7 +2,7 @@ import cadquery as cq
 from cadquery import Assembly
 from cad_to_dagmc import CadToDagmc
 
-result = sphere = cq.Workplane().moveTo(100, 0).sphere(5)
+result = sphere = cq.Workplane().sphere(5)
 
 assembly = Assembly(name="my assembly")
 assembly.add(result)
