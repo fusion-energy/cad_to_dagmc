@@ -1,4 +1,4 @@
-from pathlib import Path
+
 from tempfile import mkstemp
 
 from typing import Iterable
@@ -29,10 +29,10 @@ class CadToDagmc:
 
         Args:
             filename: the filename used to save the html graph.
-            material_tags: the names of the DAGMC material tags to assign. These
-                will need to be in the same order as the volumes in the STP file
-                and match the material tags used in the neutronics code (e.g.
-                OpenMC).
+            material_tags: the names of the DAGMC material tags to assign.
+                These will need to be in the same order as the volumes in the
+                STP file and match the material tags used in the neutronics
+                code (e.g. OpenMC).
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
@@ -55,7 +55,6 @@ class CadToDagmc:
         if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = object.Solids()
         else:
-            print(type(object))
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
 
@@ -64,7 +63,6 @@ class CadToDagmc:
             raise ValueError(msg)
 
         for material_tag in material_tags:
-            print(f"appending {material_tag}")
             self.material_tags.append(material_tag)
 
     def export_dagmc_h5m_file(
@@ -72,6 +70,7 @@ class CadToDagmc:
         filename="dagmc.h5m",
         min_mesh_size=1,
         max_mesh_size=10,
+        verbose=False,
     ):
 
         volume_atol: float = 0.000001
@@ -82,7 +81,9 @@ class CadToDagmc:
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
         brep_shape.exportBrep(tmp_brep_filename)
-        print("tmp_brep_filename", tmp_brep_filename)
+
+        if verbose:
+            print(f'Brep file saved to {tmp_brep_filename}')
 
         brep_file_part_properties = bpf.get_part_properties_from_shapes(brep_shape)
 
@@ -99,8 +100,6 @@ class CadToDagmc:
         material_tags_in_brep_order = []
         for (brep_id, shape_id) in brep_and_shape_part_ids:
             material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
-
-        print("material_tags_in_brep_order", material_tags_in_brep_order)
 
         brep_to_h5m(
             brep_filename=tmp_brep_filename,
@@ -124,7 +123,6 @@ class CadToDagmc:
             return self.parts[0]
 
         for solid in self.parts:
-            print("merging", solid)
             # checks if solid is a compound as .val() is not needed for compounds
             if isinstance(
                 solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
@@ -155,7 +153,6 @@ class CadToDagmc:
     #     triangles = {}
 
     #     for f in parts.Faces():
-    #         print(f)
 
     #         loc = TopLoc_Location()
     #         poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
@@ -193,14 +190,10 @@ class CadToDagmc:
 
     #     list_of_triangles_per_solid = []
     #     for s in parts.Solids():
-    #         print(s)
     #         triangles_on_solid = []
     #         for f in s.Faces():
-    #             print(s, f)
     #             triangles_on_solid += triangles[f.hashCode()]
     #         list_of_triangles_per_solid.append(triangles_on_solid)
     #     for vert in vertices:
-    #         print(vert)
     #     for tri in list_of_triangles_per_solid:
-    #         print(tri)
     #     return vertices, list_of_triangles_per_solid
