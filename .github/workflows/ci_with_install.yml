@@ -50,8 +50,8 @@ jobs:
 
       - name: install non pypi dependencies for neutronics
         run: |
-          mamba uninstall moab -y
-          mamba uninstall cadquery -y
+          mamba remove moab -y
+          mamba remove cadquery -y
           mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
       - name: Run simulation tests
