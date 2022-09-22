@@ -1,4 +1,3 @@
-
 from tempfile import mkstemp
 
 from typing import Iterable
@@ -83,7 +82,7 @@ class CadToDagmc:
         brep_shape.exportBrep(tmp_brep_filename)
 
         if verbose:
-            print(f'Brep file saved to {tmp_brep_filename}')
+            print(f"Brep file saved to {tmp_brep_filename}")
 
         brep_file_part_properties = bpf.get_part_properties_from_shapes(brep_shape)
 
