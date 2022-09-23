@@ -47,42 +47,60 @@ jobs:
           pip install .[tests]
           pytest tests/test_h5m_creation.py -v
 
-      - name: Run example 1
+      - name: create stp files
         run: |
-          python examples/cadquery_assembly.py
+          cd examples
+          python create_stp_files_for_examples.py
 
-      - name: Run example 2
+
+      - name: Run example cadquery_assembly
         run: |
-          python examples/cadquery_compound.py
+          python cadquery_assembly.py
 
-      - name: Run example 3
+
+      - name: Run example cadquery_compound
         run: |
-          python examples/cadquery_object_and_stp_file.py
+          python cadquery_compound.py
 
-      # working locally but not on the CI !
-      # - name: Run example 4
-      #   run: |
-      #     python examples/cadquery_objects_and_stp_files.py
 
-      - name: Run example 4
+      - name: Run example cadquery_object_and_stp_file
         run: |
-          python examples/curved_cadquery_object.pyy
+          python cadquery_object_and_stp_file.py
 
-      - name: Run example 5
-        run: |
-          python examples/multiple_cadquery_objects.py
 
-      - name: Run example 6
+      - name: Run example cadquery_text
         run: |
-          python examples/multiple_stp_files.py
+          python cadquery_text.py
 
-      - name: Run example 7
-        run: |
-          python examples/single_cadquery_object.py
 
-      - name: Run example 8
+      - name: Run example curved_cadquery_object
         run: |
-          python examples/single_stp_file.py
+          python curved_cadquery_object.pyy
+
+
+      - name: Run example multiple_cadquery_objects
+        run: |
+          python multiple_cadquery_objects.py
+
+
+      - name: Run example multiple_stp_files
+        run: |
+          python multiple_stp_files.py
+
+
+      - name: Run example single_stp_file_multiple_volumes.py
+        run: |
+          python single_stp_file_multiple_volumes.py.py
+
+
+      - name: Run example single_cadquery_object
+        run: |
+          python single_cadquery_object.py
+
+
+      - name: Run example single_stp_file
+        run: |
+          python single_stp_file.py
 
       - name: install non pypi dependencies for neutronics
         run: |
@@ -92,5 +110,6 @@ jobs:
 
       - name: Run simulation tests
         run: |
+          cd ..
           pip install .[tests]
           pytest tests/test_h5m_in_simulation.py -v
