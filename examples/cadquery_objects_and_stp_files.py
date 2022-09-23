@@ -22,8 +22,6 @@ my_model.add_stp_file(
     scale_factor=0.1,
 )
 
-print(my_model.parts)
-
 my_model.export_dagmc_h5m_file(
     filename="cadquery_objects_and_stp_files.h5m",
     max_mesh_size=0.2,
