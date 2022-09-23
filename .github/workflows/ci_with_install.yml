@@ -47,15 +47,36 @@ jobs:
           pip install .[tests]
           pytest tests/test_h5m_creation.py -v
 
-      - name: Run examples
+      - name: Run example 1
         run: |
           python examples/cadquery_assembly.py
+
+      - name: Run example 2
+        run: |
           python examples/cadquery_compound.py
+
+      - name: Run example 3
+        run: |
           python examples/cadquery_object_and_stp_file.py
+
+      - name: Run example 4
+        run: |
           python examples/cadquery_objects_and_stp_files.py
+
+      - name: Run example 5
+        run: |
           python examples/multiple_cadquery_objects.py
+
+      - name: Run example 6
+        run: |
           python examples/multiple_stp_files.py
+
+      - name: Run example 7
+        run: |
           python examples/single_cadquery_object.py
+
+      - name: Run example 8
+        run: |
           python examples/single_stp_file.py
 
       - name: install non pypi dependencies for neutronics
