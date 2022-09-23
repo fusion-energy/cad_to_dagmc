@@ -53,7 +53,7 @@ class CadToDagmc:
         """
 
         if isinstance(object, cq.assembly.Assembly):
-            print('assembly found')
+            print("assembly found")
             object = object.toCompound()
 
         if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
