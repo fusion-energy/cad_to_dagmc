@@ -98,7 +98,7 @@ jobs:
       - name: Run example single_stp_file_multiple_volumes.py
         run: |
           cd examples
-          python single_stp_file_multiple_volumes.py.py
+          python single_stp_file_multiple_volumes.py
 
 
       - name: Run example single_cadquery_object
