@@ -80,7 +80,7 @@ jobs:
       - name: Run example curved_cadquery_object
         run: |
           cd examples
-          python curved_cadquery_object.pyy
+          python curved_cadquery_object.py
 
 
       - name: Run example multiple_cadquery_objects
