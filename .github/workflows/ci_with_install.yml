@@ -59,13 +59,14 @@ jobs:
         run: |
           python examples/cadquery_object_and_stp_file.py
 
+      # working locally but not on the CI !
       # - name: Run example 4
       #   run: |
       #     python examples/cadquery_objects_and_stp_files.py
 
       - name: Run example 4
         run: |
-          pythonexamples/curved_cadquery_object.pyy
+          python examples/curved_cadquery_object.pyy
 
       - name: Run example 5
         run: |

@@ -2,6 +2,7 @@ from tempfile import mkstemp
 
 from typing import Iterable
 from cadquery import importers
+from cadquery import Assembly
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 
 # from cadquery.occ_impl import shapes
@@ -50,6 +51,10 @@ class CadToDagmc:
         """Loads the parts from CadQuery object into the model keeping track of
         the parts and their material tags.
         """
+
+        if isinstance(object, cq.assembly.Assembly):
+            print('assembly found')
+            object = object.toCompound()
 
         if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = object.Solids()
