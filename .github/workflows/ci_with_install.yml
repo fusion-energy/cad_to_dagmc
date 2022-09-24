@@ -32,10 +32,10 @@ jobs:
           apt-get update -y
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
-          conda install -c cadquery -c conda-forge cadquery=master
           conda install -c conda-forge moab
           conda install -c conda-forge gmsh
           conda install -c conda-forge python-gmsh
+          conda install -c cadquery -c conda-forge cadquery=master
 
       - name: install package
         run: |
@@ -115,7 +115,8 @@ jobs:
       - name: install non pypi dependencies for neutronics
         run: |
           conda remove cadquery -y
-          conda install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
+          conda install -c conda-forge mamba -y
+          mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
       - name: Run simulation tests
         run: |
