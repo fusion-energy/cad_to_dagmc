@@ -114,7 +114,6 @@ jobs:
 
       - name: install non pypi dependencies for neutronics
         run: |
-          conda remove moab -y
           conda remove cadquery -y
           conda install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
