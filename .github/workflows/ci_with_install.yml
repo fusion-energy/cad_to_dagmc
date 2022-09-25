@@ -32,8 +32,10 @@ jobs:
           apt-get update -y
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
-          conda install -c conda-forge mamba
-          mamba install -c cadquery -c conda-forge cadquery=master moab
+          conda install -c conda-forge moab
+          conda install -c conda-forge gmsh
+          conda install -c conda-forge python-gmsh
+          conda install -c cadquery -c conda-forge cadquery=master
 
       - name: install package
         run: |
@@ -44,13 +46,77 @@ jobs:
         run: |
           pip install .[tests]
           pytest tests/test_h5m_creation.py -v
-          # pytest tests/test_h5m_creation.py -v --cov=cad_to_dagmc --cov-append --cov-report term --cov-report xml
+
+      - name: create stp files
+        run: |
+          cd examples
+          python create_stp_files_for_examples.py
+
+
+      - name: Run example cadquery_assembly
+        run: |
+          cd examples
+          python cadquery_assembly.py
+
+
+      - name: Run example cadquery_compound
+        run: |
+          cd examples
+          python cadquery_compound.py
+
+
+      - name: Run example cadquery_object_and_stp_file
+        run: |
+          cd examples
+          python cadquery_object_and_stp_file.py
+
+
+      - name: Run example cadquery_text
+        run: |
+          cd examples
+          python cadquery_text.py
+
+
+      - name: Run example curved_cadquery_object
+        run: |
+          cd examples
+          python curved_cadquery_object.py
+
+
+      - name: Run example multiple_cadquery_objects
+        run: |
+          cd examples
+          python multiple_cadquery_objects.py
+
+
+      - name: Run example multiple_stp_files
+        run: |
+          cd examples
+          python multiple_stp_files.py
+
+
+      - name: Run example single_stp_file_multiple_volumes.py
+        run: |
+          cd examples
+          python single_stp_file_multiple_volumes.py
+
+
+      - name: Run example single_cadquery_object
+        run: |
+          cd examples
+          python single_cadquery_object.py
+
+
+      - name: Run example single_stp_file
+        run: |
+          cd examples
+          python single_stp_file.py
 
       - name: install non pypi dependencies for neutronics
         run: |
-          mamba uninstall moab
-          mamba uninstall cadquery
-          mamba install -c conda-forge -y "openmc=0.13.0=dagmc*nompi*"
+          conda remove cadquery -y
+          conda install -c conda-forge mamba -y
+          mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
 
       - name: Run simulation tests
         run: |

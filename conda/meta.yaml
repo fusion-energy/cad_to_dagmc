@@ -1,0 +1,50 @@
+{% set name = "cad_to_dagmc" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: {{ GIT_DESCRIBE_TAG }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  build:
+    - python {{ python }}
+    - setuptools>=46.4.0
+    - setuptools_scm>=6.3.1
+  run:
+    - python {{ python }}
+    - brep_part_finder>=0.5.0
+    - brep_to_h5m>=0.4.0  # which brings in moab
+    - cadquery {{ cadquery }}
+
+test:
+  imports:
+    - cad_to_dagmc
+  requires:
+    - dagmc_h5m_file_inspector
+    # - openmc
+    # - openmc_data_downloader
+  # source_files:
+  #   - tests/
+  #   - examples/
+  # commands:
+  #   - pytest tests
+
+
+about:
+  home: "https://github.com/fusion-energy/cad_to_dagmc"
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  doc_url: https://github.com/fusion-energy/cad_to_dagmc
+  dev_url: https://github.com/fusion-energy/cad_to_dagmc
+  summary: A minimal package that uses CadQuery and PyMoab functionality to convert CAD geometry to DAGMC h5m files 
+
+extra:
+  recipe-maintainers:
+    - shimwell
