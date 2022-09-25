@@ -97,7 +97,7 @@ def test_h5m_with_single_volume_list():
     h5m_files = [
         "tests/extrude_rectangle.h5m",
         "tests/single_cube.h5m",
-        "tests/single_volume_thin.h5m",
+        # "tests/single_volume_thin.h5m",
     ]
 
     for h5m_file in h5m_files:
