@@ -1,10 +1,46 @@
 [build-system]
-requires = [
-    "setuptools >= 46.4.0",
-    "wheel",
-    "setuptools_scm[toml] >= 6.3.1",
-]
+requires = ["setuptools >= 65.4.0", "setuptools_scm[toml]>=7.0.5"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "cad_to_dagmc"
+authors = [
+  { name="Jonathan Shimwell", email="mail@jshimwell.com" },
+]
+license = {file = "LICENSE.txt"}
+description = "Converts CAD files to a DAGMC h5m file"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["dagmc", "geometry", "plot", "slice"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.21.1",
+    "vertices_to_h5m",
+    "scipy"
+    "brep_to_h5m",
+    "brep_part_finder",
+]
+dynamic = ["version"]
+
+
 [tool.setuptools_scm]
-write_to = "cad_to_dagmc/_version.py"
+write_to = "src/cad_to_dagmc/_version.py"
+
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "dagmc_h5m_file_inspector",
+    "openmc_data_downloader"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/fusion-energy/cad_to_dagmc"
+"Bug Tracker" = "https://github.com/fusion-energy/cad_to_dagmc/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
