@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "numpy>=1.21.1",
     "vertices_to_h5m",
-    "scipy"
+    "scipy",
     "brep_to_h5m",
     "brep_part_finder",
 ]
