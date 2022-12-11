@@ -22,7 +22,10 @@ class CadToDagmc:
         self.material_tags = []
 
     def add_stp_file(
-        self, filename: str, material_tags: typing.Iterable[str], scale_factor: float = 1.0
+        self,
+        filename: str,
+        material_tags: typing.Iterable[str],
+        scale_factor: float = 1.0,
     ):
         """Loads the parts from stp file into the model keeping track of the
         parts and their material tags.
@@ -49,8 +52,11 @@ class CadToDagmc:
 
     def add_cadquery_object(
         self,
-        object: typing.Union[cq.assembly.Assembly,cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid],
-        material_tags: typing.Iterable[str]):
+        object: typing.Union[
+            cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
+        ],
+        material_tags: typing.Iterable[str],
+    ):
         """Loads the parts from CadQuery object into the model keeping track of
         the parts and their material tags.
 
