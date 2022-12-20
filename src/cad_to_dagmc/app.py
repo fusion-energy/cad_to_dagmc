@@ -100,25 +100,32 @@ def main():
 
         print(mat_tags)
 
-        if st.button("Say hello"):
+        if st.button("Generate DAGMC h5m file"):
 
             my_model = CadToDagmc()
-            # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
-            my_model.add_cadquery_object(part, material_tags=mat_tags)
+
+            for mat_tag, solid in zip(mat_tags, iterable_solids):
+                print(solid, mat_tag)
+                my_model.add_cadquery_object(solid, material_tags=[mat_tag])
+
             my_model.export_dagmc_h5m_file()
 
-        with open(geometry_stp_file.name, "rb") as file:
+            with open('dagmc.h5m', 'rb') as f:
+                st.download_button('Download DAGMC h5m file', f, file_name='dagmc.h5m')
 
-            my_model = CadToDagmc()
-            # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
-            my_model.add_cadquery_object(part, material_tags=mat_tags)
-            my_model.export_dagmc_h5m_file()
-            st.download_button(
-                label="Download DAGMC h5m file",
-                data=file,
-                file_name="dagmc.h5m",
-                mime=None,
-            )
+                
+            # with open(geometry_stp_file.name, "rb") as file:
+
+                # my_model = CadToDagmc()
+                # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
+                # my_model.add_cadquery_object(part, material_tags=mat_tags)
+                # my_model.export_dagmc_h5m_file()
+                # st.download_button(
+                #     label="Download DAGMC h5m file",
+                #     data=file,
+                #     file_name="dagmc.h5m",
+                #     mime=None,
+                # )
 
 
 if __name__ == "__main__":
