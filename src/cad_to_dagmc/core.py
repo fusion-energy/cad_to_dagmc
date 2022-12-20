@@ -25,7 +25,7 @@ class CadToDagmc:
         self,
         filename: str,
         material_tags: typing.Iterable[str],
-        scale_factor: float = 1.0
+        scale_factor: float = 1.0,
     ):
         """Loads the parts from stp file into the model keeping track of the
         parts and their material tags.
@@ -51,12 +51,12 @@ class CadToDagmc:
         self.add_cadquery_object(object=scaled_part, material_tags=material_tags)
 
     def add_cadquery_object(
-            self,
-            object: typing.Union[
-                cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
-            ],
-            material_tags: typing.Iterable[str],
-        ):
+        self,
+        object: typing.Union[
+            cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
+        ],
+        material_tags: typing.Iterable[str],
+    ):
         """Loads the parts from CadQuery object into the model keeping track of
         the parts and their material tags.
 
@@ -67,7 +67,7 @@ class CadToDagmc:
                 STP file and match the material tags used in the neutronics
                 code (e.g. OpenMC).
         """
-                
+
         if isinstance(object, cq.assembly.Assembly):
             print("assembly found")
             object = object.toCompound()
