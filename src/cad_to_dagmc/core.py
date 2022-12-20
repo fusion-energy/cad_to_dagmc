@@ -1,6 +1,6 @@
 from tempfile import mkstemp
 
-from typing import Iterable
+import typing
 from cadquery import importers
 from cadquery import Assembly
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection
@@ -22,7 +22,10 @@ class CadToDagmc:
         self.material_tags = []
 
     def add_stp_file(
-        self, filename: str, material_tags: Iterable[str], scale_factor: float = 1.0
+        self,
+        filename: str,
+        material_tags: typing.Iterable[str],
+        scale_factor: float = 1.0
     ):
         """Loads the parts from stp file into the model keeping track of the
         parts and their material tags.
@@ -45,13 +48,26 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(scaled_part, material_tags)
+        self.add_cadquery_object(object=scaled_part, material_tags=material_tags)
 
-    def add_cadquery_object(self, object, material_tags):
+    def add_cadquery_object(
+            self,
+            object: typing.Union[
+                cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
+            ],
+            material_tags: typing.Iterable[str],
+        ):
         """Loads the parts from CadQuery object into the model keeping track of
         the parts and their material tags.
-        """
 
+        Args:
+            object: the cadquery object to convert
+            material_tags: the names of the DAGMC material tags to assign.
+                These will need to be in the same order as the volumes in the
+                STP file and match the material tags used in the neutronics
+                code (e.g. OpenMC).
+        """
+                
         if isinstance(object, cq.assembly.Assembly):
             print("assembly found")
             object = object.toCompound()
@@ -71,10 +87,10 @@ class CadToDagmc:
 
     def export_dagmc_h5m_file(
         self,
-        filename="dagmc.h5m",
-        min_mesh_size=1,
-        max_mesh_size=10,
-        verbose=False,
+        filename: str = "dagmc.h5m",
+        min_mesh_size: float = 1,
+        max_mesh_size: float = 10,
+        verbose: bool = False,
     ):
 
         volume_atol: float = 0.000001
