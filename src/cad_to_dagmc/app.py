@@ -110,22 +110,21 @@ def main():
 
             my_model.export_dagmc_h5m_file()
 
-            with open('dagmc.h5m', 'rb') as f:
-                st.download_button('Download DAGMC h5m file', f, file_name='dagmc.h5m')
+            with open("dagmc.h5m", "rb") as f:
+                st.download_button("Download DAGMC h5m file", f, file_name="dagmc.h5m")
 
-                
             # with open(geometry_stp_file.name, "rb") as file:
 
-                # my_model = CadToDagmc()
-                # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
-                # my_model.add_cadquery_object(part, material_tags=mat_tags)
-                # my_model.export_dagmc_h5m_file()
-                # st.download_button(
-                #     label="Download DAGMC h5m file",
-                #     data=file,
-                #     file_name="dagmc.h5m",
-                #     mime=None,
-                # )
+            # my_model = CadToDagmc()
+            # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
+            # my_model.add_cadquery_object(part, material_tags=mat_tags)
+            # my_model.export_dagmc_h5m_file()
+            # st.download_button(
+            #     label="Download DAGMC h5m file",
+            #     data=file,
+            #     file_name="dagmc.h5m",
+            #     mime=None,
+            # )
 
 
 if __name__ == "__main__":
