@@ -37,6 +37,9 @@ tests = [
     "dagmc_h5m_file_inspector",
     "openmc_data_downloader"
 ]
+gui = [
+    "streamlit"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/fusion-energy/cad_to_dagmc"
@@ -44,3 +47,6 @@ tests = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[project.scripts]
+cad_to_dagmc = "cad_to_dagmc.launch:main"

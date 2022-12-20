@@ -50,9 +50,12 @@ mamba install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
 # Install (Conda + pip)
 
 You will need to install some dependencies that are not available via PyPi.
+This example uses mamba but conda could also be used.
 ```bash
 conda install -c conda-forge mamba
 mamba install -c conda-forge moab
+mamba install -c conda-forge gmsh
+mamba install -c conda-forge python-gmsh
 mamba install -c cadquery -c conda-forge cadquery=master
 ```
 
@@ -60,6 +63,12 @@ Then you can install the cad_to_dagmc package with ```pip```
 
 ```bash
 pip install cad_to_dagmc
+```
+
+To include the Graphical User Interface add the gui option to the install
+
+```bash
+pip install cad_to_dagmc[gui]
 ```
 
 # Usage
