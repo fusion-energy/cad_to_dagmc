@@ -26,6 +26,11 @@ Creates a new empty Conda environment
 conda create --name new_env python=3.9
 ```
 
+Activate the enviroment
+```bash
+conda activate new_env
+```
+
 Installs cad_to_dagmc and dependencies
 ```bash
 conda install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
