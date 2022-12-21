@@ -21,13 +21,9 @@ This allows for the addition of parametric geometry to static geometry.
 
 # Install (Conda)
 
-Creates a new empty Conda environment
+Creates a new empty Conda environment and activate it
 ```bash
 conda create --name new_env python=3.9
-```
-
-Activate the enviroment
-```bash
 conda activate new_env
 ```
 
@@ -37,9 +33,10 @@ conda install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
 ```
 # Install (Mamba)
 
-Creates a new empty Conda environment
+Creates a new empty Conda environment and activate it
 ```bash
 conda create --name new_env python=3.9
+conda activate new_env
 ```
 
 Installs Mamba
