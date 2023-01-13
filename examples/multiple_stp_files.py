@@ -1,6 +1,4 @@
 from cad_to_dagmc import CadToDagmc
-import cadquery as cq
-
 
 my_model = CadToDagmc()
 my_model.add_stp_file("two_connected_cubes.stp", material_tags=["mat1", "mat2"])
