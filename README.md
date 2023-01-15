@@ -67,6 +67,12 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
+To include the Graphical User Interface add the gui option to the install
+
+```bash
+pip install cad_to_dagmc[gui]
+```
+
 # Usage
 
 To use the h5m geometry you will need a transport code with DAGMC enabled such as OpenMC.
