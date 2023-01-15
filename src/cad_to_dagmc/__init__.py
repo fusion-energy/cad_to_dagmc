@@ -1,4 +1,3 @@
-
 try:
     # this works for python 3.7 and lower
     from importlib.metadata import version, PackageNotFoundError
