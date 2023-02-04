@@ -91,11 +91,11 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 10,
         verbose: bool = False,
+        volume_atol: float = 0.000001,
+        center_atol: float = 0.000001,
+        bounding_box_atol: float = 0.000001,
     ):
 
-        volume_atol: float = 0.000001
-        center_atol: float = 0.000001
-        bounding_box_atol: float = 0.000001
 
         brep_shape = self._merge_surfaces()
 

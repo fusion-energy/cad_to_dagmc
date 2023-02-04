@@ -135,4 +135,4 @@ dmypy.json
 *.json
 *.vtk
 *.stp
-**_version.py
+src/_version.py
