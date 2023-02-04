@@ -16,7 +16,6 @@ def transport_particles_on_h5m_geometry(
 
     materials = openmc.Materials()
     for material_tag in material_tags:
-
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
         mat_dag_material_tag.add_element("H", 1, "ao")
@@ -101,7 +100,6 @@ def test_h5m_with_single_volume_list():
     ]
 
     for h5m_file in h5m_files:
-
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file,
             material_tags=["mat1"],
@@ -109,7 +107,6 @@ def test_h5m_with_single_volume_list():
 
 
 def test_h5m_with_multi_volume_not_touching():
-
     material_tags = [
         ["mat1", "mat2"],
     ]
@@ -117,14 +114,12 @@ def test_h5m_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
-
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file, material_tags=mat_tags
         )
 
 
 def test_h5m_with_multi_volume_touching():
-
     material_tags = [
         ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
         ["mat1", "mat2"],
@@ -134,7 +129,6 @@ def test_h5m_with_multi_volume_touching():
         "tests/two_connected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
-
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file, material_tags=mat_tags
         )

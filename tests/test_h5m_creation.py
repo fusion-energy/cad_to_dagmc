@@ -26,7 +26,6 @@ def test_h5m_with_single_volume_list():
     ]
 
     for stp_file, h5m_file in zip(stp_files, h5m_files):
-
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=["mat1"])
         my_model.export_dagmc_h5m_file(filename=h5m_file)
@@ -35,7 +34,6 @@ def test_h5m_with_single_volume_list():
 
 
 def test_h5m_with_multi_volume_not_touching():
-
     stp_files = [
         "tests/two_disconnected_cubes.stp",
     ]
@@ -46,7 +44,6 @@ def test_h5m_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
-
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
@@ -61,7 +58,6 @@ def test_h5m_with_multi_volume_not_touching():
 
 
 def test_h5m_with_multi_volume_touching():
-
     stp_files = [
         "tests/multi_volume_cylinders.stp",
         "tests/two_connected_cubes.stp",
@@ -75,7 +71,6 @@ def test_h5m_with_multi_volume_touching():
         "tests/two_connected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
-
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
