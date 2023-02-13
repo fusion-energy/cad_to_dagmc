@@ -28,7 +28,7 @@ dynamic = ["version"]
 
 
 [tool.setuptools_scm]
-write_to = "src/cad_to_dagmc/_version.py"
+write_to = "src/_version.py"
 
 
 [project.optional-dependencies]

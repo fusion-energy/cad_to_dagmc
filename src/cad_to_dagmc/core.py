@@ -91,12 +91,10 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 10,
         verbose: bool = False,
+        volume_atol: float = 0.000001,
+        center_atol: float = 0.000001,
+        bounding_box_atol: float = 0.000001,
     ):
-
-        volume_atol: float = 0.000001
-        center_atol: float = 0.000001
-        bounding_box_atol: float = 0.000001
-
         brep_shape = self._merge_surfaces()
 
         tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
@@ -118,7 +116,7 @@ class CadToDagmc:
         )
 
         material_tags_in_brep_order = []
-        for (brep_id, shape_id) in brep_and_shape_part_ids:
+        for brep_id, shape_id in brep_and_shape_part_ids:
             material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
 
         brep_to_h5m(

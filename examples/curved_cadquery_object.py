@@ -2,6 +2,7 @@ from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 from math import sin, cos, pi, floor
 
+
 # define the generating function
 def hypocycloid(t, r1, r2):
     return (
