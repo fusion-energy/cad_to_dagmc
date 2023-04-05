@@ -24,7 +24,7 @@ jobs:
       image: continuumio/miniconda3:4.12.0
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: install non pypi dependencies for cad creation
         run: |
@@ -35,7 +35,6 @@ jobs:
           conda install -c conda-forge moab
           conda install -c conda-forge gmsh
           conda install -c conda-forge python-gmsh
-          conda install -c cadquery -c conda-forge cadquery=master
 
       - name: install package
         run: |
