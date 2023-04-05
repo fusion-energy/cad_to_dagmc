@@ -18,11 +18,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy>=1.21.1",
-    "vertices_to_h5m",
-    "scipy",
-    "brep_to_h5m",
-    "brep_part_finder",
+    "cadquery>=2.2.0",
+    "brep_to_h5m>=0.4.2",
+    "brep_part_finder>=0.5.2",
 ]
 dynamic = ["version"]
 
