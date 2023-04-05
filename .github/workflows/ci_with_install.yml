@@ -114,9 +114,8 @@ jobs:
 
       - name: install non pypi dependencies for neutronics
         run: |
-          conda remove cadquery -y
           conda install -c conda-forge mamba -y
-          mamba install -c conda-forge -y "openmc=0.13.1=dagmc*nompi*"
+          mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 
       - name: Run simulation tests
         run: |
