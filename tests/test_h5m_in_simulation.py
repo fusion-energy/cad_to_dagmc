@@ -24,7 +24,7 @@ def transport_particles_on_h5m_geometry(
         materials.append(mat_dag_material_tag)
 
     materials.download_cross_section_data(
-        libraries=['ENDFB-7.1-NNDC'],
+        libraries=["ENDFB-7.1-NNDC"],
         set_OPENMC_CROSS_SECTIONS=True,
         particles=["neutron"],
     )
