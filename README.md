@@ -57,7 +57,6 @@ This example uses Conda but Mamba could also be used.
 conda install -c conda-forge moab
 conda install -c conda-forge gmsh
 conda install -c conda-forge python-gmsh
-conda install -c cadquery -c conda-forge cadquery==2.2.0
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
