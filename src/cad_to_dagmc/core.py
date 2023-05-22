@@ -12,8 +12,8 @@ from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
-from brep_to_h5m import brep_to_h5m
-import brep_part_finder as bpf
+from .brep_to_h5m import brep_to_h5m
+from .brep_part_finder import get_part_properties_from_shapes, get_part_properties_from_shapes, get_matching_part_ids
 
 
 class CadToDagmc:
@@ -158,60 +158,3 @@ class CadToDagmc:
         merged_solid = cq.Compound(bldr.Shape())
 
         return merged_solid
-
-    # this didn't produce non overlapping water tight parts when the geometry was in contact with other surfaces
-    # def tessellate(parts, tolerance: float = 0.1, angularTolerance: float = 0.1):
-    #     """Creates a mesh / faceting / tessellation of the surface"""
-
-    #     parts.mesh(tolerance, angularTolerance)
-
-    #     offset = 0
-
-    #     vertices: List[Vector] = []
-    #     triangles = {}
-
-    #     for f in parts.Faces():
-
-    #         loc = TopLoc_Location()
-    #         poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
-    #         Trsf = loc.Transformation()
-
-    #         reverse = (
-    #             True
-    #             if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
-    #             else False
-    #         )
-
-    #         # add vertices
-    #         face_verticles = [
-    #             (v.X(), v.Y(), v.Z()) for v in (v.Transformed(Trsf) for v in poly.Nodes())
-    #         ]
-    #         vertices += face_verticles
-
-    #         face_triangles = [
-    #             (
-    #                 t.Value(1) + offset - 1,
-    #                 t.Value(3) + offset - 1,
-    #                 t.Value(2) + offset - 1,
-    #             )
-    #             if reverse
-    #             else (
-    #                 t.Value(1) + offset - 1,
-    #                 t.Value(2) + offset - 1,
-    #                 t.Value(3) + offset - 1,
-    #             )
-    #             for t in poly.Triangles()
-    #         ]
-    #         triangles[f.hashCode()] = face_triangles
-
-    #         offset += poly.NbNodes()
-
-    #     list_of_triangles_per_solid = []
-    #     for s in parts.Solids():
-    #         triangles_on_solid = []
-    #         for f in s.Faces():
-    #             triangles_on_solid += triangles[f.hashCode()]
-    #         list_of_triangles_per_solid.append(triangles_on_solid)
-    #     for vert in vertices:
-    #     for tri in list_of_triangles_per_solid:
-    #     return vertices, list_of_triangles_per_solid
