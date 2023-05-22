@@ -35,7 +35,6 @@ def get_part_properties_from_shape(shape: Shape) -> dict:
 
 
 def convert_shape_to_iterable_of_shapes(shapes):
-
     if isinstance(shapes, cq.occ_impl.shapes.Compound):
         # brep route
         iterable_solids = shapes.Solids()
@@ -255,7 +254,6 @@ def get_matching_part_ids(
     brep_and_shape_part_id = []
     remaining_shape_ids = []
     for shape_id, value in shape_properties.items():
-
         if isinstance(value, dict):
             # check if value is a list of dictionaries or a dictionary
             matching_part_id = get_matching_part_id(
@@ -293,7 +291,6 @@ def get_matching_part_ids(
 
     if len(brep_part_properties.keys()) == 1:
         if len(remaining_shape_ids) == 1:
-
             value = shape_properties[remaining_shape_ids[0]]
 
             # removing bounding box check as a last resort.

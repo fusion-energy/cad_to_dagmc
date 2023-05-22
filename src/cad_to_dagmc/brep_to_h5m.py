@@ -114,7 +114,6 @@ def mesh_to_h5m_in_memory_method(
     n = 3  # number of verts in a triangles
     nodes_in_each_pg = []
     for dim_and_vol in volumes:
-
         # removes all groups so that the following getEntitiesForPhysicalGroup
         # command only finds surfaces for the volume
         gmsh.model.removePhysicalGroups()

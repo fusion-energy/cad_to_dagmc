@@ -13,7 +13,11 @@ from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
 from .brep_to_h5m import brep_to_h5m
-from .brep_part_finder import get_part_properties_from_shapes, get_part_properties_from_shapes, get_matching_part_ids
+from .brep_part_finder import (
+    get_part_properties_from_shapes,
+    get_part_properties_from_shapes,
+    get_matching_part_ids,
+)
 
 
 class CadToDagmc:

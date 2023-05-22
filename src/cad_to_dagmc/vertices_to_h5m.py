@@ -6,7 +6,6 @@ from pymoab import core, types
 
 
 def fix_normals(vertices, triangles_in_each_volume):
-
     fixed_triangles = []
     for triangles in triangles_in_each_volume:
         fixed_triangles.append(fix_normal(vertices, triangles))
@@ -14,7 +13,6 @@ def fix_normals(vertices, triangles_in_each_volume):
 
 
 def fix_normal(vertices, triangles):
-
     # for triangles in triangles_in_each_volume:
     mesh = trimesh.Trimesh(vertices=vertices, faces=triangles, process=False)
 
@@ -83,7 +81,6 @@ def prepare_moab_core(
     volume_id,
     tags,
 ):
-
     surface_set = moab_core.create_meshset()
     volume_set = moab_core.create_meshset()
 
@@ -112,7 +109,6 @@ def prepare_moab_core(
 
 
 def add_vertices_to_moab_core(moab_core, vertices, surface_set):
-
     moab_verts = moab_core.create_vertices(vertices)
 
     moab_core.add_entity(surface_set, moab_verts)
@@ -122,9 +118,7 @@ def add_vertices_to_moab_core(moab_core, vertices, surface_set):
 def add_triangles_to_moab_core(
     material_tag, surface_set, moab_core, tags, triangles, moab_verts, volume_set
 ):
-
     for triangle in triangles:
-
         tri = (
             moab_verts[int(triangle[0])],
             moab_verts[int(triangle[1])],
