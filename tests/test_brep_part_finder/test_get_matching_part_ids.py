@@ -3,7 +3,6 @@ import pytest
 
 
 def test_get_matching_part_ids_order():
-
     matching_part_numbers = bpf.get_matching_part_ids(
         brep_part_properties={
             1: {"center_x": 2.4},

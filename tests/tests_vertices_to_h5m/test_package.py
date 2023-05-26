@@ -22,7 +22,6 @@ def transport_particles_on_h5m_geometry(
 
     materials = openmc.Materials()
     for material_tag in material_tags:
-
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
         mat_dag_material_tag.add_element("H", 1, "ao")

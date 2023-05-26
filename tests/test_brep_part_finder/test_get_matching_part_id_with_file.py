@@ -6,7 +6,6 @@ import pytest
 
 class TestShape(unittest.TestCase):
     def setUp(self):
-
         self.brep_part_properties = bpf.get_part_properties_from_file(
             "examples/ball_reactor.brep"
         )

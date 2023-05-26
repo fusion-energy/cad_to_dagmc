@@ -20,7 +20,6 @@ Tests that check that:
 
 
 def test_transport_on_h5m_with_6_volumes():
-
     brep_filename = "tests/test_brep_file.brep"
     h5m_filename = "test_brep_file.h5m"
     volumes = 6
@@ -41,7 +40,6 @@ def test_transport_on_h5m_with_6_volumes():
 
 
 def test_transport_on_h5m_with_1_volumes():
-
     brep_filename = "tests/one_cube.brep"
     h5m_filename = "one_cube.h5m"
     volumes = 1
@@ -62,7 +60,6 @@ def test_transport_on_h5m_with_1_volumes():
 
 
 def test_transport_on_h5m_with_2_joined_volumes():
-
     brep_filename = "tests/test_two_joined_cubes.brep"
     h5m_filename = "test_two_joined_cubes.h5m"
     volumes = 2
@@ -83,7 +80,6 @@ def test_transport_on_h5m_with_2_joined_volumes():
 
 
 def test_transport_on_h5m_with_2_sep_volumes():
-
     brep_filename = "tests/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
@@ -104,7 +100,6 @@ def test_transport_on_h5m_with_2_sep_volumes():
 
 
 def test_transport_result_h5m_with_2_sep_volumes():
-
     brep_filename = "tests/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
@@ -139,7 +134,6 @@ def test_transport_result_h5m_with_2_sep_volumes():
 
 
 def test_stl_vs_in_memory_1_volume():
-
     brep_filename = "tests/one_cube.brep"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -182,7 +176,6 @@ def test_stl_vs_in_memory_1_volume():
 
 
 def test_stl_vs_in_memory_2_joined_volume():
-
     brep_filename = "tests/test_two_joined_cubes.brep"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
