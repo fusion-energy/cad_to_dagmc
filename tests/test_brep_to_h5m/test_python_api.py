@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import dagmc_h5m_file_inspector as di
-from brep_to_h5m import brep_to_h5m
+from cad_to_dagmc import brep_to_h5m
 
 
 class TestApiUsage:

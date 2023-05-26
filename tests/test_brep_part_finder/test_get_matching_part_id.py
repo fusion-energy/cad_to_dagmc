@@ -1,9 +1,9 @@
-import brep_part_finder as bpf
+from cad_to_dagmc.brep_part_finder import get_matching_part_id
 import pytest
 
 
 def test_get_part_id_center_x():
-    matching_part_number = bpf.get_matching_part_id(
+    matching_part_number = get_matching_part_id(
         brep_part_properties={
             1: {"center_x": 2.4},
             2: {"center_x": 4.2},
@@ -16,7 +16,7 @@ def test_get_part_id_center_x():
 
 
 def test_get_part_id_center_x_with_tolerance():
-    matching_part_number = bpf.get_matching_part_id(
+    matching_part_number = get_matching_part_id(
         brep_part_properties={
             1: {"center_x": 2.4},
             2: {"center_x": 4.2},
@@ -30,7 +30,7 @@ def test_get_part_id_center_x_with_tolerance():
 
 
 def test_get_part_id_center_y():
-    matching_part_number = bpf.get_matching_part_id(
+    matching_part_number = get_matching_part_id(
         brep_part_properties={1: {"center_y": 2.4}, 2: {"center_y": 4.2}}, center_y=4.2
     )
 
@@ -39,7 +39,7 @@ def test_get_part_id_center_y():
 
 def test_get_part_id_center_y_not_match():
     with pytest.raises(ValueError):
-        bpf.get_matching_part_id(
+        get_matching_part_id(
             brep_part_properties={1: {"center_y": 2.4}, 2: {"center_y": 4.2}},
             center_y=50,
         )
