@@ -107,11 +107,11 @@ class CadToDagmc:
         if verbose:
             print(f"Brep file saved to {tmp_brep_filename}")
 
-        brep_file_part_properties = bpf.get_part_properties_from_shapes(brep_shape)
+        brep_file_part_properties = get_part_properties_from_shapes(brep_shape)
 
-        shape_properties = bpf.get_part_properties_from_shapes(self.parts)
+        shape_properties = get_part_properties_from_shapes(self.parts)
 
-        brep_and_shape_part_ids = bpf.get_matching_part_ids(
+        brep_and_shape_part_ids = get_matching_part_ids(
             brep_part_properties=brep_file_part_properties,
             shape_properties=shape_properties,
             volume_atol=volume_atol,
