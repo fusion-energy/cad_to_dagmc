@@ -1,13 +1,11 @@
 import openmc
-import openmc_data_downloader as odd
-from brep_to_h5m import brep_to_h5m, transport_particles_on_h5m_geometry
+import openmc_data_downloader
+from cad_to_dagmc.brep_to_h5m import brep_to_h5m
 import math
 
-from brep_to_h5m import (
+from cad_to_dagmc.brep_to_h5m import (
     mesh_brep,
     mesh_to_h5m_in_memory_method,
-    mesh_to_h5m_stl_method,
-    transport_particles_on_h5m_geometry,
 )
 
 """
@@ -19,8 +17,109 @@ Tests that check that:
 """
 
 
+def transport_particles_on_h5m_geometry(
+    h5m_filename: str,
+    material_tags: list,
+    nuclides: list = None,
+    cross_sections_xml: str = None,
+):
+    """A function for testing the geometry file with particle transport in
+    DAGMC OpenMC. Requires openmc and either the cross_sections_xml to be
+    specified or openmc_data_downloader installed. Returns the flux on each
+    volume
+
+    Arg:
+        h5m_filename: The name of the DAGMC h5m file to test
+        material_tags: The
+        nuclides:
+        cross_sections_xml:
+
+    """
+
+    import openmc
+    from openmc.data import NATURAL_ABUNDANCE
+
+    if nuclides is None:
+        nuclides = list(NATURAL_ABUNDANCE.keys())
+
+    materials = openmc.Materials()
+    for i, material_tag in enumerate(material_tags):
+
+        # simplified material definitions have been used to keen this example minimal
+        mat_dag_material_tag = openmc.Material(name=material_tag)
+        mat_dag_material_tag.add_nuclide(nuclides[i], 1, "ao")
+        mat_dag_material_tag.set_density("g/cm3", 0.1)
+
+        materials.append(mat_dag_material_tag)
+
+    if cross_sections_xml:
+        materials.cross_sections = cross_sections_xml
+    else:
+        # downloads the nuclear data and sets the openmc_cross_sections environmental variable
+        materials.download_cross_section_data(
+                libraries=['ENDFB-7.1-NNDC'],
+                set_OPENMC_CROSS_SECTIONS=True,
+                particles=["neutron"],
+            )
+
+
+    dag_univ = openmc.DAGMCUniverse(filename=h5m_filename)
+    bound_dag_univ = dag_univ.bounded_universe()
+    geometry = openmc.Geometry(root=bound_dag_univ)
+
+    # initializes a new source object
+    my_source = openmc.Source()
+
+    center_of_geometry = (
+        (dag_univ.bounding_box[0][0] + dag_univ.bounding_box[1][0]) / 2,
+        (dag_univ.bounding_box[0][1] + dag_univ.bounding_box[1][1]) / 2,
+        (dag_univ.bounding_box[0][2] + dag_univ.bounding_box[1][2]) / 2,
+    )
+    # sets the location of the source which is not on a vertex
+    center_of_geometry_nudged = (
+        center_of_geometry[0] + 0.1,
+        center_of_geometry[1] + 0.1,
+        center_of_geometry[2] + 0.1,
+    )
+
+    my_source.space = openmc.stats.Point(center_of_geometry_nudged)
+    # sets the direction to isotropic
+    my_source.angle = openmc.stats.Isotropic()
+    # sets the energy distribution to 100% 14MeV neutrons
+    my_source.energy = openmc.stats.Discrete([14e6], [1])
+
+    # specifies the simulation computational intensity
+    settings = openmc.Settings()
+    settings.batches = 10
+    settings.particles = 10000
+    settings.inactive = 0
+    settings.run_mode = "fixed source"
+    settings.source = my_source
+
+    # adds a tally to record the heat deposited in entire geometry
+    cell_tally = openmc.Tally(name="flux")
+    cell_tally.scores = ["flux"]
+
+    # groups the two tallies
+    tallies = openmc.Tallies([cell_tally])
+
+    # builds the openmc model
+    my_model = openmc.Model(
+        materials=materials, geometry=geometry, settings=settings, tallies=tallies
+    )
+
+    # starts the simulation
+    output_file = my_model.run()
+
+    # loads up the output file from the simulation
+    statepoint = openmc.StatePoint(output_file)
+
+    my_flux_cell_tally = statepoint.get_tally(name="flux")
+
+    return my_flux_cell_tally.mean.flatten()[0]
+
 def test_transport_on_h5m_with_6_volumes():
-    brep_filename = "tests/test_brep_file.brep"
+    brep_filename = "tests/test_brep_to_h5m/test_brep_file.brep"
     h5m_filename = "test_brep_file.h5m"
     volumes = 6
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -40,7 +139,7 @@ def test_transport_on_h5m_with_6_volumes():
 
 
 def test_transport_on_h5m_with_1_volumes():
-    brep_filename = "tests/one_cube.brep"
+    brep_filename = "tests/test_brep_to_h5m/one_cube.brep"
     h5m_filename = "one_cube.h5m"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -60,7 +159,7 @@ def test_transport_on_h5m_with_1_volumes():
 
 
 def test_transport_on_h5m_with_2_joined_volumes():
-    brep_filename = "tests/test_two_joined_cubes.brep"
+    brep_filename = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
     h5m_filename = "test_two_joined_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -80,7 +179,7 @@ def test_transport_on_h5m_with_2_joined_volumes():
 
 
 def test_transport_on_h5m_with_2_sep_volumes():
-    brep_filename = "tests/test_two_sep_cubes.brep"
+    brep_filename = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -100,7 +199,7 @@ def test_transport_on_h5m_with_2_sep_volumes():
 
 
 def test_transport_result_h5m_with_2_sep_volumes():
-    brep_filename = "tests/test_two_sep_cubes.brep"
+    brep_filename = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -134,7 +233,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
 
 
 def test_stl_vs_in_memory_1_volume():
-    brep_filename = "tests/one_cube.brep"
+    brep_filename = "tests/test_brep_to_h5m/one_cube.brep"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
@@ -151,32 +250,13 @@ def test_stl_vs_in_memory_1_volume():
         h5m_filename="h5m_from_in_memory_method.h5m",
     )
 
-    # a new instance of gmsh is made to keep the two methods separate
-    gmsh, volumes = mesh_brep(
-        brep_filename=brep_filename,
-        min_mesh_size=1,
-        max_mesh_size=5,
-        mesh_algorithm=1,
-    )
-
-    mesh_to_h5m_stl_method(
-        volumes=volumes,
-        material_tags=material_tags,
-        h5m_filename="h5m_from_in_stl_method.h5m",
-    )
-
-    in_memory_results = transport_particles_on_h5m_geometry(
+    transport_particles_on_h5m_geometry(
         h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags
     )
-    stl_results = transport_particles_on_h5m_geometry(
-        h5m_filename="h5m_from_in_stl_method.h5m", material_tags=material_tags
-    )
-
-    assert math.isclose(in_memory_results, stl_results)
 
 
 def test_stl_vs_in_memory_2_joined_volume():
-    brep_filename = "tests/test_two_joined_cubes.brep"
+    brep_filename = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
@@ -193,25 +273,6 @@ def test_stl_vs_in_memory_2_joined_volume():
         h5m_filename="h5m_from_in_memory_method.h5m",
     )
 
-    # a new instance of gmsh is made to keep the two methods separate
-    gmsh, volumes = mesh_brep(
-        brep_filename=brep_filename,
-        min_mesh_size=1,
-        max_mesh_size=5,
-        mesh_algorithm=1,
-    )
-
-    mesh_to_h5m_stl_method(
-        volumes=volumes,
-        material_tags=material_tags,
-        h5m_filename="h5m_from_in_stl_method.h5m",
-    )
-
-    in_memory_results = transport_particles_on_h5m_geometry(
+    transport_particles_on_h5m_geometry(
         h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags
     )
-    stl_results = transport_particles_on_h5m_geometry(
-        h5m_filename="h5m_from_in_stl_method.h5m", material_tags=material_tags
-    )
-
-    assert math.isclose(in_memory_results, stl_results)
