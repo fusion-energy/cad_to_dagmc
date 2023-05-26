@@ -14,3 +14,6 @@ except PackageNotFoundError:
 __all__ = ["__version__"]
 
 from .core import CadToDagmc
+from .vertices_to_h5m import *
+from .brep_part_finder import *
+from .brep_to_h5m import *

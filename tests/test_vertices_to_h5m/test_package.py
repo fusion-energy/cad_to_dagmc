@@ -1,10 +1,10 @@
-import numpy as np
-from vertices_to_h5m import vertices_to_h5m
 from pathlib import Path
+
 import dagmc_h5m_file_inspector as di
+import numpy as np
 import openmc
-import openmc_data_downloader as odd
-import math
+import openmc_data_downloader
+from cad_to_dagmc import vertices_to_h5m
 
 """
 Tests that check that:
@@ -32,7 +32,11 @@ def transport_particles_on_h5m_geometry(
     if cross_sections_xml:
         materials.cross_sections = cross_sections_xml
     # downloads the nuclear data and sets the openmc_cross_sections environmental variable
-    odd.just_in_time_library_generator(libraries="ENDFB-7.1-NNDC", materials=materials)
+
+    materials.download_cross_section_data(
+        libraries=['ENDFB-7.1-NNDC'],
+        set_OPENMC_CROSS_SECTIONS=True,
+        particles=["neutron"],)
 
     # makes use of the dagmc geometry
     dag_univ = openmc.DAGMCUniverse(h5m_filename)
