@@ -34,9 +34,10 @@ def transport_particles_on_h5m_geometry(
     # downloads the nuclear data and sets the openmc_cross_sections environmental variable
 
     materials.download_cross_section_data(
-        libraries=['ENDFB-7.1-NNDC'],
+        libraries=["ENDFB-7.1-NNDC"],
         set_OPENMC_CROSS_SECTIONS=True,
-        particles=["neutron"],)
+        particles=["neutron"],
+    )
 
     # makes use of the dagmc geometry
     dag_univ = openmc.DAGMCUniverse(h5m_filename)

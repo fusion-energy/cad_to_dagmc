@@ -1,5 +1,8 @@
 import unittest
-from cad_to_dagmc.brep_part_finder import get_part_properties_from_file, get_matching_part_id
+from cad_to_dagmc.brep_part_finder import (
+    get_part_properties_from_file,
+    get_matching_part_id,
+)
 import cadquery
 import pytest
 

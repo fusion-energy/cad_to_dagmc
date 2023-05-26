@@ -1,4 +1,3 @@
-
 from cad_to_dagmc import brep_part_finder as bpf
 
 brep_part_properties = bpf.get_part_properties_from_file(

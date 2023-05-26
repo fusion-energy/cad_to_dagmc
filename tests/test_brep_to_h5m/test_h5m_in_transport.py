@@ -44,7 +44,6 @@ def transport_particles_on_h5m_geometry(
 
     materials = openmc.Materials()
     for i, material_tag in enumerate(material_tags):
-
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
         mat_dag_material_tag.add_nuclide(nuclides[i], 1, "ao")
@@ -57,11 +56,10 @@ def transport_particles_on_h5m_geometry(
     else:
         # downloads the nuclear data and sets the openmc_cross_sections environmental variable
         materials.download_cross_section_data(
-                libraries=['ENDFB-7.1-NNDC'],
-                set_OPENMC_CROSS_SECTIONS=True,
-                particles=["neutron"],
-            )
-
+            libraries=["ENDFB-7.1-NNDC"],
+            set_OPENMC_CROSS_SECTIONS=True,
+            particles=["neutron"],
+        )
 
     dag_univ = openmc.DAGMCUniverse(filename=h5m_filename)
     bound_dag_univ = dag_univ.bounded_universe()
@@ -117,6 +115,7 @@ def transport_particles_on_h5m_geometry(
     my_flux_cell_tally = statepoint.get_tally(name="flux")
 
     return my_flux_cell_tally.mean.flatten()[0]
+
 
 def test_transport_on_h5m_with_6_volumes():
     brep_filename = "tests/test_brep_to_h5m/test_brep_file.brep"
