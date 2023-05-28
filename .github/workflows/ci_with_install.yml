@@ -66,4 +66,4 @@ jobs:
       - name: Run simulation tests
         run: |
           pip install .[tests]
-          pytest tests/test_h5m_in_simulation.py -v
+          pytest tests -v
