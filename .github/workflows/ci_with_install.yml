@@ -52,65 +52,15 @@ jobs:
         run: |
           cd examples
           python create_stp_files_for_examples.py
-
-
-      - name: Run example cadquery_assembly
-        run: |
-          cd examples
           python cadquery_assembly.py
-
-
-      - name: Run example cadquery_compound
-        run: |
-          cd examples
           python cadquery_compound.py
-
-
-      - name: Run example cadquery_object_and_stp_file
-        run: |
-          cd examples
           python cadquery_object_and_stp_file.py
-
-
-      - name: Run example cadquery_text
-        run: |
-          cd examples
           python cadquery_text.py
-
-
-      - name: Run example curved_cadquery_object
-        run: |
-          cd examples
           python curved_cadquery_object.py
-
-
-      - name: Run example multiple_cadquery_objects
-        run: |
-          cd examples
           python multiple_cadquery_objects.py
-
-
-      - name: Run example multiple_stp_files
-        run: |
-          cd examples
           python multiple_stp_files.py
-
-
-      - name: Run example single_stp_file_multiple_volumes.py
-        run: |
-          cd examples
           python single_stp_file_multiple_volumes.py
-
-
-      - name: Run example single_cadquery_object
-        run: |
-          cd examples
           python single_cadquery_object.py
-
-
-      - name: Run example single_stp_file
-        run: |
-          cd examples
           python single_stp_file.py
 
       - name: Run simulation tests
