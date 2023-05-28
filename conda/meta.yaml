@@ -26,8 +26,8 @@ requirements:
 test:
   imports:
     - cad_to_dagmc
-  requires:
-    - dagmc_h5m_file_inspector
+  # requires:
+  #   - dagmc_h5m_file_inspector
     # - openmc
     # - openmc_data_downloader
   # source_files:

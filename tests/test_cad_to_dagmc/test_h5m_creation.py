@@ -1,7 +1,8 @@
 from cad_to_dagmc import CadToDagmc
 from pathlib import Path
-import dagmc_h5m_file_inspector as di
 import cadquery as cq
+import pymoab as mb
+from pymoab import core, types
 
 """
 Tests that check that:
@@ -9,6 +10,39 @@ Tests that check that:
     - h5m files contain the correct number of volumes
     - h5m files contain the correct material tags
 """
+
+
+
+def get_volumes_and_materials_from_h5m(filename: str) -> dict:
+    """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
+    their associated material tags.
+
+    Arguments:
+        filename: the filename of the DAGMC h5m file
+
+    Returns:
+        A dictionary of volume ids and material tags
+    """
+
+    mbcore = core.Core()
+    mbcore.load_file(filename)
+    category_tag = mbcore.tag_get_handle(mb.types.CATEGORY_TAG_NAME)
+    group_category = ["Group"]
+    group_ents = mbcore.get_entities_by_type_and_tag(
+        0, mb.types.MBENTITYSET, category_tag, group_category
+    )
+    name_tag = mbcore.tag_get_handle(mb.types.NAME_TAG_NAME)
+    id_tag = mbcore.tag_get_handle(mb.types.GLOBAL_ID_TAG_NAME)
+    vol_mat = {}
+    for group_ent in group_ents:
+        group_name = mbcore.tag_get_data(name_tag, group_ent)[0][0]
+        # confirm that this is a material!
+        if group_name.startswith("mat:"):
+            vols = mbcore.get_entities_by_type(group_ent, mb.types.MBENTITYSET)
+            for vol in vols:
+                id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
+                vol_mat[id] = group_name
+    return vol_mat
 
 
 def test_h5m_with_single_volume_list():
@@ -30,7 +64,7 @@ def test_h5m_with_single_volume_list():
         my_model.add_stp_file(filename=stp_file, material_tags=["mat1"])
         my_model.export_dagmc_h5m_file(filename=h5m_file)
 
-        assert di.get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat1"}
+        assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
 def test_h5m_with_multi_volume_not_touching():
@@ -53,8 +87,8 @@ def test_h5m_with_multi_volume_not_touching():
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
-            tags_dict[counter] = loop_mat_tag
-        assert di.get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
+            tags_dict[counter] = f'mat:{loop_mat_tag}'
+        assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
 def test_h5m_with_multi_volume_touching():
@@ -81,8 +115,8 @@ def test_h5m_with_multi_volume_touching():
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
-            tags_dict[counter] = loop_mat_tag
-        assert di.get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
+            tags_dict[counter] = f'mat:{loop_mat_tag}'
+        assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
 def test_cq_compound():
@@ -128,7 +162,7 @@ def test_cq_compound():
     )
 
     assert Path("compound_dagmc.h5m").is_file()
-    assert di.get_volumes_and_materials_from_h5m("compound_dagmc.h5m") == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m("compound_dagmc.h5m") == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }

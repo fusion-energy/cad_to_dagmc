@@ -1,8 +1,46 @@
 import os
 from pathlib import Path
 
-import dagmc_h5m_file_inspector as di
 from cad_to_dagmc import brep_to_h5m
+
+
+from pathlib import Path
+from typing import List, Optional
+
+import pymoab as mb
+from pymoab import core, types
+
+
+def get_volumes_and_materials_from_h5m(filename: str) -> dict:
+    """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
+    their associated material tags.
+
+    Arguments:
+        filename: the filename of the DAGMC h5m file
+
+    Returns:
+        A dictionary of volume ids and material tags
+    """
+
+    mbcore = core.Core()
+    mbcore.load_file(filename)
+    category_tag = mbcore.tag_get_handle(mb.types.CATEGORY_TAG_NAME)
+    group_category = ["Group"]
+    group_ents = mbcore.get_entities_by_type_and_tag(
+        0, mb.types.MBENTITYSET, category_tag, group_category
+    )
+    name_tag = mbcore.tag_get_handle(mb.types.NAME_TAG_NAME)
+    id_tag = mbcore.tag_get_handle(mb.types.GLOBAL_ID_TAG_NAME)
+    vol_mat = {}
+    for group_ent in group_ents:
+        group_name = mbcore.tag_get_data(name_tag, group_ent)[0][0]
+        # confirm that this is a material!
+        if group_name.startswith("mat:"):
+            vols = mbcore.get_entities_by_type(group_ent, mb.types.MBENTITYSET)
+            for vol in vols:
+                id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
+                vol_mat[id] = group_name
+    return vol_mat
 
 
 class TestApiUsage:
@@ -13,7 +51,7 @@ class TestApiUsage:
 
         os.system("rm test_brep_file.h5m")
         brep_to_h5m(
-            brep_filename="tests/test_brep_file.brep",
+            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -35,7 +73,7 @@ class TestApiUsage:
 
         os.system("rm *.h5m")
         brep_to_h5m(
-            brep_filename="tests/test_brep_file.brep",
+            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -50,7 +88,7 @@ class TestApiUsage:
             mesh_algorithm=1,
         )
         brep_to_h5m(
-            brep_filename="tests/test_brep_file.brep",
+            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -78,7 +116,7 @@ class TestApiUsage:
         test_h5m_filename = "test_dagmc.h5m"
         os.system(f"rm {test_h5m_filename}")
         returned_filename = brep_to_h5m(
-            brep_filename="tests/test_brep_file.brep",
+            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "mat1",
                 "mat2",
@@ -96,22 +134,14 @@ class TestApiUsage:
         assert Path(test_h5m_filename).is_file()
         assert Path(returned_filename).is_file()
         assert test_h5m_filename == returned_filename
-        assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2, 3, 4, 5, 6]
-        assert di.get_materials_from_h5m(test_h5m_filename) == [
-            "mat1",
-            "mat2",
-            "mat3",
-            "mat4",
-            "mat5",
-            "mat6",
-        ]
-        assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-            1: "mat1",
-            2: "mat2",
-            3: "mat3",
-            4: "mat4",
-            5: "mat5",
-            6: "mat6",
+
+        assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+            1: "mat:mat1",
+            2: "mat:mat2",
+            3: "mat:mat3",
+            4: "mat:mat4",
+            5: "mat:mat5",
+            6: "mat:mat6",
         }
 
     # TODO add tests to check 7 or more keys results in a value error

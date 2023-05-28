@@ -2,6 +2,7 @@ import unittest
 from cad_to_dagmc.brep_part_finder import (
     get_part_properties_from_file,
     get_matching_part_id,
+    get_part_properties_from_shapes
 )
 import cadquery
 import pytest
@@ -10,7 +11,7 @@ import pytest
 class TestShape(unittest.TestCase):
     def setUp(self):
         self.brep_part_properties = get_part_properties_from_file(
-            "examples/ball_reactor.brep"
+            "tests/test_brep_part_finder/ball_reactor.brep"
         )
 
     def test_finding_part_id_with_volume(self):

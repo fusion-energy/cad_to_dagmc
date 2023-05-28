@@ -1,9 +1,9 @@
-from cad_to_dagmc.brep_part_finder import get_part_properties_from_file
+from cad_to_dagmc.brep_part_finder import get_part_properties_from_file, get_part_properties_from_shapes
 from cadquery.occ_impl.shapes import Shape
 
 
 def test_input_methods_get_same_results():
-    filename = "examples/ball_reactor.brep"
+    filename = "tests/test_brep_part_finder/ball_reactor.brep"
     part_properties_from_file = get_part_properties_from_file(filename)
 
     shapes = Shape.importBrep(filename)

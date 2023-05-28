@@ -1,4 +1,4 @@
-# import dagmc_h5m_file_inspector as di
+
 import openmc
 import openmc_data_downloader
 

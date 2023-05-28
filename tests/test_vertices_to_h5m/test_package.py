@@ -1,9 +1,11 @@
 from pathlib import Path
 
-import dagmc_h5m_file_inspector as di
 import numpy as np
 import openmc
 import openmc_data_downloader
+import pymoab as mb
+from pymoab import core, types
+
 from cad_to_dagmc import vertices_to_h5m
 
 """
@@ -13,6 +15,43 @@ Tests that check that:
     - h5m files contain the correct material tags
     - h5m files can be used a transport geometry in DAGMC with OpenMC 
 """
+
+
+
+
+
+
+
+def get_volumes_and_materials_from_h5m(filename: str) -> dict:
+    """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
+    their associated material tags.
+
+    Arguments:
+        filename: the filename of the DAGMC h5m file
+
+    Returns:
+        A dictionary of volume ids and material tags
+    """
+
+    mbcore = core.Core()
+    mbcore.load_file(filename)
+    category_tag = mbcore.tag_get_handle(mb.types.CATEGORY_TAG_NAME)
+    group_category = ["Group"]
+    group_ents = mbcore.get_entities_by_type_and_tag(
+        0, mb.types.MBENTITYSET, category_tag, group_category
+    )
+    name_tag = mbcore.tag_get_handle(mb.types.NAME_TAG_NAME)
+    id_tag = mbcore.tag_get_handle(mb.types.GLOBAL_ID_TAG_NAME)
+    vol_mat = {}
+    for group_ent in group_ents:
+        group_name = mbcore.tag_get_data(name_tag, group_ent)[0][0]
+        # confirm that this is a material!
+        if group_name.startswith("mat:"):
+            vols = mbcore.get_entities_by_type(group_ent, mb.types.MBENTITYSET)
+            for vol in vols:
+                id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
+                vol_mat[id] = group_name
+    return vol_mat
 
 
 def transport_particles_on_h5m_geometry(
@@ -131,9 +170,7 @@ def test_h5m_production_with_single_volume_list():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat1"}
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
 
 
 def test_h5m_production_with_single_volume_numpy():
@@ -168,9 +205,7 @@ def test_h5m_production_with_single_volume_numpy():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat1"}
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
 
 
 def test_h5m_production_with_two_touching_edges_numpy():
@@ -210,11 +245,9 @@ def test_h5m_production_with_two_touching_edges_numpy():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1", "mat2"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }
 
 
@@ -252,11 +285,9 @@ def test_h5m_production_with_two_touching_edges_lists():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1", "mat2"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }
 
 
@@ -297,11 +328,9 @@ def test_h5m_production_with_two_touching_vertex_numpy():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1", "mat2"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }
 
 
@@ -339,11 +368,9 @@ def test_h5m_production_with_two_touching_vertex_list():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1", "mat2"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }
 
 
@@ -386,9 +413,7 @@ def test_h5m_production_with_two_touching_face_numpy():
     )
 
     assert Path(test_h5m_filename).is_file()
-    assert di.get_volumes_from_h5m(test_h5m_filename) == [1, 2]
-    assert di.get_materials_from_h5m(test_h5m_filename) == ["mat1", "mat2"]
-    assert di.get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat1",
-        2: "mat2",
+    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+        1: "mat:mat1",
+        2: "mat:mat2",
     }
