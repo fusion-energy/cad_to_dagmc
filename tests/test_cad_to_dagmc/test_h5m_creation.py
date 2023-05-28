@@ -12,7 +12,6 @@ Tests that check that:
 """
 
 
-
 def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
     their associated material tags.
@@ -87,7 +86,7 @@ def test_h5m_with_multi_volume_not_touching():
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
-            tags_dict[counter] = f'mat:{loop_mat_tag}'
+            tags_dict[counter] = f"mat:{loop_mat_tag}"
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
@@ -115,7 +114,7 @@ def test_h5m_with_multi_volume_touching():
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
-            tags_dict[counter] = f'mat:{loop_mat_tag}'
+            tags_dict[counter] = f"mat:{loop_mat_tag}"
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 

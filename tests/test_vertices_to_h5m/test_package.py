@@ -17,11 +17,6 @@ Tests that check that:
 """
 
 
-
-
-
-
-
 def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
     their associated material tags.

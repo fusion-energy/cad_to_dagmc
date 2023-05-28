@@ -1,4 +1,3 @@
-
 import openmc
 import openmc_data_downloader
 

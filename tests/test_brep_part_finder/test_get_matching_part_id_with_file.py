@@ -2,7 +2,7 @@ import unittest
 from cad_to_dagmc.brep_part_finder import (
     get_part_properties_from_file,
     get_matching_part_id,
-    get_part_properties_from_shapes
+    get_part_properties_from_shapes,
 )
 import cadquery
 import pytest

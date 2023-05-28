@@ -1,4 +1,7 @@
-from cad_to_dagmc.brep_part_finder import get_part_properties_from_file, get_part_properties_from_shapes
+from cad_to_dagmc.brep_part_finder import (
+    get_part_properties_from_file,
+    get_part_properties_from_shapes,
+)
 from cadquery.occ_impl.shapes import Shape
 
 
