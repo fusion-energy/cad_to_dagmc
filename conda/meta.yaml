@@ -19,8 +19,9 @@ requirements:
   run:
     - python {{ python }}
     - cadquery>=2.2.0
-    - brep_to_h5m>=0.4.2  # which brings in moab
-    - brep_part_finder>=0.5.2
+    - moab
+    - trimesh
+    - networkx
 
 test:
   imports:

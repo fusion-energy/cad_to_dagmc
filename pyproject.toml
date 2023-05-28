@@ -19,7 +19,8 @@ classifiers = [
 ]
 dependencies = [
     "cadquery>=2.2.0",
-    "trimesh"
+    "trimesh",
+    "networkx",
 ]
 dynamic = ["version"]
 
