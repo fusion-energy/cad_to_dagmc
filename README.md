@@ -6,12 +6,11 @@
 [![Upload Python Package](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/python-publish.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/python-publish.yml)
 
 
-[![conda-publish](https://anaconda.org/fusion-energy/cad_to_dagmc/badges/version.svg)](https://anaconda.org/fusion-energy/cad_to_dagmc)
 [![PyPI](https://img.shields.io/pypi/v/cad_to_dagmc?color=brightgreen&label=pypi&logo=grebrightgreenen&logoColor=green)](https://pypi.org/project/cad_to_dagmc/)
 
 ___
 
-A minimal package that uses CadQuery functionality to convert Cad geometry to DAGMC h5m files
+A minimal package that uses CadQuery functionality to convert Cad geometry to [DAGMC](https://github.com/svalinn/DAGMC/) h5m files
 
 This particular method of producing DAGMC compatible h5m files from CAD geometry
 is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) objects to h5m file.
@@ -29,7 +28,7 @@ conda activate new_env
 
 Installs cad_to_dagmc and dependencies
 ```bash
-conda install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
+conda install -c conda-forge cad_to_dagmc
 ```
 # Install (Mamba)
 
@@ -46,7 +45,7 @@ conda install -c conda-forge mamba
 
 Installs cad_to_dagmc and dependencies
 ```bash
-mamba install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
+mamba install -c conda-forge cad_to_dagmc
 ```
 
 # Install (Conda + pip)
