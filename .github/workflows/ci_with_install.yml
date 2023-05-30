@@ -43,7 +43,7 @@ jobs:
           pip install .
           python -c "import cad_to_dagmc"
 
-      - name: create stp files
+      - name: run examples
         run: |
           cd examples
           python create_stp_files_for_examples.py
@@ -58,7 +58,7 @@ jobs:
           python single_cadquery_object.py
           python single_stp_file.py
 
-      - name: Run simulation tests
+      - name: Run pytest
         run: |
           pip install .[tests]
           pytest tests -v
