@@ -1,6 +1,4 @@
 import openmc
-import openmc_data_downloader
-
 
 """
     - h5m files can be used a transport geometry in DAGMC with OpenMC
@@ -12,21 +10,27 @@ def transport_particles_on_h5m_geometry(
     material_tags,
 ):
     """A function for testing the geometry file with particle transport in DAGMC OpenMC"""
+    
+    with open("cross_sections.xml", "w") as file:
+        file.write("""
+        <?xml version='1.0' encoding='UTF-8'?>
+        <cross_sections>
+        <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
+        <library materials="H2" path="ENDFB-7.1-NNDC_H2.h5" type="neutron"/>
+        </cross_sections>
+        """)
+
+    openmc.config['cross_sections']='cross_sections.xml'
+
 
     materials = openmc.Materials()
     for material_tag in material_tags:
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
         mat_dag_material_tag.add_nuclide("H1", 1, "ao")
-        mat_dag_material_tag.set_density("g/cm3", 2)
+        mat_dag_material_tag.set_density("g/cm3", 0.01)
 
         materials.append(mat_dag_material_tag)
-
-    materials.download_cross_section_data(
-        libraries=["ENDFB-7.1-NNDC"],
-        set_OPENMC_CROSS_SECTIONS=True,
-        particles=["neutron"],
-    )
 
     # makes use of the dagmc geometry
     dag_univ = openmc.DAGMCUniverse(h5m_filename)

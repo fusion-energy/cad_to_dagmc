@@ -31,8 +31,7 @@ write_to = "src/_version.py"
 
 [project.optional-dependencies]
 tests = [
-    "pytest",
-    "openmc_data_downloader"
+    "pytest"
 ]
 
 [project.urls]

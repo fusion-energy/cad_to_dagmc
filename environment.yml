@@ -14,5 +14,3 @@ dependencies:
   - openmc=0.13.3=dagmc*
   - networkx
   - pip
-  - pip:
-    - openmc_data_downloader

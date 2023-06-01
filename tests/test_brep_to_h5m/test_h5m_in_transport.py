@@ -1,5 +1,4 @@
 import openmc
-import openmc_data_downloader
 from cad_to_dagmc.brep_to_h5m import brep_to_h5m
 import math
 
@@ -25,8 +24,7 @@ def transport_particles_on_h5m_geometry(
 ):
     """A function for testing the geometry file with particle transport in
     DAGMC OpenMC. Requires openmc and either the cross_sections_xml to be
-    specified or openmc_data_downloader installed. Returns the flux on each
-    volume
+    specified. Returns the flux on each volume
 
     Arg:
         h5m_filename: The name of the DAGMC h5m file to test
@@ -47,19 +45,24 @@ def transport_particles_on_h5m_geometry(
         # simplified material definitions have been used to keen this example minimal
         mat_dag_material_tag = openmc.Material(name=material_tag)
         mat_dag_material_tag.add_nuclide(nuclides[i], 1, "ao")
-        mat_dag_material_tag.set_density("g/cm3", 0.1)
+        mat_dag_material_tag.set_density("g/cm3", 0.01)
 
         materials.append(mat_dag_material_tag)
 
     if cross_sections_xml:
-        materials.cross_sections = cross_sections_xml
+        openmc.config['cross_sections']=cross_sections_xml
+
     else:
-        # downloads the nuclear data and sets the openmc_cross_sections environmental variable
-        materials.download_cross_section_data(
-            libraries=["ENDFB-7.1-NNDC"],
-            set_OPENMC_CROSS_SECTIONS=True,
-            particles=["neutron"],
-        )
+        with open("cross_sections.xml", "w") as file:
+            file.write("""
+            <?xml version='1.0' encoding='UTF-8'?>
+            <cross_sections>
+            <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
+            <library materials="H2" path="ENDFB-7.1-NNDC_H2.h5" type="neutron"/>
+            </cross_sections>
+            """)
+
+        openmc.config['cross_sections']='cross_sections.xml'
 
     dag_univ = openmc.DAGMCUniverse(filename=h5m_filename)
     bound_dag_univ = dag_univ.bounded_universe()
@@ -133,7 +136,7 @@ def test_transport_on_h5m_with_6_volumes():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
 
@@ -153,7 +156,7 @@ def test_transport_on_h5m_with_1_volumes():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
 
@@ -173,7 +176,7 @@ def test_transport_on_h5m_with_2_joined_volumes():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
 
@@ -193,7 +196,7 @@ def test_transport_on_h5m_with_2_sep_volumes():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
 
@@ -213,7 +216,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     )
 
     new_tally = transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
     brep_to_h5m(
@@ -225,7 +228,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
         mesh_algorithm=1,
     )
     stl_tally = transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename, material_tags=material_tags
+        h5m_filename=h5m_filename, material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
     assert math.isclose(new_tally, stl_tally)
@@ -250,7 +253,7 @@ def test_stl_vs_in_memory_1_volume():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags
+        h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
 
 
@@ -273,5 +276,5 @@ def test_stl_vs_in_memory_2_joined_volume():
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags
+        h5m_filename="h5m_from_in_memory_method.h5m", material_tags=material_tags, nuclides=['H1']*len(material_tags)
     )
