@@ -67,19 +67,21 @@ def transport_particles_on_h5m_geometry(
     # downloads the nuclear data and sets the openmc_cross_sections environmental variable
 
     if cross_sections_xml:
-        openmc.config['cross_sections']=cross_sections_xml
+        openmc.config["cross_sections"] = cross_sections_xml
 
     else:
         with open("cross_sections.xml", "w") as file:
-            file.write("""
+            file.write(
+                """
             <?xml version='1.0' encoding='UTF-8'?>
             <cross_sections>
             <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
             <library materials="H2" path="ENDFB-7.1-NNDC_H2.h5" type="neutron"/>
             </cross_sections>
-            """)
+            """
+            )
 
-        openmc.config['cross_sections']='cross_sections.xml'
+        openmc.config["cross_sections"] = "cross_sections.xml"
 
     # makes use of the dagmc geometry
     dag_univ = openmc.DAGMCUniverse(h5m_filename)
