@@ -129,7 +129,7 @@ def test_transport_on_h5m_with_6_volumes():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -151,7 +151,7 @@ def test_transport_on_h5m_with_1_volumes():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -173,7 +173,7 @@ def test_transport_on_h5m_with_2_joined_volumes():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -195,7 +195,7 @@ def test_transport_on_h5m_with_2_sep_volumes():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -217,7 +217,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -232,7 +232,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     )
 
     brep_to_h5m(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
         min_mesh_size=30,
@@ -254,7 +254,7 @@ def test_stl_vs_in_memory_1_volume():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     gmsh, volumes = mesh_brep(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         min_mesh_size=1,
         max_mesh_size=5,
         mesh_algorithm=1,
@@ -279,7 +279,7 @@ def test_stl_vs_in_memory_2_joined_volume():
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     gmsh, volumes = mesh_brep(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         min_mesh_size=1,
         max_mesh_size=5,
         mesh_algorithm=1,

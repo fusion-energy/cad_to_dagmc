@@ -124,7 +124,7 @@ class CadToDagmc:
             material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
 
         brep_to_h5m(
-            brep_filename=tmp_brep_filename,
+            brep_object=brep_shape,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
             min_mesh_size=min_mesh_size,

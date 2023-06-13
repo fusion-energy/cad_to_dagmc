@@ -5,7 +5,7 @@ import typing
 
 
 def brep_to_h5m(
-    brep_filename: str,
+    brep_object: str,
     material_tags: typing.Iterable[str],
     h5m_filename: str = "dagmc.h5m",
     min_mesh_size: float = 30,
@@ -16,7 +16,7 @@ def brep_to_h5m(
     will therefore need to have Gmsh installed to work.
 
     Args:
-        brep_filename: the filename of the Brep file to convert
+        brep_object: the filename of the Brep file to convert
         material_tags: A list of material tags to tag the DAGMC volumes with.
             Should be in the same order as the volumes
         h5m_filename: the filename of the DAGMC h5m file to write
@@ -31,7 +31,7 @@ def brep_to_h5m(
     """
 
     gmsh, volumes = mesh_brep(
-        brep_filename=brep_filename,
+        brep_object=brep_object,
         min_mesh_size=min_mesh_size,
         max_mesh_size=max_mesh_size,
         mesh_algorithm=mesh_algorithm,
@@ -47,7 +47,7 @@ def brep_to_h5m(
 
 
 def mesh_brep(
-    brep_filename: str,
+    brep_object: str,
     min_mesh_size: float = 30,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
@@ -56,7 +56,7 @@ def mesh_brep(
     Gmsh.
 
     Args:
-        brep_filename: the filename of the Brep file to convert
+        brep_object: the filename of the Brep file to convert
         min_mesh_size: the minimum mesh element size to use in Gmsh. Passed
             into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
         max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
@@ -68,14 +68,15 @@ def mesh_brep(
         The gmsh object and volumes in Brep file
     """
 
-    if not Path(brep_filename).is_file():
-        msg = f"The specified brep ({brep_filename}) file was not found"
-        raise FileNotFoundError(msg)
+    # if not Path(brep_object).is_file():
+    #     msg = f"The specified brep ({brep_object}) file was not found"
+    #     raise FileNotFoundError(msg)
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_brep_to_h5m_package")
-    volumes = gmsh.model.occ.importShapes(brep_filename)
+    volumes = gmsh.model.occ.importShapesNativePointer(brep_object._address())
+    # gmsh.model.occ.importShapes(brep_object)
     gmsh.model.occ.synchronize()
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
