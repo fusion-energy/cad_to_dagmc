@@ -159,6 +159,6 @@ class CadToDagmc:
 
         bldr.Images()
 
-        merged_solid = cq.Compound(bldr.Shape())#.wrapped
+        merged_solid = cq.Compound(bldr.Shape())  # .wrapped
 
         return merged_solid
