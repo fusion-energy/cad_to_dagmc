@@ -1,7 +1,8 @@
 import openmc
 from cad_to_dagmc.brep_to_h5m import brep_to_h5m
 import math
-
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
 from cad_to_dagmc.brep_to_h5m import (
     mesh_brep,
     mesh_to_h5m_in_memory_method,
@@ -123,7 +124,7 @@ def transport_particles_on_h5m_geometry(
 
 
 def test_transport_on_h5m_with_6_volumes():
-    brep_filename = "tests/test_brep_to_h5m/test_brep_file.brep"
+    brep_object = "tests/test_brep_to_h5m/test_brep_file.brep"
     h5m_filename = "test_brep_file.h5m"
     volumes = 6
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -145,29 +146,31 @@ def test_transport_on_h5m_with_6_volumes():
 
 
 def test_transport_on_h5m_with_1_volumes():
-    brep_filename = "tests/test_brep_to_h5m/one_cube.brep"
-    h5m_filename = "one_cube.h5m"
+    result = cq.Workplane("front").box(2.0, 2.0, 0.5)
+
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
-    brep_to_h5m(
-        brep_object=brep_object,
-        material_tags=material_tags,
-        h5m_filename=h5m_filename,
-        min_mesh_size=30,
-        max_mesh_size=50,
-        mesh_algorithm=1,
+    my_model = CadToDagmc()
+
+    my_model.add_cadquery_object(
+        result,
+        material_tags=["mat1"],
+    )
+
+    my_model.export_dagmc_h5m_file(
+        filename="cadquery_objects_and_stp_files.h5m", max_mesh_size=1, min_mesh_size=0.1
     )
 
     transport_particles_on_h5m_geometry(
-        h5m_filename=h5m_filename,
+        h5m_filename="one_cube.h5m",
         material_tags=material_tags,
         nuclides=["H1"] * len(material_tags),
     )
 
 
 def test_transport_on_h5m_with_2_joined_volumes():
-    brep_filename = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
+    brep_object = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
     h5m_filename = "test_two_joined_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -189,7 +192,7 @@ def test_transport_on_h5m_with_2_joined_volumes():
 
 
 def test_transport_on_h5m_with_2_sep_volumes():
-    brep_filename = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
+    brep_object = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -211,7 +214,7 @@ def test_transport_on_h5m_with_2_sep_volumes():
 
 
 def test_transport_result_h5m_with_2_sep_volumes():
-    brep_filename = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
+    brep_object = "tests/test_brep_to_h5m/test_two_sep_cubes.brep"
     h5m_filename = "test_two_sep_cubes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -249,7 +252,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
 
 
 def test_stl_vs_in_memory_1_volume():
-    brep_filename = "tests/test_brep_to_h5m/one_cube.brep"
+    brep_object = "tests/test_brep_to_h5m/one_cube.brep"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
@@ -274,7 +277,7 @@ def test_stl_vs_in_memory_1_volume():
 
 
 def test_stl_vs_in_memory_2_joined_volume():
-    brep_filename = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
+    brep_object = "tests/test_brep_to_h5m/test_two_joined_cubes.brep"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 

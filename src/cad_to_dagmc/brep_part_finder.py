@@ -74,20 +74,6 @@ def get_part_properties_from_shapes(shapes: Iterable) -> dict:
     return all_part_details
 
 
-def get_part_properties_from_file(filename: Union[str, PathLike]):
-    """Imports a Brep CAD file and returns the unique identify details of each Solid
-
-    Args:
-        filename: the filename of the brep file
-    """
-
-    shapes = Shape.importBrep(filename)
-
-    my_brep_part_details = get_part_properties_from_shapes(shapes)
-
-    return my_brep_part_details
-
-
 def get_matching_part_id(
     brep_part_properties: dict,
     center_x: float = None,

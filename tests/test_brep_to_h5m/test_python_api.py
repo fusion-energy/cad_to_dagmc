@@ -1,3 +1,4 @@
+import cadquery as cq
 import os
 from pathlib import Path
 
@@ -51,7 +52,7 @@ class TestApiUsage:
 
         os.system("rm test_brep_file.h5m")
         brep_to_h5m(
-            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
+            brep_object="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -72,8 +73,11 @@ class TestApiUsage:
         """Checks the reducing max_mesh_size value increases the file size"""
 
         os.system("rm *.h5m")
+        # brep file made with
+        # my_reactor = paramak.FlfSystemCodeReactor()
+        result = cq.importers.importStep("tests/test_brep_to_h5m/test_brep_file.brep")
         brep_to_h5m(
-            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
+            brep_object=result,
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -88,7 +92,7 @@ class TestApiUsage:
             mesh_algorithm=1,
         )
         brep_to_h5m(
-            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
+            brep_object=result,
             material_tags=[
                 "material_for_volume_1",
                 "material_for_volume_2",
@@ -116,7 +120,7 @@ class TestApiUsage:
         test_h5m_filename = "test_dagmc.h5m"
         os.system(f"rm {test_h5m_filename}")
         returned_filename = brep_to_h5m(
-            brep_filename="tests/test_brep_to_h5m/test_brep_file.brep",
+            brep_object="tests/test_brep_to_h5m/test_brep_file.brep",
             material_tags=[
                 "mat1",
                 "mat2",

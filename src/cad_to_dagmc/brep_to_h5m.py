@@ -75,7 +75,7 @@ def mesh_brep(
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_brep_to_h5m_package")
-    volumes = gmsh.model.occ.importShapesNativePointer(brep_object._address())
+    volumes = gmsh.model.occ.importShapesNativePointer(brep_object.wrapped._address())
     # gmsh.model.occ.importShapes(brep_object)
     gmsh.model.occ.synchronize()
 

@@ -101,11 +101,11 @@ class CadToDagmc:
     ):
         brep_shape = self._merge_surfaces()
 
-        tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
-        brep_shape.exportBrep(tmp_brep_filename)
+        # tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
+        # brep_shape.exportBrep(tmp_brep_filename)
 
-        if verbose:
-            print(f"Brep file saved to {tmp_brep_filename}")
+        # if verbose:
+        #     print(f"Brep file saved to {tmp_brep_filename}")
 
         brep_file_part_properties = get_part_properties_from_shapes(brep_shape)
 
@@ -140,9 +140,9 @@ class CadToDagmc:
 
         bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
 
-        if len(self.parts) == 1:
-            # merged_solid = cq.Compound(solids)
-            return self.parts[0]
+        # if len(self.parts) == 1:
+        #     # merged_solid = cq.Compound(solids)
+        #     return self.parts[0]
 
         for solid in self.parts:
             # checks if solid is a compound as .val() is not needed for compounds
@@ -159,6 +159,6 @@ class CadToDagmc:
 
         bldr.Images()
 
-        merged_solid = cq.Compound(bldr.Shape())
+        merged_solid = cq.Compound(bldr.Shape())#.wrapped
 
         return merged_solid
