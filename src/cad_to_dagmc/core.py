@@ -1,16 +1,14 @@
-from tempfile import mkstemp
-
 import typing
 from cadquery import importers
-from cadquery import Assembly
-from OCP.GCPnts import GCPnts_QuasiUniformDeflection
+# from cadquery import Assembly
+# from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
-from OCP.TopLoc import TopLoc_Location
-from OCP.BRep import BRep_Tool
-from OCP.TopAbs import TopAbs_Orientation
+# from OCP.TopLoc import TopLoc_Location
+# from OCP.BRep import BRep_Tool
+# from OCP.TopAbs import TopAbs_Orientation
 
 from .brep_to_h5m import mesh_brep, mesh_to_h5m_in_memory_method
 from .brep_part_finder import (
@@ -45,7 +43,7 @@ class CadToDagmc:
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
         """
-
+        print(f'loading stp file {filename}')
         part = importers.importStep(str(filename)).val()
 
         if scale_factor == 1:
@@ -143,24 +141,32 @@ def merge_surfaces(parts):
 
     if len(parts) == 1:
         # merged_solid = cq.Compound(solids)
-        return parts[0], parts[0].toOCC()
 
-    else:
-        for solid in parts:
-            # checks if solid is a compound as .val() is not needed for compounds
-            if isinstance(
-                solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
-            ):
-                bldr.AddArgument(solid.wrapped)
-            else:
-                bldr.AddArgument(solid.val().wrapped)
+        if isinstance(
+            parts[0], (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+        ):
+        #stp file
+            return parts[0], parts[0].wrapped
+        else:
+            return parts[0], parts[0].toOCC()
+        
 
-        bldr.SetNonDestructive(True)
+    # else:
+    for solid in parts:
+        # checks if solid is a compound as .val() is not needed for compounds
+        if isinstance(
+            solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+        ):
+            bldr.AddArgument(solid.wrapped)
+        else:
+            bldr.AddArgument(solid.val().wrapped)
 
-        bldr.Perform()
+    bldr.SetNonDestructive(True)
 
-        bldr.Images()
+    bldr.Perform()
 
-        merged_solid = cq.Compound(bldr.Shape())
+    bldr.Images()
 
-        return merged_solid, merged_solid.wrapped
+    merged_solid = cq.Compound(bldr.Shape())
+
+    return merged_solid, merged_solid.wrapped

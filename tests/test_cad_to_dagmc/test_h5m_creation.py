@@ -47,23 +47,24 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
 def test_h5m_with_single_volume_list():
     """Simple geometry, a single 4 sided shape"""
 
-    stp_files = [
-        "tests/test_cad_to_dagmc/extrude_rectangle.stp",
-        "tests/test_cad_to_dagmc/single_cube.stp",
-        # "tests/test_cad_to_dagmc/single_volume_thin.stp", currently slow to mesh
-    ]
-    h5m_files = [
-        "tests/test_cad_to_dagmc/extrude_rectangle.h5m",
-        "tests/test_cad_to_dagmc/single_cube.h5m",
-        # "tests/test_cad_to_dagmc/single_volume_thin.h5m", currently slow to mesh
-    ]
+    h5m_file="tests/test_cad_to_dagmc/single_cube.h5m"
 
-    for stp_file, h5m_file in zip(stp_files, h5m_files):
-        my_model = CadToDagmc()
-        my_model.add_stp_file(filename=stp_file, material_tags=["mat1"])
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/test_cad_to_dagmc/single_cube.stp", material_tags=["mat1"])
+    my_model.export_dagmc_h5m_file(filename=h5m_file)
 
-        assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
+    assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
+
+def test_h5m_with_single_volume_2():
+    """Simple geometry, a single 4 sided shape"""
+
+    h5m_file="tests/test_cad_to_dagmc/curved_extrude.h5m"
+
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/test_cad_to_dagmc/curved_extrude.stp", material_tags=["mat1"])
+    my_model.export_dagmc_h5m_file(filename=h5m_file)
+
+    assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
 def test_h5m_with_multi_volume_not_touching():
