@@ -4,48 +4,6 @@ from .vertices_to_h5m import vertices_to_h5m
 import typing
 
 
-def brep_to_h5m(
-    brep_object: str,
-    material_tags: typing.Iterable[str],
-    h5m_filename: str = "dagmc.h5m",
-    min_mesh_size: float = 30,
-    max_mesh_size: float = 10,
-    mesh_algorithm: int = 1,
-) -> str:
-    """Converts a Brep file into a DAGMC h5m file. This makes use of Gmsh and
-    will therefore need to have Gmsh installed to work.
-
-    Args:
-        brep_object: the filename of the Brep file to convert
-        material_tags: A list of material tags to tag the DAGMC volumes with.
-            Should be in the same order as the volumes
-        h5m_filename: the filename of the DAGMC h5m file to write
-        min_mesh_size: the minimum mesh element size to use in Gmsh. Passed
-            into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
-        max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
-            into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
-        mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
-            gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
-    Returns:
-        The filename of the h5m file produced
-    """
-
-    gmsh, volumes = mesh_brep(
-        brep_object=brep_object,
-        min_mesh_size=min_mesh_size,
-        max_mesh_size=max_mesh_size,
-        mesh_algorithm=mesh_algorithm,
-    )
-
-    h5m_filename = mesh_to_h5m_in_memory_method(
-        volumes=volumes,
-        material_tags=material_tags,
-        h5m_filename=h5m_filename,
-    )
-
-    return h5m_filename
-
-
 def mesh_brep(
     brep_object: str,
     min_mesh_size: float = 30,
@@ -68,14 +26,10 @@ def mesh_brep(
         The gmsh object and volumes in Brep file
     """
 
-    # if not Path(brep_object).is_file():
-    #     msg = f"The specified brep ({brep_object}) file was not found"
-    #     raise FileNotFoundError(msg)
-
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_brep_to_h5m_package")
-    volumes = gmsh.model.occ.importShapesNativePointer(brep_object._address())
+    volumes = gmsh.model.occ.importShapesNativePointer(brep_object)
     # gmsh.model.occ.importShapes(brep_object)
     gmsh.model.occ.synchronize()
 
@@ -156,11 +110,9 @@ def mesh_to_h5m_in_memory_method(
     gmsh.finalize()
 
     # checks and fixes triangle fix_normals within vertices_to_h5m
-    vertices_to_h5m(
+    return vertices_to_h5m(
         vertices=GroupedCoords,
         triangles=nodes_in_each_pg,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
     )
-
-    return h5m_filename

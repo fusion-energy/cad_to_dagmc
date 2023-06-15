@@ -12,7 +12,7 @@ from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
-from .brep_to_h5m import brep_to_h5m
+from .brep_to_h5m import mesh_brep, mesh_to_h5m_in_memory_method
 from .brep_part_finder import (
     get_part_properties_from_shapes,
     get_part_properties_from_shapes,
@@ -94,20 +94,14 @@ class CadToDagmc:
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
         max_mesh_size: float = 10,
-        verbose: bool = False,
         volume_atol: float = 0.000001,
         center_atol: float = 0.000001,
         bounding_box_atol: float = 0.000001,
+        mesh_algorithm: int = 1
     ):
-        brep_shape = self._merge_surfaces()
+        brep_object, topods = merge_surfaces(parts=self.parts)
 
-        tmp_brep_filename = mkstemp(suffix=".brep", prefix="paramak_")[1]
-        brep_shape.exportBrep(tmp_brep_filename)
-
-        if verbose:
-            print(f"Brep file saved to {tmp_brep_filename}")
-
-        brep_file_part_properties = get_part_properties_from_shapes(brep_shape)
+        brep_file_part_properties = get_part_properties_from_shapes(brep_object)
 
         shape_properties = get_part_properties_from_shapes(self.parts)
 
@@ -123,28 +117,36 @@ class CadToDagmc:
         for brep_id, shape_id in brep_and_shape_part_ids:
             material_tags_in_brep_order.append(self.material_tags[shape_id - 1])
 
-        brep_to_h5m(
-            brep_object=brep_shape,
-            material_tags=material_tags_in_brep_order,
-            h5m_filename=filename,
+        gmsh, volumes = mesh_brep(
+            brep_object=topods._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
+            mesh_algorithm=mesh_algorithm,
         )
 
-    def _merge_surfaces(self):
-        """Merges surfaces in the geometry that are the same. More details on
-        the merging process in the DAGMC docs
-        https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html"""
+        h5m_filename = mesh_to_h5m_in_memory_method(
+            volumes=volumes,
+            material_tags=material_tags_in_brep_order,
+            h5m_filename=filename,
+        )
+        return h5m_filename
 
-        # solids = geometry.Solids()
 
-        bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
+def merge_surfaces(parts):
+    """Merges surfaces in the geometry that are the same. More details on
+    the merging process in the DAGMC docs
+    https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html"""
 
-        if len(self.parts) == 1:
-            # merged_solid = cq.Compound(solids)
-            return self.parts[0]
+    # solids = geometry.Solids()
 
-        for solid in self.parts:
+    bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
+
+    if len(parts) == 1:
+        # merged_solid = cq.Compound(solids)
+        return parts[0], parts[0].toOCC()
+
+    else:
+        for solid in parts:
             # checks if solid is a compound as .val() is not needed for compounds
             if isinstance(
                 solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
@@ -161,4 +163,4 @@ class CadToDagmc:
 
         merged_solid = cq.Compound(bldr.Shape())
 
-        return merged_solid
+        return merged_solid, merged_solid.wrapped
