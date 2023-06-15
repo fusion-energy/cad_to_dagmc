@@ -120,13 +120,12 @@ def transport_particles_on_h5m_geometry(
 
 
 def test_transport_result_h5m_with_2_sep_volumes():
-
     h5m_filename = "test_two_sep_volumes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 
     workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
-    workplane2 = cq.Workplane("XY").moveTo(0,15).cylinder(height=10, radius=5)
+    workplane2 = cq.Workplane("XY").moveTo(0, 15).cylinder(height=10, radius=5)
     # cq.Assembly().add(workplane1).add(workplane2)
 
     my_model = CadToDagmc()
@@ -160,7 +159,7 @@ def test_transport_result_h5m_with_1_volumes():
 
 
 def test_transport_result_h5m_with_2_joined_volumes():
-    h5m_filename="h5m_from_in_memory_method.h5m"
+    h5m_filename = "h5m_from_in_memory_method.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
 

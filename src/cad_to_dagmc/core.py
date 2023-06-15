@@ -97,7 +97,7 @@ class CadToDagmc:
         volume_atol: float = 0.000001,
         center_atol: float = 0.000001,
         bounding_box_atol: float = 0.000001,
-        mesh_algorithm: int = 1
+        mesh_algorithm: int = 1,
     ):
         brep_object, topods = merge_surfaces(parts=self.parts)
 
