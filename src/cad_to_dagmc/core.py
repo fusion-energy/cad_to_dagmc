@@ -1,11 +1,13 @@
 import typing
 from cadquery import importers
+
 # from cadquery import Assembly
 # from OCP.GCPnts import GCPnts_QuasiUniformDeflection
 
 # from cadquery.occ_impl import shapes
 import OCP
 import cadquery as cq
+
 # from OCP.TopLoc import TopLoc_Location
 # from OCP.BRep import BRep_Tool
 # from OCP.TopAbs import TopAbs_Orientation
@@ -43,7 +45,7 @@ class CadToDagmc:
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
         """
-        print(f'loading stp file {filename}')
+        print(f"loading stp file {filename}")
         part = importers.importStep(str(filename)).val()
 
         if scale_factor == 1:
@@ -145,18 +147,15 @@ def merge_surfaces(parts):
         if isinstance(
             parts[0], (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
         ):
-        #stp file
+            # stp file
             return parts[0], parts[0].wrapped
         else:
             return parts[0], parts[0].toOCC()
-        
 
     # else:
     for solid in parts:
         # checks if solid is a compound as .val() is not needed for compounds
-        if isinstance(
-            solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
-        ):
+        if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             bldr.AddArgument(solid.wrapped)
         else:
             bldr.AddArgument(solid.val().wrapped)

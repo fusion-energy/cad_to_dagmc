@@ -1,5 +1,3 @@
-
-
 from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 import OCP
@@ -17,20 +15,16 @@ my_model.add_cadquery_object(
 )
 
 
-
-
 bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
 parts = [result]
 if len(parts) == 1:
     # merged_solid = cq.Compound(solids)
-    
+
     merged_surface_compound = parts[0].toOCC()
 else:
     for solid in parts:
         # checks if solid is a compound as .val() is not needed for compounds
-        if isinstance(
-            solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
-        ):
+        if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             bldr.AddArgument(solid.wrapped)
         else:
             bldr.AddArgument(solid.val().wrapped)
@@ -43,6 +37,7 @@ else:
 
     merged_surface_compound = cq.Compound(bldr.Shape()).wrapped
 import gmsh
+
 topods = merged_surface_compound
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 1)
