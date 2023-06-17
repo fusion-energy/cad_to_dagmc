@@ -61,6 +61,9 @@ conda install -c conda-forge python-gmsh
 Then you can install the cad_to_dagmc package with ```pip```
 
 ```bash
+pip install cadquery
+pip install trimesh
+pip install networkx
 pip install cad_to_dagmc
 ```
 
