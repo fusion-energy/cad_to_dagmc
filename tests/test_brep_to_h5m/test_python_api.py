@@ -74,25 +74,25 @@ class TestApiUsage:
         sphere = cq.Workplane().sphere(100)
 
         c2d = CadToDagmc()
-        c2d.add_cadquery_object(sphere, ['m1'])
+        c2d.add_cadquery_object(sphere, ["m1"])
         os.system("rm *.h5m")
         c2d.export_dagmc_h5m_file(
             min_mesh_size=10,
             max_mesh_size=20,
             mesh_algorithm=1,
-            filename='test_10_30.h5m'
+            filename="test_10_30.h5m",
         )
         c2d.export_dagmc_h5m_file(
             min_mesh_size=20,
             max_mesh_size=30,
             mesh_algorithm=1,
-            filename='test_20_30.h5m'
+            filename="test_20_30.h5m",
         )
         c2d.export_dagmc_h5m_file(
             min_mesh_size=20,
             max_mesh_size=25,
             mesh_algorithm=1,
-            filename='test_20_25.h5m'
+            filename="test_20_25.h5m",
         )
 
         assert Path("test_10_30.h5m").is_file()
@@ -109,13 +109,13 @@ class TestApiUsage:
         """Checks that a h5m file is created with the correct tags"""
 
         sphere1 = cq.Workplane().sphere(20)
-        sphere2 = cq.Workplane().moveTo(100,100).sphere(20)
-        sphere3 = cq.Workplane().moveTo(-100,-100).sphere(20)
+        sphere2 = cq.Workplane().moveTo(100, 100).sphere(20)
+        sphere3 = cq.Workplane().moveTo(-100, -100).sphere(20)
 
         c2d = CadToDagmc()
-        c2d.add_cadquery_object(sphere1, ['mat1'])
-        c2d.add_cadquery_object(sphere2, ['mat2'])
-        c2d.add_cadquery_object(sphere3, ['mat3'])
+        c2d.add_cadquery_object(sphere1, ["mat1"])
+        c2d.add_cadquery_object(sphere2, ["mat2"])
+        c2d.add_cadquery_object(sphere3, ["mat3"])
 
         test_h5m_filename = "test_dagmc.h5m"
         os.system(f"rm {test_h5m_filename}")
