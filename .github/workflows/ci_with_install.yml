@@ -33,6 +33,8 @@ jobs:
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
           apt-get install -y libpangocairo-1.0-0
+          conda install -c cadquery -y ocp
+          conda install -c conda-forge -y cadquery
           conda install -c conda-forge -y moab
           conda install -c conda-forge -y gmsh
           conda install -c conda-forge -y python-gmsh
