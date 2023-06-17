@@ -17,11 +17,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "cadquery>=2.2.0",
-    "trimesh",
-    "networkx",
-]
 dynamic = ["version"]
 
 
