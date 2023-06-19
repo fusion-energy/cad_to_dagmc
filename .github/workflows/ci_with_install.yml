@@ -20,7 +20,7 @@ on:
 jobs:
   conda-env:
     steps:
-      - bane: setup conda
+      - name: setup conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
