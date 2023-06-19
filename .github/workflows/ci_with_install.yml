@@ -18,11 +18,13 @@ on:
       - 'readthedocs.yml'
 
 jobs:
-  testing:
-    runs-on: ubuntu-latest
-    container:
-      image: continuumio/miniconda3:4.12.0
+  conda-env:
     steps:
+      - bane: setup conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+  
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -33,8 +35,7 @@ jobs:
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
           apt-get install -y libpangocairo-1.0-0
-          conda install -c cadquery -y ocp=7.7.1.0
-          conda install -c cadquery -y occt=7.7.1
+          conda install -c "cadquery/label/dev" ocp
           conda install -c cadquery -y cadquery=2.2.0
           conda install -c conda-forge -y moab
           conda install -c conda-forge -y gmsh
