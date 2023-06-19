@@ -18,7 +18,8 @@ on:
       - 'readthedocs.yml'
 
 jobs:
-  conda-env:
+  testing:
+    runs-on: ubuntu-latest
     steps:
       - name: setup conda
         uses: conda-incubator/setup-miniconda@v2
