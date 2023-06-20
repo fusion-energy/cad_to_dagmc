@@ -28,8 +28,9 @@ conda activate new_env
 
 Installs cad_to_dagmc and dependencies
 ```bash
-conda install -c conda-forge cad_to_dagmc
+conda install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
 ```
+TODO move to conda-forge ~conda install -c conda-forge cad_to_dagmc~
 # Install (Mamba)
 
 Creates a new empty Conda environment and activate it
@@ -45,8 +46,9 @@ conda install -c conda-forge mamba
 
 Installs cad_to_dagmc and dependencies
 ```bash
-mamba install -c conda-forge cad_to_dagmc
+mamba install -c fusion-energy -c cadquery -c conda-forge cad_to_dagmc
 ```
+TODO move to conda-forge ~mamba install -c conda-forge cad_to_dagmc~
 
 # Install (Conda + pip)
 
