@@ -55,7 +55,7 @@ TODO move to conda-forge ~mamba install -c conda-forge cad_to_dagmc~
 You will need to install some dependencies that are not available via PyPi.
 This example uses Conda but Mamba could also be used.
 ```bash
-conda install -c conda-forge cadquery=2.2.0 occt=7.7.0 moab gmsh python-gmsh
+conda install -c cadquery -c conda-forge cadquery=master moab gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
