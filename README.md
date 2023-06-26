@@ -22,20 +22,30 @@ This allows for the addition of parametric geometry to static geometry.
 
 You will need to install some dependencies that are not available via PyPi.
 This example uses Conda but Mamba could also be used.
+Create a new conda environment
+```bash
+conda create --name cad-to-dagmc python=3.9 -y
+```
+
+Activate the environment
+```bash
+conda activate cad-to-dagmc
+```
+
+Install the dependencies
 ```bash
 conda install -c cadquery -c conda-forge cadquery=master moab gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
-
 ```bash
 pip install cad_to_dagmc
 ```
 
-# Usage
-
-To use the h5m geometry you will need a transport code with DAGMC enabled such as OpenMC.
-Just to note that currently the conda install for CadQuery and OpenMC can't be installed in the same conda environment.
-A work around for this is to create the h5m geometry in one conda environment and simulate with OpenMC in another conda environment.
+# Usage - creation of DAGMC h5m files
 
 For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+
+# Usage - simulation with transport code
+
+For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop)
