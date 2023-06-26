@@ -12,7 +12,7 @@ from OCP.TopLoc import TopLoc_Location
 from OCP.BRep import BRep_Tool
 from OCP.TopAbs import TopAbs_Orientation
 
-from .brep_to_h5m import brep_to_h5m
+from .brep_to_h5m import brep_to_h5m, mesh_to_h5m_in_memory_method
 from .brep_part_finder import (
     get_part_properties_from_shapes,
     get_part_properties_from_shapes,
@@ -88,6 +88,23 @@ class CadToDagmc:
 
         for material_tag in material_tags:
             self.material_tags.append(material_tag)
+
+    def add_gmsh_mesh(
+        self,
+        filename: str,
+        material_tags: typing.Iterable[str]
+    ):
+
+        import gmsh
+        gmsh.initialize()
+        gmsh.option.setNumber("General.Terminal", 1)
+        gmsh.model.add("made_with_brep_to_h5m_package")
+
+        gmsh.open(filename)
+
+        _, all_coords, _ = gmsh.model.mesh.getNodes()
+
+        print(all_coords)
 
     def export_dagmc_h5m_file(
         self,
