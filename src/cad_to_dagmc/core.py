@@ -89,13 +89,9 @@ class CadToDagmc:
         for material_tag in material_tags:
             self.material_tags.append(material_tag)
 
-    def add_gmsh_mesh(
-        self,
-        filename: str,
-        material_tags: typing.Iterable[str]
-    ):
-
+    def add_gmsh_mesh(self, filename: str, material_tags: typing.Iterable[str]):
         import gmsh
+
         gmsh.initialize()
         gmsh.option.setNumber("General.Terminal", 1)
         gmsh.model.add("made_with_brep_to_h5m_package")
