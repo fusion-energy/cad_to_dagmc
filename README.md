@@ -56,7 +56,7 @@ This example uses Mamba to install some dependencies that are not available via 
 
 Install Mamba
 ```bash
-conda install -c conda-forge mamba
+conda create --name cad-to-dagmc python=3.9 -y
 ```
 
 Create a new conda environment, I've chosen Python 3.9 here but new versions are
@@ -87,10 +87,10 @@ You may also want to install OpenMC with DAGMC to make use of the h5m files
 mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
 
-# Usage
-
-To use the h5m geometry you will need a transport code with DAGMC enabled such as OpenMC.
-Just to note that currently the conda install for CadQuery and OpenMC can't be installed in the same conda environment.
-A work around for this is to create the h5m geometry in one conda environment and simulate with OpenMC in another conda environment.
+# Usage - creation of DAGMC h5m files
 
 For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+
+# Usage - simulation with transport code
+
+For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop)
