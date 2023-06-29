@@ -81,6 +81,7 @@ def mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", False)
     gmsh.model.mesh.generate(2)
 
     return gmsh, volumes
