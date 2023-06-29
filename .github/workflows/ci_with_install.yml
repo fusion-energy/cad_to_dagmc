@@ -36,12 +36,12 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
           sudo apt-get install -y libpangocairo-1.0-0
-          conda install -c "cadquery/label/dev" ocp
-          conda install -c cadquery -y cadquery=2.2.0
-          conda install -c conda-forge -y moab
-          conda install -c conda-forge -y gmsh
-          conda install -c conda-forge -y python-gmsh
-          conda install -c conda-forge -y openmc
+          conda install -c conda-forge mamba
+          mamba install install -c conda-forge moab gmsh python-gmsh -y
+          mamba install -c "cadquery/label/dev" ocp
+          pip install git+https://github.com/CadQuery/cadquery.git@imprinting
+          mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
+
 
       - name: install package
         run: |
