@@ -17,6 +17,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "trimesh",
+    "networkx",
+]
 dynamic = ["version"]
 
 
