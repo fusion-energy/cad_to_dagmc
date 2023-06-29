@@ -1,6 +1,4 @@
 from cad_to_dagmc.brep_part_finder import get_matching_part_ids
-import pytest
-
 
 def test_get_matching_part_ids_order():
     matching_part_numbers = get_matching_part_ids(
