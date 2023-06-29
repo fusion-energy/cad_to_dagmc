@@ -1,4 +1,3 @@
-
 from cad_to_dagmc.brep_part_finder import (
     get_part_properties_from_file,
     get_matching_part_id,
@@ -7,7 +6,10 @@ from cad_to_dagmc.brep_part_finder import (
 import cadquery
 import pytest
 
-brep_part_properties = get_part_properties_from_file("tests/test_brep_part_finder/ball_reactor.brep")
+brep_part_properties = get_part_properties_from_file(
+    "tests/test_brep_part_finder/ball_reactor.brep"
+)
+
 
 def test_finding_part_id_with_volume():
     """"""
@@ -19,6 +21,7 @@ def test_finding_part_id_with_volume():
     )
 
     assert part_id == [6]
+
 
 def test_finding_part_id_with_center():
     """"""
@@ -32,6 +35,7 @@ def test_finding_part_id_with_center():
     )
 
     assert part_id == [6]
+
 
 def test_finding_part_id_with_bounding_box():
     """"""
@@ -48,6 +52,7 @@ def test_finding_part_id_with_bounding_box():
     )
 
     assert part_id == [6]
+
 
 def test_cq_workplane():
     result = cadquery.Workplane("front").box(2.0, 2.0, 0.5)

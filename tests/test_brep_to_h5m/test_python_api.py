@@ -79,6 +79,7 @@ def test_max_mesh_size_impacts_file_size():
     assert small_file < large_file
     assert small_file < medium_file
 
+
 def test_h5m_file_tags():
     """Checks that a h5m file is created with the correct tags"""
 
