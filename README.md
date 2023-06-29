@@ -18,53 +18,73 @@ is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) 
 One unique feature of this package is the ability to combine STP files with CadQuery objects.
 This allows for the addition of parametric geometry to static geometry.
 
-# Install (Conda)
+# Install using Conda and pip
 
-Creates a new empty Conda environment and activate it
+This example uses Conda to install some dependencies that are not available via PyPi.
+
+Create a new conda environment
 ```bash
-conda create --name new_env python=3.9
-conda activate new_env
+conda create --name cad-to-dagmc python=3.9 -y
 ```
 
-Installs cad_to_dagmc and dependencies
+Activate the environment
 ```bash
-conda install -c conda-forge cad_to_dagmc
-```
-# Install (Mamba)
-
-Creates a new empty Conda environment and activate it
-```bash
-conda create --name new_env python=3.9
-conda activate new_env
+conda activate cad-to-dagmc
 ```
 
-Installs Mamba
+Install the dependencies
+```bash
+conda install -c conda-forge moab gmsh python-gmsh -y
+conda install -c "cadquery/label/dev" ocp
+pip install git+https://github.com/CadQuery/cadquery.git@imprinting
+```
+
+Then you can install the cad_to_dagmc package with ```pip```
+```bash
+pip install cad_to_dagmc
+```
+
+You may also want to install OpenMC with DAGMC
+```bash
+conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
+```
+
+
+# Install using Mamba and pip
+
+This example uses Mamba to install some dependencies that are not available via PyPi.
+
+Install Mamba
 ```bash
 conda install -c conda-forge mamba
 ```
 
-Installs cad_to_dagmc and dependencies
+Create a new conda environment, I've chosen Python 3.9 here but new versions are
+also supported.
 ```bash
-mamba install -c conda-forge cad_to_dagmc
+mamba create --name cad-to-dagmc python=3.9 -y
 ```
 
-# Install (Conda + pip)
-
-You will need to install some dependencies that are not available via PyPi.
-This example uses Conda but Mamba could also be used.
+Activate the environment
 ```bash
-conda install -c conda-forge moab
-conda install -c conda-forge gmsh
-conda install -c conda-forge python-gmsh
+mamba activate cad-to-dagmc
+```
+
+Install the dependencies
+```bash
+mamba install -c conda-forge moab gmsh python-gmsh -y
+mamba install -c "cadquery/label/dev" ocp
+pip install git+https://github.com/CadQuery/cadquery.git@imprinting
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
-
 ```bash
-pip install cadquery
-pip install trimesh
-pip install networkx
 pip install cad_to_dagmc
+```
+
+You may also want to install OpenMC with DAGMC to make use of the h5m files
+```bash
+mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
 
 # Usage
