@@ -35,7 +35,7 @@ jobs:
           apt-get install -y libpangocairo-1.0-0
           conda install -c conda-forge mamba
           mamba install -c conda-forge moab gmsh python-gmsh -y
-          mamba install -c "cadquery/label/dev" ocp
+          mamba install -c "cadquery/label/dev" ocp=7.7.1
           pip install git+https://github.com/CadQuery/cadquery.git@imprinting
           mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 
