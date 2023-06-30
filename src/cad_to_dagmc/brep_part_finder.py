@@ -1,7 +1,6 @@
 import cadquery as cq
 
 
-
 def convert_shape_to_iterable_of_shapes(shapes):
     if isinstance(shapes, cq.occ_impl.shapes.Compound):
         # brep route
@@ -14,11 +13,13 @@ def convert_shape_to_iterable_of_shapes(shapes):
 
     return iterable_solids
 
+
 def get_ids_from_assembly(assembly):
     ids = []
     for obj, name, loc, _ in assembly:
         ids.append(name)
     return ids
+
 
 def get_ids_from_imprinted_assembly(solid_id_dict):
     ids = []
@@ -26,6 +27,7 @@ def get_ids_from_imprinted_assembly(solid_id_dict):
         print(id[0])
         ids.append(id[0])
     return ids
+
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     material_tags_in_brep_order = []

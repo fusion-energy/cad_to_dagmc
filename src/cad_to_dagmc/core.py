@@ -14,7 +14,9 @@ import cadquery as cq
 
 from .brep_to_h5m import mesh_brep, mesh_to_h5m_in_memory_method
 from .brep_part_finder import (
-    get_ids_from_assembly, get_ids_from_imprinted_assembly, order_material_ids_by_brep_order
+    get_ids_from_assembly,
+    get_ids_from_imprinted_assembly,
+    order_material_ids_by_brep_order,
 )
 
 
@@ -94,23 +96,25 @@ class CadToDagmc:
         max_mesh_size: float = 10,
         mesh_algorithm: int = 1,
     ):
-
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
-        
-        imprinted_assembly, imprinted_solids_with_original_id = cq.occ_impl.assembly.imprint(assembly)
+
+        (
+            imprinted_assembly,
+            imprinted_solids_with_original_id,
+        ) = cq.occ_impl.assembly.imprint(assembly)
 
         original_ids = get_ids_from_assembly(assembly)
-        scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_original_id)
+        scrambled_ids = get_ids_from_imprinted_assembly(
+            imprinted_solids_with_original_id
+        )
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
 
         material_tags_in_brep_order = order_material_ids_by_brep_order(
-            original_ids,
-            scrambled_ids,
-            self.material_tags
+            original_ids, scrambled_ids, self.material_tags
         )
 
         gmsh, volumes = mesh_brep(
