@@ -1,6 +1,8 @@
 
 # This CI will launch a Docker image that contains all the dependencies required
 # within that image the pytest test suite is run 
+# container:
+#       image: continuumio/miniconda3:23.3.1-0
 
 name: CI with install
 
@@ -20,11 +22,11 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container:
-          image: continuumio/miniconda3:23.3.1-0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - uses: conda-incubator/setup-miniconda@v2
 
       - name: install non pypi dependencies for cad creation
         run: |
