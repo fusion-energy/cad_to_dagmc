@@ -35,8 +35,7 @@ conda activate cad-to-dagmc
 Install the dependencies
 ```bash
 conda install -c conda-forge moab gmsh python-gmsh -y
-conda install -c "cadquery/label/dev" ocp
-pip install git+https://github.com/CadQuery/cadquery.git@imprinting
+conda install -c cadquery -c conda-forge cadquery=master ocp=7.7.1
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
