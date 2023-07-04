@@ -35,7 +35,7 @@ jobs:
           apt-get install -y libpangocairo-1.0-0
           conda install -c conda-forge mamba
           mamba install -c conda-forge moab gmsh python-gmsh -y
-          conda install -c cadquery cadquery=master ocp=7.7.1
+          conda install -c cadquery -c conda-forge cadquery=master ocp=7.7.1
 
 
       - name: install package
