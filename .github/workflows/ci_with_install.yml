@@ -30,11 +30,11 @@ jobs:
 
       - name: install non pypi dependencies for cad creation
         run: |
-          apt-get --allow-releaseinfo-change update
-          apt-get update -y
-          apt-get upgrade -y
-          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
-          apt-get install -y libpangocairo-1.0-0
+          sudo apt-get --allow-releaseinfo-change update
+          sudo apt-get update -y
+          sudo apt-get upgrade -y
+          sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
+          sudo apt-get install -y libpangocairo-1.0-0
           conda install -c conda-forge mamba
           mamba install -c conda-forge moab gmsh python-gmsh -y
           conda install -c cadquery -c conda-forge cadquery=master ocp=7.7.1
