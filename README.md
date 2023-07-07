@@ -34,8 +34,8 @@ conda activate cad-to-dagmc
 
 Install the dependencies
 ```bash
-conda install -c conda-forge moab gmsh python-gmsh -y
-conda install -c cadquery -c conda-forge cadquery=master ocp=7.7.1
+conda install -c cadquery cadquery=master --no-deps -y
+conda install -c conda-forge c cadquery ocp=7.7.1 multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -43,7 +43,7 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-You may also want to install OpenMC with DAGMC
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/)
 ```bash
 conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
@@ -53,15 +53,10 @@ conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 
 This example uses Mamba to install some dependencies that are not available via PyPi.
 
-Install Mamba
-```bash
-conda create --name cad-to-dagmc python=3.9 -y
-```
-
 Create a new conda environment, I've chosen Python 3.9 here but new versions are
 also supported.
 ```bash
-mamba create --name cad-to-dagmc python=3.9 -y
+conda create --name cad-to-dagmc python=3.9 -y
 ```
 
 Activate the environment
@@ -71,9 +66,9 @@ mamba activate cad-to-dagmc
 
 Install the dependencies
 ```bash
-mamba install -c conda-forge moab gmsh python-gmsh -y
-mamba install -c "cadquery/label/dev" ocp
-pip install git+https://github.com/CadQuery/cadquery.git@imprinting
+conda install -c conda-forge mamba -y
+mamba install -c cadquery cadquery=master --no-deps -y
+mamba install -c conda-forge c cadquery ocp=7.7.1 multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
