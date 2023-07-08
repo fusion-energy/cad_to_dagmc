@@ -67,8 +67,8 @@ mamba activate cad-to-dagmc
 Install the dependencies
 ```bash
 conda install -c conda-forge mamba -y
-mamba install -c cadquery cadquery=master --no-deps -y
 mamba install -c conda-forge c cadquery ocp=7.7.1 multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
+mamba install -c cadquery cadquery=master --no-deps -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
