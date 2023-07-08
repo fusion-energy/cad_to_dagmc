@@ -22,19 +22,21 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
+    container:
+      image: continuumio/miniconda3:23.3.1-0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: conda-incubator/setup-miniconda@v2
+      # - uses: conda-incubator/setup-miniconda@v2
 
       - name: install non pypi dependencies for cad creation
         run: |
-          sudo apt-get --allow-releaseinfo-change update
-          sudo apt-get update -y
-          sudo apt-get upgrade -y
-          sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
-          sudo apt-get install -y libpangocairo-1.0-0
+          apt-get --allow-releaseinfo-change update
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
+          apt-get install -y libpangocairo-1.0-0
           conda install -c conda-forge mamba -y
           mamba install -c cadquery -c conda-forge ocp=7.7.1 
           mamba install -c conda-forge multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
