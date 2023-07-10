@@ -18,24 +18,29 @@ is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) 
 One unique feature of this package is the ability to combine STP files with CadQuery objects.
 This allows for the addition of parametric geometry to static geometry.
 
+# Installation
+
+In principle, any Conda distribution will work. 
+
+
 # Install using Conda and pip
 
 This example uses Conda to install some dependencies that are not available via PyPi.
 
 Create a new conda environment
 ```bash
-conda create --name cad-to-dagmc python=3.9 -y
+conda create --name new_env python=3.9 -y
 ```
 
 Activate the environment
 ```bash
-conda activate cad-to-dagmc
+conda activate new_env
 ```
 
 Install the dependencies
 ```bash
-conda install -c cadquery cadquery=master --no-deps -y
-conda install -c conda-forge c cadquery ocp=7.7.1 multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
+conda install -c conda-forge moab multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh ocp>=7.7.1 -y
+conda install -c cadquery -c conda-forge cadquery=master --no-deps -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -43,7 +48,7 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/)
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
 conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
@@ -56,19 +61,19 @@ This example uses Mamba to install some dependencies that are not available via 
 Create a new conda environment, I've chosen Python 3.9 here but new versions are
 also supported.
 ```bash
-conda create --name cad-to-dagmc python=3.9 -y
+conda create --name new_env python=3.9 -y
 ```
 
 Activate the environment
 ```bash
-mamba activate cad-to-dagmc
+mamba activate new_env
 ```
 
 Install the dependencies
 ```bash
 conda install -c conda-forge mamba -y
-mamba install -c conda-forge -c cadquery ocp=7.7.1 multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
-mamba install -c cadquery cadquery=master --no-deps -y
+mamba install -c conda-forge moab multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh ocp>=7.7.1 -y
+mamba install -c cadquery -c conda-forge cadquery=master --no-deps -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -76,7 +81,7 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-You may also want to install OpenMC with DAGMC to make use of the h5m files
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
 mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
