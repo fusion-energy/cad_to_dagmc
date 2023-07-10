@@ -1,6 +1,8 @@
 
 # This CI will launch a Docker image that contains all the dependencies required
 # within that image the pytest test suite is run 
+# container:
+#       image: continuumio/miniconda3:23.3.1-0
 
 name: CI with install
 
@@ -21,41 +23,88 @@ jobs:
   testing:
     runs-on: ubuntu-latest
     container:
-      image: continuumio/miniconda3:4.12.0
+      image: continuumio/miniconda3:23.3.1-0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      # - uses: conda-incubator/setup-miniconda@v2
 
       - name: install non pypi dependencies for cad creation
         run: |
           apt-get --allow-releaseinfo-change update
           apt-get update -y
           apt-get upgrade -y
-          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev  freeglut3-dev libosmesa6 libosmesa6-dev  libgles2-mesa-dev
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
           apt-get install -y libpangocairo-1.0-0
-          conda install -c conda-forge -y moab
-          conda install -c conda-forge -y gmsh
-          conda install -c conda-forge -y python-gmsh
-          conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
+          conda install -c conda-forge mamba -y
+          mamba install -c conda-forge moab multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh ocp>=7.7.1 -y
+          mamba install -c cadquery -c conda-forge cadquery=master --no-deps -y
 
       - name: install package
         run: |
+          pip install --upgrade pip
           pip install .
           python -c "import cad_to_dagmc"
+          mamba install -c conda-forge openmc -y
 
       - name: run examples
         run: |
           cd examples
           python create_stp_files_for_examples.py
+
+      - name: run examples
+        run: |
+          cd examples
           python cadquery_assembly.py
+
+      - name: run examples
+        run: |
+          cd examples
           python cadquery_compound.py
+
+      - name: run examples
+        run: |
+          cd examples
           python cadquery_object_and_stp_file.py
+
+      - name: run examples
+        run: |
+          cd examples
           python cadquery_text.py
+
+      - name: run examples 1
+        run: |
+          cd examples
           python curved_cadquery_object.py
+
+      - name: run examples 2
+        run: |
+          cd examples
           python multiple_cadquery_objects.py
+
+      - name: run examples 3
+        run: |
+          cd examples
           python multiple_stp_files.py
+
+      - name: run examples 4
+        run: |
+          cd examples
           python single_stp_file_multiple_volumes.py
+
+      - name: run examples 5
+        run: |
+          cd examples
+
+      - name: run examples 6
+        run: |
+          cd examples
           python single_cadquery_object.py
+
+      - name: run examples 7
+        run: |
+          cd examples
           python single_stp_file.py
 
       - name: Run pytest

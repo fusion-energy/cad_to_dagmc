@@ -18,7 +18,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "cadquery>=2.2.0",
     "trimesh",
     "networkx",
 ]

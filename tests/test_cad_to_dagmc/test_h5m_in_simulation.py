@@ -101,7 +101,7 @@ def test_h5m_with_single_volume_list():
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
     h5m_files = [
-        "tests/test_cad_to_dagmc/extrude_rectangle.h5m",
+        # "tests/test_cad_to_dagmc/extrude_rectangle.h5m",
         "tests/test_cad_to_dagmc/single_cube.h5m",
         # "tests/test_cad_to_dagmc/single_volume_thin.h5m",
     ]

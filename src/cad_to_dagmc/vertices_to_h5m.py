@@ -207,3 +207,5 @@ def vertices_to_h5m(
     moab_core.add_entities(file_set, all_sets)
 
     moab_core.write_file(h5m_filename)
+
+    return h5m_filename
