@@ -38,8 +38,7 @@ jobs:
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
           apt-get install -y libpangocairo-1.0-0
           conda install -c conda-forge mamba -y
-          mamba install -c cadquery -c conda-forge ocp=7.7.1 
-          mamba install -c conda-forge moab multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh -y
+          mamba install -c conda-forge moab multimethod typish ezdxf nptyping nlopt casadi gmsh python-gmsh ocp>=7.7.1 -y
           mamba install -c cadquery -c conda-forge cadquery=master --no-deps -y
 
       - name: install package
