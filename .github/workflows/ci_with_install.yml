@@ -35,10 +35,9 @@ jobs:
           apt-get --allow-releaseinfo-change update
           apt-get update -y
           apt-get upgrade -y
-          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev
-          apt-get install -y libpangocairo-1.0-0
-          conda install -c conda-forge mamba -y
-          mamba install -c conda-forge moab gmsh python-gmsh cadquery=master -y
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
+          conda install -y -c conda-forge mamba
+          mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
 
       - name: install package
         run: |
