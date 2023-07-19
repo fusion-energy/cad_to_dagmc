@@ -44,14 +44,9 @@ Activate the environment
 mamba activate new_env
 ```
 
-Install the dependencies
+Install the cad_to_dagmc and its dependencies
 ```bash
-mamba install -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master -y
-```
-
-Then you can install the cad_to_dagmc package with ```pip```
-```bash
-pip install cad_to_dagmc
+mamba install -c conda-forge cad_to_dagmc -y
 ```
 
 You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
@@ -60,9 +55,9 @@ mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
 
 
-# Install using Conda and pip
+# Install using Conda
 
-This example uses Conda to install some dependencies that are not available via PyPi.
+This example uses Conda to install the package which is typically slower than the Mamba install option
 
 Create a new conda environment
 ```bash
@@ -74,14 +69,9 @@ Activate the environment
 conda activate new_env
 ```
 
-Install the dependencies
+Install the cad_to_dagmc and its dependencies
 ```bash
-conda install -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master -y
-```
-
-Then you can install the cad_to_dagmc package with ```pip```
-```bash
-pip install cad_to_dagmc
+conda install -c conda-forge cad_to_dagmc -y
 ```
 
 You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
