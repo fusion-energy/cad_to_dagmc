@@ -1,19 +1,18 @@
 from typing import Iterable, Tuple, Union
-
+import typing
 import numpy as np
 import trimesh
 from pymoab import core, types
 
 
-def fix_normals(vertices, triangles_in_each_volume):
+def fix_normals(vertices: list, triangles_in_each_volume: list):
     fixed_triangles = []
     for triangles in triangles_in_each_volume:
         fixed_triangles.append(fix_normal(vertices, triangles))
     return fixed_triangles
 
 
-def fix_normal(vertices, triangles):
-    # for triangles in triangles_in_each_volume:
+def fix_normal(vertices: list, triangles: list):
     mesh = trimesh.Trimesh(vertices=vertices, faces=triangles, process=False)
 
     mesh.fix_normals()

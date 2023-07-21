@@ -101,9 +101,9 @@ def test_h5m_with_single_volume_list():
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
     h5m_files = [
-        # "tests/test_cad_to_dagmc/extrude_rectangle.h5m",
-        "tests/test_cad_to_dagmc/single_cube.h5m",
-        # "tests/test_cad_to_dagmc/single_volume_thin.h5m",
+        # "tests/extrude_rectangle.h5m",
+        "tests/single_cube.h5m",
+        # "tests/single_volume_thin.h5m",
     ]
 
     for h5m_file in h5m_files:
@@ -118,7 +118,7 @@ def test_h5m_with_multi_volume_not_touching():
         ["mat1", "mat2"],
     ]
     h5m_files = [
-        "tests/test_cad_to_dagmc/two_disconnected_cubes.h5m",
+        "tests/two_disconnected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
         transport_particles_on_h5m_geometry(
@@ -132,8 +132,8 @@ def test_h5m_with_multi_volume_touching():
         ["mat1", "mat2"],
     ]
     h5m_files = [
-        "tests/test_cad_to_dagmc/multi_volume_cylinders.h5m",
-        "tests/test_cad_to_dagmc/two_connected_cubes.h5m",
+        "tests/multi_volume_cylinders.h5m",
+        "tests/two_connected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
         transport_particles_on_h5m_geometry(
