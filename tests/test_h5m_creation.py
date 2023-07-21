@@ -50,9 +50,7 @@ def test_h5m_with_single_volume_list():
     h5m_file = "tests/single_cube.h5m"
 
     my_model = CadToDagmc()
-    my_model.add_stp_file(
-        filename="tests/single_cube.stp", material_tags=["mat1"]
-    )
+    my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
@@ -64,9 +62,7 @@ def test_h5m_with_single_volume_2():
     h5m_file = "tests/curved_extrude.h5m"
 
     my_model = CadToDagmc()
-    my_model.add_stp_file(
-        filename="tests/curved_extrude.stp", material_tags=["mat1"]
-    )
+    my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
