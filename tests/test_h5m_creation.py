@@ -47,12 +47,10 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
 def test_h5m_with_single_volume_list():
     """Simple geometry, a single 4 sided shape"""
 
-    h5m_file = "tests/test_cad_to_dagmc/single_cube.h5m"
+    h5m_file = "tests/single_cube.h5m"
 
     my_model = CadToDagmc()
-    my_model.add_stp_file(
-        filename="tests/test_cad_to_dagmc/single_cube.stp", material_tags=["mat1"]
-    )
+    my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
@@ -61,12 +59,10 @@ def test_h5m_with_single_volume_list():
 def test_h5m_with_single_volume_2():
     """Simple geometry, a single 4 sided shape"""
 
-    h5m_file = "tests/test_cad_to_dagmc/curved_extrude.h5m"
+    h5m_file = "tests/curved_extrude.h5m"
 
     my_model = CadToDagmc()
-    my_model.add_stp_file(
-        filename="tests/test_cad_to_dagmc/curved_extrude.stp", material_tags=["mat1"]
-    )
+    my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
@@ -74,13 +70,13 @@ def test_h5m_with_single_volume_2():
 
 def test_h5m_with_multi_volume_not_touching():
     stp_files = [
-        "tests/test_cad_to_dagmc/two_disconnected_cubes.stp",
+        "tests/two_disconnected_cubes.stp",
     ]
     material_tags = [
         ["mat1", "mat2"],
     ]
     h5m_files = [
-        "tests/test_cad_to_dagmc/two_disconnected_cubes.h5m",
+        "tests/two_disconnected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
         my_model = CadToDagmc()
@@ -98,16 +94,16 @@ def test_h5m_with_multi_volume_not_touching():
 
 def test_h5m_with_multi_volume_touching():
     stp_files = [
-        "tests/test_cad_to_dagmc/multi_volume_cylinders.stp",
-        "tests/test_cad_to_dagmc/two_connected_cubes.stp",
+        "tests/multi_volume_cylinders.stp",
+        "tests/two_connected_cubes.stp",
     ]
     material_tags = [
         ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
         ["mat1", "mat2"],
     ]
     h5m_files = [
-        "tests/test_cad_to_dagmc/multi_volume_cylinders.h5m",
-        "tests/test_cad_to_dagmc/two_connected_cubes.h5m",
+        "tests/multi_volume_cylinders.h5m",
+        "tests/two_connected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
         my_model = CadToDagmc()
