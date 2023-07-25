@@ -45,7 +45,7 @@ def mesh_to_h5m_in_memory_method(
     volumes,
     material_tags: typing.Iterable[str],
     h5m_filename: str = "dagmc.h5m",
-    msh_filename="m.msh",  # None
+    msh_filename=None
 ) -> str:
     """Converts gmsh volumes into a DAGMC h5m file.
 
