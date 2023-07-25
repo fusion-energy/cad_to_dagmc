@@ -45,6 +45,7 @@ def mesh_to_h5m_in_memory_method(
     volumes,
     material_tags: typing.Iterable[str],
     h5m_filename: str = "dagmc.h5m",
+    msh_filename='m.msh'#None
 ) -> str:
     """Converts gmsh volumes into a DAGMC h5m file.
 
@@ -106,7 +107,8 @@ def mesh_to_h5m_in_memory_method(
     GroupedCoords = [
         all_coords[i : i + n].tolist() for i in range(0, len(all_coords), n)
     ]
-
+    if msh_filename is not None:
+        gmsh.write(msh_filename)
     gmsh.finalize()
 
     # checks and fixes triangle fix_normals within vertices_to_h5m

@@ -95,6 +95,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 10,
         mesh_algorithm: int = 1,
+        msh_filename: str = None
     ):
         assembly = cq.Assembly()
         for part in self.parts:
@@ -128,6 +129,7 @@ class CadToDagmc:
             volumes=volumes,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
+            msh_filename=msh_filename
         )
         return h5m_filename
 
