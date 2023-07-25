@@ -51,8 +51,8 @@ def test_h5m_with_single_volume_list():
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
-
+    my_model.export_dagmc_h5m_file(filename=h5m_file, msh_filename="test.msh")
+    assert Path("test.msh").is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
