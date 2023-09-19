@@ -68,7 +68,7 @@ def mesh_to_h5m_in_memory_method(
         raise ValueError(msg)
 
     n = 3  # number of verts in a triangles
-    nodes_in_each_pg = []
+    nodes_in_each_volume = {}
     for dim_and_vol in volumes:
         # removes all groups so that the following getEntitiesForPhysicalGroup
         # command only finds surfaces for the volume
@@ -87,8 +87,10 @@ def mesh_to_h5m_in_memory_method(
         tag = group[1]
 
         surfaces = gmsh.model.getEntitiesForPhysicalGroup(dim, tag)
+        print('surfaces entities', surfaces)
 
-        nodes_in_all_surfaces = []
+        # nodes_in_all_surfaces = []
+        nodes_in_each_surface = {}
         for surface in surfaces:
             _, _, nodeTags = gmsh.model.mesh.getElements(2, surface)
             nodeTags = nodeTags[0].tolist()
@@ -99,22 +101,24 @@ def mesh_to_h5m_in_memory_method(
                 shifted_node_tags[i : i + n]
                 for i in range(0, len(shifted_node_tags), n)
             ]
-            nodes_in_all_surfaces += grouped_node_tags
-        nodes_in_each_pg.append(nodes_in_all_surfaces)
+            nodes_in_each_surface[surface]= grouped_node_tags
+        nodes_in_each_volume[vol_id] = nodes_in_each_surface
 
     _, all_coords, _ = gmsh.model.mesh.getNodes()
 
     GroupedCoords = [
         all_coords[i : i + n].tolist() for i in range(0, len(all_coords), n)
     ]
+
     if msh_filename is not None:
         gmsh.write(msh_filename)
+
     gmsh.finalize()
 
     # checks and fixes triangle fix_normals within vertices_to_h5m
     return vertices_to_h5m(
         vertices=GroupedCoords,
-        triangles=nodes_in_each_pg,
+        triangles=nodes_in_each_volume,
         material_tags=material_tags,
         h5m_filename=h5m_filename,
     )

@@ -74,27 +74,46 @@ def _define_moab_core_and_tags() -> Tuple[core.Core, dict]:
     return moab_core, tags
 
 
-def prepare_moab_core(
+def prepare_moab_core_volume_set(
     moab_core,
-    surface_id,
     volume_id,
     tags,
 ):
-    surface_set = moab_core.create_meshset()
     volume_set = moab_core.create_meshset()
 
     # recent versions of MOAB handle this automatically
     # but best to go ahead and do it manually
     moab_core.tag_set_data(tags["global_id"], volume_set, volume_id)
 
-    moab_core.tag_set_data(tags["global_id"], surface_set, surface_id)
-
     # set geom IDs
     moab_core.tag_set_data(tags["geom_dimension"], volume_set, 3)
-    moab_core.tag_set_data(tags["geom_dimension"], surface_set, 2)
 
     # set category tag values
     moab_core.tag_set_data(tags["category"], volume_set, "Volume")
+
+    return moab_core, volume_set
+
+def prepare_moab_core_surface_set(
+    moab_core,
+    surface_id,
+    volume_set,
+    tags,
+):
+    surface_set = moab_core.create_meshset()
+    # volume_set = moab_core.create_meshset()
+
+    # # recent versions of MOAB handle this automatically
+    # # but best to go ahead and do it manually
+    # moab_core.tag_set_data(tags["global_id"], volume_set, volume_id)
+
+    moab_core.tag_set_data(tags["global_id"], surface_set, surface_id)
+
+    # set geom IDs
+    # moab_core.tag_set_data(tags["geom_dimension"], volume_set, 3)
+    moab_core.tag_set_data(tags["geom_dimension"], surface_set, 2)
+
+    # set category tag values
+    # moab_core.tag_set_data(tags["category"], volume_set, "Volume")
     moab_core.tag_set_data(tags["category"], surface_set, "Surface")
 
     # establish parent-child relationship
@@ -104,19 +123,26 @@ def prepare_moab_core(
     sense_data = [volume_set, np.uint64(0)]
     moab_core.tag_set_data(tags["surf_sense"], surface_set, sense_data)
 
-    return moab_core, surface_set, volume_set
+    return moab_core, surface_set
 
 
-def add_vertices_to_moab_core(moab_core, vertices, surface_set):
-    moab_verts = moab_core.create_vertices(vertices)
+# def add_vertices_to_moab_core(moab_core, vertices, surface_set):
+#     moab_verts = moab_core.create_vertices(vertices)
 
-    moab_core.add_entity(surface_set, moab_verts)
-    return moab_core, moab_verts
+#     moab_core.add_entity(surface_set, moab_verts)
+#     return moab_core, moab_verts
 
 
 def add_triangles_to_moab_core(
-    material_tag, surface_set, moab_core, tags, triangles, moab_verts, volume_set
+    material_tag, 
+    surface_set, 
+    moab_core, 
+    tags, 
+    triangles, 
+    moab_verts, 
+    volume_set
 ):
+
     for triangle in triangles:
         tri = (
             moab_verts[int(triangle[0])],
@@ -144,7 +170,7 @@ def vertices_to_h5m(
     vertices: Union[
         Iterable[Tuple[float, float, float]], Iterable["cadquery.occ_impl.geom.Vector"]
     ],
-    triangles: Iterable[Tuple[int, int, int]],
+    triangles: Iterable[Iterable[Tuple[int, int, int]]],
     material_tags: Iterable[str],
     h5m_filename="dagmc.h5m",
 ):
@@ -157,6 +183,8 @@ def vertices_to_h5m(
         material_tags:
         h5m_filename:
     """
+
+    print('triangles',triangles)
 
     if len(material_tags) != len(triangles):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles)}. You must provide one material_tag for every triangle set"
@@ -174,30 +202,40 @@ def vertices_to_h5m(
     else:
         vertices_floats = vertices
 
-    triangles = fix_normals(
-        vertices=vertices_floats, triangles_in_each_volume=triangles
-    )
 
     moab_core, tags = _define_moab_core_and_tags()
 
-    for vol_id, material_tag in enumerate(material_tags, 1):
-        moab_core, surface_set, volume_set = prepare_moab_core(
-            moab_core, surface_id=vol_id, volume_id=vol_id, tags=tags
+    for (vol_id, triangles_on_all_faces), material_tag in zip(triangles.items(), material_tags):
+
+        moab_core, volume_set = prepare_moab_core_volume_set(
+            moab_core=moab_core, volume_id=vol_id, tags=tags
         )
 
-        moab_core, moab_verts = add_vertices_to_moab_core(
-            moab_core, vertices_floats, surface_set
-        )
+        # norm_triangles = fix_normal(
+        #     vertices=vertices_floats,triangles=triangles[vol_id -1]
+        # )
 
-        moab_core = add_triangles_to_moab_core(
-            material_tag,
-            surface_set,
-            moab_core,
-            tags,
-            triangles[vol_id - 1],
-            moab_verts,
-            volume_set,
-        )
+        for surface_id, triangles_on_surface in triangles_on_all_faces.items():
+            print('adding',triangles_on_surface)
+
+            moab_core, surface_set = prepare_moab_core_surface_set(
+                moab_core=moab_core,
+                surface_id=surface_id,
+                volume_set=volume_set,
+                tags=tags,
+            )
+    
+            moab_verts = moab_core.create_vertices(vertices)
+
+            moab_core = add_triangles_to_moab_core(
+                material_tag=material_tag,
+                surface_set=surface_set,
+                moab_core=moab_core,
+                tags=tags,
+                triangles=triangles_on_surface,
+                moab_verts=moab_verts,
+                volume_set=volume_set,
+            )
 
     all_sets = moab_core.get_entities_by_handle(0)
 

@@ -118,6 +118,8 @@ class CadToDagmc:
             original_ids, scrambled_ids, self.material_tags
         )
 
+        print('material_tags_in_brep_order',material_tags_in_brep_order)
+
         gmsh, volumes = mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
