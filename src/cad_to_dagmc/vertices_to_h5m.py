@@ -93,6 +93,7 @@ def prepare_moab_core_volume_set(
 
     return moab_core, volume_set
 
+
 def prepare_moab_core_surface_set(
     moab_core,
     surface_id,
@@ -126,15 +127,8 @@ def prepare_moab_core_surface_set(
 
 
 def add_triangles_to_moab_core(
-    material_tag, 
-    surface_set, 
-    moab_core, 
-    tags, 
-    triangles, 
-    moab_verts, 
-    volume_set
+    material_tag, surface_set, moab_core, tags, triangles, moab_verts, volume_set
 ):
-
     for triangle in triangles:
         tri = (
             moab_verts[int(triangle[0])],
@@ -194,26 +188,25 @@ def vertices_to_h5m(
     else:
         vertices_floats = vertices
 
-
     moab_core, tags = _define_moab_core_and_tags()
 
-
     all_volume_sets = {}
-    for (vol_id, triangles_on_all_faces), material_tag in zip(triangles.items(), material_tags):
-
-        print('adding volume id = ', vol_id)
+    for (vol_id, triangles_on_all_faces), material_tag in zip(
+        triangles.items(), material_tags
+    ):
+        print("adding volume id = ", vol_id)
         moab_core, volume_set = prepare_moab_core_volume_set(
             moab_core=moab_core, volume_id=vol_id, tags=tags
         )
         all_volume_sets[vol_id] = volume_set
 
-
     # builds a dictionary of face ids as keys and solid ids as values
     surface_ids_with_solid_ids = {}
-    for (vol_id, triangles_on_all_faces), material_tag in zip(triangles.items(), material_tags):
+    for (vol_id, triangles_on_all_faces), material_tag in zip(
+        triangles.items(), material_tags
+    ):
         for surface_id, triangles_on_surface in triangles_on_all_faces.items():
-            
-            if surface_id in surface_ids_with_solid_ids.keys(): 
+            if surface_id in surface_ids_with_solid_ids.keys():
                 surface_ids_with_solid_ids[surface_id].append(vol_id)
             else:
                 surface_ids_with_solid_ids[surface_id] = [vol_id]
@@ -221,43 +214,46 @@ def vertices_to_h5m(
     # passing through the solids and faces once to make the surface senses for the geometry
     sense_data_for_each_solid_and_face = {}
     # for material_tag, (solid_id, triangles_on_each_face) in zip(material_tags, triangles_by_solid_by_face_fixed_normals.items()):
-    for (vol_id, triangles_on_all_faces), material_tag in zip(triangles.items(), material_tags):
-
-        volume_set=all_volume_sets[vol_id]
-        sense_data_for_each_solid_and_face[vol_id]={}
+    for (vol_id, triangles_on_all_faces), material_tag in zip(
+        triangles.items(), material_tags
+    ):
+        volume_set = all_volume_sets[vol_id]
+        sense_data_for_each_solid_and_face[vol_id] = {}
         for surface_id, triangles_on_surface in triangles_on_all_faces.items():
-
             # faces appears twice in geometry
-            if len(surface_ids_with_solid_ids[surface_id])==2:
+            if len(surface_ids_with_solid_ids[surface_id]) == 2:
                 # get the other volume_set
-                if all_volume_sets[surface_ids_with_solid_ids[surface_id][0]] == all_volume_sets[vol_id]:
-                    print('2nd volume_set is the other one')
+                if (
+                    all_volume_sets[surface_ids_with_solid_ids[surface_id][0]]
+                    == all_volume_sets[vol_id]
+                ):
+                    print("2nd volume_set is the other one")
                     other_solid_id = surface_ids_with_solid_ids[surface_id][1]
                 else:
-                    print('1st volume_set is the other one')
+                    print("1st volume_set is the other one")
                     other_solid_id = surface_ids_with_solid_ids[surface_id][0]
                 other_volume_set = all_volume_sets[other_solid_id]
-                sense_data = np.array( [volume_set,other_volume_set], dtype='uint64')
+                sense_data = np.array([volume_set, other_volume_set], dtype="uint64")
                 # sense_data = [volume_set,other_volume_set]
                 # sense_data = [other_volume_set,volume_set]
             else:
-                #face appears in just one solid so 2nd sense is 0
-                sense_data = np.array( [volume_set, 0], dtype='uint64')
+                # face appears in just one solid so 2nd sense is 0
+                sense_data = np.array([volume_set, 0], dtype="uint64")
                 # sense_data = [volume_set, np.uint64(0)]
                 # sense_data = [np.uint64(0), volume_set]
             sense_data_for_each_solid_and_face[vol_id][surface_id] = sense_data
 
-    surface_ids_added=[]
-    for (vol_id, triangles_on_all_faces), material_tag in zip(triangles.items(), material_tags):
-
+    surface_ids_added = []
+    for (vol_id, triangles_on_all_faces), material_tag in zip(
+        triangles.items(), material_tags
+    ):
         # norm_triangles = fix_normal(
         #     vertices=vertices_floats,triangles=triangles[vol_id -1]
         # )
-        volume_set=all_volume_sets[vol_id]
+        volume_set = all_volume_sets[vol_id]
 
         for surface_id, triangles_on_surface in triangles_on_all_faces.items():
-            print('    adding surface id =',surface_id)
-
+            print("    adding surface id =", surface_id)
 
             # else:
             moab_core, surface_set = prepare_moab_core_surface_set(
@@ -269,19 +265,17 @@ def vertices_to_h5m(
             # establish parent-child relationship
             moab_core.add_parent_child(volume_set, surface_set)
 
-
             # set surface sense
             # if face appears in just one volume 2nd value is 0
             # sense_data = [volume_set, np.uint64(0)]
-            sense_data=sense_data_for_each_solid_and_face[vol_id][surface_id]
-            print('sense_data',sense_data)
+            sense_data = sense_data_for_each_solid_and_face[vol_id][surface_id]
+            print("sense_data", sense_data)
             moab_core.tag_set_data(tags["surf_sense"], surface_set, sense_data)
 
-    
             moab_verts = moab_core.create_vertices(vertices)
 
             if surface_id in surface_ids_added:
-                print('        all ready added surface id', surface_id)
+                print("        all ready added surface id", surface_id)
             else:
                 moab_core = add_triangles_to_moab_core(
                     material_tag=material_tag,
