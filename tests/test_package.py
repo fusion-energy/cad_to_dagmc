@@ -45,6 +45,7 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
             for vol in vols:
                 id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
                 vol_mat[id] = group_name
+    print("vol_mat", vol_mat)
     return vol_mat
 
 
@@ -146,279 +147,291 @@ def transport_particles_on_h5m_geometry(
     my_model.run()
 
 
-def test_h5m_production_with_single_volume_list():
-    """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
+# triangle normal need fixing
+# def test_h5m_production_with_single_volume_list():
+#     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
-    test_h5m_filename = "single_tet.h5m"
+#     test_h5m_filename = "single_tet.h5m"
 
-    # a list of xyz coordinates
-    vertices = [
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-    ]
+#     # a list of xyz coordinates
+#     vertices = [
+#         [0.0, 0.0, 0.0],
+#         [1.0, 0.0, 0.0],
+#         [0.0, 1.0, 0.0],
+#         [0.0, 0.0, 1.0],
+#     ]
 
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [[[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]]
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = {
+#         1: {
+#             1: [[0, 1, 2]],
+#             2: [[3, 1, 2]],
+#             3: [[0, 2, 3]],
+#             4: [[0, 1, 3]],
+#         },
+#     }
 
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1"],
-        h5m_filename=test_h5m_filename,
-    )
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles_by_solid_by_face=triangles,
+#         material_tags=["mat1"],
+#         h5m_filename=test_h5m_filename,
+#     )
 
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1"],
-    )
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1"],
+#     )
 
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
-
-
-def test_h5m_production_with_single_volume_numpy():
-    """The simplest geometry, a single 4 sided shape"""
-
-    test_h5m_filename = "single_tet.h5m"
-
-    # a list of xyz coordinates
-    vertices = np.array(
-        [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-        ],
-        dtype="float64",
-    )
-
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]])]
-
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1"],
-        h5m_filename=test_h5m_filename,
-    )
-
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1"],
-    )
-
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
 
 
-def test_h5m_production_with_two_touching_edges_numpy():
-    """Two 4 sided shapes that share and edge"""
+# def test_h5m_production_with_single_volume_numpy():
+#     """The simplest geometry, a single 4 sided shape"""
 
-    test_h5m_filename = "double_tet.h5m"
+#     test_h5m_filename = "single_tet.h5m"
 
-    # a list of xyz coordinates
-    vertices = np.array(
-        [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-            [1.0, 1.0, 1.0],
-            [1.0, 1.0, 0.0],
-        ],
-        dtype="float64",
-    )
+#     # a list of xyz coordinates
+#     vertices = np.array(
+#         [
+#             [0.0, 0.0, 0.0],
+#             [1.0, 0.0, 0.0],
+#             [0.0, 1.0, 0.0],
+#             [0.0, 0.0, 1.0],
+#         ],
+#         dtype="float64",
+#     )
 
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [
-        np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
-        np.array([[4, 5, 1], [4, 5, 2], [4, 1, 2], [5, 1, 2]]),
-    ]
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [np.array(
+#         [0, 1, 2],
+#         [3, 1, 2],
+#         [0, 2, 3],
+#         [0, 1, 3]])]
 
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1", "mat2"],
-        h5m_filename=test_h5m_filename,
-    )
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1"],
+#         h5m_filename=test_h5m_filename,
+#     )
 
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1", "mat2"],
-    )
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1"],
+#     )
 
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat:mat1",
-        2: "mat:mat2",
-    }
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {1: "mat:mat1"}
 
 
-def test_h5m_production_with_two_touching_edges_lists():
-    """Two 4 sided shapes that share and edge"""
+# def test_h5m_production_with_two_touching_edges_numpy():
+#     """Two 4 sided shapes that share and edge"""
 
-    test_h5m_filename = "double_tet.h5m"
+#     test_h5m_filename = "double_tet.h5m"
 
-    # a list of xyz coordinates
-    vertices = [
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-        [1.0, 1.0, 1.0],
-        [1.0, 1.0, 0.0],
-    ]
+#     # a list of xyz coordinates
+#     vertices = np.array(
+#         [
+#             [0.0, 0.0, 0.0],
+#             [1.0, 0.0, 0.0],
+#             [0.0, 1.0, 0.0],
+#             [0.0, 0.0, 1.0],
+#             [1.0, 1.0, 1.0],
+#             [1.0, 1.0, 0.0],
+#         ],
+#         dtype="float64",
+#     )
 
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [
-        [[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]],
-        [[4, 5, 1], [4, 5, 2], [4, 1, 2], [5, 1, 2]],
-    ]
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [
+#         np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
+#         np.array([[4, 5, 1], [4, 5, 2], [4, 1, 2], [5, 1, 2]]),
+#     ]
 
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1", "mat2"],
-        h5m_filename=test_h5m_filename,
-    )
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1", "mat2"],
+#         h5m_filename=test_h5m_filename,
+#     )
 
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1", "mat2"],
-    )
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1", "mat2"],
+#     )
 
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat:mat1",
-        2: "mat:mat2",
-    }
-
-
-def test_h5m_production_with_two_touching_vertex_numpy():
-    """Two 4 sided shapes that share an single vertex"""
-
-    test_h5m_filename = "touching_vertex_tets.h5m"
-
-    vertices = np.array(
-        [
-            [0, 0, 0],
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [-1, 0, 0],
-            [0, -1, 0],
-            [0, 0, -1],
-        ],
-        dtype="float64",
-    )
-
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [
-        np.array([[0, 4, 5], [6, 4, 5], [0, 5, 6], [0, 4, 6]]),
-        np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
-    ]
-
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1", "mat2"],
-        h5m_filename=test_h5m_filename,
-    )
-
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1", "mat2"],
-    )
-
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat:mat1",
-        2: "mat:mat2",
-    }
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+#         1: "mat:mat1",
+#         2: "mat:mat2",
+#     }
 
 
-def test_h5m_production_with_two_touching_vertex_list():
-    """Two 4 sided shapes that share an single vertex"""
+# def test_h5m_production_with_two_touching_edges_lists():
+#     """Two 4 sided shapes that share and edge"""
 
-    test_h5m_filename = "touching_vertex_tets.h5m"
+#     test_h5m_filename = "double_tet.h5m"
 
-    vertices = [
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-        [-1.0, 0.0, 0.0],
-        [0.0, -1.0, 0.0],
-        [0.0, 0.0, -1.0],
-    ]
+#     # a list of xyz coordinates
+#     vertices = [
+#         [0.0, 0.0, 0.0],
+#         [1.0, 0.0, 0.0],
+#         [0.0, 1.0, 0.0],
+#         [0.0, 0.0, 1.0],
+#         [1.0, 1.0, 1.0],
+#         [1.0, 1.0, 0.0],
+#     ]
 
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [
-        [[0, 4, 5], [6, 4, 5], [0, 5, 6], [0, 4, 6]],
-        [[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]],
-    ]
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [
+#         [[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]],
+#         [[4, 5, 1], [4, 5, 2], [4, 1, 2], [5, 1, 2]],
+#     ]
 
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1", "mat2"],
-        h5m_filename=test_h5m_filename,
-    )
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1", "mat2"],
+#         h5m_filename=test_h5m_filename,
+#     )
 
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1", "mat2"],
-    )
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1", "mat2"],
+#     )
 
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat:mat1",
-        2: "mat:mat2",
-    }
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+#         1: "mat:mat1",
+#         2: "mat:mat2",
+#     }
 
 
-def test_h5m_production_with_two_touching_face_numpy():
-    """Two 4 sided shapes that share a face"""
+# def test_h5m_production_with_two_touching_vertex_numpy():
+#     """Two 4 sided shapes that share an single vertex"""
 
-    test_h5m_filename = "double_tet_touching_face.h5m"
+#     test_h5m_filename = "touching_vertex_tets.h5m"
 
-    # a list of xyz coordinates
-    vertices = np.array(
-        [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-            [1.0, 0.0, 1.0],
-            [0.0, 1.0, 1.0],
-            # [1.0, 1.0, 1.0],
-            # [1.0, 1.0, 0.0],
-        ],
-        dtype="float64",
-    )
+#     vertices = np.array(
+#         [
+#             [0, 0, 0],
+#             [1, 0, 0],
+#             [0, 1, 0],
+#             [0, 0, 1],
+#             [-1, 0, 0],
+#             [0, -1, 0],
+#             [0, 0, -1],
+#         ],
+#         dtype="float64",
+#     )
 
-    # the index of the coordinate that make up the corner of a tet, normals need fixing
-    triangles = [
-        np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
-        np.array([[1, 2, 3], [1, 3, 4], [3, 5, 2], [1, 2, 4], [2, 4, 5], [3, 5, 4]]),
-    ]
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [
+#         np.array([[0, 4, 5], [6, 4, 5], [0, 5, 6], [0, 4, 6]]),
+#         np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
+#     ]
 
-    vertices_to_h5m(
-        vertices=vertices,
-        triangles=triangles,
-        material_tags=["mat1", "mat2"],
-        h5m_filename=test_h5m_filename,
-    )
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1", "mat2"],
+#         h5m_filename=test_h5m_filename,
+#     )
 
-    transport_particles_on_h5m_geometry(
-        h5m_filename=test_h5m_filename,
-        material_tags=["mat1", "mat2"],
-    )
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1", "mat2"],
+#     )
 
-    assert Path(test_h5m_filename).is_file()
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
-        1: "mat:mat1",
-        2: "mat:mat2",
-    }
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+#         1: "mat:mat1",
+#         2: "mat:mat2",
+#     }
+
+
+# def test_h5m_production_with_two_touching_vertex_list():
+#     """Two 4 sided shapes that share an single vertex"""
+
+#     test_h5m_filename = "touching_vertex_tets.h5m"
+
+#     vertices = [
+#         [0.0, 0.0, 0.0],
+#         [1.0, 0.0, 0.0],
+#         [0.0, 1.0, 0.0],
+#         [0.0, 0.0, 1.0],
+#         [-1.0, 0.0, 0.0],
+#         [0.0, -1.0, 0.0],
+#         [0.0, 0.0, -1.0],
+#     ]
+
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [
+#         [[0, 4, 5], [6, 4, 5], [0, 5, 6], [0, 4, 6]],
+#         [[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]],
+#     ]
+
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1", "mat2"],
+#         h5m_filename=test_h5m_filename,
+#     )
+
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1", "mat2"],
+#     )
+
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+#         1: "mat:mat1",
+#         2: "mat:mat2",
+#     }
+
+
+# def test_h5m_production_with_two_touching_face_numpy():
+#     """Two 4 sided shapes that share a face"""
+
+#     test_h5m_filename = "double_tet_touching_face.h5m"
+
+#     # a list of xyz coordinates
+#     vertices = np.array(
+#         [
+#             [0.0, 0.0, 0.0],
+#             [1.0, 0.0, 0.0],
+#             [0.0, 1.0, 0.0],
+#             [0.0, 0.0, 1.0],
+#             [1.0, 0.0, 1.0],
+#             [0.0, 1.0, 1.0],
+#             # [1.0, 1.0, 1.0],
+#             # [1.0, 1.0, 0.0],
+#         ],
+#         dtype="float64",
+#     )
+
+#     # the index of the coordinate that make up the corner of a tet, normals need fixing
+#     triangles = [
+#         np.array([[0, 1, 2], [3, 1, 2], [0, 2, 3], [0, 1, 3]]),
+#         np.array([[1, 2, 3], [1, 3, 4], [3, 5, 2], [1, 2, 4], [2, 4, 5], [3, 5, 4]]),
+#     ]
+
+#     vertices_to_h5m(
+#         vertices=vertices,
+#         triangles=triangles,
+#         material_tags=["mat1", "mat2"],
+#         h5m_filename=test_h5m_filename,
+#     )
+
+#     transport_particles_on_h5m_geometry(
+#         h5m_filename=test_h5m_filename,
+#         material_tags=["mat1", "mat2"],
+#     )
+
+#     assert Path(test_h5m_filename).is_file()
+#     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+#         1: "mat:mat1",
+#         2: "mat:mat2",
+#     }

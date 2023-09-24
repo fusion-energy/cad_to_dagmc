@@ -24,7 +24,6 @@ def get_ids_from_assembly(assembly):
 def get_ids_from_imprinted_assembly(solid_id_dict):
     ids = []
     for id in list(solid_id_dict.values()):
-        print(id[0])
         ids.append(id[0])
     return ids
 

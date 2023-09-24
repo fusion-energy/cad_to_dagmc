@@ -45,7 +45,6 @@ class CadToDagmc:
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
         """
-        print(f"loading stp file {filename}")
         part = importers.importStep(str(filename)).val()
 
         if scale_factor == 1:
@@ -73,7 +72,6 @@ class CadToDagmc:
         """
 
         if isinstance(object, cq.assembly.Assembly):
-            print("assembly found")
             object = object.toCompound()
 
         if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
@@ -93,7 +91,7 @@ class CadToDagmc:
         self,
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
-        max_mesh_size: float = 10,
+        max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         msh_filename: str = None,
     ):

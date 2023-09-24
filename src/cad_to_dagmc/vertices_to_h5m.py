@@ -74,44 +74,42 @@ def _define_moab_core_and_tags() -> Tuple[core.Core, dict]:
     return moab_core, tags
 
 
-def prepare_moab_core(
+def prepare_moab_core_volume_set(
     moab_core,
-    surface_id,
     volume_id,
     tags,
 ):
-    surface_set = moab_core.create_meshset()
     volume_set = moab_core.create_meshset()
 
     # recent versions of MOAB handle this automatically
     # but best to go ahead and do it manually
     moab_core.tag_set_data(tags["global_id"], volume_set, volume_id)
 
-    moab_core.tag_set_data(tags["global_id"], surface_set, surface_id)
-
     # set geom IDs
     moab_core.tag_set_data(tags["geom_dimension"], volume_set, 3)
-    moab_core.tag_set_data(tags["geom_dimension"], surface_set, 2)
 
     # set category tag values
     moab_core.tag_set_data(tags["category"], volume_set, "Volume")
+
+    return moab_core, volume_set
+
+
+def prepare_moab_core_surface_set(
+    moab_core,
+    surface_id,
+    tags,
+):
+    surface_set = moab_core.create_meshset()
+
+    moab_core.tag_set_data(tags["global_id"], surface_set, surface_id)
+
+    # set geom IDs
+    moab_core.tag_set_data(tags["geom_dimension"], surface_set, 2)
+
+    # set category tag values
     moab_core.tag_set_data(tags["category"], surface_set, "Surface")
 
-    # establish parent-child relationship
-    moab_core.add_parent_child(volume_set, surface_set)
-
-    # set surface sense
-    sense_data = [volume_set, np.uint64(0)]
-    moab_core.tag_set_data(tags["surf_sense"], surface_set, sense_data)
-
-    return moab_core, surface_set, volume_set
-
-
-def add_vertices_to_moab_core(moab_core, vertices, surface_set):
-    moab_verts = moab_core.create_vertices(vertices)
-
-    moab_core.add_entity(surface_set, moab_verts)
-    return moab_core, moab_verts
+    return moab_core, surface_set
 
 
 def add_triangles_to_moab_core(
@@ -144,7 +142,7 @@ def vertices_to_h5m(
     vertices: Union[
         Iterable[Tuple[float, float, float]], Iterable["cadquery.occ_impl.geom.Vector"]
     ],
-    triangles: Iterable[Tuple[int, int, int]],
+    triangles_by_solid_by_face: Iterable[Iterable[Tuple[int, int, int]]],
     material_tags: Iterable[str],
     h5m_filename="dagmc.h5m",
 ):
@@ -158,8 +156,8 @@ def vertices_to_h5m(
         h5m_filename:
     """
 
-    if len(material_tags) != len(triangles):
-        msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles)}. You must provide one material_tag for every triangle set"
+    if len(material_tags) != len(triangles_by_solid_by_face):
+        msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
         raise ValueError(msg)
 
     # limited attribute checking to see if user passed in a list of CadQuery vectors
@@ -174,30 +172,84 @@ def vertices_to_h5m(
     else:
         vertices_floats = vertices
 
-    triangles = fix_normals(
-        vertices=vertices_floats, triangles_in_each_volume=triangles
-    )
+    face_ids_with_solid_ids = {}
+    for solid_id, triangles_on_each_face in triangles_by_solid_by_face.items():
+        for face_id, triangles_on_face in triangles_on_each_face.items():
+            if face_id in face_ids_with_solid_ids.keys():
+                face_ids_with_solid_ids[face_id].append(solid_id)
+            else:
+                face_ids_with_solid_ids[face_id] = [solid_id]
 
     moab_core, tags = _define_moab_core_and_tags()
 
-    for vol_id, material_tag in enumerate(material_tags, 1):
-        moab_core, surface_set, volume_set = prepare_moab_core(
-            moab_core, surface_id=vol_id, volume_id=vol_id, tags=tags
-        )
+    volume_sets_by_solid_id = {}
+    for material_tag, (solid_id, triangles_on_each_face) in zip(
+        material_tags, triangles_by_solid_by_face.items()
+    ):
+        volume_set = moab_core.create_meshset()
+        volume_sets_by_solid_id[solid_id] = volume_set
 
-        moab_core, moab_verts = add_vertices_to_moab_core(
-            moab_core, vertices_floats, surface_set
-        )
+    added_surfaces_ids = {}
+    for material_tag, (solid_id, triangles_on_each_face) in zip(
+        material_tags, triangles_by_solid_by_face.items()
+    ):
+        volume_set = volume_sets_by_solid_id[solid_id]
 
-        moab_core = add_triangles_to_moab_core(
-            material_tag,
-            surface_set,
-            moab_core,
-            tags,
-            triangles[vol_id - 1],
-            moab_verts,
-            volume_set,
-        )
+        moab_core.tag_set_data(tags["global_id"], volume_set, solid_id)
+        moab_core.tag_set_data(tags["geom_dimension"], volume_set, 3)
+        moab_core.tag_set_data(tags["category"], volume_set, "Volume")
+
+        group_set = moab_core.create_meshset()
+        moab_core.tag_set_data(tags["category"], group_set, "Group")
+        moab_core.tag_set_data(tags["name"], group_set, f"mat:{material_tag}")
+        moab_core.tag_set_data(tags["global_id"], group_set, solid_id)
+        # moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
+
+        for face_id, triangles_on_face in triangles_on_each_face.items():
+            if face_id not in added_surfaces_ids.keys():
+                face_set = moab_core.create_meshset()
+                moab_core.tag_set_data(tags["global_id"], face_set, face_id)
+                moab_core.tag_set_data(tags["geom_dimension"], face_set, 2)
+                moab_core.tag_set_data(tags["category"], face_set, "Surface")
+
+                if len(face_ids_with_solid_ids[face_id]) == 2:
+                    other_solid_id = face_ids_with_solid_ids[face_id][1]
+                    other_volume_set = volume_sets_by_solid_id[other_solid_id]
+                    sense_data = np.array(
+                        [other_volume_set, volume_set], dtype="uint64"
+                    )
+                else:
+                    sense_data = np.array([volume_set, 0], dtype="uint64")
+
+                moab_core.tag_set_data(tags["surf_sense"], face_set, sense_data)
+
+                moab_verts = moab_core.create_vertices(vertices)
+                moab_core.add_entity(face_set, moab_verts)
+
+                for triangle in triangles_on_face:
+                    tri = (
+                        moab_verts[int(triangle[0])],
+                        moab_verts[int(triangle[1])],
+                        moab_verts[int(triangle[2])],
+                    )
+
+                    moab_triangle = moab_core.create_element(types.MBTRI, tri)
+                    moab_core.add_entity(face_set, moab_triangle)
+
+                added_surfaces_ids[face_id] = face_set
+            else:
+                face_set = added_surfaces_ids[face_id]
+
+                other_solid_id = face_ids_with_solid_ids[face_id][0]
+
+                other_volume_set = volume_sets_by_solid_id[other_solid_id]
+
+                sense_data = np.array([other_volume_set, volume_set], dtype="uint64")
+                moab_core.tag_set_data(tags["surf_sense"], face_set, sense_data)
+
+            moab_core.add_parent_child(volume_set, face_set)
+
+        moab_core.add_entity(group_set, volume_set)
 
     all_sets = moab_core.get_entities_by_handle(0)
 
