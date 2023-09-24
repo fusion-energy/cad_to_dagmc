@@ -7,17 +7,17 @@
 
 [![PyPI](https://img.shields.io/pypi/v/cad_to_dagmc?color=brightgreen&label=pypi&logo=grebrightgreenen&logoColor=green)](https://pypi.org/project/cad_to_dagmc/)
 
+✔️ Validated by comparing DAGMC simulations results directly with native CSG geometry, see [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo) for more details
+
 ___
 
 A minimal package that uses CadQuery functionality to convert CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) h5m files
 
-This particular method of producing DAGMC compatible h5m files from CAD geometry
-is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) objects to h5m file.
-
-One unique feature of this package is the ability to combine STP files with CadQuery objects.
-This allows for the addition of parametric geometry to static geometry.
+This particular method of producing DAGMC compatible h5m files from CAD geometry is intended to convert STP files or [CadQuery](https://cadquery.readthedocs.io) objects to h5m file.
 
 The resulting DAGMC geometry can then be used for simulations in [OpenMC](https://github.com/openmc-dev/openmc/) or [other supported codes](https://svalinn.github.io/DAGMC/).
+
+Also checkout these two other opensource packages that also create DAGMC geometry [CAD-to-OpenMC](https://github.com/openmsr/CAD_to_OpenMC) and [Stellarmesh](https://github.com/Thea-Energy/stellarmesh).
 
 # Installation prerequisite
 
