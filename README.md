@@ -7,7 +7,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/cad_to_dagmc?color=brightgreen&label=pypi&logo=grebrightgreenen&logoColor=green)](https://pypi.org/project/cad_to_dagmc/)
 
-✔️ Validated by comparing DAGMC simulations results directly with native CSG geometry, see [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo) for more details
+✔️ Tested by comparing DAGMC simulations results directly with native CSG geometry, see [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo) for more details
 
 ___
 
