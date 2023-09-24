@@ -101,7 +101,7 @@ def mesh_to_h5m_in_memory_method(
                 for i in range(0, len(shifted_node_tags), n)
             ]
             nodes_in_each_surface[surface] = grouped_node_tags
-        triangles_by_solid_by_face[vol_id] = nodes_in_each_surface
+        nodes_in_each_volume[vol_id] = nodes_in_each_surface
 
     _, all_coords, _ = gmsh.model.mesh.getNodes()
 

@@ -206,7 +206,6 @@ def vertices_to_h5m(
         # moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
 
         for face_id, triangles_on_face in triangles_on_each_face.items():
-
             if face_id not in added_surfaces_ids.keys():
                 face_set = moab_core.create_meshset()
                 moab_core.tag_set_data(tags["global_id"], face_set, face_id)
