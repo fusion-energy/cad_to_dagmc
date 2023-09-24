@@ -87,7 +87,6 @@ def mesh_to_h5m_in_memory_method(
         tag = group[1]
 
         surfaces = gmsh.model.getEntitiesForPhysicalGroup(dim, tag)
-        print("surfaces entities", surfaces)
 
         # nodes_in_all_surfaces = []
         nodes_in_each_surface = {}

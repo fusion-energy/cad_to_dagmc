@@ -100,30 +100,16 @@ def prepare_moab_core_surface_set(
     tags,
 ):
     surface_set = moab_core.create_meshset()
-    # volume_set = moab_core.create_meshset()
-
-    # # recent versions of MOAB handle this automatically
-    # # but best to go ahead and do it manually
-    # moab_core.tag_set_data(tags["global_id"], volume_set, volume_id)
 
     moab_core.tag_set_data(tags["global_id"], surface_set, surface_id)
 
     # set geom IDs
-    # moab_core.tag_set_data(tags["geom_dimension"], volume_set, 3)
     moab_core.tag_set_data(tags["geom_dimension"], surface_set, 2)
 
     # set category tag values
-    # moab_core.tag_set_data(tags["category"], volume_set, "Volume")
     moab_core.tag_set_data(tags["category"], surface_set, "Surface")
 
     return moab_core, surface_set
-
-
-# def add_vertices_to_moab_core(moab_core, vertices, surface_set):
-#     moab_verts = moab_core.create_vertices(vertices)
-
-#     moab_core.add_entity(surface_set, moab_verts)
-#     return moab_core, moab_verts
 
 
 def add_triangles_to_moab_core(
@@ -169,8 +155,6 @@ def vertices_to_h5m(
         material_tags:
         h5m_filename:
     """
-
-    # print('triangles',triangles)
 
     if len(material_tags) != len(triangles_by_solid_by_face):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
@@ -221,21 +205,15 @@ def vertices_to_h5m(
         moab_core.tag_set_data(tags["global_id"], group_set, solid_id)
         # moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
 
-        # adjacencies = gmsh.model.get_adjacencies(3, solid_id)
-        # print('adjacencies',adjacencies[1])
-
         for face_id, triangles_on_face in triangles_on_each_face.items():
-            print("face_id", face_id)
 
             if face_id not in added_surfaces_ids.keys():
                 face_set = moab_core.create_meshset()
-                # volume_sets_added_by_face_id[face_id] = volume_set
                 moab_core.tag_set_data(tags["global_id"], face_set, face_id)
                 moab_core.tag_set_data(tags["geom_dimension"], face_set, 2)
                 moab_core.tag_set_data(tags["category"], face_set, "Surface")
 
                 if len(face_ids_with_solid_ids[face_id]) == 2:
-                    print("  2 faces with this id found")
                     other_solid_id = face_ids_with_solid_ids[face_id][1]
                     other_volume_set = volume_sets_by_solid_id[other_solid_id]
                     sense_data = np.array(
@@ -243,8 +221,6 @@ def vertices_to_h5m(
                     )
                 else:
                     sense_data = np.array([volume_set, 0], dtype="uint64")
-
-                print("    sense_data =", sense_data)
 
                 moab_core.tag_set_data(tags["surf_sense"], face_set, sense_data)
 
@@ -270,7 +246,6 @@ def vertices_to_h5m(
                 other_volume_set = volume_sets_by_solid_id[other_solid_id]
 
                 sense_data = np.array([other_volume_set, volume_set], dtype="uint64")
-                print("    sense_data =", sense_data)
                 moab_core.tag_set_data(tags["surf_sense"], face_set, sense_data)
 
             moab_core.add_parent_child(volume_set, face_set)

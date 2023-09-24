@@ -45,7 +45,6 @@ class CadToDagmc:
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
         """
-        print(f"loading stp file {filename}")
         part = importers.importStep(str(filename)).val()
 
         if scale_factor == 1:
@@ -73,7 +72,6 @@ class CadToDagmc:
         """
 
         if isinstance(object, cq.assembly.Assembly):
-            print("assembly found")
             object = object.toCompound()
 
         if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
@@ -117,8 +115,6 @@ class CadToDagmc:
         material_tags_in_brep_order = order_material_ids_by_brep_order(
             original_ids, scrambled_ids, self.material_tags
         )
-
-        print("material_tags_in_brep_order", material_tags_in_brep_order)
 
         gmsh, volumes = mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
