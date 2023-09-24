@@ -37,6 +37,7 @@ jobs:
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
           conda install -y -c conda-forge mamba
+          mamba install -c conda-forge -c cadquery ocp
           mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
 
       - name: install package
