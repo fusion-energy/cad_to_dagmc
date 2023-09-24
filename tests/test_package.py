@@ -45,7 +45,7 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
             for vol in vols:
                 id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
                 vol_mat[id] = group_name
-    print('vol_mat',vol_mat)
+    print("vol_mat", vol_mat)
     return vol_mat
 
 
@@ -162,11 +162,11 @@ def test_h5m_production_with_single_volume_list():
 
     # the index of the coordinate that make up the corner of a tet, normals need fixing
     triangles = {
-        1:{
-            1:[[0, 1, 2]],
-            2:[[3, 1, 2]],
-            3:[[0, 2, 3]],
-            4:[[0, 1, 3]],
+        1: {
+            1: [[0, 1, 2]],
+            2: [[3, 1, 2]],
+            3: [[0, 2, 3]],
+            4: [[0, 1, 3]],
         },
     }
 

@@ -93,7 +93,7 @@ class CadToDagmc:
         self,
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
-        max_mesh_size: float = 10,
+        max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         msh_filename: str = None,
     ):
@@ -118,7 +118,7 @@ class CadToDagmc:
             original_ids, scrambled_ids, self.material_tags
         )
 
-        print('material_tags_in_brep_order',material_tags_in_brep_order)
+        print("material_tags_in_brep_order", material_tags_in_brep_order)
 
         gmsh, volumes = mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
