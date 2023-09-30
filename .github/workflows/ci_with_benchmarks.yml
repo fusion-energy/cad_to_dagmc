@@ -1,0 +1,47 @@
+
+name: CI with model benchmark zoo
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.cff'
+      - 'LICENSE.txt'
+      - 'readthedocs.yml'
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: continuumio/miniconda3:23.3.1-0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: install non pypi dependencies for cad creation
+        run: |
+          apt-get --allow-releaseinfo-change update
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
+          conda install -y -c conda-forge mamba
+          mamba install -c conda-forge -c cadquery ocp
+          mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
+
+      - name: install package
+        run: |
+          pip install --upgrade pip
+          pip install .
+          python -c "import cad_to_dagmc"
+          mamba install -c conda-forge openmc -y
+
+      - name: run benchmarks
+        run: |
+          git clone git@github.com:fusion-energy/model_benchmark_zoo.git
+          cd model_benchmark_zoo
+          pytest tests
