@@ -36,7 +36,7 @@ jobs:
       - name: install package
         run: |
           pip install --upgrade pip
-          pip install .
+          pip install .[tests]
           python -c "import cad_to_dagmc"
           mamba install -c conda-forge openmc -y
 
