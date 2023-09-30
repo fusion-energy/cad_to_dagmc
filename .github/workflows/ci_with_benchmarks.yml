@@ -42,6 +42,6 @@ jobs:
 
       - name: run benchmarks
         run: |
-          git clone git@github.com:fusion-energy/model_benchmark_zoo.git
+          git clone https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
           pytest tests
