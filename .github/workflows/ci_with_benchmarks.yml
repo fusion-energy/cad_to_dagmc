@@ -39,8 +39,12 @@ jobs:
           pip install .[tests]
           python -c "import cad_to_dagmc"
           mamba install -c conda-forge openmc -y
+          pip install cad_to_dagmc openmc_data_downloader
+          openmc_data_downloader -l ENDFB-7.1-NNDC -i Fe56 Be9
 
       - name: run benchmarks
+        env:
+          OPENMC_CROSS_SECTIONS: /__w/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
         run: |
           git clone https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
