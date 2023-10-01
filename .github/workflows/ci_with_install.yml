@@ -9,7 +9,6 @@ name: CI with install
 on:
   pull_request:
     branches:
-      - develop
       - main
     paths-ignore:
       - 'docs/**'
@@ -18,6 +17,9 @@ on:
       - 'CITATION.cff'
       - 'LICENSE.txt'
       - 'readthedocs.yml'
+  push:
+    branches:
+      - main
 
 jobs:
   testing:
