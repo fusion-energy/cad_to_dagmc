@@ -1,6 +1,5 @@
 import openmc
 from cad_to_dagmc import CadToDagmc
-import math
 import cadquery as cq
 
 
@@ -31,7 +30,6 @@ def transport_particles_on_h5m_geometry(
 
     """
 
-    import openmc
     from openmc.data import NATURAL_ABUNDANCE
 
     if nuclides is None:

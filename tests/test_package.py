@@ -5,7 +5,7 @@ import openmc
 import pymoab as mb
 from pymoab import core, types
 
-from cad_to_dagmc import vertices_to_h5m
+# from cad_to_dagmc import vertices_to_h5m
 
 """
 Tests that check that:
