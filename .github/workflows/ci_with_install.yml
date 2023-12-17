@@ -40,8 +40,11 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
           mamba activate
-          mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master "openmc=0.13.3=dagmc*nompi*"
+          mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
           python -m pip install --upgrade pip 
+          python -m pip install .
+          python -c "import cad_to_dagmc"
+          mamba install -y -c conda-forge "openmc=0.13.3=dagmc*nompi*"
           python -m pip install .[tests]
           pytest tests -v
           cd examples
