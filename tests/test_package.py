@@ -5,7 +5,7 @@ import openmc
 import pymoab as mb
 from pymoab import core, types
 
-from cad_to_dagmc import vertices_to_h5m
+# from cad_to_dagmc import vertices_to_h5m
 
 """
 Tests that check that:
@@ -49,9 +49,7 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     return vol_mat
 
 
-def transport_particles_on_h5m_geometry(
-    h5m_filename, material_tags, cross_sections_xml=None
-):
+def transport_particles_on_h5m_geometry(h5m_filename, material_tags, cross_sections_xml=None):
     """A function for testing the geometry file with particle transport in DAGMC OpenMC"""
 
     materials = openmc.Materials()

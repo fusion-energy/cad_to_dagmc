@@ -24,9 +24,7 @@ def get_ids_from_imprinted_assembly(solid_id_dict):
     return ids
 
 
-imprinted_assembly, imprinted_solids_with_original_id = cq.occ_impl.assembly.imprint(
-    assembly
-)
+imprinted_assembly, imprinted_solids_with_original_id = cq.occ_impl.assembly.imprint(assembly)
 
 original_ids = get_ids_from_assembly(assembly)
 scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_original_id)

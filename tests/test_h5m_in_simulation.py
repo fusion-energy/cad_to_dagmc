@@ -121,9 +121,7 @@ def test_h5m_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
-        transport_particles_on_h5m_geometry(
-            h5m_filename=h5m_file, material_tags=mat_tags
-        )
+        transport_particles_on_h5m_geometry(h5m_filename=h5m_file, material_tags=mat_tags)
 
 
 def test_h5m_with_multi_volume_touching():
@@ -136,6 +134,4 @@ def test_h5m_with_multi_volume_touching():
         "tests/two_connected_cubes.h5m",
     ]
     for mat_tags, h5m_file in zip(material_tags, h5m_files):
-        transport_particles_on_h5m_geometry(
-            h5m_filename=h5m_file, material_tags=mat_tags
-        )
+        transport_particles_on_h5m_geometry(h5m_filename=h5m_file, material_tags=mat_tags)

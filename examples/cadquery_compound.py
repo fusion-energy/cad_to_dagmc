@@ -17,12 +17,7 @@ r = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True)
 cq_shape_1 = r.extrude(-1)
 
 s2 = cq.Workplane("XY")
-r2 = (
-    s2.lineTo(3.0, 0)
-    .lineTo(3.0, 1.0)
-    .spline(spline_points, includeCurrent=True)
-    .close()
-)
+r2 = s2.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True).close()
 cq_shape_2 = r2.extrude(1)
 
 

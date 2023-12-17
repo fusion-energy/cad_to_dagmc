@@ -136,3 +136,4 @@ dmypy.json
 *.vtk
 *.stp
 src/_version.py
+*.msh
