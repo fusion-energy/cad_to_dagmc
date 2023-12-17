@@ -11,7 +11,6 @@ from cadquery import importers
 from pymoab import core, types
 
 
-
 def fix_normals(vertices: list, triangles_in_each_volume: list):
     fixed_triangles = []
     for triangles in triangles_in_each_volume:
@@ -462,7 +461,10 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, imprinted_solids_with_original_id = cq.occ_impl.assembly.imprint(assembly)
+        (
+            imprinted_assembly,
+            imprinted_solids_with_original_id,
+        ) = cq.occ_impl.assembly.imprint(assembly)
 
         gmsh, volumes = mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
@@ -472,11 +474,12 @@ class CadToDagmc:
         )
 
         original_ids = get_ids_from_assembly(assembly)
-        scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_original_id)
+        scrambled_ids = get_ids_from_imprinted_assembly(
+            imprinted_solids_with_original_id
+        )
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
-
 
         material_tags_in_brep_order = order_material_ids_by_brep_order(
             original_ids, scrambled_ids, self.material_tags
