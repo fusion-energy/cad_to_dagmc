@@ -59,6 +59,7 @@ You may also want to install OpenMC with DAGMC to make use of the h5m geometry f
 ```bash
 mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
+You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered.
 
 
 # Install using Conda and pip

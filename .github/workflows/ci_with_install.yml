@@ -47,12 +47,13 @@ jobs:
           sudo apt install g++ cmake libhdf5-dev libpng-dev
           git clone --depth 1  --recurse-submodules https://github.com/openmc-dev/openmc.git openmc-repo
           cd openmc-repo
-          python -m pip install .
           mkdir build
           cd build
           cmake ..
           make ..
+          export PATH="$PWD:$PATH"
           cd ..
+          python -m pip install .
           cd ..
           python -m pip install .[tests]
           pytest tests -v
