@@ -155,19 +155,6 @@ def test_cq_compound():
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 def test_gmsh_mesh_with_single_volume_list():
     """Simple geometry, a single 4 sided shape"""
 
@@ -210,6 +197,7 @@ def test_gmsh_mesh_with_multi_volume_not_touching():
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
             tags_dict[counter] = f"mat:{loop_mat_tag}"
+
 
 def test_gmsh_mesh_with_multi_volume_touching():
     stp_files = [

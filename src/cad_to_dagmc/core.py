@@ -399,7 +399,6 @@ class CadToDagmc:
 
         gmsh.finalize()
 
-
     def export_dagmc_h5m_file(
         self,
         filename: str = "dagmc.h5m",
