@@ -39,8 +39,6 @@ jobs:
           mamba activate
           mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
           python -m pip install --upgrade pip
-          python -m pip install cad_to_dagmc openmc_data_downloader
-          openmc_data_downloader -l ENDFB-7.1-NNDC -i Fe56 Be9
           sudo apt install g++ cmake libhdf5-dev libpng-dev
           git clone --depth 1  --recurse-submodules https://github.com/openmc-dev/openmc.git openmc-repo
           cd openmc-repo
@@ -52,6 +50,8 @@ jobs:
           cd ..
           python -m pip install .
           cd ..
+          python -m pip install cad_to_dagmc openmc_data_downloader
+          openmc_data_downloader -l ENDFB-7.1-NNDC -i Fe56 Be9
           git clone https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
           python -m pip install .[tests]
