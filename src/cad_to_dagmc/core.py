@@ -205,8 +205,9 @@ def _mesh_brep(
         The resulting gmsh object and volumes
     """
 
+    gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.model.add("made_with_brep_to_h5m_package")
+    gmsh.model.add("made_with_cad_to_dagmc_package")
     volumes = gmsh.model.occ.importShapesNativePointer(brep_object)
     gmsh.model.occ.synchronize()
 
@@ -384,7 +385,6 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh.initialize()
         gmsh, volumes = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
@@ -429,7 +429,6 @@ class CadToDagmc:
             original_ids, scrambled_ids, self.material_tags
         )
 
-        gmsh.initialize()
         gmsh, volumes = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
