@@ -98,4 +98,4 @@ For examples see the [examples folder](https://github.com/fusion-energy/cad_to_d
 
 # Usage - simulation with transport code
 
-For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop)
+For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
