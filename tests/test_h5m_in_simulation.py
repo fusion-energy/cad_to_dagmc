@@ -48,7 +48,7 @@ def transport_particles_on_h5m_geometry(
     geometry = openmc.Geometry(root=[containing_cell])
 
     # initialises a new source object
-    my_source = openmc.Source()
+    my_source = openmc.IndependentSource()
     # sets the location of the source to x=0.1 y=0.1 z=0.1 which is not on a vertex
     my_source.space = openmc.stats.Point((0.1, 0.1, 0.1))
     # sets the direction to isotropic

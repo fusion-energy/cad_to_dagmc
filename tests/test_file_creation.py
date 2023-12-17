@@ -83,7 +83,7 @@ def test_h5m_with_multi_volume_not_touching():
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         assert my_model.material_tags == mat_tags
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
+
         my_model.export_dagmc_h5m_file(filename=h5m_file)
 
         tags_dict = {}
@@ -111,7 +111,6 @@ def test_h5m_with_multi_volume_touching():
 
         assert my_model.material_tags == mat_tags
 
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
         my_model.export_dagmc_h5m_file(filename=h5m_file)
 
         tags_dict = {}
@@ -191,7 +190,7 @@ def test_gmsh_mesh_with_multi_volume_not_touching():
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         assert my_model.material_tags == mat_tags
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
+
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
 
         tags_dict = {}
@@ -218,7 +217,6 @@ def test_gmsh_mesh_with_multi_volume_touching():
 
         assert my_model.material_tags == mat_tags
 
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
 
         tags_dict = {}

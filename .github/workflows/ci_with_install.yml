@@ -50,7 +50,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          make ..
+          make
           export PATH="$PWD:$PATH"
           cd ..
           python -m pip install .

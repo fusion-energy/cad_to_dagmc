@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: install non pypi dependencies for cad creation
+      - name: install dependencies and run CSG / DAMGC benchmarks
         env:
           OPENMC_CROSS_SECTIONS: /home/runner/work/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
         shell: bash
@@ -45,7 +45,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          make ..
+          make
           export PATH="$PWD:$PATH"
           cd ..
           python -m pip install .
