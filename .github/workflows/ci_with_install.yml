@@ -43,74 +43,21 @@ jobs:
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
           mamba activate
           mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master
-          
-      - name: install package
-        run: |
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
           mamba install -y -c conda-forge "openmc=0.13.3=dagmc*nompi*"
-
-      - name: run examples
-        run: |
-          cd examples
-          python create_stp_files_for_examples.py
-
-      - name: run examples
-        run: |
-          cd examples
-          python cadquery_assembly.py
-
-      - name: run examples
-        run: |
-          cd examples
-          python cadquery_compound.py
-
-      - name: run examples
-        run: |
-          cd examples
-          python cadquery_object_and_stp_file.py
-
-      - name: run examples
-        run: |
-          cd examples
-          python cadquery_text.py
-
-      - name: run examples 1
-        run: |
-          cd examples
-          python curved_cadquery_object.py
-
-      - name: run examples 2
-        run: |
-          cd examples
-          python multiple_cadquery_objects.py
-
-      - name: run examples 3
-        run: |
-          cd examples
-          python multiple_stp_files.py
-
-      - name: run examples 4
-        run: |
-          cd examples
-          python single_stp_file_multiple_volumes.py
-
-      - name: run examples 5
-        run: |
-          cd examples
-
-      - name: run examples 6
-        run: |
-          cd examples
-          python single_cadquery_object.py
-
-      - name: run examples 7
-        run: |
-          cd examples
-          python single_stp_file.py
-
-      - name: Run pytest
-        run: |
           python -m pip install .[tests]
           pytest tests -v
+          cd examples
+          python create_stp_files_for_examples.py
+          python cadquery_assembly.py
+          python cadquery_compound.py
+          python cadquery_object_and_stp_file.py
+          python cadquery_text.py
+          python curved_cadquery_object.py
+          python multiple_cadquery_objects.py
+          python multiple_stp_files.py
+          python single_stp_file_multiple_volumes.py
+          python single_cadquery_object.py
+          python single_stp_file.py
