@@ -220,7 +220,6 @@ def _mesh_brep(
 
 def _mesh_to_h5m_in_memory_method(
     volumes,
-    # material_tags: typing.Iterable[str],
 ) -> str:
     """Converts gmsh volumes into a DAGMC h5m file.
 
@@ -231,7 +230,7 @@ def _mesh_to_h5m_in_memory_method(
         h5m_filename: the filename of the DAGMC h5m file to write
 
     Returns:
-        The filename of the h5m file produced
+        vertices and triangles (grouped by solid then by face)
     """
 
     n = 3  # number of verts in a triangles
@@ -430,6 +429,7 @@ class CadToDagmc:
             original_ids, scrambled_ids, self.material_tags
         )
 
+        gmsh.initialize()
         gmsh, volumes = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
