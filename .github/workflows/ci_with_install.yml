@@ -45,6 +45,21 @@ jobs:
           python -m pip install .
           python -c "import cad_to_dagmc"
           sudo apt install g++ cmake libhdf5-dev libpng-dev
+          mkdir MOAB
+          cd MOAB
+          git clone  --single-branch --branch 5.4.1 --depth 1 https://bitbucket.org/fathomteam/moab.git
+          mkdir build
+          cd build
+          cmake ../moab -DENABLE_HDF5=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/home/runner/work/cad_to_dagmc/cad_to_dagmc/MOAB -DENABLE_FORTRAN=OFF
+          make
+          sudo make install
+          mkdir DAGMC
+          cd DAGMC
+          git clone --single-branch --branch v3.2.2 --depth 1 https://github.com/svalinn/DAGMC.git
+          mkdir build
+          cd build
+          cmake ../DAGMC -DBUILD_TALLY=ON -DMOAB_DIR=/home/runner/work/cad_to_dagmc/cad_to_dagmc/MOAB -DBUILD_STATIC_EXE=OFF -DBUILD_STATIC_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/home/runner/work/cad_to_dagmc/cad_to_dagmc/DAGMC/
+          sudo make install
           git clone --depth 1  --recurse-submodules https://github.com/openmc-dev/openmc.git openmc-repo
           cd openmc-repo
           mkdir build
