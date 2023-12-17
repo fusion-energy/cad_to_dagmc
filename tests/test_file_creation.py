@@ -51,7 +51,8 @@ def test_h5m_with_single_volume_list():
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file, msh_filename="test.msh")
+    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_gmsh_mesh_file(filename="test.msh")
     assert Path("test.msh").is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
@@ -83,7 +84,7 @@ def test_h5m_with_multi_volume_not_touching():
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         assert my_model.material_tags == mat_tags
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
+
         my_model.export_dagmc_h5m_file(filename=h5m_file)
 
         tags_dict = {}
@@ -111,7 +112,6 @@ def test_h5m_with_multi_volume_touching():
 
         assert my_model.material_tags == mat_tags
 
-        # merged_cad_obj = cad_to_dagmc.merge_surfaces(stp_file_object)
         my_model.export_dagmc_h5m_file(filename=h5m_file)
 
         tags_dict = {}
@@ -153,3 +153,74 @@ def test_cq_compound():
         1: "mat:mat1",
         2: "mat:mat2",
     }
+
+
+def test_gmsh_mesh_with_single_volume_list():
+    """Simple geometry, a single 4 sided shape"""
+
+    gmsh_mesh_file = "tests/single_cube.msh"
+
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
+    my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
+    my_model.export_gmsh_mesh_file(filename="test2.msh")
+    assert Path("test2.msh").is_file()
+
+
+def test_gmsh_mesh_with_single_volume_2():
+    """Simple geometry, a single 4 sided shape"""
+
+    gmsh_mesh_file = "tests/curved_extrude.msh"
+
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
+    my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
+
+
+def test_gmsh_mesh_with_multi_volume_not_touching():
+    stp_files = [
+        "tests/two_disconnected_cubes.stp",
+    ]
+    material_tags = [
+        ["mat1", "mat2"],
+    ]
+    gmsh_mesh_files = [
+        "tests/two_disconnected_cubes.msh",
+    ]
+    for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
+        my_model = CadToDagmc()
+        my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
+
+        assert my_model.material_tags == mat_tags
+
+        my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
+
+        tags_dict = {}
+        for counter, loop_mat_tag in enumerate(mat_tags, 1):
+            tags_dict[counter] = f"mat:{loop_mat_tag}"
+
+
+def test_gmsh_mesh_with_multi_volume_touching():
+    stp_files = [
+        "tests/multi_volume_cylinders.stp",
+        "tests/two_connected_cubes.stp",
+    ]
+    material_tags = [
+        ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
+        ["mat1", "mat2"],
+    ]
+    gmsh_mesh_files = [
+        "tests/multi_volume_cylinders.msh",
+        "tests/two_connected_cubes.msh",
+    ]
+    for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
+        my_model = CadToDagmc()
+        my_model.add_stp_file(stp_file, material_tags=mat_tags)
+
+        assert my_model.material_tags == mat_tags
+
+        my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
+
+        tags_dict = {}
+        for counter, loop_mat_tag in enumerate(mat_tags, 1):
+            tags_dict[counter] = f"mat:{loop_mat_tag}"

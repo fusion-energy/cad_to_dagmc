@@ -59,6 +59,7 @@ You may also want to install OpenMC with DAGMC to make use of the h5m geometry f
 ```bash
 mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
 ```
+You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered.
 
 
 # Install using Conda and pip
@@ -98,4 +99,4 @@ For examples see the [examples folder](https://github.com/fusion-energy/cad_to_d
 
 # Usage - simulation with transport code
 
-For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop)
+For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)

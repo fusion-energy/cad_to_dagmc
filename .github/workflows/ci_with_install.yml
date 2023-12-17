@@ -28,8 +28,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - uses: conda-incubator/setup-miniconda@v2
-
       - name: install non pypi dependencies
         shell: bash
         run: |

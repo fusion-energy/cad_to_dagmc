@@ -10,22 +10,7 @@ from cadquery import importers
 from pymoab import core, types
 
 
-def fix_normals(vertices: typing.Sequence, triangles_in_each_volume: typing.Sequence):
-    fixed_triangles = []
-    for triangles in triangles_in_each_volume:
-        fixed_triangles.append(fix_normal(vertices, triangles))
-    return fixed_triangles
-
-
-def fix_normal(vertices: typing.Sequence, triangles: typing.Sequence):
-    mesh = trimesh.Trimesh(vertices=vertices, faces=triangles, process=False)
-
-    mesh.fix_normals()
-
-    return mesh.faces
-
-
-def define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
+def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -79,7 +64,7 @@ def define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
     return moab_core, tags
 
 
-def vertices_to_h5m(
+def _vertices_to_h5m(
     vertices: typing.Union[
         typing.Iterable[typing.Tuple[float, float, float]],
         typing.Iterable["cadquery.occ_impl.geom.Vector"],
@@ -118,7 +103,7 @@ def vertices_to_h5m(
             else:
                 face_ids_with_solid_ids[face_id] = [solid_id]
 
-    moab_core, tags = define_moab_core_and_tags()
+    moab_core, tags = _define_moab_core_and_tags()
 
     volume_sets_by_solid_id = {}
     for material_tag, (solid_id, triangles_on_each_face) in zip(
@@ -198,7 +183,7 @@ def vertices_to_h5m(
     return h5m_filename
 
 
-def mesh_brep(
+def _mesh_brep(
     brep_object: str,
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
@@ -222,7 +207,7 @@ def mesh_brep(
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.model.add("made_with_brep_to_h5m_package")
+    gmsh.model.add("made_with_cad_to_dagmc_package")
     volumes = gmsh.model.occ.importShapesNativePointer(brep_object)
     gmsh.model.occ.synchronize()
 
@@ -234,11 +219,8 @@ def mesh_brep(
     return gmsh, volumes
 
 
-def mesh_to_h5m_in_memory_method(
+def _mesh_to_h5m_in_memory_method(
     volumes,
-    material_tags: typing.Iterable[str],
-    h5m_filename: str = "dagmc.h5m",
-    msh_filename=None,
 ) -> str:
     """Converts gmsh volumes into a DAGMC h5m file.
 
@@ -249,16 +231,8 @@ def mesh_to_h5m_in_memory_method(
         h5m_filename: the filename of the DAGMC h5m file to write
 
     Returns:
-        The filename of the h5m file produced
+        vertices and triangles (grouped by solid then by face)
     """
-
-    if isinstance(material_tags, str):
-        msg = f"material_tags should be a list of strings, not a single string."
-        raise ValueError(msg)
-
-    if len(volumes) != len(material_tags):
-        msg = f"{len(volumes)} volumes found in Brep file is not equal to the number of material_tags {len(material_tags)} provided."
-        raise ValueError(msg)
 
     n = 3  # number of verts in a triangles
     triangles_by_solid_by_face = {}
@@ -299,77 +273,29 @@ def mesh_to_h5m_in_memory_method(
 
     vertices = [all_coords[i : i + n].tolist() for i in range(0, len(all_coords), n)]
 
-    if msh_filename is not None:
-        gmsh.write(msh_filename)
-
-    gmsh.finalize()
-
-    # checks and fixes triangle fix_normals within vertices_to_h5m
-    return vertices_to_h5m(
-        vertices=vertices,
-        triangles_by_solid_by_face=triangles_by_solid_by_face,
-        material_tags=material_tags,
-        h5m_filename=h5m_filename,
-    )
+    return vertices, triangles_by_solid_by_face
 
 
-def get_ids_from_assembly(assembly):
+def _get_ids_from_assembly(assembly: cq.assembly.Assembly):
     ids = []
     for obj, name, loc, _ in assembly:
         ids.append(name)
     return ids
 
 
-def get_ids_from_imprinted_assembly(solid_id_dict):
+def _get_ids_from_imprinted_assembly(solid_id_dict):
     ids = []
     for id in list(solid_id_dict.values()):
         ids.append(id[0])
     return ids
 
 
-def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
+def _order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     material_tags_in_brep_order = []
     for brep_id in scrambled_id:
         id_of_solid_in_org = original_ids.index(brep_id)
         material_tags_in_brep_order.append(material_tags[id_of_solid_in_org])
     return material_tags_in_brep_order
-
-
-def merge_surfaces(parts):
-    """Merges surfaces in the geometry that are the same. More details on
-    the merging process in the DAGMC docs
-    https://svalinn.github.io/DAGMC/usersguide/cubit_basics.html"""
-
-    # solids = geometry.Solids()
-
-    bldr = OCP.BOPAlgo.BOPAlgo_Splitter()
-
-    if len(parts) == 1:
-        # merged_solid = cq.Compound(solids)
-
-        if isinstance(parts[0], (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
-            # stp file
-            return parts[0], parts[0].wrapped
-        else:
-            return parts[0], parts[0].toOCC()
-
-    # else:
-    for solid in parts:
-        # checks if solid is a compound as .val() is not needed for compounds
-        if isinstance(solid, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
-            bldr.AddArgument(solid.wrapped)
-        else:
-            bldr.AddArgument(solid.val().wrapped)
-
-    bldr.SetNonDestructive(True)
-
-    bldr.Perform()
-
-    bldr.Images()
-
-    merged_solid = cq.Compound(bldr.Shape())
-
-    return merged_solid, merged_solid.wrapped
 
 
 class CadToDagmc:
@@ -383,8 +309,7 @@ class CadToDagmc:
         material_tags: typing.Iterable[str],
         scale_factor: float = 1.0,
     ):
-        """Loads the parts from stp file into the model keeping track of the
-        parts and their material tags.
+        """Loads the parts from stp file into the model.
 
         Args:
             filename: the filename used to save the html graph.
@@ -399,7 +324,7 @@ class CadToDagmc:
         """
         part = importers.importStep(str(filename)).val()
 
-        if scale_factor == 1:
+        if scale_factor == 1.0:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
@@ -412,8 +337,7 @@ class CadToDagmc:
         ],
         material_tags: typing.Iterable[str],
     ):
-        """Loads the parts from CadQuery object into the model keeping track of
-        the parts and their material tags.
+        """Loads the parts from CadQuery object into the model.
 
         Args:
             object: the cadquery object to convert
@@ -439,41 +363,95 @@ class CadToDagmc:
         for material_tag in material_tags:
             self.material_tags.append(material_tag)
 
-    def export_dagmc_h5m_file(
+    def export_gmsh_mesh_file(
         self,
-        filename: str = "dagmc.h5m",
+        filename: str = "mesh.msh",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
-        msh_filename: str = None,
     ):
+        """Saves a GMesh msh file of the geometry
+
+        Args:
+            filename
+            min_mesh_size: the minimum size of mesh elements to use.
+            max_mesh_size: the maximum size of mesh elements to use.
+            mesh_algorithm: the gmsh mesh algorithm to use.
+        """
+
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
+        imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, volumes = mesh_brep(
+        gmsh, volumes = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
         )
 
-        original_ids = get_ids_from_assembly(assembly)
-        scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+        _mesh_to_h5m_in_memory_method(volumes=volumes)
+
+        gmsh.write(filename)
+
+        gmsh.finalize()
+
+    def export_dagmc_h5m_file(
+        self,
+        filename: str = "dagmc.h5m",
+        min_mesh_size: float = 1,
+        max_mesh_size: float = 5,
+        mesh_algorithm: int = 1,
+    ):
+        """Saves a DAGMC h5m file of the geometry
+
+        Args:
+            filename
+            min_mesh_size: the minimum size of mesh elements to use.
+            max_mesh_size: the maximum size of mesh elements to use.
+            mesh_algorithm: the gmsh mesh algorithm to use.
+        """
+        assembly = cq.Assembly()
+        for part in self.parts:
+            assembly.add(part)
+
+        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
+
+        original_ids = _get_ids_from_assembly(assembly)
+        scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
 
-        material_tags_in_brep_order = order_material_ids_by_brep_order(
+        material_tags_in_brep_order = _order_material_ids_by_brep_order(
             original_ids, scrambled_ids, self.material_tags
         )
 
-        h5m_filename = mesh_to_h5m_in_memory_method(
-            volumes=volumes,
+        gmsh, volumes = _mesh_brep(
+            brep_object=imprinted_assembly.wrapped._address(),
+            min_mesh_size=min_mesh_size,
+            max_mesh_size=max_mesh_size,
+            mesh_algorithm=mesh_algorithm,
+        )
+
+        if isinstance(material_tags_in_brep_order, str):
+            msg = f"material_tags should be a list of strings, not a single string."
+            raise ValueError(msg)
+
+        if len(volumes) != len(material_tags_in_brep_order):
+            msg = f"{len(volumes)} volumes found in Brep file is not equal to the number of material_tags {len(material_tags_in_brep_order)} provided."
+            raise ValueError(msg)
+
+        vertices, triangles_by_solid_by_face = _mesh_to_h5m_in_memory_method(volumes=volumes)
+
+        gmsh.finalize()
+
+        # checks and fixes triangle fix_normals within vertices_to_h5m
+        return _vertices_to_h5m(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
-            msh_filename=msh_filename,
         )
-        return h5m_filename
