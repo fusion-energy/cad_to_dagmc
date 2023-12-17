@@ -27,7 +27,7 @@ jobs:
 
       - name: install non pypi dependencies for cad creation
         shell: bash
-        run: |s
+        run: |
           wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
           bash Miniforge3.sh -b -p "${HOME}/conda"
           source "${HOME}/conda/etc/profile.d/conda.sh"
@@ -40,10 +40,10 @@ jobs:
           mamba install -y -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master "openmc=0.13.3=dagmc*nompi*"
           mamba install -y -c conda-forge "openmc=0.13.3=dagmc*nompi*"
  
-      - name: install package
+      - name: install nuclear data
         run: |
-          pip install .[tests]
-          pip install cad_to_dagmc openmc_data_downloader
+          python -m pip install --upgrade pip
+          python -m pip install cad_to_dagmc openmc_data_downloader
           openmc_data_downloader -l ENDFB-7.1-NNDC -i Fe56 Be9
 
       - name: run benchmarks
@@ -52,5 +52,5 @@ jobs:
         run: |
           git clone https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
-          pip install .
+          python -m pip install .
           pytest tests/test_cad_to_dagmc

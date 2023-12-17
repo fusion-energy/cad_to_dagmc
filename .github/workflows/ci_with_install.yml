@@ -46,7 +46,8 @@ jobs:
           
       - name: install package
         run: |
-          pip install .
+          python -m pip install --upgrade pip 
+          python -m pip install .
           python -c "import cad_to_dagmc"
           mamba install -y -c conda-forge "openmc=0.13.3=dagmc*nompi*"
 
@@ -111,5 +112,5 @@ jobs:
 
       - name: Run pytest
         run: |
-          pip install .[tests]
+          python -m pip install .[tests]
           pytest tests -v

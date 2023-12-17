@@ -81,7 +81,8 @@ def define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
 
 def vertices_to_h5m(
     vertices: typing.Union[
-        typing.Iterable[typing.Tuple[float, float, float]], typing.Iterable["cadquery.occ_impl.geom.Vector"]
+        typing.Iterable[typing.Tuple[float, float, float]],
+        typing.Iterable["cadquery.occ_impl.geom.Vector"],
     ],
     triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
     material_tags: typing.Iterable[str],
@@ -102,11 +103,7 @@ def vertices_to_h5m(
         raise ValueError(msg)
 
     # limited attribute checking to see if user passed in a list of CadQuery vectors
-    if (
-        hasattr(vertices[0], "x")
-        and hasattr(vertices[0], "y")
-        and hasattr(vertices[0], "z")
-    ):
+    if hasattr(vertices[0], "x") and hasattr(vertices[0], "y") and hasattr(vertices[0], "z"):
         vertices_floats = []
         for vert in vertices:
             vertices_floats.append((vert.x, vert.y, vert.z))
@@ -156,9 +153,7 @@ def vertices_to_h5m(
                 if len(face_ids_with_solid_ids[face_id]) == 2:
                     other_solid_id = face_ids_with_solid_ids[face_id][1]
                     other_volume_set = volume_sets_by_solid_id[other_solid_id]
-                    sense_data = np.array(
-                        [other_volume_set, volume_set], dtype="uint64"
-                    )
+                    sense_data = np.array([other_volume_set, volume_set], dtype="uint64")
                 else:
                     sense_data = np.array([volume_set, 0], dtype="uint64")
 
@@ -229,7 +224,6 @@ def mesh_brep(
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_brep_to_h5m_package")
     volumes = gmsh.model.occ.importShapesNativePointer(brep_object)
-    # gmsh.model.occ.importShapes(brep_object)
     gmsh.model.occ.synchronize()
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
@@ -296,8 +290,7 @@ def mesh_to_h5m_in_memory_method(
             for nodeTag in nodeTags:
                 shifted_node_tags.append(nodeTag - 1)
             grouped_node_tags = [
-                shifted_node_tags[i : i + n]
-                for i in range(0, len(shifted_node_tags), n)
+                shifted_node_tags[i : i + n] for i in range(0, len(shifted_node_tags), n)
             ]
             nodes_in_each_surface[surface] = grouped_node_tags
         triangles_by_solid_by_face[vol_id] = nodes_in_each_surface
@@ -354,9 +347,7 @@ def merge_surfaces(parts):
     if len(parts) == 1:
         # merged_solid = cq.Compound(solids)
 
-        if isinstance(
-            parts[0], (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
-        ):
+        if isinstance(parts[0], (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             # stp file
             return parts[0], parts[0].wrapped
         else:
@@ -460,10 +451,7 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        (
-            imprinted_assembly,
-            imprinted_solids_with_original_id,
-        ) = cq.occ_impl.assembly.imprint(assembly)
+        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
 
         gmsh, volumes = mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
@@ -473,9 +461,7 @@ class CadToDagmc:
         )
 
         original_ids = get_ids_from_assembly(assembly)
-        scrambled_ids = get_ids_from_imprinted_assembly(
-            imprinted_solids_with_original_id
-        )
+        scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
