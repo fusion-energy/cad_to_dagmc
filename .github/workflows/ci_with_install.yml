@@ -28,8 +28,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - uses: conda-incubator/setup-miniconda@v2
-
       - name: install non pypi dependencies
         shell: bash
         run: |
@@ -46,7 +44,16 @@ jobs:
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
-          mamba install -y -c conda-forge "openmc=0.13.3=dagmc*nompi*"
+          sudo apt install g++ cmake libhdf5-dev libpng-dev
+          git clone --depth 1  --recurse-submodules https://github.com/openmc-dev/openmc.git openmc-repo
+          cd openmc-repo
+          python -m pip install .
+          mkdir build
+          cd build
+          cmake ..
+          make ..
+          cd ..
+          cd ..
           python -m pip install .[tests]
           pytest tests -v
           cd examples
