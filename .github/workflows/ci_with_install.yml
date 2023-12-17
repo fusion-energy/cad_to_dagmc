@@ -51,7 +51,7 @@ jobs:
           cd build
           cmake ..
           make
-          export PATH="$PWD:$PATH"
+          sudo make install
           cd ..
           python -m pip install .
           cd ..
