@@ -1,6 +1,5 @@
 import typing
 from pathlib import Path
-from typing import Iterable, Tuple, Union
 
 import cadquery as cq
 import gmsh
@@ -11,14 +10,14 @@ from cadquery import importers
 from pymoab import core, types
 
 
-def fix_normals(vertices: list, triangles_in_each_volume: list):
+def fix_normals(vertices: typing.Sequence, triangles_in_each_volume: typing.Sequence):
     fixed_triangles = []
     for triangles in triangles_in_each_volume:
         fixed_triangles.append(fix_normal(vertices, triangles))
     return fixed_triangles
 
 
-def fix_normal(vertices: list, triangles: list):
+def fix_normal(vertices: typing.Sequence, triangles: typing.Sequence):
     mesh = trimesh.Trimesh(vertices=vertices, faces=triangles, process=False)
 
     mesh.fix_normals()
@@ -26,7 +25,7 @@ def fix_normal(vertices: list, triangles: list):
     return mesh.faces
 
 
-def define_moab_core_and_tags() -> Tuple[core.Core, dict]:
+def define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -81,11 +80,11 @@ def define_moab_core_and_tags() -> Tuple[core.Core, dict]:
 
 
 def vertices_to_h5m(
-    vertices: Union[
-        Iterable[Tuple[float, float, float]], Iterable["cadquery.occ_impl.geom.Vector"]
+    vertices: typing.Union[
+        typing.Iterable[typing.Tuple[float, float, float]], typing.Iterable["cadquery.occ_impl.geom.Vector"]
     ],
-    triangles_by_solid_by_face: Iterable[Iterable[Tuple[int, int, int]]],
-    material_tags: Iterable[str],
+    triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
+    material_tags: typing.Iterable[str],
     h5m_filename="dagmc.h5m",
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
@@ -223,7 +222,7 @@ def mesh_brep(
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
 
     Returns:
-        The gmsh object and volumes in Brep file
+        The resulting gmsh object and volumes
     """
 
     gmsh.initialize()
