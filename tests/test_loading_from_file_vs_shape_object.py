@@ -18,7 +18,9 @@ import cad_to_dagmc
 
 def test_order_material_ids_by_brep_order():
     # two entries, reverse order
-    new_order = cad_to_dagmc.order_material_ids_by_brep_order(["1", "2"], ["2", "1"], ["m1", "m2"])
+    new_order = cad_to_dagmc.order_material_ids_by_brep_order(
+        ["1", "2"], ["2", "1"], ["m1", "m2"]
+    )
     assert new_order == ["m2", "m1"]
 
     # three entries, partly duplicate materials
