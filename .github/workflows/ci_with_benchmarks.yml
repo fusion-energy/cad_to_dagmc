@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install non pypi dependencies for cad creation
         env:
-          OPENMC_CROSS_SECTIONS: /__w/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
+          OPENMC_CROSS_SECTIONS: /home/runner/work/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
         shell: bash
         run: |
           wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
