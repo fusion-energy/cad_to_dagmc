@@ -82,11 +82,9 @@ def define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
 def vertices_to_h5m(
     vertices: typing.Union[
         typing.Iterable[typing.Tuple[float, float, float]],
-        typing.Iterable["cadquery.occ_impl.geom.Vector"]
+        typing.Iterable["cadquery.occ_impl.geom.Vector"],
     ],
-    triangles_by_solid_by_face: typing.Iterable[
-        typing.Iterable[typing.Tuple[int, int, int]]
-    ],
+    triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
     material_tags: typing.Iterable[str],
     h5m_filename="dagmc.h5m",
 ):
