@@ -72,7 +72,7 @@ def _vertices_to_h5m(
     triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
     material_tags: typing.Iterable[str],
     h5m_filename="dagmc.h5m",
-    implicit_complement_material_tag=None
+    implicit_complement_material_tag=None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -172,13 +172,15 @@ def _vertices_to_h5m(
             moab_core.add_parent_child(volume_set, face_set)
 
         moab_core.add_entity(group_set, volume_set)
-    
+
     if implicit_complement_material_tag:
         group_set = moab_core.create_meshset()
         moab_core.tag_set_data(tags["category"], group_set, "Group")
-        moab_core.tag_set_data(tags["name"], group_set, f"mat:{implicit_complement_material_tag}_comp")
+        moab_core.tag_set_data(
+            tags["name"], group_set, f"mat:{implicit_complement_material_tag}_comp"
+        )
         moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
-        moab_core.add_entity(group_set, volume_set[-1]) 
+        moab_core.add_entity(group_set, volume_set[-1])
 
     all_sets = moab_core.get_entities_by_handle(0)
 
