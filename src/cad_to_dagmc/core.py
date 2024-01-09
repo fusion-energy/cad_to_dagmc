@@ -1,11 +1,8 @@
 import typing
-from pathlib import Path
 
 import cadquery as cq
 import gmsh
 import numpy as np
-import OCP
-import trimesh
 from cadquery import importers
 from pymoab import core, types
 
@@ -414,6 +411,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        implicit_complement_material_tag: typing.Optional[str] = None
     ):
         """Saves a DAGMC h5m file of the geometry
 
@@ -422,6 +420,9 @@ class CadToDagmc:
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            implicit_complement_material_tag: the name of the material tag to
+                use for the implicit complement (void space). Defaults to None
+                which is a vacuum.
         """
         assembly = cq.Assembly()
         for part in self.parts:
@@ -464,4 +465,5 @@ class CadToDagmc:
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
+            implicit_complement_material_tag=implicit_complement_material_tag
         )
