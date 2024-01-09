@@ -411,7 +411,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
-        implicit_complement_material_tag: typing.Optional[str] = None
+        implicit_complement_material_tag: typing.Optional[str] = None,
     ):
         """Saves a DAGMC h5m file of the geometry
 
@@ -465,5 +465,5 @@ class CadToDagmc:
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag
+            implicit_complement_material_tag=implicit_complement_material_tag,
         )
