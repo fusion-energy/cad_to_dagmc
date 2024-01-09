@@ -177,7 +177,9 @@ def _vertices_to_h5m(
             tags["name"], group_set, f"mat:{implicit_complement_material_tag}_comp"
         )
         moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
-        moab_core.add_entity(group_set, volume_set)  # volume is arbitrary but should exist in moab core
+        moab_core.add_entity(
+            group_set, volume_set
+        )  # volume is arbitrary but should exist in moab core
 
     all_sets = moab_core.get_entities_by_handle(0)
 
