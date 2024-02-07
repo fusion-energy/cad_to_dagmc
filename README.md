@@ -47,7 +47,7 @@ mamba activate new_env
 
 Install the dependencies
 ```bash
-mamba install -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master -y
+mamba install -c conda-forge moab gmsh python-gmsh cadquery=2.4.0 -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -57,9 +57,9 @@ pip install cad_to_dagmc
 
 You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-mamba install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
+mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
 ```
-You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered.
+You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered as it can be tricky for the conda enviroment to get resolved
 
 
 # Install using Conda and pip
@@ -78,7 +78,7 @@ conda activate new_env
 
 Install the dependencies
 ```bash
-conda install -c cadquery -c conda-forge moab gmsh python-gmsh cadquery=master -y
+conda install -c conda-forge moab gmsh python-gmsh cadquery=2.4.0 -y
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -88,8 +88,9 @@ pip install cad_to_dagmc
 
 You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-conda install -c conda-forge -y "openmc=0.13.3=dagmc*nompi*"
+conda install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
 ```
+You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered as it can be tricky for the conda enviroment to get resolved.
 
 
 
