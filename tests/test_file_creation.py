@@ -54,6 +54,8 @@ def test_h5m_with_single_volume_list():
     my_model.export_dagmc_h5m_file(filename=h5m_file)
     my_model.export_gmsh_mesh_file(filename="test.msh")
     assert Path("test.msh").is_file()
+    my_model.export_gmsh_mesh_file(filename="test3d.msh", dimensions=3)
+    assert Path("test3d.msh").is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
@@ -165,6 +167,10 @@ def test_gmsh_mesh_with_single_volume_list():
     my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
     my_model.export_gmsh_mesh_file(filename="test2.msh")
     assert Path("test2.msh").is_file()
+    assert Path("tests/single_cube.msh").is_file()
+    my_model.export_gmsh_mesh_file(filename="test2_3d.msh", dimensions=3)
+    assert Path("test2_3d.msh").is_file()
+    
 
 
 def test_gmsh_mesh_with_single_volume_2():

@@ -188,6 +188,7 @@ def _mesh_brep(
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
+    dimensions: int = 2
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using
     Gmsh.
@@ -200,6 +201,8 @@ def _mesh_brep(
             into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
         mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+        dimensions: The number of dimensions, 2 for a surface mesh 3 for a
+            volume mesh. Passed to gmsh.model.mesh.generate()
 
     Returns:
         The resulting gmsh object and volumes
@@ -214,7 +217,7 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
-    gmsh.model.mesh.generate(2)
+    gmsh.model.mesh.generate(dimensions)
 
     return gmsh, volumes
 
@@ -369,14 +372,18 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        dimensions: int = 2,
     ):
-        """Saves a GMesh msh file of the geometry
+        """Saves a GMesh msh file of the geometry in either 2D surface mesh or
+        3D volume mesh.
 
         Args:
             filename
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            dimensions: The number of dimensions, 2 for a surface mesh 3 for a
+                volume mesh. Passed to gmsh.model.mesh.generate()
         """
 
         assembly = cq.Assembly()
@@ -390,9 +397,8 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
+            dimensions=dimensions
         )
-
-        _mesh_to_h5m_in_memory_method(volumes=volumes)
 
         gmsh.write(filename)
 
