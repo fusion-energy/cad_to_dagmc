@@ -188,7 +188,7 @@ def _mesh_brep(
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
-    dimensions: int = 2
+    dimensions: int = 2,
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using
     Gmsh.
@@ -397,7 +397,7 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=dimensions
+            dimensions=dimensions,
         )
 
         gmsh.write(filename)

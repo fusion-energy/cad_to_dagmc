@@ -170,7 +170,6 @@ def test_gmsh_mesh_with_single_volume_list():
     assert Path("tests/single_cube.msh").is_file()
     my_model.export_gmsh_mesh_file(filename="test2_3d.msh", dimensions=3)
     assert Path("test2_3d.msh").is_file()
-    
 
 
 def test_gmsh_mesh_with_single_volume_2():
