@@ -37,7 +37,7 @@ result = (
 )
 assembly = cq.Assembly()
 assembly.add(result)
-assembly.save('twist.step')
+assembly.save("twist.step")
 
 s = cq.Workplane("XY")
 sPnts = [
@@ -52,7 +52,7 @@ sPnts = [
 r = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(sPnts, includeCurrent=True).close()
 result2 = r.extrude(-20)
 assembly.add(result2)
-assembly.save('twist_and_extrude.step')
+assembly.save("twist_and_extrude.step")
 
 my_model = CadToDagmc()
 

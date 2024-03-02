@@ -352,7 +352,6 @@ class CadToDagmc:
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
 
-
     def export_unstructured_mesh_file(
         self,
         filename: str = "umesh.h5m",
@@ -439,7 +438,7 @@ class CadToDagmc:
             mesh_algorithm: the gmsh mesh algorithm to use.
             material_tags: the names of the DAGMC material tags to assign.
                 These will need to be in the same order as the volumes in the
-                geometry geometry added (STP file and CadQuery objects) and 
+                geometry geometry added (STP file and CadQuery objects) and
                 match the material tags used in the neutronics code (e.g. OpenMC).
         """
         assembly = cq.Assembly()
@@ -463,7 +462,7 @@ class CadToDagmc:
         )
 
         gmsh, volumes = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),  # in memory address 
+            brep_object=imprinted_assembly.wrapped._address(),  # in memory address
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
