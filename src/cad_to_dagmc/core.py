@@ -304,12 +304,10 @@ def _order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags)
 class CadToDagmc:
     def __init__(self):
         self.parts = []
-        self.material_tags = []
 
     def add_stp_file(
         self,
         filename: str,
-        material_tags: typing.Iterable[str],
         scale_factor: float = 1.0,
     ):
         """Loads the parts from stp file into the model.
@@ -331,23 +329,18 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(object=scaled_part, material_tags=material_tags)
+        self.add_cadquery_object(object=scaled_part)
 
     def add_cadquery_object(
         self,
         object: typing.Union[
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
-        material_tags: typing.Iterable[str],
     ):
         """Loads the parts from CadQuery object into the model.
 
         Args:
             object: the cadquery object to convert
-            material_tags: the names of the DAGMC material tags to assign.
-                These will need to be in the same order as the volumes in the
-                STP file and match the material tags used in the neutronics
-                code (e.g. OpenMC).
         """
 
         if isinstance(object, cq.assembly.Assembly):
@@ -359,12 +352,6 @@ class CadToDagmc:
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
 
-        if len(iterable_solids) != len(material_tags):
-            msg = f"Number of volumes {len(iterable_solids)} is not equal to number of material tags {len(material_tags)}"
-            raise ValueError(msg)
-
-        for material_tag in material_tags:
-            self.material_tags.append(material_tag)
 
     def export_unstructured_mesh_file(
         self,
@@ -437,6 +424,7 @@ class CadToDagmc:
 
     def export_dagmc_h5m_file(
         self,
+        material_tags: typing.Iterable[str],
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
@@ -449,6 +437,10 @@ class CadToDagmc:
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            material_tags: the names of the DAGMC material tags to assign.
+                These will need to be in the same order as the volumes in the
+                geometry geometry added (STP file and CadQuery objects) and 
+                match the material tags used in the neutronics code (e.g. OpenMC).
         """
         assembly = cq.Assembly()
         for part in self.parts:
@@ -462,12 +454,16 @@ class CadToDagmc:
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
 
+        if len(original_ids) != len(material_tags):
+            msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
+
         material_tags_in_brep_order = _order_material_ids_by_brep_order(
-            original_ids, scrambled_ids, self.material_tags
+            original_ids, scrambled_ids, material_tags
         )
 
         gmsh, volumes = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),
+            brep_object=imprinted_assembly.wrapped._address(),  # in memory address 
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,

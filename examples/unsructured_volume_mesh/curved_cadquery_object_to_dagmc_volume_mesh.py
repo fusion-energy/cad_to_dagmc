@@ -35,13 +35,15 @@ result = (
     .circle(2)
     .cutThruAll()
 )
+assembly = cq.Assembly()
+assembly.add(result)
+assembly.save('twist.step')
 
 
 my_model = CadToDagmc()
 
 my_model.add_cadquery_object(
     result,
-    material_tags=["mat1"],
 )
 
 my_model.export_unstructured_mesh_file(
