@@ -385,11 +385,11 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=3
+            dimensions=3,
         )
 
         # gmesh writes out a vtk file that is converted by pymoab into a h5 file
-        gmsh.write(filename+'.vtk')
+        gmsh.write(filename + ".vtk")
 
         gmsh.finalize()
 
