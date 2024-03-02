@@ -376,10 +376,10 @@ class CadToDagmc:
         )
 
         # gmesh writes out a vtk file that is converted by pymoab into a h5 file
-        gmsh.write(filename+'.vtk')
-        
+        gmsh.write(filename + ".vtk")
+
         moab_core = core.Core()
-        moab_core.load_file(filename+'.vtk')
+        moab_core.load_file(filename + ".vtk")
         moab_core.write_file(filename)
 
         gmsh.finalize()
