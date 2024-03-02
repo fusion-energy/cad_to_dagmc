@@ -368,7 +368,7 @@ class CadToDagmc:
 
     def export_unstructured_mesh_file(
         self,
-        filename: str = "mesh.h5",
+        filename: str = "umesh.h5m",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
@@ -390,6 +390,10 @@ class CadToDagmc:
 
         # gmesh writes out a vtk file that is converted by pymoab into a h5 file
         gmsh.write(filename+'.vtk')
+        
+        moab_core = core.Core()
+        moab_core.load_file(filename+'.vtk')
+        moab_core.write_file(filename)
 
         gmsh.finalize()
 
