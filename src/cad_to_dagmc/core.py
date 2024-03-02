@@ -366,6 +366,33 @@ class CadToDagmc:
         for material_tag in material_tags:
             self.material_tags.append(material_tag)
 
+    def export_unstructured_mesh_file(
+        self,
+        filename: str = "mesh.h5",
+        min_mesh_size: float = 1,
+        max_mesh_size: float = 5,
+        mesh_algorithm: int = 1,
+    ):
+
+        assembly = cq.Assembly()
+        for part in self.parts:
+            assembly.add(part)
+
+        imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+
+        gmsh, volumes = _mesh_brep(
+            brep_object=imprinted_assembly.wrapped._address(),
+            min_mesh_size=min_mesh_size,
+            max_mesh_size=max_mesh_size,
+            mesh_algorithm=mesh_algorithm,
+            dimensions=3
+        )
+
+        # gmesh writes out a vtk file that is converted by pymoab into a h5 file
+        gmsh.write(filename+'.vtk')
+
+        gmsh.finalize()
+
     def export_gmsh_mesh_file(
         self,
         filename: str = "mesh.msh",

@@ -53,7 +53,8 @@ jobs:
           python cadquery_compound.py
           python cadquery_object_and_stp_file.py
           python cadquery_text.py
-          python curved_cadquery_object.py
+          python curved_cadquery_object_to_dagmc_surface_mesh.py
+          python curved_cadquery_object_to_dagmc_volume_mesh.py
           python multiple_cadquery_objects.py
           python multiple_stp_files.py
           python single_stp_file_multiple_volumes.py
