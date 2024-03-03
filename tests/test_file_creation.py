@@ -147,8 +147,10 @@ def test_cq_compound():
     my_model = CadToDagmc()
     my_model.add_cadquery_object(object=compound_of_workplanes)
     my_model.export_dagmc_h5m_file(
-        filename="compound_dagmc.h5m", max_mesh_size=0.2, min_mesh_size=0.1,
-        material_tags=["mat1", "mat2"]
+        filename="compound_dagmc.h5m",
+        max_mesh_size=0.2,
+        min_mesh_size=0.1,
+        material_tags=["mat1", "mat2"],
     )
 
     assert Path("compound_dagmc.h5m").is_file()
