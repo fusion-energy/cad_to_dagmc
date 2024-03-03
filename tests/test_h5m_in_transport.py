@@ -127,9 +127,12 @@ def test_transport_result_h5m_with_2_sep_volumes():
     # cq.Assembly().add(workplane1).add(workplane2)
 
     my_model = CadToDagmc()
-    my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.add_cadquery_object(workplane1)
+    my_model.add_cadquery_object(workplane2)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename,
+        material_tags=[material_tags[0], material_tags[1]]
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -146,8 +149,11 @@ def test_transport_result_h5m_with_1_volumes():
     workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
 
     my_model = CadToDagmc()
-    my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.add_cadquery_object(workplane1)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename,
+        material_tags=[material_tags[0]]
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -165,9 +171,12 @@ def test_transport_result_h5m_with_2_joined_volumes():
     workplane2 = cq.Workplane("XY").cylinder(height=10, radius=5).cut(workplane1)
 
     my_model = CadToDagmc()
-    my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.add_cadquery_object(workplane1)
+    my_model.add_cadquery_object(workplane2)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename,
+        material_tags=[material_tags[0], material_tags[1]]
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename="h5m_from_in_memory_method.h5m",
