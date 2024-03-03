@@ -1,11 +1,8 @@
 import typing
-from pathlib import Path
 
 import cadquery as cq
 import gmsh
 import numpy as np
-import OCP
-import trimesh
 from cadquery import importers
 from pymoab import core, types
 
@@ -72,6 +69,7 @@ def _vertices_to_h5m(
     triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
     material_tags: typing.Iterable[str],
     h5m_filename="dagmc.h5m",
+    implicit_complement_material_tag=None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -171,6 +169,17 @@ def _vertices_to_h5m(
             moab_core.add_parent_child(volume_set, face_set)
 
         moab_core.add_entity(group_set, volume_set)
+
+    if implicit_complement_material_tag:
+        group_set = moab_core.create_meshset()
+        moab_core.tag_set_data(tags["category"], group_set, "Group")
+        moab_core.tag_set_data(
+            tags["name"], group_set, f"mat:{implicit_complement_material_tag}_comp"
+        )
+        moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
+        moab_core.add_entity(
+            group_set, volume_set
+        )  # volume is arbitrary but should exist in moab core
 
     all_sets = moab_core.get_entities_by_handle(0)
 
@@ -404,6 +413,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        implicit_complement_material_tag: typing.Optional[str] = None,
     ):
         """Saves a DAGMC h5m file of the geometry
 
@@ -412,6 +422,9 @@ class CadToDagmc:
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            implicit_complement_material_tag: the name of the material tag to
+                use for the implicit complement (void space). Defaults to None
+                which is a vacuum.
         """
         assembly = cq.Assembly()
         for part in self.parts:
@@ -454,4 +467,5 @@ class CadToDagmc:
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
         )
