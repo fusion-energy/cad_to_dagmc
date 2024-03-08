@@ -15,7 +15,12 @@ my_tallies = openmc.Tallies([tally])
 mat1 = openmc.Material()
 mat1.add_element("Pb", 84.2, percent_type="ao")
 mat1.add_element(
-    "Li", 15.8, percent_type="ao", enrichment=50.0, enrichment_target="Li6", enrichment_type="ao"
+    "Li",
+    15.8,
+    percent_type="ao",
+    enrichment=50.0,
+    enrichment_target="Li6",
+    enrichment_type="ao",
 )
 mat1.set_density("g/cm3", 11)
 my_materials = openmc.Materials([mat1])
@@ -57,5 +62,7 @@ umesh_from_sp = sp.meshes[1]
 centroids = umesh_from_sp.centroids
 mesh_vols = umesh_from_sp.volumes
 
-flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(umesh_from_sp.dimension)
+flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(
+    umesh_from_sp.dimension
+)
 umesh_from_sp.write_data_to_vtk(filename="tally.vtk", datasets={"mean": flux_mean})
