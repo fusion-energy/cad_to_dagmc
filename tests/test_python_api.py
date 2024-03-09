@@ -55,21 +55,21 @@ def test_max_mesh_size_impacts_file_size():
         max_mesh_size=20,
         mesh_algorithm=1,
         filename="test_10_30.h5m",
-        material_tags=["m1"]
+        material_tags=["m1"],
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
         filename="test_20_30.h5m",
-        material_tags=["m1"]
+        material_tags=["m1"],
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
         filename="test_20_25.h5m",
-        material_tags=["m1"]
+        material_tags=["m1"],
     )
 
     assert Path("test_10_30.h5m").is_file()
@@ -99,8 +99,7 @@ def test_h5m_file_tags():
     os.system(f"rm {test_h5m_filename}")
 
     returned_filename = c2d.export_dagmc_h5m_file(
-        filename=test_h5m_filename,
-        material_tags=['mat1', 'mat2', 'mat3']
+        filename=test_h5m_filename, material_tags=["mat1", "mat2", "mat3"]
     )
 
     assert Path(test_h5m_filename).is_file()

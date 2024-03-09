@@ -62,7 +62,5 @@ umesh_from_sp = sp.meshes[1]
 centroids = umesh_from_sp.centroids
 mesh_vols = umesh_from_sp.volumes
 
-flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(
-    umesh_from_sp.dimension
-)
+flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(umesh_from_sp.dimension)
 umesh_from_sp.write_data_to_vtk(filename="tally.vtk", datasets={"mean": flux_mean})
