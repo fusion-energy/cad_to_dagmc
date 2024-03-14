@@ -41,10 +41,13 @@ jobs:
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
-          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
           python -m pip install .[tests]
-          pytest tests -v
-          cd examples
+          pytest tests/test_file_creation.py
+          pytest tests/test_loading_from_file_vs_shape_object.py
+          pytest tests/test_match.py
+          pytest tests/test_python_api.py
+          pytest tests/test_version.py
+          cd examples/surface_mesh
           python create_stp_files_for_examples.py
           python cadquery_assembly.py
           python cadquery_compound.py
@@ -57,3 +60,14 @@ jobs:
           python single_stp_file_multiple_volumes.py
           python single_cadquery_object.py
           python single_stp_file.py
+          rm *.h5m
+          pytest tests/test_model_creation_for_transport.py
+          mamba activate base
+          mamba create --name openmc python=3.12
+          mamba activate openmc
+          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
+          pytest tests/test_package.py
+          pytest tests/test_h5m_in_simulation.py
+          pytest tests/test_h5m_in_transport.py
+          cd examples/unstrucutred_volume_mesh
+          python simulate_unstrucutred_volume_mesh_with_openmc.py

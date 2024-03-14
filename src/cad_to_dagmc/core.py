@@ -302,7 +302,7 @@ def _get_ids_from_imprinted_assembly(solid_id_dict):
     return ids
 
 
-def _order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
+def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     material_tags_in_brep_order = []
     for brep_id in scrambled_id:
         id_of_solid_in_org = original_ids.index(brep_id)
@@ -470,7 +470,7 @@ class CadToDagmc:
             msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(material_tags)}"
             raise ValueError(msg)
 
-        material_tags_in_brep_order = _order_material_ids_by_brep_order(
+        material_tags_in_brep_order = order_material_ids_by_brep_order(
             original_ids, scrambled_ids, material_tags
         )
 

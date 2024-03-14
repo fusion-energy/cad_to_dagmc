@@ -1,6 +1,6 @@
 # TODO test brep_part_finder
 
-import cad_to_dagmc
+from cad_to_dagmc import order_material_ids_by_brep_order
 
 # def get_ids_from_assembly(assembly):
 #     ids = []
@@ -18,23 +18,23 @@ import cad_to_dagmc
 
 def test_order_material_ids_by_brep_order():
     # two entries, reverse order
-    new_order = cad_to_dagmc._order_material_ids_by_brep_order(["1", "2"], ["2", "1"], ["m1", "m2"])
+    new_order = order_material_ids_by_brep_order(["1", "2"], ["2", "1"], ["m1", "m2"])
     assert new_order == ["m2", "m1"]
 
     # three entries, partly duplicate materials
-    new_order = cad_to_dagmc._order_material_ids_by_brep_order(
+    new_order = order_material_ids_by_brep_order(
         ["1", "2", "3"], ["2", "1", "3"], ["m1", "m2", "m2"]
     )
     assert new_order == ["m2", "m1", "m2"]
 
     # three entries, unique materials
-    new_order = cad_to_dagmc._order_material_ids_by_brep_order(
+    new_order = order_material_ids_by_brep_order(
         ["1", "2", "3"], ["2", "1", "3"], ["m1", "m2", "m3"]
     )
     assert new_order == ["m2", "m1", "m3"]
 
     # three entries, duplicate materials
-    new_order = cad_to_dagmc._order_material_ids_by_brep_order(
+    new_order = order_material_ids_by_brep_order(
         ["1", "2", "3"], ["2", "1", "3"], ["m1", "m1", "m1"]
     )
     assert new_order == ["m1", "m1", "m1"]
