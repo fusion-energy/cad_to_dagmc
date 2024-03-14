@@ -83,11 +83,9 @@ def test_h5m_with_multi_volume_not_touching():
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
         my_model = CadToDagmc()
-        my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
+        my_model.add_stp_file(filename=stp_file)
 
-        assert my_model.material_tags == mat_tags
-
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
@@ -111,8 +109,6 @@ def test_h5m_with_multi_volume_touching():
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file)
-
-        assert my_model.material_tags == mat_tags
 
         my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
 
