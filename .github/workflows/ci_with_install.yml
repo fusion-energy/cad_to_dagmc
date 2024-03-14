@@ -35,7 +35,7 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
           mamba activate
-          mamba create --name cad_to_dagmc python=3.12
+          mamba create -y --name cad_to_dagmc python=3.12
           mamba activate cad_to_dagmc
           mamba install -y -c conda-forge moab>=5.3.0 gmsh python-gmsh ocp=7.7.2.0 cadquery=2.4.0
           python -m pip install --upgrade pip 
@@ -63,9 +63,9 @@ jobs:
           rm *.h5m
           pytest tests/test_model_creation_for_transport.py
           mamba activate base
-          mamba create --name openmc python=3.12
+          mamba create -y --name openmc python=3.12
           mamba activate openmc
-          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
+          mamba install -y -c conda-forge moab>=5.3.0  "openmc=0.14.0=dagmc*nompi*"
           pytest tests/test_package.py
           pytest tests/test_h5m_in_simulation.py
           pytest tests/test_h5m_in_transport.py
