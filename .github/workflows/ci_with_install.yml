@@ -67,6 +67,7 @@ jobs:
           mamba create -y --name openmc python=3.10
           mamba activate openmc
           mamba install -y -c conda-forge moab>=5.3.0  "openmc=0.14.0=dagmc*nompi*"
+          python -m pip install .[tests]
           pytest -v tests/test_package.py
           pytest -v tests/test_h5m_in_simulation.py
           pytest -v tests/test_h5m_in_transport.py
