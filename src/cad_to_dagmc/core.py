@@ -197,6 +197,7 @@ def _mesh_brep(
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
+    dimensions: int = 2,
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using
     Gmsh.
@@ -209,6 +210,8 @@ def _mesh_brep(
             into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
         mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+        dimensions: The number of dimensions, 2 for a surface mesh 3 for a
+            volume mesh. Passed to gmsh.model.mesh.generate()
 
     Returns:
         The resulting gmsh object and volumes
@@ -223,7 +226,7 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
-    gmsh.model.mesh.generate(2)
+    gmsh.model.mesh.generate(dimensions)
 
     return gmsh, volumes
 
@@ -310,12 +313,10 @@ def _order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags)
 class CadToDagmc:
     def __init__(self):
         self.parts = []
-        self.material_tags = []
 
     def add_stp_file(
         self,
         filename: str,
-        material_tags: typing.Iterable[str],
         scale_factor: float = 1.0,
     ):
         """Loads the parts from stp file into the model.
@@ -337,23 +338,18 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(object=scaled_part, material_tags=material_tags)
+        self.add_cadquery_object(object=scaled_part)
 
     def add_cadquery_object(
         self,
         object: typing.Union[
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
-        material_tags: typing.Iterable[str],
     ):
         """Loads the parts from CadQuery object into the model.
 
         Args:
             object: the cadquery object to convert
-            material_tags: the names of the DAGMC material tags to assign.
-                These will need to be in the same order as the volumes in the
-                STP file and match the material tags used in the neutronics
-                code (e.g. OpenMC).
         """
 
         if isinstance(object, cq.assembly.Assembly):
@@ -365,12 +361,36 @@ class CadToDagmc:
             iterable_solids = object.val().Solids()
         self.parts = self.parts + iterable_solids
 
-        if len(iterable_solids) != len(material_tags):
-            msg = f"Number of volumes {len(iterable_solids)} is not equal to number of material tags {len(material_tags)}"
-            raise ValueError(msg)
+    def export_unstructured_mesh_file(
+        self,
+        filename: str = "umesh.h5m",
+        min_mesh_size: float = 1,
+        max_mesh_size: float = 5,
+        mesh_algorithm: int = 1,
+    ):
 
-        for material_tag in material_tags:
-            self.material_tags.append(material_tag)
+        assembly = cq.Assembly()
+        for part in self.parts:
+            assembly.add(part)
+
+        imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+
+        gmsh, volumes = _mesh_brep(
+            brep_object=imprinted_assembly.wrapped._address(),
+            min_mesh_size=min_mesh_size,
+            max_mesh_size=max_mesh_size,
+            mesh_algorithm=mesh_algorithm,
+            dimensions=3,
+        )
+
+        # gmesh writes out a vtk file that is converted by pymoab into a h5 file
+        gmsh.write(filename + ".vtk")
+
+        moab_core = core.Core()
+        moab_core.load_file(filename + ".vtk")
+        moab_core.write_file(filename)
+
+        gmsh.finalize()
 
     def export_gmsh_mesh_file(
         self,
@@ -378,14 +398,18 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        dimensions: int = 2,
     ):
-        """Saves a GMesh msh file of the geometry
+        """Saves a GMesh msh file of the geometry in either 2D surface mesh or
+        3D volume mesh.
 
         Args:
             filename
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            dimensions: The number of dimensions, 2 for a surface mesh 3 for a
+                volume mesh. Passed to gmsh.model.mesh.generate()
         """
 
         assembly = cq.Assembly()
@@ -399,9 +423,8 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
+            dimensions=dimensions,
         )
-
-        _mesh_to_h5m_in_memory_method(volumes=volumes)
 
         gmsh.write(filename)
 
@@ -409,6 +432,7 @@ class CadToDagmc:
 
     def export_dagmc_h5m_file(
         self,
+        material_tags: typing.Iterable[str],
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
@@ -422,6 +446,10 @@ class CadToDagmc:
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
             mesh_algorithm: the gmsh mesh algorithm to use.
+            material_tags: the names of the DAGMC material tags to assign.
+                These will need to be in the same order as the volumes in the
+                geometry geometry added (STP file and CadQuery objects) and
+                match the material tags used in the neutronics code (e.g. OpenMC).
             implicit_complement_material_tag: the name of the material tag to
                 use for the implicit complement (void space). Defaults to None
                 which is a vacuum.
@@ -438,12 +466,16 @@ class CadToDagmc:
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
 
+        if len(original_ids) != len(material_tags):
+            msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
+
         material_tags_in_brep_order = _order_material_ids_by_brep_order(
-            original_ids, scrambled_ids, self.material_tags
+            original_ids, scrambled_ids, material_tags
         )
 
         gmsh, volumes = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),
+            brep_object=imprinted_assembly.wrapped._address(),  # in memory address
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
