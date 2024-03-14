@@ -60,7 +60,6 @@ jobs:
           python single_stp_file.py
           cd ../..
           cd examples/unstrucutred_volume_mesh
-          rm *.h5m
           python curved_cadquery_object_to_dagmc_volume_mesh.py
           cd ../..
           pytest -v tests/test_model_creation_for_transport.py
