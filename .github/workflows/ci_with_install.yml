@@ -53,13 +53,16 @@ jobs:
           python cadquery_object_and_stp_file.py
           python cadquery_text.py
           python curved_cadquery_object_to_dagmc_surface_mesh.py
-          python curved_cadquery_object_to_dagmc_volume_mesh.py
           python multiple_cadquery_objects.py
           python multiple_stp_files.py
           python single_stp_file_multiple_volumes.py
           python single_cadquery_object.py
           python single_stp_file.py
+          cd ../..
+          cd examples/unstrucutred_volume_mesh
           rm *.h5m
+          python curved_cadquery_object_to_dagmc_volume_mesh.py
+          cd ../..
           pytest -v tests/test_model_creation_for_transport.py
           mamba activate base
           mamba create -y --name openmc python=3.10
