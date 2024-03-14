@@ -130,7 +130,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     # my_model.export_dagmc_h5m_file(
     #     filename=h5m_filename, material_tags=[material_tags[0], material_tags[1]]
     # )
-    h5m_filename = 'test_two_sep_volumes.h5m'
+    h5m_filename = "test_two_sep_volumes.h5m"
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -149,7 +149,7 @@ def test_transport_result_h5m_with_1_volumes():
     # my_model = CadToDagmc()
     # my_model.add_cadquery_object(workplane1)
     # my_model.export_dagmc_h5m_file(filename=h5m_filename, material_tags=[material_tags[0]])
-    
+
     h5m_filename = "one_cylinder.h5m"
 
     transport_particles_on_h5m_geometry(

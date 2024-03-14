@@ -85,10 +85,7 @@ def test_h5m_with_multi_volume_not_touching():
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file)
 
-        my_model.export_dagmc_h5m_file(
-            filename=h5m_file,
-            material_tags=mat_tags
-        )
+        my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
