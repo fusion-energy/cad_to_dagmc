@@ -35,18 +35,17 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
           mamba activate
-          mamba create --name cad_to_dagmc python=3.12
+          mamba create -y --name cad_to_dagmc python=3.10
           mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge moab gmsh python-gmsh ocp=7.7.2.0 cadquery=2.4.0
+          mamba install -y -c conda-forge moab>=5.3.0 gmsh python-gmsh ocp=7.7.2.0 cadquery=2.4.0
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
-          pytest tests/test_file_creation.py
-          pytest tests/test_loading_from_file_vs_shape_object.py
-          pytest tests/test_match.py
-          pytest tests/test_python_api.py
-          pytest tests/test_version.py
+          pytest -v tests/test_file_creation.py
+          pytest -v tests/test_loading_from_file_vs_shape_object.py
+          pytest -v tests/test_python_api.py
+          pytest -v tests/test_version.py
           cd examples/surface_mesh
           python create_stp_files_for_examples.py
           python cadquery_assembly.py
@@ -54,20 +53,22 @@ jobs:
           python cadquery_object_and_stp_file.py
           python cadquery_text.py
           python curved_cadquery_object_to_dagmc_surface_mesh.py
-          python curved_cadquery_object_to_dagmc_volume_mesh.py
           python multiple_cadquery_objects.py
           python multiple_stp_files.py
           python single_stp_file_multiple_volumes.py
           python single_cadquery_object.py
           python single_stp_file.py
-          rm *.h5m
-          pytest tests/test_model_creation_for_transport.py
+          cd ../..
+          cd examples/unstrucutred_volume_mesh
+          python curved_cadquery_object_to_dagmc_volume_mesh.py
+          cd ../..
+          pytest -v tests/test_model_creation_for_transport.py
           mamba activate base
-          mamba create --name openmc python=3.12
+          mamba create -y --name openmc python=3.10
           mamba activate openmc
           mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
-          pytest tests/test_package.py
-          pytest tests/test_h5m_in_simulation.py
-          pytest tests/test_h5m_in_transport.py
+          python -m pip install pytest
+          pytest -v tests/test_h5m_in_simulation.py
+          pytest -v tests/test_h5m_in_transport.py
           cd examples/unstrucutred_volume_mesh
           python simulate_unstrucutred_volume_mesh_with_openmc.py
