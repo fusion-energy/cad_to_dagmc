@@ -64,6 +64,7 @@ jobs:
           mamba activate openmc
           mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
           python -m pip install pytest
+          python -m pip install vtk
           pytest -v tests/test_h5m_in_simulation.py
           pytest -v tests/test_h5m_in_transport.py
           python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py
