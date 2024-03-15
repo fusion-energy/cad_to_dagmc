@@ -91,6 +91,7 @@ def transport_particles_on_h5m_geometry(
     settings.inactive = 0
     settings.run_mode = "fixed source"
     settings.source = my_source
+    settings.photon_transport = False
 
     # adds a tally to record the heat deposited in entire geometry
     cell_tally = openmc.Tally(name="flux")

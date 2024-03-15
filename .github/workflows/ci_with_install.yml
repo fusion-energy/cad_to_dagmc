@@ -46,29 +46,25 @@ jobs:
           pytest -v tests/test_loading_from_file_vs_shape_object.py
           pytest -v tests/test_python_api.py
           pytest -v tests/test_version.py
-          cd examples/surface_mesh
-          python create_stp_files_for_examples.py
-          python cadquery_assembly.py
-          python cadquery_compound.py
-          python cadquery_object_and_stp_file.py
-          python cadquery_text.py
-          python curved_cadquery_object_to_dagmc_surface_mesh.py
-          python multiple_cadquery_objects.py
-          python multiple_stp_files.py
-          python single_stp_file_multiple_volumes.py
-          python single_cadquery_object.py
-          python single_stp_file.py
-          cd ../..
-          cd examples/unstrucutred_volume_mesh
-          python curved_cadquery_object_to_dagmc_volume_mesh.py
-          cd ../..
+          python examples/surface_mesh/create_stp_files_for_examples.py
+          python examples/surface_mesh/cadquery_assembly.py
+          python examples/surface_mesh/cadquery_compound.py
+          python examples/surface_mesh/cadquery_object_and_stp_file.py
+          python examples/surface_mesh/cadquery_text.py
+          python examples/surface_mesh/curved_cadquery_object_to_dagmc_surface_mesh.py
+          python examples/surface_mesh/multiple_cadquery_objects.py
+          python examples/surface_mesh/multiple_stp_files.py
+          python examples/surface_mesh/single_stp_file_multiple_volumes.py
+          python examples/surface_mesh/single_cadquery_object.py
+          python examples/surface_mesh/single_stp_file.py
+          python examples/unstrucutred_volume_mesh/curved_cadquery_object_to_dagmc_volume_mesh.py
           pytest -v tests/test_model_creation_for_transport.py
           mamba activate base
           mamba create -y --name openmc python=3.10
           mamba activate openmc
           mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
           python -m pip install pytest
+          python -m pip install vtk
           pytest -v tests/test_h5m_in_simulation.py
           pytest -v tests/test_h5m_in_transport.py
-          cd examples/unstrucutred_volume_mesh
-          python simulate_unstrucutred_volume_mesh_with_openmc.py
+          python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py

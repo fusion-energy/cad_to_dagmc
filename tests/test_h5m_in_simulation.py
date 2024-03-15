@@ -6,7 +6,7 @@ import openmc
 
 
 def transport_particles_on_h5m_geometry(
-    h5m_filename,
+    h5m_filename: str,
     material_tags,
 ):
     """A function for testing the geometry file with particle transport in DAGMC OpenMC"""
