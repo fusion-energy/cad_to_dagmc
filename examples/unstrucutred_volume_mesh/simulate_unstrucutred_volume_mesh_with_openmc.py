@@ -15,7 +15,7 @@ my_tallies = openmc.Tallies([tally])
 
 
 mat1 = openmc.Material()
-mat1.add_element("H1", 1, percent_type="ao")
+mat1.add_nuclide("H1", 1, percent_type="ao")
 mat1.set_density("g/cm3", 0.001)
 my_materials = openmc.Materials([mat1])
 
