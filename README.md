@@ -39,9 +39,9 @@ In principle, any Conda/Mamba distribution will work. A few Conda/Mamba options 
 
 # Install using Mamba and pip
 
-This example assumes you have installed the Miniforge option or separately installed Mamba with ```conda install -c conda-forge mamba -y```
+This example assumes you have installed the Miniforge option or separately have installed Mamba with ```conda install -c conda-forge mamba -y```
 
-Create a new conda environment, I've chosen Python 3.10 here but new versions are
+Create a new conda environment, I've chosen Python 3.10 here but newer versions are
 also supported.
 ```bash
 mamba create --name new_env python=3.10 -y
@@ -54,7 +54,7 @@ mamba activate new_env
 
 Install the dependencies
 ```bash
-mamba install -c conda-forge moab gmsh python-gmsh cadquery -y
+mamba install -y -c conda-forge gmsh python-gmsh moab>=5.3.0 ocp>=7.7.2.0 cadquery>=2.4.0
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -90,7 +90,7 @@ conda activate new_env
 
 Install the dependencies
 ```bash
-conda install -c conda-forge moab gmsh python-gmsh cadquery -y
+conda install -y -c conda-forge gmsh python-gmsh moab>=5.3.0 ocp>=7.7.2.0 cadquery>=2.4.0
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -98,10 +98,17 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).You can run ```conda install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
+# Usage - with OpenMC
+
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others supported by [DAGMC](https://svalinn.github.io/DAGMC/).
+
+You can run ```mamba install -c conda-forge openmc``` however this may choose to install OpenMC without DAGMC included.
+
+You can be more specific with conda/mamba commands to make sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-conda install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
+mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
 ```
+
 You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered as it can be tricky for the conda enviroment to get resolved.
 
 
@@ -112,4 +119,6 @@ For examples see the [examples folder](https://github.com/fusion-energy/cad_to_d
 
 # Usage - simulation with transport code
 
-For examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
+For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+
+For more examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
