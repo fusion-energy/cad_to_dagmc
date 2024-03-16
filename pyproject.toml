@@ -30,7 +30,8 @@ write_to = "src/_version.py"
 
 [project.optional-dependencies]
 tests = [
-    "pytest"
+    "pytest",
+    "vtk",
 ]
 
 [project.urls]
