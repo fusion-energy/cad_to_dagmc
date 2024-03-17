@@ -20,8 +20,7 @@ cad-to-dagmc can convert:
 - STEP files
 - CadQuery objects (in memory)
 
-cadto-dagmc aims to produce DAGMC compatible h5m files from CAD geometry is intended to convert [STEP](http://www.steptools.com/stds/step/) files or [CadQuery](https://cadquery.readthedocs.io) objects to a [DAGMC](https://github.com/svalinn/DAGMC/) compatible h5m file.
-
+cad-to-dagmc aims to produce DAGMC compatible h5m files from CAD geometry is intended to convert [STEP](http://www.steptools.com/stds/step/) files or [CadQuery](https://cadquery.readthedocs.io) objects to a [DAGMC](https://github.com/svalinn/DAGMC/) compatible h5m file.
 
 The resulting DAGMC geometry can then be used for simulations in [OpenMC](https://github.com/openmc-dev/openmc/) or [other supported codes](https://svalinn.github.io/DAGMC/).
 
@@ -29,11 +28,16 @@ This package is tested with [pytest tests](https://github.com/fusion-energy/cad_
 
 Also checkout these other software projects that also create DAGMC geometry [CAD-to-OpenMC](https://github.com/openmsr/CAD_to_OpenMC), [Stellarmesh](https://github.com/Thea-Energy/stellarmesh) and [Coreform Cubit](https://coreform.com/products/coreform-cubit/)
 
-# Installation prerequisite
+# Installation options
+
+- Install using Mamba and minimal pip
+- Install using Conda and minimal pip
+- Install using pip and source compilations
+- Install using Conda and maximum pip  TODO
+- Install using Mamba and maximum pip  TODO
 
 
-
-# Install using Mamba and pip
+## Install using Mamba and pip
 
 In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
 - [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
@@ -75,7 +79,7 @@ It might not be possible to install OpenMC and cad-to-dagmc in the same conda/ma
 Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options. 
 
 
-# Install using Conda and pip
+## Install using Conda and pip
 
 In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
 - [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
@@ -104,17 +108,21 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-# Install using pip
+## Install using pip and source compilations
 
 It is possible to avoid the use of conda and installing using pip and compiling from source.
 
 First compile MOAB (and install Pymoab) from source
 
 Then install cadquery and ocp using pip
+
+```bash
 pip install cadquery-ocp==7.7.2
 pip install cadquery==2.4.0
+```
 
 Then you can install the cad_to_dagmc package with ```pip```
+
 ```bash
 pip install cad_to_dagmc
 ```
