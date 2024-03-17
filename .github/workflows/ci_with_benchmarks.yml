@@ -47,4 +47,5 @@ jobs:
           git clone --single-branch -b main --depth 1 https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
           python -m pip install .[tests]
+          conda list
           pytest tests/test_cad_to_dagmc -v
