@@ -31,13 +31,14 @@ Also checkout these other software projects that also create DAGMC geometry [CAD
 
 # Installation prerequisite
 
-In principle, any Conda/Mamba distribution will work. A few Conda/Mamba options are:
-- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
-- [Anaconda](https://www.anaconda.com/download)
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 
 # Install using Mamba and pip
+
+In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
+- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
+- [Anaconda](https://www.anaconda.com/download)
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 This example assumes you have installed the Miniforge option or separately have installed Mamba with ```conda install -c conda-forge mamba -y```
 
@@ -76,6 +77,11 @@ Another option would be to [install OpenMC from source](https://docs.openmc.org/
 
 # Install using Conda and pip
 
+In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
+- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
+- [Anaconda](https://www.anaconda.com/download)
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+
 This example uses Conda to install some dependencies that are not available via PyPi.
 
 Create a new conda environment
@@ -97,6 +103,22 @@ Then you can install the cad_to_dagmc package with ```pip```
 ```bash
 pip install cad_to_dagmc
 ```
+
+# Install using pip
+
+It is possible to avoid the use of conda and installing using pip and compiling from source.
+
+First compile MOAB (and install Pymoab) from source
+
+Then install cadquery and ocp using pip
+pip install cadquery-ocp==7.7.2
+pip install cadquery==2.4.0
+
+Then you can install the cad_to_dagmc package with ```pip```
+```bash
+pip install cad_to_dagmc
+```
+
 
 # Usage - with OpenMC
 
