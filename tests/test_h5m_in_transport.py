@@ -1,4 +1,10 @@
-import openmc
+import pytest
+
+try:
+    import openmc
+except ImportError:
+    openmc = None
+
 from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 
@@ -116,7 +122,7 @@ def transport_particles_on_h5m_geometry(
 
     return my_flux_cell_tally.mean.flatten()[0]
 
-
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_sep_volumes():
     h5m_filename = "test_two_sep_volumes.h5m"
     volumes = 2
@@ -139,8 +145,8 @@ def test_transport_result_h5m_with_2_sep_volumes():
         nuclides=["H1"] * len(material_tags),
     )
 
-
-def test_transport_result_h5m_with_1_volumes():
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_transport_result_h5m_with_1_curved_volumes():
     h5m_filename = "one_cylinder.h5m"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -157,8 +163,8 @@ def test_transport_result_h5m_with_1_volumes():
         nuclides=["H1"] * len(material_tags),
     )
 
-
-def test_transport_result_h5m_with_2_joined_volumes():
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_transport_result_h5m_with_2_joined_curved_volumes():
     h5m_filename = "two_connected_cylinders.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -178,3 +184,63 @@ def test_transport_result_h5m_with_2_joined_volumes():
         material_tags=material_tags,
         nuclides=["H1"] * len(material_tags),
     )
+
+
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_h5m_with_single_volume_list():
+    """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
+
+    h5m_file = "tests/single_cube.h5m"
+
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/single_cube.stp")
+    my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=["mat1"])
+
+    h5m_files = [
+        "tests/single_cube.h5m",
+    ]
+
+    for h5m_file in h5m_files:
+        transport_particles_on_h5m_geometry(
+            h5m_filename=h5m_file,
+            material_tags=["mat1"],
+            nuclides=["H1"],
+        )
+
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_h5m_with_multi_volume_not_touching():
+
+    h5m_file = "tests/two_disconnected_cubes.h5m"
+
+    my_model = CadToDagmc()
+    my_model.add_stp_file(filename="tests/two_disconnected_cubes.stp")
+    my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=["mat1", "mat2"])
+
+    transport_particles_on_h5m_geometry(h5m_filename="tests/two_disconnected_cubes.h5m", material_tags=["mat1", "mat2"])
+
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_h5m_with_multi_volume_touching():
+    stp_files = [
+        "tests/multi_volume_cylinders.stp",
+        "tests/two_connected_cubes.stp",
+    ]
+    material_tags = [
+        ["mat1", "mat2", "mat3", "mat4", "mat5", "mat6"],
+        ["mat1", "mat2"],
+    ]
+    h5m_files = [
+        "tests/multi_volume_cylinders.h5m",
+        "tests/two_connected_cubes.h5m",
+    ]
+    for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
+
+        my_model = CadToDagmc()
+        my_model.add_stp_file(stp_file)
+
+        my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
+
+        transport_particles_on_h5m_geometry(
+            h5m_filename=h5m_file,
+            material_tags=mat_tags,
+            nuclides=["H1"] * len(material_tags),
+        )

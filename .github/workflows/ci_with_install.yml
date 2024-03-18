@@ -1,4 +1,6 @@
 
+# This CI does includes particle transport tests as openmc is installed
+
 name: CI with install
 
 on:

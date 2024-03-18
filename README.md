@@ -57,7 +57,7 @@ mamba activate new_env
 
 Install the dependencies
 ```bash
-mamba install -y -c conda-forge moab>=5.3.0 gmsh python-gmsh
+mamba install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -87,7 +87,7 @@ conda activate new_env
 
 Install the dependencies
 ```bash
-conda install -y -c conda-forge moab>=5.3.0 gmsh python-gmsh
+conda install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```

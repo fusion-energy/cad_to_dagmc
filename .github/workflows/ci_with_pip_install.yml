@@ -1,4 +1,6 @@
 
+# This CI does not currently include particle transport tests as openmc is not installed
+
 name: CI with pip install
 
 on:
@@ -49,10 +51,7 @@ jobs:
           python -m pip install .
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
-          pytest -v tests/test_file_creation.py
-          pytest -v tests/test_loading_from_file_vs_shape_object.py
-          pytest -v tests/test_python_api.py
-          pytest -v tests/test_version.py
+          pytest -v tests
           cd examples
           python create_stp_files_for_examples.py
           python cadquery_assembly.py
