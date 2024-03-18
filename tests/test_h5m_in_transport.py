@@ -248,5 +248,5 @@ def test_h5m_with_multi_volume_touching():
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file,
             material_tags=mat_tags,
-            nuclides=["H1"] * len(material_tags),
+            nuclides=["H1"] * len(mat_tags),
         )
