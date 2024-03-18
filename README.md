@@ -127,6 +127,11 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
+# Known incompatibilities
+
+The package requires newer versions of Linux. For example the package does not work on Ubuntu 18.04 or older.
+
+The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
 
 # Usage - with OpenMC
 

@@ -32,16 +32,28 @@ jobs:
           apt-get update -y
           apt-get upgrade -y
           apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev 
+          apt-get install -y make cmake
           apt install python3
           apt install python3-pip
-          python -m pip install --upgrade pip 
-          python -m pip install gmsh
-          python -m pip install cadquery-ocp==7.7.2
-          python -m pip install cadquery==2.4.0
+          python -m pip install --upgrade pip
+          mkdir -MOAB
+          cd /MOAB
+          git clone --single-branch -b 5.3.0 --depth 1 https://bitbucket.org/fathomteam/moab/
+          mkdir build
+          cd build
+          cmake .. -DENABLE_PYMOAB=ON -DENABLE_HDF5=ON
+          make
+          make install
+          cd pymoab
+          bash install.sh
+          cd ../..
           python -m pip install .
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
-          pytest tests -v
+          pytest -v tests/test_file_creation.py
+          pytest -v tests/test_loading_from_file_vs_shape_object.py
+          pytest -v tests/test_python_api.py
+          pytest -v tests/test_version.py
           cd examples
           python create_stp_files_for_examples.py
           python cadquery_assembly.py
