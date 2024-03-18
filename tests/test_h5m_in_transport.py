@@ -220,7 +220,9 @@ def test_h5m_with_multi_volume_not_touching():
     my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=["mat1", "mat2"])
 
     transport_particles_on_h5m_geometry(
-        h5m_filename="tests/two_disconnected_cubes.h5m", material_tags=["mat1", "mat2"], nuclides=["H1", "H1"],
+        h5m_filename="tests/two_disconnected_cubes.h5m",
+        material_tags=["mat1", "mat2"],
+        nuclides=["H1", "H1"],
     )
 
 
