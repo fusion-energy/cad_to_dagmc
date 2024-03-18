@@ -1,5 +1,5 @@
 import openmc
-from cad_to_Dagmc import CadToDagmc
+from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 
 """
