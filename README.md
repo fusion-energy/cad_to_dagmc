@@ -30,11 +30,9 @@ Also checkout these other software projects that also create DAGMC geometry [CAD
 
 # Installation options
 
-- Install using Mamba and minimal pip
-- Install using Conda and minimal pip
+- Install using Mamba and pip
+- Install using Conda and pip
 - Install using pip and source compilations
-- Install using Conda and maximum pip  TODO
-- Install using Mamba and maximum pip  TODO
 
 
 ## Install using Mamba and pip
@@ -59,24 +57,13 @@ mamba activate new_env
 
 Install the dependencies
 ```bash
-mamba install -y -c conda-forge gmsh python-gmsh moab>=5.3.0 ocp>=7.7.2.0 cadquery>=2.4.0
+mamba install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
 ```bash
 pip install cad_to_dagmc
 ```
-
-You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).
-
-To install OpenMC You can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
-```bash
-mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
-```
-
-It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
-
-Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options. 
 
 
 ## Install using Conda and pip
@@ -100,7 +87,7 @@ conda activate new_env
 
 Install the dependencies
 ```bash
-conda install -y -c conda-forge gmsh python-gmsh moab>=5.3.0 ocp>=7.7.2.0 cadquery>=2.4.0
+conda install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
 Then you can install the cad_to_dagmc package with ```pip```
@@ -110,16 +97,11 @@ pip install cad_to_dagmc
 
 ## Install using pip and source compilations
 
-It is possible to avoid the use of conda and installing using pip and compiling from source.
+It should possible to avoid the use of conda and installing using pip and compiling from source.
 
 First compile MOAB (and install Pymoab) from source
 
-Then install cadquery and ocp using pip
-
-```bash
-pip install cadquery-ocp==7.7.2
-pip install cadquery==2.4.0
-```
+Then install gmsh from source (installing from pip appears to cause conflicts with the open cascade used in ocp and cadquery)
 
 Then you can install the cad_to_dagmc package with ```pip```
 
@@ -127,6 +109,28 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
+## Install with transport code (e.g OpenMC)
+
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).
+
+To install OpenMC you can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
+```bash
+mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
+```
+
+It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
+
+Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options.
+
+
+
+# Known incompatibilities
+
+The package requires newer versions of Linux. For example the package does not work on Ubuntu 18.04 or older.
+
+The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
+
+Installing one of the package dependancies (gmsh) with pip appears to result in occational errors when passing cad objects between cadquery / ocp and gmsh. The conda install gmsh appears to work fine.
 
 # Usage - with OpenMC
 
