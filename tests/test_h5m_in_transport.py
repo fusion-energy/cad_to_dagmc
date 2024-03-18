@@ -59,7 +59,6 @@ def transport_particles_on_h5m_geometry(
             <?xml version='1.0' encoding='UTF-8'?>
             <cross_sections>
             <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
-            <library materials="H2" path="ENDFB-7.1-NNDC_H2.h5" type="neutron"/>
             </cross_sections>
             """
             )
