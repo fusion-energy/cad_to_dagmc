@@ -45,7 +45,7 @@ jobs:
           make
           make install
           cd pymoab
-          bash install.sh
+          sudo bash install.sh
           cd ../..
           python -m pip install .
           python -c "import cad_to_dagmc"
