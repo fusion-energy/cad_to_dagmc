@@ -121,6 +121,7 @@ def transport_particles_on_h5m_geometry(
 
     return my_flux_cell_tally.mean.flatten()[0]
 
+
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_sep_volumes():
     h5m_filename = "test_two_sep_volumes.h5m"
@@ -144,6 +145,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
         nuclides=["H1"] * len(material_tags),
     )
 
+
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_1_curved_volumes():
     h5m_filename = "one_cylinder.h5m"
@@ -161,6 +163,7 @@ def test_transport_result_h5m_with_1_curved_volumes():
         material_tags=material_tags,
         nuclides=["H1"] * len(material_tags),
     )
+
 
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_joined_curved_volumes():
@@ -206,6 +209,7 @@ def test_h5m_with_single_volume_list():
             nuclides=["H1"],
         )
 
+
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_not_touching():
 
@@ -215,7 +219,10 @@ def test_h5m_with_multi_volume_not_touching():
     my_model.add_stp_file(filename="tests/two_disconnected_cubes.stp")
     my_model.export_dagmc_h5m_file(filename=h5m_file, material_tags=["mat1", "mat2"])
 
-    transport_particles_on_h5m_geometry(h5m_filename="tests/two_disconnected_cubes.h5m", material_tags=["mat1", "mat2"])
+    transport_particles_on_h5m_geometry(
+        h5m_filename="tests/two_disconnected_cubes.h5m", material_tags=["mat1", "mat2"]
+    )
+
 
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_touching():
