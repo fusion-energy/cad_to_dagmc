@@ -47,7 +47,7 @@ jobs:
           cmake ../moab -DENABLE_PYMOAB=ON -DENABLE_HDF5=ON -DENABLE_BLASLAPACK=OFF -DENABLE_FORTRAN=OFF
           make -j2
           make install
-          cd ..
+          cd ../..
           python -m pip install .
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
