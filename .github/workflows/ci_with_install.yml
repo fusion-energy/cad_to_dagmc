@@ -37,15 +37,12 @@ jobs:
           mamba activate
           mamba create -y --name cad_to_dagmc python=3.10
           mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge moab>=5.3.0 gmsh python-gmsh
+          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*" gmsh python-gmsh
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
-          pytest -v tests/test_file_creation.py
-          pytest -v tests/test_loading_from_file_vs_shape_object.py
-          pytest -v tests/test_python_api.py
-          pytest -v tests/test_version.py
+          pytest -v tests
           python examples/surface_mesh/create_stp_files_for_examples.py
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py
@@ -58,13 +55,4 @@ jobs:
           python examples/surface_mesh/single_cadquery_object.py
           python examples/surface_mesh/single_stp_file.py
           python examples/unstrucutred_volume_mesh/curved_cadquery_object_to_dagmc_volume_mesh.py
-          pytest -v tests/test_model_creation_for_transport.py
-          mamba activate base
-          mamba create -y --name openmc python=3.10
-          mamba activate openmc
-          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*"
-          python -m pip install pytest
-          python -m pip install vtk
-          pytest -v tests/test_h5m_in_simulation.py
-          pytest -v tests/test_h5m_in_transport.py
           python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py
