@@ -65,17 +65,6 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).
-
-To install OpenMC You can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
-```bash
-mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
-```
-
-It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
-
-Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options. 
-
 
 ## Install using Conda and pip
 
@@ -119,6 +108,19 @@ Then you can install the cad_to_dagmc package with ```pip```
 ```bash
 pip install cad_to_dagmc
 ```
+
+## Install transport code (e.g OpenMC)
+
+You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).
+
+To install OpenMC you can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
+```bash
+mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
+```
+
+It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
+
+Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options.
 
 # Known incompatibilities
 
