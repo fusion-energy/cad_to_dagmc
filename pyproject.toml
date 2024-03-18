@@ -20,8 +20,9 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery-ocp>=7.7.2"
-    "cadquery>=2.4.0"
+    "gmsh",
+    "cadquery-ocp>=7.7.2",
+    "cadquery>=2.4.0",
 ]
 dynamic = ["version"]
 
