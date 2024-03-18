@@ -20,7 +20,6 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "gmsh",
     "cadquery-ocp>=7.7.2",
     "cadquery>=2.4.0",
 ]
