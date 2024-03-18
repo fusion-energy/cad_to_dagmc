@@ -36,7 +36,7 @@ jobs:
           apt install python3
           apt install python3-pip
           python -m pip install --upgrade pip
-          mkdir -MOAB
+          mkdir MOAB
           cd /MOAB
           git clone --single-branch -b 5.3.0 --depth 1 https://bitbucket.org/fathomteam/moab/
           mkdir build
