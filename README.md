@@ -109,7 +109,7 @@ Then you can install the cad_to_dagmc package with ```pip```
 pip install cad_to_dagmc
 ```
 
-## Install with transport code (e.g OpenMC)
+## Install with OpenMC or other particle transport codes
 
 You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others [link to DAGMC documentation](https://svalinn.github.io/DAGMC/).
 
@@ -123,7 +123,6 @@ It might not be possible to install OpenMC and cad-to-dagmc in the same conda/ma
 Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options.
 
 
-
 # Known incompatibilities
 
 The package requires newer versions of Linux. For example the package does not work on Ubuntu 18.04 or older.
@@ -131,20 +130,6 @@ The package requires newer versions of Linux. For example the package does not w
 The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
 
 Installing one of the package dependancies (gmsh) with pip appears to result in occational errors when passing cad objects between cadquery / ocp and gmsh. The conda install gmsh appears to work fine.
-
-# Usage - with OpenMC
-
-You may also want to install OpenMC with DAGMC to make use of the h5m geometry files produced in simulations. However you could also use other supported particle transport codes such as MCNP, FLUKA and others supported by [DAGMC](https://svalinn.github.io/DAGMC/).
-
-You can run ```mamba install -c conda-forge openmc``` however this may choose to install OpenMC without DAGMC included.
-
-You can be more specific with conda/mamba commands to make sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
-```bash
-mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
-```
-
-You could also [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which might be prefered as it can be tricky for the conda enviroment to get resolved.
-
 
 
 # Usage - creation of DAGMC h5m files
