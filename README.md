@@ -30,10 +30,59 @@ Also checkout these other software projects that also create DAGMC geometry [CAD
 
 # Installation options
 
+- Install using Mamba
+- Install using Conda
 - Install using Mamba and pip
 - Install using Conda and pip
 - Install using pip and source compilations
 
+## Install using Mamba
+
+In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
+- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
+- [Anaconda](https://www.anaconda.com/download)
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+
+This example assumes you have installed the Miniforge option or separately have installed Mamba with ```conda install -c conda-forge mamba -y```
+
+Create a new environment, I've chosen Python 3.10 here but newer versions are
+also supported.
+```bash
+mamba create --name new_env python=3.10 -y
+```
+
+Activate the environment
+```bash
+mamba activate new_env
+```
+
+Then you can install the cad_to_dagmc package
+```bash
+mamba install -y -c conda-forge cad_to_dagmc
+```
+
+## Install using Conda
+
+In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
+- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
+- [Anaconda](https://www.anaconda.com/download)
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+
+Create a new environment, I've chosen Python 3.10 here but newer versions are
+also supported.
+```bash
+conda create --name new_env python=3.10 -y
+```
+
+Activate the environment
+```bash
+conda activate new_env
+```
+
+Then you can install the cad_to_dagmc package
+```bash
+conda install -y -c conda-forge cad_to_dagmc
+```
 
 ## Install using Mamba and pip
 
@@ -44,7 +93,7 @@ In principle, installing any Conda/Mamba distribution will work. A few Conda/Mam
 
 This example assumes you have installed the Miniforge option or separately have installed Mamba with ```conda install -c conda-forge mamba -y```
 
-Create a new conda environment, I've chosen Python 3.10 here but newer versions are
+Create a new environment, I've chosen Python 3.10 here but newer versions are
 also supported.
 ```bash
 mamba create --name new_env python=3.10 -y
@@ -60,7 +109,7 @@ Install the dependencies
 mamba install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
-Then you can install the cad_to_dagmc package with ```pip```
+Then you can install the cad_to_dagmc package
 ```bash
 pip install cad_to_dagmc
 ```
@@ -75,7 +124,7 @@ In principle, installing any Conda/Mamba distribution will work. A few Conda/Mam
 
 This example uses Conda to install some dependencies that are not available via PyPi.
 
-Create a new conda environment
+Create a new environment
 ```bash
 conda create --name new_env python=3.10 -y
 ```
@@ -90,7 +139,7 @@ Install the dependencies
 conda install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
 ```
 
-Then you can install the cad_to_dagmc package with ```pip```
+Then you can install the cad_to_dagmc package
 ```bash
 pip install cad_to_dagmc
 ```
