@@ -234,13 +234,10 @@ def _mesh_brep(
 def _mesh_to_h5m_in_memory_method(
     volumes,
 ) -> str:
-    """Converts gmsh volumes into a DAGMC h5m file.
+    """Converts gmsh volumes into vertices and triangles for each face.
 
     Args:
         volumes: the volumes in the gmsh file, found with gmsh.model.occ.importShapes
-        material_tags: A list of material tags to tag the DAGMC volumes with.
-            Should be in the same order as the volumes
-        h5m_filename: the filename of the DAGMC h5m file to write
 
     Returns:
         vertices and triangles (grouped by solid then by face)
@@ -375,7 +372,7 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, volumes = _mesh_brep(
+        gmsh, _ = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
@@ -418,7 +415,7 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, volumes = _mesh_brep(
+        gmsh, _ = _mesh_brep(
             brep_object=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
