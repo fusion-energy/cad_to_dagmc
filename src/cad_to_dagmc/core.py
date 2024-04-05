@@ -189,6 +189,8 @@ def _vertices_to_h5m(
 
     moab_core.write_file(h5m_filename)
 
+    print(f'written DAGMC file {h5m_filename}')
+        
     return h5m_filename
 
 
@@ -231,9 +233,9 @@ def _mesh_brep(
     return gmsh, volumes
 
 
-def _mesh_to_h5m_in_memory_method(
-    volumes,
-) -> str:
+def mesh_to_h5m_in_memory_method(
+    dims_and_vol_ids,
+):
     """Converts gmsh volumes into vertices and triangles for each face.
 
     Args:
@@ -245,7 +247,7 @@ def _mesh_to_h5m_in_memory_method(
 
     n = 3  # number of verts in a triangles
     triangles_by_solid_by_face = {}
-    for dim_and_vol in volumes:
+    for dim_and_vol in dims_and_vol_ids:
         # removes all groups so that the following getEntitiesForPhysicalGroup
         # command only finds surfaces for the volume
         gmsh.model.removePhysicalGroups()
@@ -307,7 +309,61 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     return material_tags_in_brep_order
 
 
+class MeshToDagmc:
+    """Convert a GMSH mesh file to a DAGMC h5m file"""
+    def __init__(self, filename: str):
+        self.filename = filename
+
+    def export_dagmc_h5m_file(
+        self,
+        material_tags: typing.Iterable[str],
+        implicit_complement_material_tag: typing.Optional[str] = None,
+        filename: str = "dagmc.h5m",
+    ):
+        """Saves a DAGMC h5m file of the geometry
+
+        Args:
+            material_tags (typing.Iterable[str]): the names of the DAGMC
+                material tags to assign. These will need to be in the same
+                order as the volumes in the GMESH mesh and match the
+                material tags used in the neutronics code (e.g. OpenMC).
+            implicit_complement_material_tag (typing.Optional[str], optional):
+                the name of the material tag to use for the implicit
+                complement (void space). Defaults to None which is a vacuum.
+            filename (str, optional): _description_. Defaults to "dagmc.h5m".
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        gmsh.initialize()        
+        self.mesh_file = gmsh.open(self.filename)
+        dims_and_vol_ids = gmsh.model.getEntities(3)
+
+        if len(dims_and_vol_ids) != len(material_tags):
+            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
+
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(dims_and_vol_ids=dims_and_vol_ids)
+
+        gmsh.finalize()
+
+        h5m_filename = _vertices_to_h5m(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
+            material_tags=material_tags,
+            h5m_filename=filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
+        )
+
+        return h5m_filename
+
+
 class CadToDagmc:
+    """Converts Step files and CadQuery parts to a DAGMC h5m file"""
     def __init__(self):
         self.parts = []
 
@@ -389,6 +445,8 @@ class CadToDagmc:
 
         gmsh.finalize()
 
+        return gmsh
+
     def export_gmsh_mesh_file(
         self,
         filename: str = "mesh.msh",
@@ -425,6 +483,8 @@ class CadToDagmc:
 
         gmsh.write(filename)
 
+        print(f'written GMSH mesh file {filename}')
+
         gmsh.finalize()
 
     def export_dagmc_h5m_file(
@@ -435,22 +495,27 @@ class CadToDagmc:
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         implicit_complement_material_tag: typing.Optional[str] = None,
-    ):
+    ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
         Args:
-            filename
-            min_mesh_size: the minimum size of mesh elements to use.
-            max_mesh_size: the maximum size of mesh elements to use.
-            mesh_algorithm: the gmsh mesh algorithm to use.
-            material_tags: the names of the DAGMC material tags to assign.
-                These will need to be in the same order as the volumes in the
-                geometry geometry added (STP file and CadQuery objects) and
-                match the material tags used in the neutronics code (e.g. OpenMC).
-            implicit_complement_material_tag: the name of the material tag to
-                use for the implicit complement (void space). Defaults to None
-                which is a vacuum.
+            material_tags (typing.Iterable[str]): the names of the DAGMC
+                material tags to assign. These will need to be in the
+                same order as the volumes in the geometry added (STP
+                file and CadQuery objects) and match the material tags
+                used in the neutronics code (e.g. OpenMC).
+            filename (str, optional): the filename to use for the saved DAGMC file. Defaults to "dagmc.h5m".
+            min_mesh_size (float, optional): the minimum size of mesh elements to use. Defaults to 1.
+            max_mesh_size (float, optional): the maximum size of mesh elements to use. Defaults to 5.
+            mesh_algorithm (int, optional): the GMSH mesh algorithm to use.. Defaults to 1.
+            implicit_complement_material_tag (typing.Optional[str], optional):
+                the name of the material tag to use for the implicit complement
+                (void space). Defaults to None which is a vacuum. Defaults to None.
+
+        Returns:
+            str: the DAGMC filename saved
         """
+
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
@@ -486,7 +551,9 @@ class CadToDagmc:
             msg = f"{len(volumes)} volumes found in Brep file is not equal to the number of material_tags {len(material_tags_in_brep_order)} provided."
             raise ValueError(msg)
 
-        vertices, triangles_by_solid_by_face = _mesh_to_h5m_in_memory_method(volumes=volumes)
+        dims_and_vol_ids = volumes
+
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(dims_and_vol_ids=dims_and_vol_ids)
 
         gmsh.finalize()
 
