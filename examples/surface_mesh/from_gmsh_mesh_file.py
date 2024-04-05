@@ -22,7 +22,7 @@ mesh.export_dagmc_h5m_file(
 # making use of the DAGMC file in OpenMC
 import openmc
 
-openmc.config["cross_sections"] = "/home/j/endf-b8.0-hdf5/endfb-viii.0-hdf5/cross_sections.xml"
+openmc.config["cross_sections"] = "cross_sections.xml"
 
 mat1 = openmc.Material(name="mat1")
 mat1.add_nuclide("H1", 1, percent_type="ao")
