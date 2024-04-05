@@ -12,14 +12,14 @@ with open("cross_sections.xml", "w") as file:
         </cross_sections>
         """
     )
-openmc.config["cross_sections"] = "cross_sections.xml"
+# openmc.config["cross_sections"] = "cross_sections.xml"
+openmc.config["cross_sections"] = "/home/j/endf-b8.0-hdf5/endfb-viii.0-hdf5/cross_sections.xml"
 
 umesh = openmc.UnstructuredMesh("umesh.h5m", library="moab")
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstrucutred_mesh_tally")
 tally.filters = [mesh_filter]
 tally.scores = ["flux"]
-tally.estimator = "tracklength"
 my_tallies = openmc.Tallies([tally])
 
 
