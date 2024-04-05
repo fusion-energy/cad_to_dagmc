@@ -19,7 +19,6 @@ mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstrucutred_mesh_tally")
 tally.filters = [mesh_filter]
 tally.scores = ["flux"]
-tally.estimator = "tracklength"
 my_tallies = openmc.Tallies([tally])
 
 
