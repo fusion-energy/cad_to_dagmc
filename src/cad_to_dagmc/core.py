@@ -189,8 +189,8 @@ def _vertices_to_h5m(
 
     moab_core.write_file(h5m_filename)
 
-    print(f'written DAGMC file {h5m_filename}')
-        
+    print(f"written DAGMC file {h5m_filename}")
+
     return h5m_filename
 
 
@@ -311,6 +311,7 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
 
 class MeshToDagmc:
     """Convert a GMSH mesh file to a DAGMC h5m file"""
+
     def __init__(self, filename: str):
         self.filename = filename
 
@@ -339,7 +340,7 @@ class MeshToDagmc:
             _type_: _description_
         """
 
-        gmsh.initialize()        
+        gmsh.initialize()
         self.mesh_file = gmsh.open(self.filename)
         dims_and_vol_ids = gmsh.model.getEntities(3)
 
@@ -347,7 +348,9 @@ class MeshToDagmc:
             msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
             raise ValueError(msg)
 
-        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(dims_and_vol_ids=dims_and_vol_ids)
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+            dims_and_vol_ids=dims_and_vol_ids
+        )
 
         gmsh.finalize()
 
@@ -364,6 +367,7 @@ class MeshToDagmc:
 
 class CadToDagmc:
     """Converts Step files and CadQuery parts to a DAGMC h5m file"""
+
     def __init__(self):
         self.parts = []
 
@@ -483,7 +487,7 @@ class CadToDagmc:
 
         gmsh.write(filename)
 
-        print(f'written GMSH mesh file {filename}')
+        print(f"written GMSH mesh file {filename}")
 
         gmsh.finalize()
 
@@ -553,7 +557,9 @@ class CadToDagmc:
 
         dims_and_vol_ids = volumes
 
-        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(dims_and_vol_ids=dims_and_vol_ids)
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+            dims_and_vol_ids=dims_and_vol_ids
+        )
 
         gmsh.finalize()
 
