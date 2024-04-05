@@ -37,7 +37,6 @@ my_geometry = openmc.Geometry([cell1])
 
 my_settings = openmc.Settings()
 my_settings.batches = 10
-my_settings.inactive = 0
 my_settings.particles = 5000
 my_settings.run_mode = "fixed source"
 
