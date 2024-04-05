@@ -233,7 +233,7 @@ def _mesh_brep(
     return gmsh, volumes
 
 
-def mesh_to_h5m_in_memory_method(
+def mesh_to_vertices_and_triangles(
     dims_and_vol_ids,
 ):
     """Converts gmsh volumes into vertices and triangles for each face.
