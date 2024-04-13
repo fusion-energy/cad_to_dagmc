@@ -48,28 +48,25 @@ def test_max_mesh_size_impacts_file_size():
     sphere = cq.Workplane().sphere(100)
 
     c2d = CadToDagmc()
-    c2d.add_cadquery_object(sphere)
+    c2d.add_cadquery_object(sphere, material_tags=["m1"])
     os.system("rm *.h5m")
     c2d.export_dagmc_h5m_file(
         min_mesh_size=10,
         max_mesh_size=20,
         mesh_algorithm=1,
-        filename="test_10_30.h5m",
-        material_tags=["m1"],
+        filename="test_10_30.h5m",  
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
         filename="test_20_30.h5m",
-        material_tags=["m1"],
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
         filename="test_20_25.h5m",
-        material_tags=["m1"],
     )
 
     assert Path("test_10_30.h5m").is_file()
@@ -91,15 +88,15 @@ def test_h5m_file_tags():
     sphere3 = cq.Workplane().moveTo(-100, -100).sphere(20)
 
     c2d = CadToDagmc()
-    c2d.add_cadquery_object(sphere1)
-    c2d.add_cadquery_object(sphere2)
-    c2d.add_cadquery_object(sphere3)
+    c2d.add_cadquery_object(sphere1, material_tags=["mat1"])
+    c2d.add_cadquery_object(sphere2, material_tags=["mat2"])
+    c2d.add_cadquery_object(sphere3, material_tags=["mat3"])
 
     test_h5m_filename = "test_dagmc.h5m"
     os.system(f"rm {test_h5m_filename}")
 
     returned_filename = c2d.export_dagmc_h5m_file(
-        filename=test_h5m_filename, material_tags=["mat1", "mat2", "mat3"]
+        filename=test_h5m_filename
     )
 
     assert Path(test_h5m_filename).is_file()

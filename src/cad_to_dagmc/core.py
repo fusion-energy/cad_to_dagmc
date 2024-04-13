@@ -311,10 +311,10 @@ def _check_material_tags(material_tags, iterable_solids):
                 f"and {len(material_tags)} material_tags found"
             )
             raise ValueError(msg)
-    for material_tag in material_tags:
-        if not isinstance(material_tag, str):
-            msg = f"material_tags should be an iterable of strings."
-            raise ValueError(msg)
+        for material_tag in material_tags:
+            if not isinstance(material_tag, str):
+                msg = f"material_tags should be an iterable of strings."
+                raise ValueError(msg)
 
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
@@ -330,6 +330,9 @@ class MeshToDagmc:
 
     def __init__(self, filename: str):
         self.filename = filename
+
+    # TODO add export_unstructured_mesh_file
+    # TODO add add_gmsh_msh_file
 
     def export_dagmc_h5m_file(
         self,
