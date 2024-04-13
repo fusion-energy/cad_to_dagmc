@@ -66,7 +66,9 @@ def _vertices_to_h5m(
         typing.Iterable[typing.Tuple[float, float, float]],
         typing.Iterable["cadquery.occ_impl.geom.Vector"],
     ],
-    triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
+    triangles_by_solid_by_face: typing.Iterable[
+        typing.Iterable[typing.Tuple[int, int, int]]
+    ],
     material_tags: typing.Iterable[str],
     h5m_filename="dagmc.h5m",
     implicit_complement_material_tag=None,
@@ -86,7 +88,11 @@ def _vertices_to_h5m(
         raise ValueError(msg)
 
     # limited attribute checking to see if user passed in a list of CadQuery vectors
-    if hasattr(vertices[0], "x") and hasattr(vertices[0], "y") and hasattr(vertices[0], "z"):
+    if (
+        hasattr(vertices[0], "x")
+        and hasattr(vertices[0], "y")
+        and hasattr(vertices[0], "z")
+    ):
         vertices_floats = []
         for vert in vertices:
             vertices_floats.append((vert.x, vert.y, vert.z))
@@ -136,7 +142,9 @@ def _vertices_to_h5m(
                 if len(face_ids_with_solid_ids[face_id]) == 2:
                     other_solid_id = face_ids_with_solid_ids[face_id][1]
                     other_volume_set = volume_sets_by_solid_id[other_solid_id]
-                    sense_data = np.array([other_volume_set, volume_set], dtype="uint64")
+                    sense_data = np.array(
+                        [other_volume_set, volume_set], dtype="uint64"
+                    )
                 else:
                     sense_data = np.array([volume_set, 0], dtype="uint64")
 
@@ -275,7 +283,8 @@ def mesh_to_vertices_and_triangles(
             for nodeTag in nodeTags:
                 shifted_node_tags.append(nodeTag - 1)
             grouped_node_tags = [
-                shifted_node_tags[i : i + n] for i in range(0, len(shifted_node_tags), n)
+                shifted_node_tags[i : i + n]
+                for i in range(0, len(shifted_node_tags), n)
             ]
             nodes_in_each_surface[surface] = grouped_node_tags
         triangles_by_solid_by_face[vol_id] = nodes_in_each_surface
@@ -417,7 +426,9 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
+        self.add_cadquery_object(
+            cadquery_object=scaled_part, material_tags=material_tags
+        )
 
     def add_cadquery_object(
         self,
@@ -441,7 +452,9 @@ class CadToDagmc:
         if isinstance(cadquery_object, cq.assembly.Assembly):
             cadquery_object = cadquery_object.toCompound()
 
-        if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+        if isinstance(
+            cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+        ):
             iterable_solids = cadquery_object.Solids()
         else:
             iterable_solids = cadquery_object.val().Solids()
@@ -552,7 +565,9 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
+        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
+            assembly
+        )
 
         original_ids = _get_ids_from_assembly(assembly)
         scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
