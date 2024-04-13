@@ -5,12 +5,15 @@ result = cq.Workplane("XY").moveTo(10, 0).box(3, 3, 0.5).edges("|Z").fillet(0.12
 
 my_model = CadToDagmc()
 
-my_model.add_cadquery_object(result)
+my_model.add_cadquery_object(cadquery_object=result)
 
-my_model.add_stp_file(filename="single_cube.stp", scale_factor=0.1)
+my_model.add_stp_file(
+    filename="single_cube.stp",
+    scale_factor=0.1,
+    material_tags=["mat1", "mat2"],
+)
 
 my_model.export_dagmc_h5m_file(
     max_mesh_size=0.2,
     min_mesh_size=0.1,
-    material_tags=["mat1", "mat2"],
 )

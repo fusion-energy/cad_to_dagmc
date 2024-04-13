@@ -5,7 +5,7 @@ text = cq.Workplane().text(txt="DAGMC", fontsize=10, distance=1)
 
 
 my_model = CadToDagmc()
-my_model.add_cadquery_object(object=text)
+my_model.add_cadquery_object(cadquery_object=text)
 
 my_model.export_dagmc_h5m_file(
     filename="cadquery_text.h5m",
