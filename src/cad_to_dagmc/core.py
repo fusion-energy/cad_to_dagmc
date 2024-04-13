@@ -305,17 +305,16 @@ def _check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
             msg = (
-                'When setting material_tags the number of material_tags \n'
-                'should be equal to the number of volumes in the CAD \n'
-                f'geometry {len(iterable_solids)} volumes found in model \n'
-                f'and {len(material_tags)} material_tags found'
-            ) 
+                "When setting material_tags the number of material_tags \n"
+                "should be equal to the number of volumes in the CAD \n"
+                f"geometry {len(iterable_solids)} volumes found in model \n"
+                f"and {len(material_tags)} material_tags found"
+            )
             raise ValueError(msg)
     for material_tag in material_tags:
         if not isinstance(material_tag, str):
             msg = f"material_tags should be an iterable of strings."
             raise ValueError(msg)
-
 
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
@@ -415,10 +414,7 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(
-            cadquery_object=scaled_part,
-            material_tags=material_tags
-        )
+        self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
 
     def add_cadquery_object(
         self,
@@ -446,7 +442,7 @@ class CadToDagmc:
             iterable_solids = cadquery_object.Solids()
         else:
             iterable_solids = cadquery_object.val().Solids()
-        
+
         _check_material_tags(material_tags, iterable_solids)
         self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
