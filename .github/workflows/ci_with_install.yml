@@ -48,7 +48,6 @@ jobs:
           python -c "import cad_to_dagmc"
           python -m pip install .[tests]
           pytest -v tests
-          python examples/surface_mesh/create_stp_files_for_examples.py
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py
