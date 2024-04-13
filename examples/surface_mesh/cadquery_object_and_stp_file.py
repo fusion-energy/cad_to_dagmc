@@ -3,6 +3,12 @@ import cadquery as cq
 
 result = cq.Workplane("XY").moveTo(10, 0).box(3, 3, 0.5).edges("|Z").fillet(0.125)
 
+result2 = cq.Workplane("XY").box(1.0, 1.0, 1.0)
+assembly = cq.Assembly()
+assembly.add(result2)
+assembly.save("single_cube.stp", exportType="STEP")
+
+
 my_model = CadToDagmc()
 
 my_model.add_cadquery_object(
