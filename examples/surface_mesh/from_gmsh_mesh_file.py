@@ -8,7 +8,7 @@ import cadquery as cq
 
 result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
 result2 = cq.Workplane("XY").moveTo(10, 0).box(10.0, 10.0, 5.0)
-assembly = Assembly()
+assembly = cq.Assembly()
 assembly.add(result1)
 assembly.add(result2)
 assembly.save("two_connected_cubes.stp", exportType="STEP")
