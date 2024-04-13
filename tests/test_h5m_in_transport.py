@@ -135,9 +135,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(
-        filename=h5m_filename
-    )
+    my_model.export_dagmc_h5m_file(filename=h5m_filename)
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -175,7 +173,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes():
     workplane2 = cq.Workplane("XY").cylinder(height=10, radius=5).cut(workplane1)
 
     my_model = CadToDagmc()
-    my_model.add_cadquery_object(workplane1,material_tags=[material_tags[0]])
+    my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
     my_model.export_dagmc_h5m_file(
         filename=h5m_filename,
@@ -216,7 +214,9 @@ def test_h5m_with_multi_volume_not_touching():
     h5m_file = "tests/two_disconnected_cubes.h5m"
 
     my_model = CadToDagmc()
-    my_model.add_stp_file(filename="tests/two_disconnected_cubes.stp", material_tags=["mat1", "mat2"])
+    my_model.add_stp_file(
+        filename="tests/two_disconnected_cubes.stp", material_tags=["mat1", "mat2"]
+    )
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     transport_particles_on_h5m_geometry(
