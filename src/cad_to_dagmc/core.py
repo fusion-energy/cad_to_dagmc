@@ -447,7 +447,8 @@ class CadToDagmc:
             iterable_solids = cadquery_object.val().Solids()
 
         _check_material_tags(material_tags, iterable_solids)
-        self.material_tags = self.material_tags + material_tags
+        if material_tags:
+            self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
 
     def export_unstructured_mesh_file(
@@ -570,7 +571,7 @@ class CadToDagmc:
         _check_material_tags(material_tags_in_brep_order, self.parts)
 
         gmsh, volumes = _mesh_brep(
-            cadquery_object=imprinted_assembly.wrapped._address(),  # in memory address
+            occ_shape=imprinted_assembly.wrapped._address(),  # in memory address
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
