@@ -12,12 +12,7 @@ spline_points = [
     (0.5, 1.0),
     (0, 1.0),
 ]
-r = (
-    result.lineTo(3.0, 0)
-    .lineTo(3.0, 1.0)
-    .spline(spline_points, includeCurrent=True)
-    .close()
-)
+r = result.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True).close()
 result = r.extrude(1.5)
 assembly = cq.Assembly()
 assembly.add(result)
