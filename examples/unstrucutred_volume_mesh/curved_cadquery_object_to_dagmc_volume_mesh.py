@@ -59,6 +59,4 @@ my_model = CadToDagmc()
 my_model.add_cadquery_object(result)
 my_model.add_cadquery_object(result2)
 
-my_model.export_unstructured_mesh_file(
-    filename="umesh.h5m", max_mesh_size=1, min_mesh_size=0.1
-)
+my_model.export_unstructured_mesh_file(filename="umesh.h5m", max_mesh_size=1, min_mesh_size=0.1)
