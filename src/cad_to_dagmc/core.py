@@ -305,17 +305,11 @@ def _check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
             msg = (
-<<<<<<< HEAD
                 'When setting material_tags the number of material_tags \n'
                 'should be equal to the number of volumes in the CAD \n'
                 f'geometry {len(iterable_solids)} volumes found in model \n'
                 f'and {len(material_tags)} material_tags found'
             ) 
-=======
-                "When setting material_tags the number of material_tags \n"
-                "should be equal to the number of volumes in the CAD geometry"
-            )
->>>>>>> e75de23a8099080d146d1d6fa3af0ec27e5a2d07
             raise ValueError(msg)
     for material_tag in material_tags:
         if not isinstance(material_tag, str):
@@ -451,13 +445,8 @@ class CadToDagmc:
         if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = cadquery_object.Solids()
         else:
-<<<<<<< HEAD
             iterable_solids = cadquery_object.val().Solids()
         
-=======
-            iterable_solids = this.val().Solids()
-
->>>>>>> e75de23a8099080d146d1d6fa3af0ec27e5a2d07
         _check_material_tags(material_tags, iterable_solids)
         self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
