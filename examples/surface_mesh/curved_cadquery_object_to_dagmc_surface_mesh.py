@@ -39,11 +39,13 @@ result = (
 
 my_model = CadToDagmc()
 
-my_model.add_cadquery_object(result)
+my_model.add_cadquery_object(
+    cadquery_object=result,
+    material_tags=["mat1"],
+)
 
 my_model.export_dagmc_h5m_file(
     filename="cadquery_objects_and_stp_files.h5m",
     max_mesh_size=1,
     min_mesh_size=0.1,
-    material_tags=["mat1"],
 )

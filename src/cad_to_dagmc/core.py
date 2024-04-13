@@ -195,7 +195,7 @@ def _vertices_to_h5m(
 
 
 def _mesh_brep(
-    brep_object: str,
+    occ_shape: str,
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
@@ -205,7 +205,7 @@ def _mesh_brep(
     Gmsh.
 
     Args:
-        brep_object: the filename of the Brep file to convert
+        occ_shape: the occ_shape of the Brep file to convert
         min_mesh_size: the minimum mesh element size to use in Gmsh. Passed
             into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
         max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
@@ -222,7 +222,7 @@ def _mesh_brep(
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_cad_to_dagmc_package")
-    volumes = gmsh.model.occ.importShapesNativePointer(brep_object)
+    volumes = gmsh.model.occ.importShapesNativePointer(occ_shape)
     gmsh.model.occ.synchronize()
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
@@ -301,6 +301,22 @@ def _get_ids_from_imprinted_assembly(solid_id_dict):
     return ids
 
 
+def _check_material_tags(material_tags, iterable_solids):
+    if material_tags:
+        if len(material_tags) != len(iterable_solids):
+            msg = (
+                "When setting material_tags the number of material_tags \n"
+                "should be equal to the number of volumes in the CAD \n"
+                f"geometry {len(iterable_solids)} volumes found in model \n"
+                f"and {len(material_tags)} material_tags found"
+            )
+            raise ValueError(msg)
+        for material_tag in material_tags:
+            if not isinstance(material_tag, str):
+                msg = f"material_tags should be an iterable of strings."
+                raise ValueError(msg)
+
+
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     material_tags_in_brep_order = []
     for brep_id in scrambled_id:
@@ -314,6 +330,9 @@ class MeshToDagmc:
 
     def __init__(self, filename: str):
         self.filename = filename
+
+    # TODO add export_unstructured_mesh_file
+    # TODO add add_gmsh_msh_file
 
     def export_dagmc_h5m_file(
         self,
@@ -370,20 +389,23 @@ class CadToDagmc:
 
     def __init__(self):
         self.parts = []
+        self.material_tags = []
 
     def add_stp_file(
         self,
         filename: str,
         scale_factor: float = 1.0,
+        material_tags: typing.Optional[typing.Iterable[str]] = None,
     ):
         """Loads the parts from stp file into the model.
 
         Args:
             filename: the filename used to save the html graph.
-            material_tags: the names of the DAGMC material tags to assign.
-                These will need to be in the same order as the volumes in the
-                STP file and match the material tags used in the neutronics
-                code (e.g. OpenMC).
+            material_tags (typing.Iterable[str]): the names of the DAGMC
+                material tags to assign. These will need to be in the
+                same order as the volumes in the geometry added (STP
+                file and CadQuery objects) and match the material tags
+                used in the neutronics code (e.g. OpenMC).
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
@@ -395,27 +417,38 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(object=scaled_part)
+        self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
 
     def add_cadquery_object(
         self,
-        object: typing.Union[
+        cadquery_object: typing.Union[
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
+        material_tags: typing.Optional[typing.Iterable[str]] = None,
     ):
         """Loads the parts from CadQuery object into the model.
 
         Args:
-            object: the cadquery object to convert
+            cadquery_object: the cadquery object to convert, can be a CadQuery assembly
+                cadquery workplane or a cadquery solid
+            material_tags (Optional typing.Iterable[str]): the names of the
+                DAGMC material tags to assign. These will need to be in the
+                same order as the volumes in the geometry added (STP file and
+                CadQuery objects) and match the material tags used in the
+                neutronics code (e.g. OpenMC).
         """
 
-        if isinstance(object, cq.assembly.Assembly):
-            object = object.toCompound()
+        if isinstance(cadquery_object, cq.assembly.Assembly):
+            cadquery_object = cadquery_object.toCompound()
 
-        if isinstance(object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
-            iterable_solids = object.Solids()
+        if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+            iterable_solids = cadquery_object.Solids()
         else:
-            iterable_solids = object.val().Solids()
+            iterable_solids = cadquery_object.val().Solids()
+
+        _check_material_tags(material_tags, iterable_solids)
+        if material_tags:
+            self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
 
     def export_unstructured_mesh_file(
@@ -433,7 +466,7 @@ class CadToDagmc:
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
         gmsh, _ = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),
+            occ_shape=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -478,7 +511,7 @@ class CadToDagmc:
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
         gmsh, _ = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),
+            occ_shape=imprinted_assembly.wrapped._address(),
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -493,7 +526,6 @@ class CadToDagmc:
 
     def export_dagmc_h5m_file(
         self,
-        material_tags: typing.Iterable[str],
         filename: str = "dagmc.h5m",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
@@ -503,11 +535,7 @@ class CadToDagmc:
         """Saves a DAGMC h5m file of the geometry
 
         Args:
-            material_tags (typing.Iterable[str]): the names of the DAGMC
-                material tags to assign. These will need to be in the
-                same order as the volumes in the geometry added (STP
-                file and CadQuery objects) and match the material tags
-                used in the neutronics code (e.g. OpenMC).
+
             filename (str, optional): the filename to use for the saved DAGMC file. Defaults to "dagmc.h5m".
             min_mesh_size (float, optional): the minimum size of mesh elements to use. Defaults to 1.
             max_mesh_size (float, optional): the maximum size of mesh elements to use. Defaults to 5.
@@ -532,28 +560,22 @@ class CadToDagmc:
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
 
-        if len(original_ids) != len(material_tags):
-            msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(material_tags)}"
+        if len(original_ids) != len(self.material_tags):
+            msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
         material_tags_in_brep_order = order_material_ids_by_brep_order(
-            original_ids, scrambled_ids, material_tags
+            original_ids, scrambled_ids, self.material_tags
         )
 
+        _check_material_tags(material_tags_in_brep_order, self.parts)
+
         gmsh, volumes = _mesh_brep(
-            brep_object=imprinted_assembly.wrapped._address(),  # in memory address
+            occ_shape=imprinted_assembly.wrapped._address(),  # in memory address
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
         )
-
-        if isinstance(material_tags_in_brep_order, str):
-            msg = f"material_tags should be a list of strings, not a single string."
-            raise ValueError(msg)
-
-        if len(volumes) != len(material_tags_in_brep_order):
-            msg = f"{len(volumes)} volumes found in Brep file is not equal to the number of material_tags {len(material_tags_in_brep_order)} provided."
-            raise ValueError(msg)
 
         dims_and_vol_ids = volumes
 
