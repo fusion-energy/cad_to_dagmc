@@ -305,16 +305,23 @@ def _check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
             msg = (
+<<<<<<< HEAD
                 'When setting material_tags the number of material_tags \n'
                 'should be equal to the number of volumes in the CAD \n'
                 f'geometry {len(iterable_solids)} volumes found in model \n'
                 f'and {len(material_tags)} material_tags found'
             ) 
+=======
+                "When setting material_tags the number of material_tags \n"
+                "should be equal to the number of volumes in the CAD geometry"
+            )
+>>>>>>> e75de23a8099080d146d1d6fa3af0ec27e5a2d07
             raise ValueError(msg)
     for material_tag in material_tags:
         if not isinstance(material_tag, str):
             msg = f"material_tags should be an iterable of strings."
             raise ValueError(msg)
+
 
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
@@ -323,7 +330,6 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
         id_of_solid_in_org = original_ids.index(brep_id)
         material_tags_in_brep_order.append(material_tags[id_of_solid_in_org])
     return material_tags_in_brep_order
-
 
 
 class MeshToDagmc:
@@ -393,7 +399,7 @@ class CadToDagmc:
         self,
         filename: str,
         scale_factor: float = 1.0,
-        material_tags: typing.Optional[typing.Iterable[str]]=None,
+        material_tags: typing.Optional[typing.Iterable[str]] = None,
     ):
         """Loads the parts from stp file into the model.
 
@@ -425,7 +431,7 @@ class CadToDagmc:
         cadquery_object: typing.Union[
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
-        material_tags: typing.Optional[typing.Iterable[str]]=None,
+        material_tags: typing.Optional[typing.Iterable[str]] = None,
     ):
         """Loads the parts from CadQuery object into the model.
 
@@ -445,8 +451,13 @@ class CadToDagmc:
         if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = cadquery_object.Solids()
         else:
+<<<<<<< HEAD
             iterable_solids = cadquery_object.val().Solids()
         
+=======
+            iterable_solids = this.val().Solids()
+
+>>>>>>> e75de23a8099080d146d1d6fa3af0ec27e5a2d07
         _check_material_tags(material_tags, iterable_solids)
         self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
