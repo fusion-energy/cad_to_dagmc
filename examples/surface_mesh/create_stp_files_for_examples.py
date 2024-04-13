@@ -24,7 +24,7 @@ assembly.add(result2)
 assembly.save("two_separate_cubes.stp", exportType="STEP")
 
 
-result = sphere = cadquery.Workplane().moveTo(100, 0).sphere(5)
+result = cadquery.Workplane().moveTo(100, 0).sphere(5)
 assembly = Assembly()
 assembly.add(result)
 assembly.save("single_sphere.stp", exportType="STEP")
