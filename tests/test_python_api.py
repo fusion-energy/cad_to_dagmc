@@ -106,3 +106,35 @@ def test_h5m_file_tags():
         2: "mat:mat2",
         3: "mat:mat3",
     }
+
+
+def test_add_cadquery_object_returned_volumes():
+    """Checks that a add_cadquery_object method returns the correct number of volumes"""
+
+    sphere1 = cq.Workplane().sphere(20)
+    sphere2 = cq.Workplane().moveTo(100, 100).sphere(20)
+    sphere3 = cq.Workplane().moveTo(-100, -100).sphere(20)
+
+    c2d = CadToDagmc()
+    vols = c2d.add_cadquery_object(sphere1)
+    assert vols == 1
+
+    assembly = cq.Assembly()
+    assembly.add(sphere1)
+    assembly.add(sphere2)
+    assembly.add(sphere3)
+    c2d = CadToDagmc()
+    vols = c2d.add_cadquery_object(assembly)
+    assert vols == 3
+
+
+def test_add_stp_file_returned_volumes():
+    """Checks that a add_stp_file method returns the correct number of volumes"""
+
+    c2d = CadToDagmc()
+    vols = c2d.add_stp_file("tests/curved_extrude.stp")
+    assert vols == 1
+
+    c2d = CadToDagmc()
+    vols = c2d.add_stp_file("tests/two_disconnected_cubes.stp")
+    assert vols == 2
