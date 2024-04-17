@@ -420,10 +420,7 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        return self.add_cadquery_object(
-            cadquery_object=scaled_part,
-            material_tags=material_tags
-        )
+        return self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
 
     def add_cadquery_object(
         self,
