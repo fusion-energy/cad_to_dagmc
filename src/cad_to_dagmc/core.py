@@ -396,7 +396,7 @@ class CadToDagmc:
         filename: str,
         scale_factor: float = 1.0,
         material_tags: typing.Optional[typing.Iterable[str]] = None,
-    ):
+    ) -> int:
         """Loads the parts from stp file into the model.
 
         Args:
@@ -410,6 +410,9 @@ class CadToDagmc:
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
+
+        Returns:
+            int: number of volumes in the stp file.
         """
         part = importers.importStep(str(filename)).val()
 
@@ -417,7 +420,10 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
+        return self.add_cadquery_object(
+            cadquery_object=scaled_part,
+            material_tags=material_tags
+        )
 
     def add_cadquery_object(
         self,
@@ -425,7 +431,7 @@ class CadToDagmc:
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
         material_tags: typing.Optional[typing.Iterable[str]] = None,
-    ):
+    ) -> int:
         """Loads the parts from CadQuery object into the model.
 
         Args:
@@ -436,6 +442,9 @@ class CadToDagmc:
                 same order as the volumes in the geometry added (STP file and
                 CadQuery objects) and match the material tags used in the
                 neutronics code (e.g. OpenMC).
+
+        Returns:
+            int: number of volumes in the stp file.
         """
 
         if isinstance(cadquery_object, cq.assembly.Assembly):
@@ -450,6 +459,8 @@ class CadToDagmc:
         if material_tags:
             self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + iterable_solids
+
+        return len(iterable_solids)
 
     def export_unstructured_mesh_file(
         self,
