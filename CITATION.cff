@@ -5,6 +5,6 @@ authors:
   given-names: "Jonathan"
   orcid: "https://orcid.org/0000-0001-6909-0946"
 title: "CAD to DAGMC. Convert CAD geometry (STP files) or Cadquery assemblies to DAGMC h5m files"
-version: 0.7.1
+version: 0.7.0
 date-released: 2021-1-6
 url: "https://github.com/fusion-energy/cad_to_dagmc"
