@@ -222,7 +222,12 @@ def _mesh_brep(
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("made_with_cad_to_dagmc_package")
-    volumes = gmsh.model.occ.importShapesNativePointer(occ_shape)
+    try:
+        volumes = gmsh.model.occ.importShapesNativePointer(occ_shape)
+    except Exception as e:
+        occ_shape.save("temp.brep")
+        volumes = gmsh.model.occ.importShapes("temp.brep")
+
     gmsh.model.occ.synchronize()
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
