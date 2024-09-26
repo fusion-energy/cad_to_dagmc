@@ -46,7 +46,7 @@ jobs:
           make -j2
           make install
           cmake ../moab -DENABLE_PYMOAB=ON -DBUILD_SHARED_LIBS=ON
-          make install
+          make -j2
           cd pymoab
           bash install.sh
           cd ../../..
