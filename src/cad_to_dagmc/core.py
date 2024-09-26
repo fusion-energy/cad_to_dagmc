@@ -1,5 +1,3 @@
-import typing
-
 import cadquery as cq
 import gmsh
 import numpy as np
@@ -63,11 +61,11 @@ def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
 
 def _vertices_to_h5m(
     vertices: typing.Union[
-        typing.Iterable[typing.Tuple[float, float, float]],
-        typing.Iterable["cadquery.occ_impl.geom.Vector"],
+        list[typing.Tuple[float, float, float]],
+        list["cadquery.occ_impl.geom.Vector"],
     ],
-    triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
-    material_tags: typing.Iterable[str],
+    triangles_by_solid_by_face: list[list[typing.Tuple[int, int, int]]],
+    material_tags: list[str],
     h5m_filename="dagmc.h5m",
     implicit_complement_material_tag=None,
 ):
@@ -341,18 +339,18 @@ class MeshToDagmc:
 
     def export_dagmc_h5m_file(
         self,
-        material_tags: typing.Iterable[str],
-        implicit_complement_material_tag: typing.Optional[str] = None,
+        material_tags: list[str],
+        implicit_complement_material_tag: str | None = None,
         filename: str = "dagmc.h5m",
     ):
         """Saves a DAGMC h5m file of the geometry
 
         Args:
-            material_tags (typing.Iterable[str]): the names of the DAGMC
+            material_tags (list[str]): the names of the DAGMC
                 material tags to assign. These will need to be in the same
                 order as the volumes in the GMESH mesh and match the
                 material tags used in the neutronics code (e.g. OpenMC).
-            implicit_complement_material_tag (typing.Optional[str], optional):
+            implicit_complement_material_tag (str | None, optional):
                 the name of the material tag to use for the implicit
                 complement (void space). Defaults to None which is a vacuum.
             filename (str, optional): _description_. Defaults to "dagmc.h5m".
@@ -400,13 +398,13 @@ class CadToDagmc:
         self,
         filename: str,
         scale_factor: float = 1.0,
-        material_tags: typing.Optional[typing.Iterable[str]] = None,
+        material_tags: typing.Optional[list[str]] = None,
     ) -> int:
         """Loads the parts from stp file into the model.
 
         Args:
             filename: the filename used to save the html graph.
-            material_tags (typing.Iterable[str]): the names of the DAGMC
+            material_tags (list[str]): the names of the DAGMC
                 material tags to assign. These will need to be in the
                 same order as the volumes in the geometry added (STP
                 file and CadQuery objects) and match the material tags
@@ -432,14 +430,14 @@ class CadToDagmc:
         cadquery_object: typing.Union[
             cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
         ],
-        material_tags: typing.Optional[typing.Iterable[str]] = None,
+        material_tags: typing.Optional[list[str]] = None,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
 
         Args:
             cadquery_object: the cadquery object to convert, can be a CadQuery assembly
                 cadquery workplane or a cadquery solid
-            material_tags (Optional typing.Iterable[str]): the names of the
+            material_tags (Optional list[str]): the names of the
                 DAGMC material tags to assign. These will need to be in the
                 same order as the volumes in the geometry added (STP file and
                 CadQuery objects) and match the material tags used in the
@@ -543,7 +541,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
-        implicit_complement_material_tag: typing.Optional[str] = None,
+        implicit_complement_material_tag: str | None = None,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -553,7 +551,7 @@ class CadToDagmc:
             min_mesh_size (float, optional): the minimum size of mesh elements to use. Defaults to 1.
             max_mesh_size (float, optional): the maximum size of mesh elements to use. Defaults to 5.
             mesh_algorithm (int, optional): the GMSH mesh algorithm to use.. Defaults to 1.
-            implicit_complement_material_tag (typing.Optional[str], optional):
+            implicit_complement_material_tag (str | None, optional):
                 the name of the material tag to use for the implicit complement
                 (void space). Defaults to None which is a vacuum. Defaults to None.
 
