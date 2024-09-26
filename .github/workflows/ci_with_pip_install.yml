@@ -39,17 +39,22 @@ jobs:
           python -m pip install --upgrade pip
           mkdir MOAB
           cd MOAB
-          git clone --single-branch -b 5.5.1 --depth 1 https://bitbucket.org/fathomteam/moab/
-          mkdir build
+          git clone  --single-branch -b 5.5.1 --depth 1 https://bitbucket.org/fathomteam/moab/
+          mkdir build 
           cd build
-          cmake ../moab -DCMAKE_BUILD_TYPE=Release -DENABLE_HDF5=ON -DENABLE_NETCDF=ON -DBUILD_SHARED_LIBS=OFF -DENABLE_FORTRAN=OFF -DENABLE_BLASLAPACK=OFF
-          make -j2
-          make install
-          cmake ../moab -DENABLE_PYMOAB=ON -DBUILD_SHARED_LIBS=ON
-          make -j2
-          make install
+          cmake ../moab -DCMAKE_BUILD_TYPE=Release \
+                        -DENABLE_HDF5=ON \
+                        -DENABLE_NETCDF=ON \
+                        -DBUILD_SHARED_LIBS=OFF \
+                        -DENABLE_FORTRAN=OFF \
+                        -DENABLE_BLASLAPACK=OFF
+          make 2>/dev/null -j${compile_cores} install
+          cmake ../moab -DENABLE_PYMOAB=ON \
+                        -DBUILD_SHARED_LIBS=ON
+          make 2>/dev/null -j${compile_cores} install
           cd pymoab
           bash install.sh
+          python setup.py install
           cd ../../..
           python -m pip install .
           python -c "import cad_to_dagmc"
