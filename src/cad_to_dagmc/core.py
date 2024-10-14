@@ -193,7 +193,13 @@ def get_volumes(gmsh, assembly):
     try:
         # try in memory import
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
-        gmsh.model.occ.synchronize()
+        try:
+            gmsh.model.occ.synchronize()
+        except gmsh.GmshException as e:
+            if "GeomAdaptor_Surface::UContinuity" in str(e):
+                print("Caught OpenCASCADE exception GeomAdaptor_Surface::UContinuity")
+            else:
+                raise e
     except Exception as e:
         # fall back to writing file and reading it back in
         from cadquery import exporters
