@@ -193,7 +193,7 @@ def get_volumes(gmsh, assembly, method="file"):
 
     if method == "in memory":
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
-    elif method == 'file':
+    elif method == "file":
         exporters.export(assembly, "temp.step")  # TODO see if brep file is possible
         volumes = gmsh.model.occ.importShapes("temp.step")
 
