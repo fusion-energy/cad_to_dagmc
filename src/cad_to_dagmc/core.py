@@ -195,7 +195,8 @@ def get_volumes(gmsh, assembly):
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
     except Exception as e:
         # fall back to writting file and reading it back in
-        assembly.save("temp.brep")
+        from cadquery import exporters
+        exporters.exportBrep(assembly, "temp.brep")
 
         volumes = gmsh.model.occ.importShapes("temp.brep")
 
