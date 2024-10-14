@@ -188,9 +188,29 @@ def _vertices_to_h5m(
 
     return h5m_filename
 
+def get_volumes(gmsh, assembly):
+    try:
+        # try in memory import
+        volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
+    except Exception as e:
+        # fall back to writting file and reading it back in
+        assembly.save("temp.brep")
+
+        volumes = gmsh.model.occ.importShapes("temp.brep")
+
+    gmsh.model.occ.synchronize()
+
+    return gmsh, volumes
+
+def init_gmsh():
+    gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 1)
+    gmsh.model.add("made_with_cad_to_dagmc_package")
+    return gmsh
+
 
 def _mesh_brep(
-    occ_shape: str,
+    gmsh,
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
@@ -214,23 +234,12 @@ def _mesh_brep(
         The resulting gmsh object and volumes
     """
 
-    gmsh.initialize()
-    gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.model.add("made_with_cad_to_dagmc_package")
-    try:
-        volumes = gmsh.model.occ.importShapesNativePointer(occ_shape)
-    except Exception as e:
-        occ_shape.save("temp.brep")
-        volumes = gmsh.model.occ.importShapes("temp.brep")
-
-    gmsh.model.occ.synchronize()
-
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.model.mesh.generate(dimensions)
 
-    return gmsh, volumes
+    return gmsh
 
 
 def mesh_to_vertices_and_triangles(
@@ -473,8 +482,12 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, _ = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),
+        gmsh = init_gmsh()
+
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly)
+
+        gmsh = _mesh_brep(
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -518,8 +531,12 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
+        gmsh = init_gmsh()
+
+        gmsh, _ = get_volumes(imprinted_assembly)
+
         gmsh, _ = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -578,8 +595,12 @@ class CadToDagmc:
 
         _check_material_tags(material_tags_in_brep_order, self.parts)
 
-        gmsh, volumes = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),  # in memory address
+        gmsh = init_gmsh()
+
+        gmsh, volumes = get_volumes(imprinted_assembly)
+
+        gmsh = _mesh_brep(
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,

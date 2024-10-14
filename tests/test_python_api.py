@@ -124,7 +124,7 @@ def test_add_cadquery_object_returned_volumes():
     assembly.add(sphere2)
     assembly.add(sphere3)
     c2d = CadToDagmc()
-    vols = c2d.add_cadquery_object(assembly, material_tags=["mat2"])
+    vols = c2d.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
     assert vols == 3
 
 
