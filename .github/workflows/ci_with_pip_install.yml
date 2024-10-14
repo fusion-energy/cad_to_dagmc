@@ -20,7 +20,7 @@ on:
 
 jobs:
   testing:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container:
       image: openmc/openmc:develop-dagmc
     steps:
@@ -33,7 +33,7 @@ jobs:
           apt-get --allow-releaseinfo-change update
           apt-get update -y
           apt-get upgrade -y
-          apt-get install -y libhdf5-dev libblas-dev liblapack-dev libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
+          apt-get install -y libhdf5-dev libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
           apt install python3
           apt install python3-pip
           python -m pip install --upgrade pip
