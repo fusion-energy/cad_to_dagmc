@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"] #TODO add 3.12 , pkgutils has been deprecated and pip install is different
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,6 +43,7 @@ jobs:
           mamba create -y --name cad_to_dagmc python=${{ matrix.python-version }}
           mamba activate cad_to_dagmc
           mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
+          python -m ensurepip --upgrade
           python -m pip install . --no-deps
           python -c "import cad_to_dagmc"
           mamba install -y -c conda-forge pytest vtk
