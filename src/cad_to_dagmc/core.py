@@ -197,7 +197,7 @@ def get_volumes(gmsh, assembly):
         # fall back to writting file and reading it back in
         from cadquery import exporters
 
-        exporters.exportBrep(assembly, "temp.brep")
+        exporters.export(assembly, "temp.brep")
 
         volumes = gmsh.model.occ.importShapes("temp.brep")
 

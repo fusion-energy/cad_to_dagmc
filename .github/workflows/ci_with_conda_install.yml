@@ -1,7 +1,7 @@
 
 # This CI does includes particle transport tests as openmc is installed
 
-name: CI with install
+name: CI with Conda install
 
 on:
   pull_request:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11"] #TODO add 3.12 , pkgutils has been deprecated and pip install is different
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
