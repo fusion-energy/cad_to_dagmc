@@ -547,7 +547,7 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
 
-        gmsh, _ = _mesh_brep(
+        gmsh = _mesh_brep(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
