@@ -535,7 +535,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(imprinted_assembly)
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly)
 
         gmsh, _ = _mesh_brep(
             gmsh=gmsh,
@@ -599,7 +599,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, volumes = get_volumes(imprinted_assembly)
+        gmsh, volumes = get_volumes(gmsh, imprinted_assembly)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
