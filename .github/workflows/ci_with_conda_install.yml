@@ -42,11 +42,10 @@ jobs:
           mamba activate
           mamba create -y --name cad_to_dagmc python=${{ matrix.python-version }}
           mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" gmsh python-gmsh
-          python -m pip install --upgrade pip 
-          python -m pip install .
+          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
+          python -m pip install . --no-deps
           python -c "import cad_to_dagmc"
-          python -m pip install .[tests]
+          python -m pip install .[tests] --no-deps
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py

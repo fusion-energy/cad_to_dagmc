@@ -1,7 +1,7 @@
 import cadquery as cq
 import gmsh
 import numpy as np
-from cadquery import importers
+from cadquery import importers, exporters
 from pymoab import core, types
 
 
@@ -189,26 +189,15 @@ def _vertices_to_h5m(
     return h5m_filename
 
 
-def get_volumes(gmsh, assembly):
-    try:
-        # try in memory import
+def get_volumes(gmsh, assembly, method="file"):
+
+    if method == "in memory":
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
-        try:
-            gmsh.model.occ.synchronize()
-        except gmsh.GmshException as e:
-            if "GeomAdaptor_Surface::UContinuity" in str(e):
-                print("Caught OpenCASCADE exception GeomAdaptor_Surface::UContinuity")
-            else:
-                raise e
-    except Exception as e:
-        # fall back to writing file and reading it back in
-        from cadquery import exporters
-
+    elif method == 'file':
         exporters.export(assembly, "temp.step")  # TODO see if brep file is possible
-
         volumes = gmsh.model.occ.importShapes("temp.step")
 
-        gmsh.model.occ.synchronize()
+    gmsh.model.occ.synchronize()
 
     return gmsh, volumes
 
