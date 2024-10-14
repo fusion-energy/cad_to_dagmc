@@ -60,11 +60,11 @@ def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
 
 
 def _vertices_to_h5m(
-    vertices:  list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
     triangles_by_solid_by_face: list[list[tuple[int, int, int]]],
     material_tags: list[str],
-    h5m_filename: str="dagmc.h5m",
-    implicit_complement_material_tag: str | None =None,
+    h5m_filename: str = "dagmc.h5m",
+    implicit_complement_material_tag: str | None = None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -424,7 +424,9 @@ class CadToDagmc:
 
     def add_cadquery_object(
         self,
-        cadquery_object: cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid,
+        cadquery_object: (
+            cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid
+        ),
         material_tags: list[str] | None,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
