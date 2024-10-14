@@ -194,6 +194,7 @@ def get_volumes(gmsh, assembly, method="file"):
 
     if method == "in memory":
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
+        gmsh.model.occ.synchronize()
     elif method == 'file':
         with tempfile.NamedTemporaryFile(suffix=".step") as temp_file:
             exporters.export(assembly, temp_file.name)
