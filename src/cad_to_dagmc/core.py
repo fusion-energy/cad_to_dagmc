@@ -5,7 +5,7 @@ from cadquery import importers
 from pymoab import core, types
 
 
-def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
+def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -60,14 +60,11 @@ def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
 
 
 def _vertices_to_h5m(
-    vertices: typing.Union[
-        list[typing.Tuple[float, float, float]],
-        list["cadquery.occ_impl.geom.Vector"],
-    ],
-    triangles_by_solid_by_face: list[list[typing.Tuple[int, int, int]]],
+    vertices:  list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    triangles_by_solid_by_face: list[list[tuple[int, int, int]]],
     material_tags: list[str],
-    h5m_filename="dagmc.h5m",
-    implicit_complement_material_tag=None,
+    h5m_filename: str="dagmc.h5m",
+    implicit_complement_material_tag: str | None =None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -398,7 +395,7 @@ class CadToDagmc:
         self,
         filename: str,
         scale_factor: float = 1.0,
-        material_tags: typing.Optional[list[str]] = None,
+        material_tags: list[str] | None = None,
     ) -> int:
         """Loads the parts from stp file into the model.
 
@@ -427,10 +424,8 @@ class CadToDagmc:
 
     def add_cadquery_object(
         self,
-        cadquery_object: typing.Union[
-            cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
-        ],
-        material_tags: typing.Optional[list[str]] = None,
+        cadquery_object: cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid,
+        material_tags: list[str] | None,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
 
