@@ -3,6 +3,7 @@ import gmsh
 import numpy as np
 from cadquery import importers, exporters
 from pymoab import core, types
+import tempfile
 
 
 def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -194,10 +195,10 @@ def get_volumes(gmsh, assembly, method="file"):
     if method == "in memory":
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
     elif method == 'file':
-        exporters.export(assembly, "temp.step")  # TODO see if brep file is possible
-        volumes = gmsh.model.occ.importShapes("temp.step")
-
-    gmsh.model.occ.synchronize()
+        with tempfile.NamedTemporaryFile(suffix=".step") as temp_file:
+            exporters.export(assembly, temp_file.name)
+            volumes = gmsh.model.occ.importShapes(temp_file.name)
+            gmsh.model.occ.synchronize()
 
     return gmsh, volumes
 
@@ -474,6 +475,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        method: str = "file",
     ):
 
         assembly = cq.Assembly()
@@ -484,7 +486,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly)
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
@@ -512,6 +514,7 @@ class CadToDagmc:
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         dimensions: int = 2,
+        method: str = "file",
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -523,6 +526,14 @@ class CadToDagmc:
             mesh_algorithm: the gmsh mesh algorithm to use.
             dimensions: The number of dimensions, 2 for a surface mesh 3 for a
                 volume mesh. Passed to gmsh.model.mesh.generate()
+            method: the method to use to import the geometry into gmsh. Options
+                are 'file' or 'in memory'. 'file' is the default and will write
+                the geometry to a temporary file before importing it into gmsh.
+                'in memory' will import the geometry directly into gmsh but
+                requires the version of OpenCASCADE used to build gmsh to be
+                the same as the version used by CadQuery. This is possible to
+                ensure when installing the package with Conda but harder when
+                installing from PyPI.
         """
 
         assembly = cq.Assembly()
@@ -533,7 +544,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly)
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
 
         gmsh, _ = _mesh_brep(
             gmsh=gmsh,
@@ -556,6 +567,7 @@ class CadToDagmc:
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         implicit_complement_material_tag: str | None = None,
+        method: str = "file",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -568,7 +580,14 @@ class CadToDagmc:
             implicit_complement_material_tag (str | None, optional):
                 the name of the material tag to use for the implicit complement
                 (void space). Defaults to None which is a vacuum. Defaults to None.
-
+           method: the method to use to import the geometry into gmsh. Options
+                are 'file' or 'in memory'. 'file' is the default and will write
+                the geometry to a temporary file before importing it into gmsh.
+                'in memory' will import the geometry directly into gmsh but
+                requires the version of OpenCASCADE used to build gmsh to be
+                the same as the version used by CadQuery. This is possible to
+                ensure when installing the package with Conda but harder when
+                installing from PyPI.
         Returns:
             str: the DAGMC filename saved
         """
@@ -597,7 +616,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, volumes = get_volumes(gmsh, imprinted_assembly)
+        gmsh, volumes = get_volumes(gmsh, imprinted_assembly, method=method)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,

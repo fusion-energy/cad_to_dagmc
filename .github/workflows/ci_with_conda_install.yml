@@ -45,6 +45,7 @@ jobs:
           mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
           python -m pip install . --no-deps
           python -c "import cad_to_dagmc"
+          mamba install -y -c conda-forge pytest vtk
           python -m pip install .[tests] --no-deps
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
