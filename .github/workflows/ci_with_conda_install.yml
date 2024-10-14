@@ -42,7 +42,7 @@ jobs:
           mamba activate
           mamba create -y --name cad_to_dagmc python=${{ matrix.python-version }}
           mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*" gmsh python-gmsh
+          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" gmsh python-gmsh
           python -m pip install --upgrade pip 
           python -m pip install .
           python -c "import cad_to_dagmc"
