@@ -188,6 +188,7 @@ def _vertices_to_h5m(
 
     return h5m_filename
 
+
 def get_volumes(gmsh, assembly):
     try:
         # try in memory import
@@ -201,6 +202,7 @@ def get_volumes(gmsh, assembly):
     gmsh.model.occ.synchronize()
 
     return gmsh, volumes
+
 
 def init_gmsh():
     gmsh.initialize()
