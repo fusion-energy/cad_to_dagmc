@@ -32,8 +32,6 @@ Also checkout these other software projects that also create DAGMC geometry [CAD
 
 - Install using Mamba
 - Install using Conda
-- Install using Mamba and pip
-- Install using Conda and pip
 - Install using pip and source compilations
 
 ## Install using Mamba
@@ -84,73 +82,32 @@ Then you can install the cad_to_dagmc package
 conda install -y -c conda-forge cad_to_dagmc
 ```
 
-## Install using Mamba and pip
-
-In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
-- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
-- [Anaconda](https://www.anaconda.com/download)
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-
-This example assumes you have installed the Miniforge option or separately have installed Mamba with ```conda install -c conda-forge mamba -y```
-
-Create a new environment, I've chosen Python 3.10 here but newer versions are
-also supported.
-```bash
-mamba create --name new_env python=3.10 -y
-```
-
-Activate the environment
-```bash
-mamba activate new_env
-```
-
-Install the dependencies
-```bash
-mamba install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
-```
-
-Then you can install the cad_to_dagmc package
-```bash
-pip install cad_to_dagmc
-```
-
-
-## Install using Conda and pip
-
-In principle, installing any Conda/Mamba distribution will work. A few Conda/Mamba options are:
-- [Miniforge](https://github.com/conda-forge/miniforge) (recommended as it includes mamba)
-- [Anaconda](https://www.anaconda.com/download)
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-
-This example uses Conda to install some dependencies that are not available via PyPi.
-
-Create a new environment
-```bash
-conda create --name new_env python=3.10 -y
-```
-
-Activate the environment
-```bash
-conda activate new_env
-```
-
-Install the dependencies
-```bash
-conda install -y -c conda-forge "moab>=5.3.0" gmsh python-gmsh
-```
-
-Then you can install the cad_to_dagmc package
-```bash
-pip install cad_to_dagmc
-```
-
 ## Install using pip and source compilations
 
-It should possible to avoid the use of conda and installing using pip and compiling from source.
+It is also possible to avoid the use of conda/mamba and installing using pip.
 
-First compile MOAB (and install Pymoab) from source
+First ensure hdf5 is installed as this is needed by MOAB pip install command
 
-Then install gmsh from source (installing from pip appears to cause conflicts with the open cascade used in ocp and cadquery)
+```
+sudo apt-get install libhdf5-dev
+```
+
+Then clone the latest version of MOAB and cd into the moab directory.
+
+```
+git clone  master https://bitbucket.org/fathomteam/moab/
+cd moab
+```
+
+Ensure pip is up to date as a new version is needed
+```
+python -m pip install --upgrade pip
+```
+
+Run the pip install command with cmake arguments.
+```
+pip install . --config-settings=cmake.args=-DENABLE_HDF5=ON
+```
 
 Then you can install the cad_to_dagmc package with ```pip```
 
@@ -178,7 +135,7 @@ The package requires newer versions of Linux. For example the package does not w
 
 The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
 
-Installing one of the package dependancies (gmsh) with pip appears to result in occational errors when passing cad objects between cadquery / ocp and gmsh. The conda install gmsh appears to work fine.
+Installing one of the package dependancies (gmsh) with pip appears to result in errors when passing cad objects in memory between cadquery / ocp and gmsh. The default method of passing cad objects is via file so this should not impact most users. The conda install gmsh appears to work fine with in memory passing of cad objects as the version of OCP matches between Gmsh and CadQuery.
 
 
 # Usage - creation of DAGMC h5m files

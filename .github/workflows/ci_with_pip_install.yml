@@ -20,7 +20,7 @@ on:
 
 jobs:
   testing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: openmc/openmc:develop-dagmc
     steps:
@@ -33,26 +33,19 @@ jobs:
           apt-get --allow-releaseinfo-change update
           apt-get update -y
           apt-get upgrade -y
-          apt-get install -y libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev 
-          apt-get install -y make cmake
+          apt-get install -y libhdf5-dev libblas-dev liblapack-dev libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
           apt install python3
           apt install python3-pip
           python -m pip install --upgrade pip
-          mkdir MOAB
-          cd MOAB
-          git clone --single-branch -b 5.5.1 --depth 1 https://bitbucket.org/fathomteam/moab/
-          mkdir build
-          cd build
-          apt-get install -y libeigen3-dev
-          cmake ../moab -DENABLE_PYMOAB=ON -DENABLE_HDF5=ON -DENABLE_BLASLAPACK=OFF -DENABLE_FORTRAN=OFF
-          make -j2
-          make install
-          cd ../..
-          python -m pip install .
-          python -c "import cad_to_dagmc"
+          git clone  --single-branch -b master --depth 1 https://bitbucket.org/fathomteam/moab/
+          cd moab
+          git checkout faf7e989c0fd0be4a19f61c1d4713afc5397c8a7
+          python -m pip install . --config-settings=cmake.args=-DENABLE_HDF5=ON
+          cd ..
+          python -c "import pymoab"
           python -m pip install .[tests]
+          python -c "import cad_to_dagmc"
           pytest -v tests
-          cd examples
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py

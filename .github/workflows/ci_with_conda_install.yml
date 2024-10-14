@@ -1,7 +1,7 @@
 
 # This CI does includes particle transport tests as openmc is installed
 
-name: CI with install
+name: CI with Conda install
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ on:
 
 jobs:
   testing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
@@ -42,11 +42,12 @@ jobs:
           mamba activate
           mamba create -y --name cad_to_dagmc python=${{ matrix.python-version }}
           mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge "openmc=0.14.0=dagmc*nompi*" gmsh python-gmsh
-          python -m pip install --upgrade pip 
-          python -m pip install .
+          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
+          python -m ensurepip --upgrade
+          python -m pip install . --no-deps
           python -c "import cad_to_dagmc"
-          python -m pip install .[tests]
+          mamba install -y -c conda-forge pytest vtk
+          python -m pip install .[tests] --no-deps
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py

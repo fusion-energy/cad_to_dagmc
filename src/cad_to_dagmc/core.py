@@ -1,13 +1,12 @@
-import typing
-
 import cadquery as cq
 import gmsh
 import numpy as np
-from cadquery import importers
+from cadquery import importers, exporters
 from pymoab import core, types
+import tempfile
 
 
-def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
+def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -62,14 +61,11 @@ def _define_moab_core_and_tags() -> typing.Tuple[core.Core, dict]:
 
 
 def _vertices_to_h5m(
-    vertices: typing.Union[
-        typing.Iterable[typing.Tuple[float, float, float]],
-        typing.Iterable["cadquery.occ_impl.geom.Vector"],
-    ],
-    triangles_by_solid_by_face: typing.Iterable[typing.Iterable[typing.Tuple[int, int, int]]],
-    material_tags: typing.Iterable[str],
-    h5m_filename="dagmc.h5m",
-    implicit_complement_material_tag=None,
+    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    triangles_by_solid_by_face: list[list[tuple[int, int, int]]],
+    material_tags: list[str],
+    h5m_filename: str = "dagmc.h5m",
+    implicit_complement_material_tag: str | None = None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -194,8 +190,29 @@ def _vertices_to_h5m(
     return h5m_filename
 
 
+def get_volumes(gmsh, assembly, method="file"):
+
+    if method == "in memory":
+        volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
+        gmsh.model.occ.synchronize()
+    elif method == "file":
+        with tempfile.NamedTemporaryFile(suffix=".step") as temp_file:
+            exporters.export(assembly, temp_file.name)
+            volumes = gmsh.model.occ.importShapes(temp_file.name)
+            gmsh.model.occ.synchronize()
+
+    return gmsh, volumes
+
+
+def init_gmsh():
+    gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 1)
+    gmsh.model.add("made_with_cad_to_dagmc_package")
+    return gmsh
+
+
 def _mesh_brep(
-    occ_shape: str,
+    gmsh,
     min_mesh_size: float = 1,
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
@@ -219,18 +236,12 @@ def _mesh_brep(
         The resulting gmsh object and volumes
     """
 
-    gmsh.initialize()
-    gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.model.add("made_with_cad_to_dagmc_package")
-    volumes = gmsh.model.occ.importShapesNativePointer(occ_shape)
-    gmsh.model.occ.synchronize()
-
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.model.mesh.generate(dimensions)
 
-    return gmsh, volumes
+    return gmsh
 
 
 def mesh_to_vertices_and_triangles(
@@ -336,18 +347,18 @@ class MeshToDagmc:
 
     def export_dagmc_h5m_file(
         self,
-        material_tags: typing.Iterable[str],
-        implicit_complement_material_tag: typing.Optional[str] = None,
+        material_tags: list[str],
+        implicit_complement_material_tag: str | None = None,
         filename: str = "dagmc.h5m",
     ):
         """Saves a DAGMC h5m file of the geometry
 
         Args:
-            material_tags (typing.Iterable[str]): the names of the DAGMC
+            material_tags (list[str]): the names of the DAGMC
                 material tags to assign. These will need to be in the same
                 order as the volumes in the GMESH mesh and match the
                 material tags used in the neutronics code (e.g. OpenMC).
-            implicit_complement_material_tag (typing.Optional[str], optional):
+            implicit_complement_material_tag (str | None, optional):
                 the name of the material tag to use for the implicit
                 complement (void space). Defaults to None which is a vacuum.
             filename (str, optional): _description_. Defaults to "dagmc.h5m".
@@ -395,13 +406,13 @@ class CadToDagmc:
         self,
         filename: str,
         scale_factor: float = 1.0,
-        material_tags: typing.Optional[typing.Iterable[str]] = None,
+        material_tags: list[str] | None = None,
     ) -> int:
         """Loads the parts from stp file into the model.
 
         Args:
             filename: the filename used to save the html graph.
-            material_tags (typing.Iterable[str]): the names of the DAGMC
+            material_tags (list[str]): the names of the DAGMC
                 material tags to assign. These will need to be in the
                 same order as the volumes in the geometry added (STP
                 file and CadQuery objects) and match the material tags
@@ -424,17 +435,17 @@ class CadToDagmc:
 
     def add_cadquery_object(
         self,
-        cadquery_object: typing.Union[
-            cq.assembly.Assembly, cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid
-        ],
-        material_tags: typing.Optional[typing.Iterable[str]] = None,
+        cadquery_object: (
+            cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid
+        ),
+        material_tags: list[str] | None,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
 
         Args:
             cadquery_object: the cadquery object to convert, can be a CadQuery assembly
                 cadquery workplane or a cadquery solid
-            material_tags (Optional typing.Iterable[str]): the names of the
+            material_tags (Optional list[str]): the names of the
                 DAGMC material tags to assign. These will need to be in the
                 same order as the volumes in the geometry added (STP file and
                 CadQuery objects) and match the material tags used in the
@@ -465,6 +476,7 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
+        method: str = "file",
     ):
 
         assembly = cq.Assembly()
@@ -473,8 +485,12 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, _ = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),
+        gmsh = init_gmsh()
+
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
+
+        gmsh = _mesh_brep(
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -499,6 +515,7 @@ class CadToDagmc:
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         dimensions: int = 2,
+        method: str = "file",
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -510,6 +527,14 @@ class CadToDagmc:
             mesh_algorithm: the gmsh mesh algorithm to use.
             dimensions: The number of dimensions, 2 for a surface mesh 3 for a
                 volume mesh. Passed to gmsh.model.mesh.generate()
+            method: the method to use to import the geometry into gmsh. Options
+                are 'file' or 'in memory'. 'file' is the default and will write
+                the geometry to a temporary file before importing it into gmsh.
+                'in memory' will import the geometry directly into gmsh but
+                requires the version of OpenCASCADE used to build gmsh to be
+                the same as the version used by CadQuery. This is possible to
+                ensure when installing the package with Conda but harder when
+                installing from PyPI.
         """
 
         assembly = cq.Assembly()
@@ -518,8 +543,12 @@ class CadToDagmc:
 
         imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
 
-        gmsh, _ = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),
+        gmsh = init_gmsh()
+
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
+
+        gmsh = _mesh_brep(
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
@@ -538,7 +567,8 @@ class CadToDagmc:
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
-        implicit_complement_material_tag: typing.Optional[str] = None,
+        implicit_complement_material_tag: str | None = None,
+        method: str = "file",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -548,10 +578,17 @@ class CadToDagmc:
             min_mesh_size (float, optional): the minimum size of mesh elements to use. Defaults to 1.
             max_mesh_size (float, optional): the maximum size of mesh elements to use. Defaults to 5.
             mesh_algorithm (int, optional): the GMSH mesh algorithm to use.. Defaults to 1.
-            implicit_complement_material_tag (typing.Optional[str], optional):
+            implicit_complement_material_tag (str | None, optional):
                 the name of the material tag to use for the implicit complement
                 (void space). Defaults to None which is a vacuum. Defaults to None.
-
+           method: the method to use to import the geometry into gmsh. Options
+                are 'file' or 'in memory'. 'file' is the default and will write
+                the geometry to a temporary file before importing it into gmsh.
+                'in memory' will import the geometry directly into gmsh but
+                requires the version of OpenCASCADE used to build gmsh to be
+                the same as the version used by CadQuery. This is possible to
+                ensure when installing the package with Conda but harder when
+                installing from PyPI.
         Returns:
             str: the DAGMC filename saved
         """
@@ -578,8 +615,12 @@ class CadToDagmc:
 
         _check_material_tags(material_tags_in_brep_order, self.parts)
 
-        gmsh, volumes = _mesh_brep(
-            occ_shape=imprinted_assembly.wrapped._address(),  # in memory address
+        gmsh = init_gmsh()
+
+        gmsh, volumes = get_volumes(gmsh, imprinted_assembly, method=method)
+
+        gmsh = _mesh_brep(
+            gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
