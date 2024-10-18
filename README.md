@@ -1,7 +1,9 @@
 
 [![N|Python](https://www.python.org/static/community_logos/python-powered-w-100x40.png)](https://www.python.org)
 
-[![CI with install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml/badge.svg?branch=main)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_install.yml) Testing package and running examples
+[![CI with Conda install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_conda_install.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_conda_install.yml) Testing package and running examples with dependencies installed via Conda
+
+[![CI with pip install](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_pip_install.yml/badge.svg)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_pip_install.yml) Testing package and running examples with dependencies installed vua PIP
 
 [![CI with model benchmark zoo](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_benchmarks.yml/badge.svg?branch=main)](https://github.com/fusion-energy/cad_to_dagmc/actions/workflows/ci_with_benchmarks.yml) Testing with [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo)
 
