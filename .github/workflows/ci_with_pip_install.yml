@@ -37,9 +37,8 @@ jobs:
           apt install python3
           apt install python3-pip
           python -m pip install --upgrade pip
-          git clone  --single-branch -b master --depth 1 https://bitbucket.org/fathomteam/moab/
+          git clone --single-branch -b master --depth 1 https://bitbucket.org/fathomteam/moab/
           cd moab
-          git checkout faf7e989c0fd0be4a19f61c1d4713afc5397c8a7
           python -m pip install . --config-settings=cmake.args=-DENABLE_HDF5=ON
           cd ..
           python -c "import pymoab"
