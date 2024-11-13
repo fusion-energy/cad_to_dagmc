@@ -239,6 +239,7 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
+    gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
     gmsh.model.mesh.generate(dimensions)
 
     return gmsh
