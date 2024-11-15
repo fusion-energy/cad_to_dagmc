@@ -190,16 +190,26 @@ def _vertices_to_h5m(
     return h5m_filename
 
 
-def get_volumes(gmsh, assembly, method="file"):
+def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
 
     if method == "in memory":
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
-        gmsh.model.occ.synchronize()
+
     elif method == "file":
         with tempfile.NamedTemporaryFile(suffix=".step") as temp_file:
             exporters.export(assembly, temp_file.name)
             volumes = gmsh.model.occ.importShapes(temp_file.name)
-            gmsh.model.occ.synchronize()
+
+    # updating the model to ensure the entities in the geometry are found
+    gmsh.model.occ.synchronize()
+
+    if scale_factor != 1.0:
+        dim_tags = gmsh.model.getEntities(3)
+        gmsh.model.occ.dilate(
+            dim_tags, 0.0, 0.0, 0.0, scale_factor, scale_factor, scale_factor
+        )
+        # update the model to ensure the scaling factor has been applied
+        gmsh.model.occ.synchronize()
 
     return gmsh, volumes
 
@@ -478,6 +488,7 @@ class CadToDagmc:
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         method: str = "file",
+        scale_factor: float = 1.0,
     ):
 
         assembly = cq.Assembly()
@@ -488,7 +499,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
@@ -517,6 +528,7 @@ class CadToDagmc:
         mesh_algorithm: int = 1,
         dimensions: int = 2,
         method: str = "file",
+        scale_factor: float = 1.0,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -536,6 +548,9 @@ class CadToDagmc:
                 the same as the version used by CadQuery. This is possible to
                 ensure when installing the package with Conda but harder when
                 installing from PyPI.
+            scale_factor: a scaling factor to apply to the geometry that can be
+                used to enlarge or shrink the geometry. Useful when converting
+                Useful when converting the geometry to cm for use in neutronics
         """
 
         assembly = cq.Assembly()
@@ -546,7 +561,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method)
+        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
@@ -570,6 +585,7 @@ class CadToDagmc:
         mesh_algorithm: int = 1,
         implicit_complement_material_tag: str | None = None,
         method: str = "file",
+        scale_factor: float = 1.0,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -590,6 +606,10 @@ class CadToDagmc:
                 the same as the version used by CadQuery. This is possible to
                 ensure when installing the package with Conda but harder when
                 installing from PyPI.
+            scale_factor: a scaling factor to apply to the geometry that can be
+                used to enlarge or shrink the geometry. Useful when converting
+                Useful when converting the geometry to cm for use in neutronics
+
         Returns:
             str: the DAGMC filename saved
         """
@@ -618,7 +638,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, volumes = get_volumes(gmsh, imprinted_assembly, method=method)
+        gmsh, volumes = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
