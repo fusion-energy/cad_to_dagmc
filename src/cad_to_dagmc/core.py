@@ -205,9 +205,7 @@ def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
 
     if scale_factor != 1.0:
         dim_tags = gmsh.model.getEntities(3)
-        gmsh.model.occ.dilate(
-            dim_tags, 0.0, 0.0, 0.0, scale_factor, scale_factor, scale_factor
-        )
+        gmsh.model.occ.dilate(dim_tags, 0.0, 0.0, 0.0, scale_factor, scale_factor, scale_factor)
         # update the model to ensure the scaling factor has been applied
         gmsh.model.occ.synchronize()
 
@@ -638,7 +636,9 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, volumes = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, volumes = get_volumes(
+            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+        )
 
         gmsh = _mesh_brep(
             gmsh=gmsh,
