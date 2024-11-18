@@ -62,3 +62,4 @@ jobs:
           python examples/surface_mesh/from_gmsh_mesh_file.py
           python examples/unstrucutred_volume_mesh/curved_cadquery_object_to_dagmc_volume_mesh.py
           python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py
+          python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
