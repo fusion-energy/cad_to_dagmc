@@ -196,8 +196,11 @@ def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
         volumes = gmsh.model.occ.importShapesNativePointer(assembly.wrapped._address())
 
     elif method == "file":
-        with tempfile.NamedTemporaryFile(suffix=".step") as temp_file:
-            exporters.export(assembly, temp_file.name)
+        with tempfile.NamedTemporaryFile(suffix=".brep") as temp_file:
+            if isinstance(assembly, cq.Assembly):
+                assembly.toCompound().exportBrep(temp_file.name)
+            else:
+                assembly.exportBrep(temp_file.name)
             volumes = gmsh.model.occ.importShapes(temp_file.name)
 
     # updating the model to ensure the entities in the geometry are found
