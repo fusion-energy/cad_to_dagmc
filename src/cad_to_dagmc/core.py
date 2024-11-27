@@ -1,7 +1,8 @@
+from pathlib import Path
 import cadquery as cq
 import gmsh
 import numpy as np
-from cadquery import importers, exporters
+from cadquery import importers
 from pymoab import core, types
 import tempfile
 
@@ -484,13 +485,48 @@ class CadToDagmc:
 
     def export_unstructured_mesh_file(
         self,
-        filename: str = "umesh.h5m",
+        filename: str = "umesh.vtk",
         min_mesh_size: float = 1,
         max_mesh_size: float = 5,
         mesh_algorithm: int = 1,
         method: str = "file",
         scale_factor: float = 1.0,
     ):
+        """
+        Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
+        Compatible with the MOAB unstructured mesh library. Example useage
+        openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
+
+        Parameters:
+        -----------
+            filename : str, optional
+                The name of the output file. Default is "umesh.vtk".
+            min_mesh_size: the minimum mesh element size to use in Gmsh. Passed
+                into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
+            max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
+                into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
+            mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
+                gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+            method: the method to use to import the geometry into gmsh. Options
+                are 'file' or 'in memory'. 'file' is the default and will write
+                the geometry to a temporary file before importing it into gmsh.
+                'in memory' will import the geometry directly into gmsh but
+                requires the version of OpenCASCADE used to build gmsh to be
+                the same as the version used by CadQuery. This is possible to
+                ensure when installing the package with Conda but harder when
+                installing from PyPI.
+            scale_factor: a scaling factor to apply to the geometry that can be
+                used to enlarge or shrink the geometry. Useful when converting
+                Useful when converting the geometry to cm for use in neutronics
+
+        Returns:
+        --------
+            gmsh : gmsh
+                The gmsh object after finalizing the mesh.
+        """
+
+        if Path(filename).suffix != ".vtk":
+            raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -510,12 +546,9 @@ class CadToDagmc:
             dimensions=3,
         )
 
-        # gmesh writes out a vtk file that is converted by pymoab into a h5 file
-        gmsh.write(filename + ".vtk")
-
-        moab_core = core.Core()
-        moab_core.load_file(filename + ".vtk")
-        moab_core.write_file(filename)
+        # gmesh writes out a vtk file that is accepted by openmc.UnstructuredMesh
+        # The library argument must be set to "moab"
+        gmsh.write(filename)
 
         gmsh.finalize()
 

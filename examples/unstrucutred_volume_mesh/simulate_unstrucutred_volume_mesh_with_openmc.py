@@ -1,4 +1,4 @@
-# script assumes that "umesh.h5m" has been created by
+# script assumes that "umesh.vtk" has been created by
 # curved_cadquery_object_to_dagmc_volume_mesh.py has been
 
 import openmc
@@ -14,7 +14,7 @@ with open("cross_sections.xml", "w") as file:
     )
 openmc.config["cross_sections"] = "cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh("umesh.h5m", library="moab")
+umesh = openmc.UnstructuredMesh("umesh.vtk", library="moab")
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstrucutred_mesh_tally")
 tally.filters = [mesh_filter]
