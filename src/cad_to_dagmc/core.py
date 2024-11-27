@@ -1,7 +1,8 @@
+from pathlib import Path
 import cadquery as cq
 import gmsh
 import numpy as np
-from cadquery import importers, exporters
+from cadquery import importers
 from pymoab import core, types
 import tempfile
 
@@ -493,7 +494,7 @@ class CadToDagmc:
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
-        Compatible with the MOAB unstrucutred mesh library. Example useage
+        Compatible with the MOAB unstructured mesh library. Example useage
         openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
 
         Parameters:
@@ -523,6 +524,9 @@ class CadToDagmc:
             gmsh : gmsh
                 The gmsh object after finalizing the mesh.
         """
+
+        if Path(filename).suffix != ".vtk":
+            raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
         assembly = cq.Assembly()
         for part in self.parts:
