@@ -681,7 +681,9 @@ class CadToDagmc:
             raise ValueError(msg)
 
         if imprint:
-            imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
+            imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
+                assembly
+            )
 
             scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
