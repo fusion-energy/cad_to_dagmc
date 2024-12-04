@@ -491,6 +491,7 @@ class CadToDagmc:
         mesh_algorithm: int = 1,
         method: str = "file",
         scale_factor: float = 1.0,
+        imprint: bool = True,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
@@ -518,6 +519,10 @@ class CadToDagmc:
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
                 Useful when converting the geometry to cm for use in neutronics
+            imprint: whether to imprint the geometry or not. Defaults to True as this is
+                normally needed to ensure the geometry is meshed correctly. However if
+                you know your geometry does not need imprinting you can set this to False
+                and this can save time.
 
         Returns:
         --------
@@ -532,7 +537,10 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+        if imprint:
+            imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+        else:
+            imprinted_assembly = assembly
 
         gmsh = init_gmsh()
 
@@ -563,6 +571,7 @@ class CadToDagmc:
         dimensions: int = 2,
         method: str = "file",
         scale_factor: float = 1.0,
+        imprint: bool = True,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -585,13 +594,20 @@ class CadToDagmc:
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
                 Useful when converting the geometry to cm for use in neutronics
+            imprint: whether to imprint the geometry or not. Defaults to True as this is
+                normally needed to ensure the geometry is meshed correctly. However if
+                you know your geometry does not need imprinting you can set this to False
+                and this can save time.
         """
 
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+        if imprint:
+            imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+        else:
+            imprinted_assembly = assembly
 
         gmsh = init_gmsh()
 
@@ -620,11 +636,11 @@ class CadToDagmc:
         implicit_complement_material_tag: str | None = None,
         method: str = "file",
         scale_factor: float = 1.0,
+        imprint: bool = True,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
         Args:
-
             filename (str, optional): the filename to use for the saved DAGMC file. Defaults to "dagmc.h5m".
             min_mesh_size (float, optional): the minimum size of mesh elements to use. Defaults to 1.
             max_mesh_size (float, optional): the maximum size of mesh elements to use. Defaults to 5.
@@ -643,6 +659,10 @@ class CadToDagmc:
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
                 Useful when converting the geometry to cm for use in neutronics
+            imprint: whether to imprint the geometry or not. Defaults to True as this is
+                normally needed to ensure the geometry is meshed correctly. However if
+                you know your geometry does not need imprinting you can set this to False
+                and this can save time.
 
         Returns:
             str: the DAGMC filename saved
@@ -652,21 +672,27 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(assembly)
-
         original_ids = _get_ids_from_assembly(assembly)
-        scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
-
         if len(original_ids) != len(self.material_tags):
             msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
-        material_tags_in_brep_order = order_material_ids_by_brep_order(
-            original_ids, scrambled_ids, self.material_tags
-        )
+        if imprint:
+            imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
+                assembly
+            )
+
+            scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+
+            material_tags_in_brep_order = order_material_ids_by_brep_order(
+                original_ids, scrambled_ids, self.material_tags
+            )
+        else:
+            material_tags_in_brep_order = self.material_tags
+            imprinted_assembly = assembly
 
         _check_material_tags(material_tags_in_brep_order, self.parts)
 
