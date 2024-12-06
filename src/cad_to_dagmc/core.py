@@ -184,6 +184,9 @@ def _vertices_to_h5m(
 
     moab_core.add_entities(file_set, all_sets)
 
+    # write_file only accepts strings
+    if isinstance(h5m_filename, Path):
+        h5m_filename = str(h5m_filename)
     moab_core.write_file(h5m_filename)
 
     print(f"written DAGMC file {h5m_filename}")
