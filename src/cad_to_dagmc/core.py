@@ -184,7 +184,11 @@ def _vertices_to_h5m(
 
     moab_core.add_entities(file_set, all_sets)
 
-    moab_core.write_file(h5m_filename)
+    # moab_core.write_file only accepts strings
+    if isinstance(h5m_filename, Path):
+        moab_core.write_file(str(h5m_filename))
+    else:
+        moab_core.write_file(h5m_filename)
 
     print(f"written DAGMC file {h5m_filename}")
 
@@ -530,6 +534,8 @@ class CadToDagmc:
                 The gmsh object after finalizing the mesh.
         """
 
+        # gmesh writes out a vtk file that is accepted by openmc.UnstructuredMesh
+        # The library argument must be set to "moab"
         if Path(filename).suffix != ".vtk":
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
@@ -554,9 +560,11 @@ class CadToDagmc:
             dimensions=3,
         )
 
-        # gmesh writes out a vtk file that is accepted by openmc.UnstructuredMesh
-        # The library argument must be set to "moab"
-        gmsh.write(filename)
+        # gmsh.write only accepts strings
+        if isinstance(filename, Path):
+            gmsh.write(str(filename))
+        else:
+            gmsh.write(filename)
 
         gmsh.finalize()
 
@@ -621,7 +629,11 @@ class CadToDagmc:
             dimensions=dimensions,
         )
 
-        gmsh.write(filename)
+        # gmsh.write only accepts strings
+        if isinstance(filename, Path):
+            gmsh.write(str(filename))
+        else:
+            gmsh.write(filename)
 
         print(f"written GMSH mesh file {filename}")
 
