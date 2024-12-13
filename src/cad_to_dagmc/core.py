@@ -238,6 +238,7 @@ def _mesh_brep(
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
     dimensions: int = 2,
+    skip_volume_ids: list = [],
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
 
@@ -260,7 +261,24 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
-    gmsh.model.mesh.generate(dimensions)
+
+    if len(skip_volume_ids) == 0:
+        print("Meshing all volumes")
+        gmsh.model.mesh.generate(dimensions)
+
+    else:
+        print(f'Not meshing volume IDs: {skip_volume_ids}')
+
+        # Get all volume entities
+        volumes = gmsh.model.getEntities(dimensions)
+
+        # Filter out volumes to skip
+        volumes_to_mesh = [vol for vol in volumes if vol[1] not in skip_volume_ids]
+        print(f'Meshing volume IDs: {volumes_to_mesh}')
+
+        # Generate mesh for each volume
+        for vol in volumes_to_mesh:
+            gmsh.model.mesh.generate(dimensions)
 
     return gmsh
 
@@ -501,6 +519,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        skip_volume_ids: list = [],
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
@@ -563,6 +582,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=3,
+            skip_volume_ids=skip_volume_ids
         )
 
         # makes the folder if it does not exist
@@ -589,6 +609,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        skip_volume_ids: list = [],
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -636,6 +657,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=dimensions,
+            skip_volume_ids=skip_volume_ids,
         )
 
         # makes the folder if it does not exist
@@ -662,6 +684,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        skip_volume_ids: list = [],
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -732,6 +755,7 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
+            skip_volume_ids=skip_volume_ids,
         )
 
         dims_and_vol_ids = volumes
