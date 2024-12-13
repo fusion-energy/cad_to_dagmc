@@ -209,6 +209,7 @@ def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
 
     os.system(f"rm -rf {filename}")
 
+
 # def test_export_unstructured_mesh_file_handel_paths_folders_strings():
 #     """Checks that a vtk file is created"""
 
@@ -218,8 +219,9 @@ assembly = cq.Assembly()
 assembly.add(box1)
 assembly.add(box2)
 from cadquery.vis import show
+
 show(assembly)
 c2d = CadToDagmc()
 c2d.add_cadquery_object(box1, material_tags=["mat1"])
 
-c2d.export_unstructured_mesh_file(filename='mesh_with_one_volume.vtk')
+c2d.export_unstructured_mesh_file(filename="mesh_with_one_volume.vtk")
