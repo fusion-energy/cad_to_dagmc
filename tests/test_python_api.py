@@ -218,8 +218,8 @@ assembly = cq.Assembly()
 assembly.add(box1)
 assembly.add(box2)
 from cadquery.vis import show
-show(assembly)
+# show(assembly)
 c2d = CadToDagmc()
-c2d.add_cadquery_object(box1, material_tags=["mat1"])
+c2d.add_cadquery_object(assembly, material_tags=["mat1", "mat2"])
 
-c2d.export_unstructured_mesh_file(filename='mesh_with_one_volume.vtk')
+c2d.export_unstructured_mesh_file(filename='mesh_with_one_volume.vtk',skip_volume_ids=[1])
