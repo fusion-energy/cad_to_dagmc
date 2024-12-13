@@ -76,6 +76,7 @@ def _vertices_to_h5m(
         triangles:
         material_tags:
         h5m_filename:
+        implicit_complement_material_tag:
     """
 
     if len(material_tags) != len(triangles_by_solid_by_face):
@@ -238,8 +239,7 @@ def _mesh_brep(
     mesh_algorithm: int = 1,
     dimensions: int = 2,
 ):
-    """Creates a conformal surface meshes of the volumes in a Brep file using
-    Gmsh.
+    """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
 
     Args:
         occ_shape: the occ_shape of the Brep file to convert
@@ -455,6 +455,7 @@ class CadToDagmc:
             scaled_part = part.scale(scale_factor)
         return self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
 
+
     def add_cadquery_object(
         self,
         cadquery_object: (
@@ -491,6 +492,7 @@ class CadToDagmc:
         self.parts = self.parts + iterable_solids
 
         return len(iterable_solids)
+
 
     def export_unstructured_mesh_file(
         self,
@@ -579,6 +581,7 @@ class CadToDagmc:
 
         return gmsh
 
+
     def export_gmsh_mesh_file(
         self,
         filename: str = "mesh.msh",
@@ -651,6 +654,7 @@ class CadToDagmc:
         print(f"written GMSH mesh file {filename}")
 
         gmsh.finalize()
+
 
     def export_dagmc_h5m_file(
         self,
