@@ -141,16 +141,19 @@ def test_add_stp_file_returned_volumes():
     assert vols == 2
 
 
-@pytest.mark.parametrize("filename", [
-    "test_dagmc1.h5m",
-    "out_folder1/test_dagmc2.h5m",
-    Path("test_dagmc3.h5m"),
-    Path("out_folder2/test_dagmc4.h5m"),
-])
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_dagmc1.h5m",
+        "out_folder1/test_dagmc2.h5m",
+        Path("test_dagmc3.h5m"),
+        Path("out_folder2/test_dagmc4.h5m"),
+    ],
+)
 def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename):
     """Checks that a h5m file is created"""
 
-    box = cq.Workplane().box(1,1,1)
+    box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
@@ -161,16 +164,19 @@ def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename):
     os.system(f"rm -rf {filename}")
 
 
-@pytest.mark.parametrize("filename", [
-    "test_dagmc1.vtk",
-    "out_folder3/test_dagmc2.vtk",
-    Path("test_dagmc3.vtk"),
-    Path("out_folder4/test_dagmc4.vtk"),
-])
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_dagmc1.vtk",
+        "out_folder3/test_dagmc2.vtk",
+        Path("test_dagmc3.vtk"),
+        Path("out_folder4/test_dagmc4.vtk"),
+    ],
+)
 def test_export_unstructured_mesh_file_handel_paths_folders_strings(filename):
     """Checks that a vtk file is created"""
 
-    box = cq.Workplane().box(1,1,1)
+    box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
@@ -181,16 +187,19 @@ def test_export_unstructured_mesh_file_handel_paths_folders_strings(filename):
     os.system(f"rm -rf {filename}")
 
 
-@pytest.mark.parametrize("filename", [
-    "test_dagmc1.msh",
-    "out_folder5/test_dagmc2.msh",
-    Path("test_dagmc3.msh"),
-    Path("out_folder6/test_dagmc4.msh"),
-])
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_dagmc1.msh",
+        "out_folder5/test_dagmc2.msh",
+        Path("test_dagmc3.msh"),
+        Path("out_folder6/test_dagmc4.msh"),
+    ],
+)
 def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
     """Checks that a vtk file is created"""
 
-    box = cq.Workplane().box(1,1,1)
+    box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
