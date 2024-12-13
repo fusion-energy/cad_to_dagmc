@@ -455,7 +455,6 @@ class CadToDagmc:
             scaled_part = part.scale(scale_factor)
         return self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
 
-
     def add_cadquery_object(
         self,
         cadquery_object: (
@@ -492,7 +491,6 @@ class CadToDagmc:
         self.parts = self.parts + iterable_solids
 
         return len(iterable_solids)
-
 
     def export_unstructured_mesh_file(
         self,
@@ -581,7 +579,6 @@ class CadToDagmc:
 
         return gmsh
 
-
     def export_gmsh_mesh_file(
         self,
         filename: str = "mesh.msh",
@@ -654,7 +651,6 @@ class CadToDagmc:
         print(f"written GMSH mesh file {filename}")
 
         gmsh.finalize()
-
 
     def export_dagmc_h5m_file(
         self,
