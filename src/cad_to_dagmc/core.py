@@ -76,6 +76,7 @@ def _vertices_to_h5m(
         triangles:
         material_tags:
         h5m_filename:
+        implicit_complement_material_tag:
     """
 
     if len(material_tags) != len(triangles_by_solid_by_face):
@@ -184,6 +185,10 @@ def _vertices_to_h5m(
 
     moab_core.add_entities(file_set, all_sets)
 
+    # makes the folder if it does not exist
+    if Path(h5m_filename).parent:
+        Path(h5m_filename).parent.mkdir(parents=True, exist_ok=True)
+
     # moab_core.write_file only accepts strings
     if isinstance(h5m_filename, Path):
         moab_core.write_file(str(h5m_filename))
@@ -234,8 +239,7 @@ def _mesh_brep(
     mesh_algorithm: int = 1,
     dimensions: int = 2,
 ):
-    """Creates a conformal surface meshes of the volumes in a Brep file using
-    Gmsh.
+    """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
 
     Args:
         occ_shape: the occ_shape of the Brep file to convert
@@ -361,6 +365,7 @@ class MeshToDagmc:
 
     # TODO add export_unstructured_mesh_file
     # TODO add add_gmsh_msh_file
+    # TODO test for exports result in files
 
     def export_dagmc_h5m_file(
         self,
@@ -560,6 +565,10 @@ class CadToDagmc:
             dimensions=3,
         )
 
+        # makes the folder if it does not exist
+        if Path(filename).parent:
+            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+
         # gmsh.write only accepts strings
         if isinstance(filename, Path):
             gmsh.write(str(filename))
@@ -628,6 +637,10 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             dimensions=dimensions,
         )
+
+        # makes the folder if it does not exist
+        if Path(filename).parent:
+            Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
         # gmsh.write only accepts strings
         if isinstance(filename, Path):
