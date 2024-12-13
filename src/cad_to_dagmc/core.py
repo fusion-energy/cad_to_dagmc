@@ -267,14 +267,14 @@ def _mesh_brep(
         gmsh.model.mesh.generate(dimensions)
 
     else:
-        print(f'Not meshing volume IDs: {skip_volume_ids}')
+        print(f"Not meshing volume IDs: {skip_volume_ids}")
 
         # Get all volume entities
         volumes = gmsh.model.getEntities(dimensions)
 
         # Filter out volumes to skip
         volumes_to_mesh = [vol for vol in volumes if vol[1] not in skip_volume_ids]
-        print(f'Meshing volume IDs: {volumes_to_mesh}')
+        print(f"Meshing volume IDs: {volumes_to_mesh}")
 
         # Generate mesh for each volume
         for vol in volumes_to_mesh:
@@ -582,7 +582,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=3,
-            skip_volume_ids=skip_volume_ids
+            skip_volume_ids=skip_volume_ids,
         )
 
         # makes the folder if it does not exist
