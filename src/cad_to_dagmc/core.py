@@ -5,6 +5,7 @@ import numpy as np
 from cadquery import importers
 from pymoab import core, types
 import tempfile
+import warnings
 
 
 def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -347,6 +348,12 @@ def _check_material_tags(material_tags, iterable_solids):
             if not isinstance(material_tag, str):
                 msg = f"material_tags should be an iterable of strings."
                 raise ValueError(msg)
+            if len(material_tag) > 28:
+                msg = (
+                    f"Material tag {material_tag} is too long. DAGMC will truncate this material tag "
+                    f"to 28 characters. The resulting tag in the h5m file will be {material_tag[:28]}"
+                )
+                warnings.warn(msg)
 
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
