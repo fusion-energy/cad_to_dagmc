@@ -350,7 +350,8 @@ def _check_material_tags(material_tags, iterable_solids):
                 raise ValueError(msg)
             if len(material_tag) > 28:
                 msg = f"Material tag {material_tag} is too long. DAGMC will truncate this
-                material tag to 28 characters long."
+                material tag to 28 characters. The resulting tag in the h5m file will be
+                {material_tag[:28]}"
                 warnings.warn(msg)
 
 
