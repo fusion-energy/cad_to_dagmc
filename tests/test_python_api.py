@@ -3,7 +3,8 @@ from pathlib import Path
 import pytest
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
-
+import warnings
+from cad_to_dagmc.core import _check_material_tags
 
 from pathlib import Path
 
@@ -208,3 +209,13 @@ def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
     assert Path(filename).is_file()
 
     os.system(f"rm -rf {filename}")
+
+
+def test_check_material_tags_too_long():
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        _check_material_tags(["a" * 29], [1])
+        assert len(w) == 1
+        assert issubclass(w[-1].category, UserWarning)
+        assert "Material tag" in str(w[-1].message)
+        assert "a" * 29 in str(w[-1].message)
