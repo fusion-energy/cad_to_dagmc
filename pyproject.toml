@@ -21,7 +21,7 @@ dependencies = [
     "trimesh",
     "networkx",
     "cadquery>=2.5.2",
-    "numpy,
+    "numpy",
     "gmsh"
 ]
 dynamic = ["version"]
