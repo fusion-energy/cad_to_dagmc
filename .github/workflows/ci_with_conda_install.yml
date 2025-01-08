@@ -21,34 +21,43 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: install non pypi dependencies
-        shell: bash
+      - name: Install system packages
         run: |
-          wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-          bash Miniforge3.sh -b -p "${HOME}/conda"
-          source "${HOME}/conda/etc/profile.d/conda.sh"
-          source "${HOME}/conda/etc/profile.d/mamba.sh"
-          sudo apt-get --allow-releaseinfo-change update
           sudo apt-get update -y
           sudo apt-get upgrade -y
           sudo apt-get install -y libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0
-          mamba activate
-          mamba create -y --name cad_to_dagmc python=${{ matrix.python-version }}
-          mamba activate cad_to_dagmc
-          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
-          python -m ensurepip --upgrade
-          python -m pip install . --no-deps
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: ci-env
+          miniforge-version: latest
+          channels: conda-forge
+
+      - name: install dependencies
+        shell: bash -l {0}
+        run: |
+          conda install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh vtk
+          python -m pip install .[tests]
+
+      - name: Test import
+        shell: bash -l {0}
+        run: |
           python -c "import cad_to_dagmc"
-          mamba install -y -c conda-forge pytest vtk
-          python -m pip install .[tests] --no-deps
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
           pytest -v tests
+
+      - name: Run examples
+        shell: bash -l {0}
+        run: |
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py
