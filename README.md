@@ -12,17 +12,25 @@
 [![PyPI](https://img.shields.io/pypi/v/cad_to_dagmc?color=brightgreen&label=pypi&logo=grebrightgreenen&logoColor=green)](https://pypi.org/project/cad_to_dagmc/)
 
 
-A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) h5m files
+A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) compatible meshes
 
-cad-to-dagmc can create:
+cad-to-dagmc can create DAGMC compatible:
 - surface meshes / faceted geometry / triangular meshes
 - unstructured mesh / tetrahedral meshes / volume meshes
 
-cad-to-dagmc can convert:
+cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 - STEP files
-- CadQuery objects (in memory)
+- CadQuery objects
+- Gmsh meshes
 
-cad-to-dagmc aims to produce DAGMC compatible h5m files from CAD geometry is intended to convert [STEP](http://www.steptools.com/stds/step/) files or [CadQuery](https://cadquery.readthedocs.io) objects to a [DAGMC](https://github.com/svalinn/DAGMC/) compatible h5m file.
+Options include
+- Ability to scale the output mesh (e.g from meters to cm)
+- Ability to skip imprinting stage
+- Specify meshing parameters for finer or coarser meshes or change the mesh algorithm
+- Ability to specify a material tag for the DAGMC implicit complement
+- Pass objects from CadQuery in memory (without writting to disk)
+
+cad-to-dagmc aims to produce DAGMC compatible h5m and vtk files from CAD geometry is intended to convert [STEP](http://www.steptools.com/stds/step/) files, [CadQuery](https://cadquery.readthedocs.io) or [Gmsh]([https://cadquery.readthedocs.io](https://gmsh.info/)) meshes objects to a [DAGMC](https://github.com/svalinn/DAGMC/) compatible h5m file or a DAGMC compatible Unstruuctre vtk file.
 
 The resulting DAGMC geometry can then be used for simulations in [OpenMC](https://github.com/openmc-dev/openmc/) or [other supported codes](https://svalinn.github.io/DAGMC/).
 
@@ -123,7 +131,7 @@ You may also want to install OpenMC with DAGMC to make use of the h5m geometry f
 
 To install OpenMC you can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
+mamba install -c conda-forge -y "openmc=0.15.0=dagmc*nompi*"
 ```
 
 It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
@@ -137,15 +145,11 @@ The package requires newer versions of Linux. For example the package does not w
 
 The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
 
-Installing one of the package dependancies (gmsh) with pip appears to result in errors when passing cad objects in memory between cadquery / ocp and gmsh. The default method of passing cad objects is via file so this should not impact most users. The conda install gmsh appears to work fine with in memory passing of cad objects as the version of OCP matches between Gmsh and CadQuery.
+Installing one of the package dependancies (Gmsh) with pip appears to result in errors when passing cad objects in memory between cadquery / ocp and gmsh. The default method of passing cad objects is via file so this should not impact most users. The conda install gmsh appears to work fine with in memory passing of cad objects as the version of OCP matches between Gmsh and CadQuery.
 
 
-# Usage - creation of DAGMC h5m files
+# Usage
 
-For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
-
-# Usage - simulation with transport code
-
-For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+For examples showing creation of DAGMC h5m files, vtk files and usage within OpenMC transport code see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
 
 For more examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
