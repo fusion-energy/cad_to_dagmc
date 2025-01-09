@@ -59,16 +59,16 @@ jobs:
         shell: bash -l {0}
         run: |
           python examples/surface_mesh/cadquery_assembly.py
+          python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py
           python examples/surface_mesh/cadquery_text.py
           python examples/surface_mesh/curved_cadquery_object_to_dagmc_surface_mesh.py
+          python examples/surface_mesh/from_gmsh_mesh_file.py
           python examples/surface_mesh/multiple_cadquery_objects.py
           python examples/surface_mesh/multiple_stp_files.py
-          python examples/surface_mesh/single_stp_file_multiple_volumes.py
           python examples/surface_mesh/single_cadquery_object.py
+          python examples/surface_mesh/single_stp_file_multiple_volumes.py
           python examples/surface_mesh/single_stp_file.py
-          python examples/surface_mesh/from_gmsh_mesh_file.py
           python examples/unstrucutred_volume_mesh/curved_cadquery_object_to_dagmc_volume_mesh.py
           python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py
-          python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
