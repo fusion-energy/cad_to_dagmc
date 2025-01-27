@@ -239,6 +239,7 @@ def _mesh_brep(
     max_mesh_size: float = 10,
     mesh_algorithm: int = 1,
     dimensions: int = 2,
+    set_size: dict[int, float] | None = None,
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
 
@@ -261,7 +262,28 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
+
+
+    if dimensions == 2:
+        set_size={1: 1, 2: 0.5}
+        volumes = gmsh.model.getEntities(3)
+        print('volumes', volumes)
+        if set_size:
+            for (_, volume) in volumes:
+                if volume in set_size.keys():
+                    size=set_size[volume]
+                    if isinstance(size, dict):
+                        pass
+                    else:
+                        boundaries = gmsh.model.getBoundary([(3,volume)], recursive=True)  # dim must be set to 3
+                        print('boundaries',boundaries)
+                        gmsh.model.mesh.setSize(boundaries, size)
+                        print(f"Set size of {size} for volume {volume}")
+                else:
+                    raise ValueError(f'volume ID of {volume} set in set_sizes but not found in available volumes {volumes}')
+
     gmsh.model.mesh.generate(dimensions)
+    gmsh.write("mesh2.msh")
 
     return gmsh
 
@@ -669,6 +691,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        set_size: dict[int, float] | None = None,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -695,6 +718,8 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
+            set_size: a dictionary of volume ids and target mesh sizes to set for each
+                volume, passed to gmsh.model.mesh.setSize after min and max sizes are set.
 
         Returns:
             str: the DAGMC filename saved
@@ -739,6 +764,7 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
+            set_size=set_size,
         )
 
         dims_and_vol_ids = volumes
