@@ -263,24 +263,27 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
 
-
     if dimensions == 2:
-        set_size={1: 1, 2: 0.5}
+        set_size = {1: 1, 2: 0.5}
         volumes = gmsh.model.getEntities(3)
-        print('volumes', volumes)
+        print("volumes", volumes)
         if set_size:
-            for (_, volume) in volumes:
+            for _, volume in volumes:
                 if volume in set_size.keys():
-                    size=set_size[volume]
+                    size = set_size[volume]
                     if isinstance(size, dict):
                         pass
                     else:
-                        boundaries = gmsh.model.getBoundary([(3,volume)], recursive=True)  # dim must be set to 3
-                        print('boundaries',boundaries)
+                        boundaries = gmsh.model.getBoundary(
+                            [(3, volume)], recursive=True
+                        )  # dim must be set to 3
+                        print("boundaries", boundaries)
                         gmsh.model.mesh.setSize(boundaries, size)
                         print(f"Set size of {size} for volume {volume}")
                 else:
-                    raise ValueError(f'volume ID of {volume} set in set_sizes but not found in available volumes {volumes}')
+                    raise ValueError(
+                        f"volume ID of {volume} set in set_sizes but not found in available volumes {volumes}"
+                    )
 
     gmsh.model.mesh.generate(dimensions)
     gmsh.write("mesh2.msh")
