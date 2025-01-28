@@ -254,7 +254,7 @@ def _mesh_brep(
         dimensions: The number of dimensions, 2 for a surface mesh 3 for a
             volume mesh. Passed to gmsh.model.mesh.generate()
         set_size: a dictionary of volume ids (int) and target mesh sizes
-                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
 
     Returns:
         The resulting gmsh object and volumes
@@ -274,30 +274,29 @@ def _mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
 
-    if dimensions == 2:
-        if set_size:
-            volumes = gmsh.model.getEntities(3)
-            print("volumes", volumes)
-            for _, volume in volumes:
-                if volume in set_size.keys():
-                    size = set_size[volume]
-                    if isinstance(size, dict):
-                        # TODO face specific mesh sizes
-                        pass
-                    else:
-                        boundaries = gmsh.model.getBoundary(
-                            [(3, volume)], recursive=True
-                        )  # dim must be set to 3
-                        print("boundaries", boundaries)
-                        gmsh.model.mesh.setSize(boundaries, size)
-                        print(f"Set size of {size} for volume {volume}")
+    if set_size:
+        volumes = gmsh.model.getEntities(3)
+        available_volumes = [volume[1] for volume in volumes]
+        print("volumes", volumes)
+        for volume_id, size in set_size.items():
+            if volume_id in available_volumes:
+                size = set_size[volume_id]
+                if isinstance(size, dict):
+                    # TODO face specific mesh sizes
+                    pass
                 else:
-                    raise ValueError(
-                        f"volume ID of {volume} set in set_sizes but not found in available volumes {volumes}"
-                    )
+                    boundaries = gmsh.model.getBoundary(
+                        [(3, volume_id)], recursive=True
+                    )  # dim must be set to 3
+                    print("boundaries", boundaries)
+                    gmsh.model.mesh.setSize(boundaries, size)
+                    print(f"Set size of {size} for volume {volume_id}")
+            else:
+                raise ValueError(
+                    f"volume ID of {volume_id} set in set_sizes but not found in available volumes {volumes}"
+                )
 
     gmsh.model.mesh.generate(dimensions)
-    gmsh.write("mesh2.msh")
 
     return gmsh
 
@@ -544,6 +543,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        set_size: dict[int, float] | None = None,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
@@ -575,6 +575,9 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
+            set_size: a dictionary of volume ids (int) and target mesh sizes
+                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+  
 
         Returns:
         --------
@@ -606,6 +609,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=3,
+            set_size=set_size,
         )
 
         # makes the folder if it does not exist
