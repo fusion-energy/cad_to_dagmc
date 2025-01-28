@@ -235,10 +235,11 @@ def init_gmsh():
 
 def _mesh_brep(
     gmsh,
-    min_mesh_size: float = 1,
-    max_mesh_size: float = 10,
+    min_mesh_size: float | None = None,
+    max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
     dimensions: int = 2,
+    set_size: dict[int, float] | None = None,
 ):
     """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
 
@@ -252,15 +253,49 @@ def _mesh_brep(
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
         dimensions: The number of dimensions, 2 for a surface mesh 3 for a
             volume mesh. Passed to gmsh.model.mesh.generate()
+        set_size: a dictionary of volume ids (int) and target mesh sizes
+            (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
 
     Returns:
         The resulting gmsh object and volumes
     """
+    if min_mesh_size and max_mesh_size:
+        if min_mesh_size > max_mesh_size:
+            raise ValueError(
+                f"min_mesh_size must be less than or equal to max_mesh_size. Currently min_mesh_size is set to {min_mesh_size} and max_mesh_size is set to {max_mesh_size}"
+            )
+
+    if min_mesh_size:
+        gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
+
+    if max_mesh_size:
+        gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
-    gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
-    gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
+
+    if set_size:
+        volumes = gmsh.model.getEntities(3)
+        available_volumes = [volume[1] for volume in volumes]
+        print("volumes", volumes)
+        for volume_id, size in set_size.items():
+            if volume_id in available_volumes:
+                size = set_size[volume_id]
+                if isinstance(size, dict):
+                    # TODO face specific mesh sizes
+                    pass
+                else:
+                    boundaries = gmsh.model.getBoundary(
+                        [(3, volume_id)], recursive=True
+                    )  # dim must be set to 3
+                    print("boundaries", boundaries)
+                    gmsh.model.mesh.setSize(boundaries, size)
+                    print(f"Set size of {size} for volume {volume_id}")
+            else:
+                raise ValueError(
+                    f"volume ID of {volume_id} set in set_sizes but not found in available volumes {volumes}"
+                )
+
     gmsh.model.mesh.generate(dimensions)
 
     return gmsh
@@ -508,6 +543,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        set_size: dict[int, float] | None = None,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
@@ -539,6 +575,9 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
+            set_size: a dictionary of volume ids (int) and target mesh sizes
+                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+
 
         Returns:
         --------
@@ -570,6 +609,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=3,
+            set_size=set_size,
         )
 
         # makes the folder if it does not exist
@@ -589,13 +629,14 @@ class CadToDagmc:
     def export_gmsh_mesh_file(
         self,
         filename: str = "mesh.msh",
-        min_mesh_size: float = 1,
-        max_mesh_size: float = 5,
+        min_mesh_size: float | None = None,
+        max_mesh_size: float | None = None,
         mesh_algorithm: int = 1,
         dimensions: int = 2,
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        set_size: dict[int, float] | None = None,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -622,6 +663,8 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
+            set_size: a dictionary of volume ids (int) and target mesh sizes
+                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
         """
 
         assembly = cq.Assembly()
@@ -643,6 +686,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             dimensions=dimensions,
+            set_size=set_size,
         )
 
         # makes the folder if it does not exist
@@ -662,13 +706,14 @@ class CadToDagmc:
     def export_dagmc_h5m_file(
         self,
         filename: str = "dagmc.h5m",
-        min_mesh_size: float = 1,
-        max_mesh_size: float = 5,
+        min_mesh_size: float | None = None,
+        max_mesh_size: float | None = None,
         mesh_algorithm: int = 1,
         implicit_complement_material_tag: str | None = None,
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
+        set_size: dict[int, float] | None = None,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -695,6 +740,8 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
+            set_size: a dictionary of volume ids (int) and target mesh sizes
+                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
 
         Returns:
             str: the DAGMC filename saved
@@ -739,6 +786,7 @@ class CadToDagmc:
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
+            set_size=set_size,
         )
 
         dims_and_vol_ids = volumes

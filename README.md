@@ -12,7 +12,7 @@
 [![PyPI](https://img.shields.io/pypi/v/cad_to_dagmc?color=brightgreen&label=pypi&logo=grebrightgreenen&logoColor=green)](https://pypi.org/project/cad_to_dagmc/)
 
 
-A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) compatible meshes
+A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) (h5m) files, [unstructured mesh](https://docs.openmc.org/en/latest/pythonapi/generated/openmc.UnstructuredMesh.html) files (vtk) and Gmsh (msh) files ready for use in neutronics simulations.
 
 cad-to-dagmc can create DAGMC compatible:
 - surface meshes / faceted geometry / triangular meshes
@@ -20,23 +20,23 @@ cad-to-dagmc can create DAGMC compatible:
 
 cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 - STEP files
-- CadQuery objects
+- CadQuery objects (in memory)
 - Gmsh meshes
 
-Options include
-- Ability to scale the output mesh (e.g from meters to cm)
-- Ability to skip imprinting stage
-- Specify meshing parameters for finer or coarser meshes or change the mesh algorithm
-- Ability to specify a material tag for the DAGMC implicit complement
-- Pass objects from CadQuery in memory (without writting to disk)
+Cad-to-dagmc offers a wide range of features including.
+- Geometry scaling with ```scale_factor``` argument
+- Model wide mesh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
+- Volume specific mesh sizing parameters with the ```set_size``` argument
+- Parallel meshing to quickly mesh the geometry using multiple CPU cores
+- Imprint and merging of CAD geometry, or disable with the ```imprint``` argument
+- Add geometry from multiple sources ([STEP](http://www.steptools.com/stds/step/) files, [CadQuery](https://cadquery.readthedocs.io) objects and [Gmsh](https://gmsh.info/) meshes)
+- Ability to tag the DAGMC implicit complement material using the ```implicit_complement_material_tag``` argument
+- Selected different Gmesh mesh algorithms (defaults to 1) using the ```mesh_algorithm``` argument
+- Pass CadQuery objects in memory for fast transfer of geometry using the ```method``` argument
+- Easy to install with [pip](https://pypi.org/project/cad-to-dagmc/) and [Conda/Mamba](https://anaconda.org/conda-forge/cad_to_dagmc)
+- Well tested both with [CI unit tests](https://github.com/fusion-energy/cad_to_dagmc/tree/main/tests), integration tests and the CSG [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo).
+- Compatible with [Paramak](https://github.com/fusion-energy/paramak) geometry for fusion simulations.
 
-cad-to-dagmc aims to produce DAGMC compatible h5m and vtk files from CAD geometry is intended to convert [STEP](http://www.steptools.com/stds/step/) files, [CadQuery](https://cadquery.readthedocs.io) or [Gmsh]([https://cadquery.readthedocs.io](https://gmsh.info/)) meshes objects to a [DAGMC](https://github.com/svalinn/DAGMC/) compatible h5m file or a DAGMC compatible Unstruuctre vtk file.
-
-The resulting DAGMC geometry can then be used for simulations in [OpenMC](https://github.com/openmc-dev/openmc/) or [other supported codes](https://svalinn.github.io/DAGMC/).
-
-This package is tested with [pytest tests](https://github.com/fusion-energy/cad_to_dagmc/tree/main/tests) and also the DAGMC geometry made with this package is compared to simulation carried out with native constructive solid geometry, see [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo) for more details.
-
-Also checkout these other software projects that also create DAGMC geometry [CAD-to-OpenMC](https://github.com/openmsr/CAD_to_OpenMC), [Stellarmesh](https://github.com/Thea-Energy/stellarmesh) and [Coreform Cubit](https://coreform.com/products/coreform-cubit/)
 
 # Installation options
 
@@ -153,3 +153,7 @@ Installing one of the package dependancies (Gmsh) with pip appears to result in 
 For examples showing creation of DAGMC h5m files, vtk files and usage within OpenMC transport code see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
 
 For more examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
+
+# Related software
+
+Also checkout these other software projects that also create DAGMC geometry [CAD-to-OpenMC](https://github.com/openmsr/CAD_to_OpenMC), [Stellarmesh](https://github.com/Thea-Energy/stellarmesh) and [Coreform Cubit](https://coreform.com/products/coreform-cubit/).
