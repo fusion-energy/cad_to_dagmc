@@ -14,16 +14,16 @@
 
 A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) (h5m) files, [unstructured mesh](https://docs.openmc.org/en/latest/pythonapi/generated/openmc.UnstructuredMesh.html) files (vtk) and Gmsh (msh) files ready for use in neutronics simulations.
 
-cad-to-dagmc can create:
+cad-to-dagmc can create DAGMC compatible:
 - surface meshes / faceted geometry / triangular meshes
 - unstructured mesh / tetrahedral meshes / volume meshes
 
-cad-to-dagmc can convert:
+cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 - STEP files
 - CadQuery objects (in memory)
 - Gmsh meshes
 
-Cad-to-dagmc is offers a wide range of features including.
+Cad-to-dagmc offers a wide range of features including.
 - Geometry scaling with ```scale_factor``` argument
 - Model wide mesh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
 - Volume specific mesh sizing parameters with the ```set_size``` argument
@@ -36,6 +36,7 @@ Cad-to-dagmc is offers a wide range of features including.
 - Easy to install with [pip](https://pypi.org/project/cad-to-dagmc/) and [Conda/Mamba](https://anaconda.org/conda-forge/cad_to_dagmc)
 - Well tested both with [CI unit tests](https://github.com/fusion-energy/cad_to_dagmc/tree/main/tests), integration tests and the CSG [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo).
 - Compatible with [Paramak](https://github.com/fusion-energy/paramak) geometry for fusion simulations.
+
 
 # Installation options
 
@@ -130,7 +131,7 @@ You may also want to install OpenMC with DAGMC to make use of the h5m geometry f
 
 To install OpenMC you can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-mamba install -c conda-forge -y "openmc=0.14.0=dagmc*nompi*"
+mamba install -c conda-forge -y "openmc=0.15.0=dagmc*nompi*"
 ```
 
 It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
@@ -144,16 +145,12 @@ The package requires newer versions of Linux. For example the package does not w
 
 The package requires newer versions of pip. It is recommended to ensure that your version of pip is up to date. This can be done with ```python -m pip install --upgrade pip```
 
-Installing one of the package dependancies (gmsh) with pip appears to result in errors when passing cad objects in memory between cadquery / ocp and gmsh. The default method of passing cad objects is via file so this should not impact most users. The conda install gmsh appears to work fine with in memory passing of cad objects as the version of OCP matches between Gmsh and CadQuery.
+Installing one of the package dependancies (Gmsh) with pip appears to result in errors when passing cad objects in memory between cadquery / ocp and gmsh. The default method of passing cad objects is via file so this should not impact most users. The conda install gmsh appears to work fine with in memory passing of cad objects as the version of OCP matches between Gmsh and CadQuery.
 
 
-# Usage - creation of DAGMC h5m files
+# Usage
 
-For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
-
-# Usage - simulation with transport code
-
-For examples see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
+For examples showing creation of DAGMC h5m files, vtk files and usage within OpenMC transport code see the [examples folder](https://github.com/fusion-energy/cad_to_dagmc/tree/main/examples)
 
 For more examples see the CAD tasks in the [neutronics-workshop](https://github.com/fusion-energy/neutronics-workshop) and [model benchmark zoo](https://github.com/fusion-energy/model_benchmark_zoo)
 
