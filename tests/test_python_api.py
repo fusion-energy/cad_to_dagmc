@@ -1,16 +1,15 @@
 import os
-from pathlib import Path
-import pytest
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
 import warnings
-from cad_to_dagmc.core import _check_material_tags
-import gmsh
-
 from pathlib import Path
 
+import cadquery as cq
+import gmsh
 import pymoab as mb
+import pytest
 from pymoab import core, types
+
+from cad_to_dagmc import CadToDagmc
+from cad_to_dagmc.core import _check_material_tags
 
 
 def get_volumes_and_materials_from_h5m(filename: str) -> dict:
@@ -232,14 +231,13 @@ def test_check_material_tags_too_long():
 )
 def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
 
-    box = cq.Workplane("XY").box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_stp_file("tests/single_cube.stp", scale_factor=scale_factor)
-    c2d.export_gmsh_mesh_file(f"test_scaling_factor_{scale_factor}.msh")
+    c2d.export_gmsh_mesh_file(f"st_test_scaling_factor_{scale_factor}.msh")
 
     gmsh.initialize()
-    gmsh.open(f"test_scaling_factor_{scale_factor}.msh")
-    node_tags, node_coords, _ = gmsh.model.mesh.getNodes()
+    gmsh.open(f"st_test_scaling_factor_{scale_factor}.msh")
+    _, node_coords, _ = gmsh.model.mesh.getNodes()
 
     # Reshape the node coordinates into a 2D array
     node_coords = node_coords.reshape(-1, 3)
@@ -251,9 +249,87 @@ def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
     width_x = max_coords[0] - min_coords[0]
     width_y = max_coords[1] - min_coords[1]
     width_z = max_coords[2] - min_coords[2]
-    # Finalize Gmsh
+
     gmsh.finalize()
 
-    assert width_x == 10.
-    assert width_y == 10.
-    assert width_z == 10.
+    assert width_x == expected_width
+    assert width_y == expected_width
+    assert width_z == expected_width
+
+
+@pytest.mark.parametrize(
+    "scale_factor, expected_width",
+    [
+        (1, 10.0),
+        (2, 20.0),
+        (10, 100.0),
+    ],
+)
+def test_scaling_factor_when_adding_cq_object(scale_factor, expected_width):
+
+    box = cq.Workplane("XY").box(10, 10, 10)
+    c2d = CadToDagmc()
+    c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
+    c2d.export_gmsh_mesh_file(f"cq_test_scaling_factor_{scale_factor}.msh")
+
+    gmsh.initialize()
+    gmsh.open(f"cq_test_scaling_factor_{scale_factor}.msh")
+    _, node_coords, _ = gmsh.model.mesh.getNodes()
+
+    # Reshape the node coordinates into a 2D array
+    node_coords = node_coords.reshape(-1, 3)
+
+    # Calculate the bounding box
+    min_coords = node_coords.min(axis=0)
+    max_coords = node_coords.max(axis=0)
+
+    width_x = max_coords[0] - min_coords[0]
+    width_y = max_coords[1] - min_coords[1]
+    width_z = max_coords[2] - min_coords[2]
+
+    gmsh.finalize()
+
+    assert width_x == expected_width
+    assert width_y == expected_width
+    assert width_z == expected_width
+
+
+@pytest.mark.parametrize(
+    "scale_factor, expected_x_width, expected_y_width, expected_z_width",
+    [
+        (1, 20.0, 10.0, 10.0),
+        (2, 40.0, 20.0, 20.0),
+        (10, 200.0, 100.0, 100.0),
+    ],
+)
+def test_two_box_scaling_factor_when_adding_cq_object(
+    scale_factor, expected_x_width, expected_y_width, expected_z_width
+):
+
+    box = cq.Workplane("XY").box(10, 10, 10)
+    box2 = cq.Workplane("XY").moveTo(10, 0).box(10, 10, 10)
+    c2d = CadToDagmc()
+    c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
+    c2d.add_cadquery_object(box2, scale_factor=scale_factor, material_tags=["mat1"])
+    c2d.export_gmsh_mesh_file(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
+
+    gmsh.initialize()
+    gmsh.open(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
+    _, node_coords, _ = gmsh.model.mesh.getNodes()
+
+    # Reshape the node coordinates into a 2D array
+    node_coords = node_coords.reshape(-1, 3)
+
+    # Calculate the bounding box
+    min_coords = node_coords.min(axis=0)
+    max_coords = node_coords.max(axis=0)
+
+    width_x = max_coords[0] - min_coords[0]
+    width_y = max_coords[1] - min_coords[1]
+    width_z = max_coords[2] - min_coords[2]
+
+    gmsh.finalize()
+
+    assert width_x == expected_x_width
+    assert width_y == expected_y_width
+    assert width_z == expected_z_width
