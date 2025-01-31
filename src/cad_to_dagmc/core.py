@@ -536,7 +536,6 @@ class CadToDagmc:
             scaled_iterable_solids = iterable_solids
         else:
             scaled_iterable_solids = [part.scale(scale_factor) for part in iterable_solids]
-        
 
         _check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
