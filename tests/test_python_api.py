@@ -317,7 +317,7 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     gmsh.open(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
     _, node_coords, _ = gmsh.model.mesh.getNodes()
 
-    # Reshape the node coordinates into a 2D array
+    # Reshape the node coordinates into a numpy 2D array
     node_coords = node_coords.reshape(-1, 3)
 
     # Calculate the bounding box
