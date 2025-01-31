@@ -5,6 +5,7 @@ import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 import warnings
 from cad_to_dagmc.core import _check_material_tags
+import gmsh
 
 from pathlib import Path
 
@@ -219,3 +220,40 @@ def test_check_material_tags_too_long():
         assert issubclass(w[-1].category, UserWarning)
         assert "Material tag" in str(w[-1].message)
         assert "a" * 29 in str(w[-1].message)
+
+
+@pytest.mark.parametrize(
+    "scale_factor, expected_width",
+    [
+        (1, 10.0),
+        (2, 20.0),
+        (10, 100.0),
+    ],
+)
+def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
+
+    box = cq.Workplane("XY").box(1, 1, 1)
+    c2d = CadToDagmc()
+    c2d.add_stp_file("tests/single_cube.stp", scale_factor=scale_factor)
+    c2d.export_gmsh_mesh_file(f"test_scaling_factor_{scale_factor}.msh")
+
+    gmsh.initialize()
+    gmsh.open(f"test_scaling_factor_{scale_factor}.msh")
+    node_tags, node_coords, _ = gmsh.model.mesh.getNodes()
+
+    # Reshape the node coordinates into a 2D array
+    node_coords = node_coords.reshape(-1, 3)
+
+    # Calculate the bounding box
+    min_coords = node_coords.min(axis=0)
+    max_coords = node_coords.max(axis=0)
+
+    width_x = max_coords[0] - min_coords[0]
+    width_y = max_coords[1] - min_coords[1]
+    width_z = max_coords[2] - min_coords[2]
+    # Finalize Gmsh
+    gmsh.finalize()
+
+    assert width_x == 10.
+    assert width_y == 10.
+    assert width_z == 10.
