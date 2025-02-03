@@ -8,7 +8,7 @@ import tempfile
 import warnings
 
 
-def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
+def define_moab_core_and_tags() -> tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -62,7 +62,7 @@ def _define_moab_core_and_tags() -> tuple[core.Core, dict]:
     return moab_core, tags
 
 
-def _vertices_to_h5m(
+def vertices_to_h5m(
     vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
     triangles_by_solid_by_face: list[list[tuple[int, int, int]]],
     material_tags: list[str],
@@ -100,7 +100,7 @@ def _vertices_to_h5m(
             else:
                 face_ids_with_solid_ids[face_id] = [solid_id]
 
-    moab_core, tags = _define_moab_core_and_tags()
+    moab_core, tags = define_moab_core_and_tags()
 
     volume_sets_by_solid_id = {}
     for material_tag, (solid_id, triangles_on_each_face) in zip(
@@ -233,7 +233,7 @@ def init_gmsh():
     return gmsh
 
 
-def _mesh_brep(
+def mesh_brep(
     gmsh,
     min_mesh_size: float | None = None,
     max_mesh_size: float | None = None,
@@ -355,21 +355,21 @@ def mesh_to_vertices_and_triangles(
     return vertices, triangles_by_solid_by_face
 
 
-def _get_ids_from_assembly(assembly: cq.assembly.Assembly):
+def get_ids_from_assembly(assembly: cq.assembly.Assembly):
     ids = []
     for obj, name, loc, _ in assembly:
         ids.append(name)
     return ids
 
 
-def _get_ids_from_imprinted_assembly(solid_id_dict):
+def get_ids_from_imprinted_assembly(solid_id_dict):
     ids = []
     for id in list(solid_id_dict.values()):
         ids.append(id[0])
     return ids
 
 
-def _check_material_tags(material_tags, iterable_solids):
+def check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
             msg = (
@@ -448,7 +448,7 @@ class MeshToDagmc:
 
         gmsh.finalize()
 
-        h5m_filename = _vertices_to_h5m(
+        h5m_filename = vertices_to_h5m(
             vertices=vertices,
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags,
@@ -537,7 +537,7 @@ class CadToDagmc:
         else:
             scaled_iterable_solids = [part.scale(scale_factor) for part in iterable_solids]
 
-        _check_material_tags(material_tags, scaled_iterable_solids)
+        check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
             self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + scaled_iterable_solids
@@ -613,7 +613,7 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
-        gmsh = _mesh_brep(
+        gmsh = mesh_brep(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
@@ -690,7 +690,7 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
-        gmsh = _mesh_brep(
+        gmsh = mesh_brep(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
@@ -761,7 +761,7 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        original_ids = _get_ids_from_assembly(assembly)
+        original_ids = get_ids_from_assembly(assembly)
 
         # both id lists should be the same length as each other and the same
         # length as the self.material_tags
@@ -774,7 +774,7 @@ class CadToDagmc:
                 assembly
             )
 
-            scrambled_ids = _get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+            scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
             material_tags_in_brep_order = order_material_ids_by_brep_order(
                 original_ids, scrambled_ids, self.material_tags
@@ -783,7 +783,7 @@ class CadToDagmc:
             material_tags_in_brep_order = self.material_tags
             imprinted_assembly = assembly
 
-        _check_material_tags(material_tags_in_brep_order, self.parts)
+        check_material_tags(material_tags_in_brep_order, self.parts)
 
         gmsh = init_gmsh()
 
@@ -791,7 +791,7 @@ class CadToDagmc:
             gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
         )
 
-        gmsh = _mesh_brep(
+        gmsh = mesh_brep(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
@@ -808,7 +808,7 @@ class CadToDagmc:
         gmsh.finalize()
 
         # checks and fixes triangle fix_normals within vertices_to_h5m
-        return _vertices_to_h5m(
+        return vertices_to_h5m(
             vertices=vertices,
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
