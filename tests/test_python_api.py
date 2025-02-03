@@ -9,7 +9,7 @@ import pytest
 from pymoab import core, types
 
 from cad_to_dagmc import CadToDagmc
-from cad_to_dagmc.core import _check_material_tags
+from cad_to_dagmc.core import check_material_tags
 
 
 def get_volumes_and_materials_from_h5m(filename: str) -> dict:
@@ -214,7 +214,7 @@ def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
 def test_check_material_tags_too_long():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
-        _check_material_tags(["a" * 29], [1])
+        check_material_tags(["a" * 29], [1])
         assert len(w) == 1
         assert issubclass(w[-1].category, UserWarning)
         assert "Material tag" in str(w[-1].message)
