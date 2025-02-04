@@ -6,6 +6,7 @@ from cadquery import importers
 from pymoab import core, types
 import tempfile
 import warnings
+from cad_to_dagmc import __version__
 
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -229,7 +230,7 @@ def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
 def init_gmsh():
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.model.add("made_with_cad_to_dagmc_package")
+    gmsh.model.add(f"made_with_cad_to_dagmc_package_{__version__}")
     return gmsh
 
 
