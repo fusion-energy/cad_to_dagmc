@@ -102,23 +102,6 @@ First ensure hdf5 is installed as this is needed by MOAB pip install command
 sudo apt-get install libhdf5-dev
 ```
 
-Then clone the latest version of MOAB and cd into the moab directory.
-
-```
-git clone  master https://bitbucket.org/fathomteam/moab/
-cd moab
-```
-
-Ensure pip is up to date as a new version is needed
-```
-python -m pip install --upgrade pip
-```
-
-Run the pip install command with cmake arguments.
-```
-pip install . --config-settings=cmake.args=-DENABLE_HDF5=ON
-```
-
 Then you can install the cad_to_dagmc package with ```pip```
 
 ```bash
