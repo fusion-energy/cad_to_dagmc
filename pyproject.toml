@@ -23,7 +23,7 @@ dependencies = [
     "cadquery>=2.5.2",
     "numpy",
     "gmsh",
-    "moab @ git+https://bitbucket.org/moab-fork/moab@8595d997d4ecabf0e676569d59b57b4ba5cd2a42",
+    "pymoab @ git+https://bitbucket.org/moab-fork/moab@8595d997d4ecabf0e676569d59b57b4ba5cd2a42",
 ]
 dynamic = ["version"]
 
