@@ -431,8 +431,7 @@ class MeshToDagmc:
                 print(f"Physical Group (dim={dim}, tag={tag}) has name: '{name}'")
                 material_tags.append(name)
             print("Material tags:", material_tags)
-        
-    
+
         dims_and_vol_ids = gmsh.model.getEntities(3)
 
         if len(dims_and_vol_ids) != len(material_tags):
