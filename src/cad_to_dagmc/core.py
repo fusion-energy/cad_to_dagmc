@@ -319,7 +319,9 @@ def mesh_to_vertices_and_triangles(
     for dim_and_vol in dims_and_vol_ids:
         # removes all groups so that the following getEntitiesForPhysicalGroup
         # command only finds surfaces for the volume
-        gmsh.model.removePhysicalGroups()
+        face_groups = gmsh.model.getPhysicalGroups(2)
+        if face_groups:  # Only remove if 2D groups exist
+            gmsh.model.removePhysicalGroups(face_groups)
 
         vol_id = dim_and_vol[1]
         entities_in_volume = gmsh.model.getAdjacencies(3, vol_id)
@@ -413,6 +415,8 @@ class MeshToDagmc:
     def export_gmsh_object_to_dagmc_h5m_file(
         self,
         material_tags: list[str] | None = None,
+        implicit_complement_material_tag: str | None = None,
+        filename: str = "dagmc.h5m",
     ):
 
         # Get all 3D physical groups (volumes)
@@ -427,7 +431,29 @@ class MeshToDagmc:
                 print(f"Physical Group (dim={dim}, tag={tag}) has name: '{name}'")
                 material_tags.append(name)
             print("Material tags:", material_tags)
-            gmsh.finalize()
+        
+    
+        dims_and_vol_ids = gmsh.model.getEntities(3)
+
+        if len(dims_and_vol_ids) != len(material_tags):
+            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
+
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+            dims_and_vol_ids=dims_and_vol_ids
+        )
+
+        gmsh.finalize()
+
+        h5m_filename = vertices_to_h5m(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
+            material_tags=material_tags,
+            h5m_filename=filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
+        )
+
+        return h5m_filename
 
     def export_gmsh_file_to_dagmc_h5m_file(
         self,
