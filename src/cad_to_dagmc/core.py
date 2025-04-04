@@ -439,8 +439,6 @@ class MeshToDagmc:
             dims_and_vol_ids=dims_and_vol_ids
         )
 
-        gmsh.finalize()
-
         h5m_filename = vertices_to_h5m(
             vertices=vertices,
             triangles_by_solid_by_face=triangles_by_solid_by_face,
