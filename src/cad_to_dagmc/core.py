@@ -403,14 +403,34 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
 class MeshToDagmc:
     """Convert a GMSH mesh file to a DAGMC h5m file"""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str | None = None):
         self.filename = filename
 
     # TODO add export_unstructured_mesh_file
     # TODO add add_gmsh_msh_file
     # TODO test for exports result in files
+    
+    def export_gmsh_object_to_dagmc_h5m_file(
+        self,
+        gmsh_object: gmsh.model,
+        material_tags: list[str]  | None = None,
+    ):
 
-    def export_dagmc_h5m_file(
+        # Get all 3D physical groups (volumes)
+        volume_groups = gmsh_object.model.getPhysicalGroups(3)
+        print("Volume groups:", volume_groups)
+
+        if material_tags is None:
+            material_tags = []
+            # Get the name for each physical group
+            for dim, tag in volume_groups:
+                name = gmsh.model.getPhysicalName(dim, tag)
+                print(f"Physical Group (dim={dim}, tag={tag}) has name: '{name}'")
+                material_tags.append(name)
+            print("Material tags:", material_tags)
+            gmsh.finalize()
+
+    def export_gmsh_file_to_dagmc_h5m_file(
         self,
         material_tags: list[str],
         implicit_complement_material_tag: str | None = None,
