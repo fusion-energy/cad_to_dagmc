@@ -412,12 +412,11 @@ class MeshToDagmc:
     
     def export_gmsh_object_to_dagmc_h5m_file(
         self,
-        gmsh_object: gmsh.model,
-        material_tags: list[str]  | None = None,
+        material_tags: list[str] | None = None,
     ):
 
         # Get all 3D physical groups (volumes)
-        volume_groups = gmsh_object.model.getPhysicalGroups(3)
+        volume_groups = gmsh.model.getPhysicalGroups(3)
         print("Volume groups:", volume_groups)
 
         if material_tags is None:
