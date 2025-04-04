@@ -421,16 +421,13 @@ class MeshToDagmc:
 
         # Get all 3D physical groups (volumes)
         volume_groups = gmsh.model.getPhysicalGroups(3)
-        print("Volume groups:", volume_groups)
 
         if material_tags is None:
             material_tags = []
             # Get the name for each physical group
             for dim, tag in volume_groups:
                 name = gmsh.model.getPhysicalName(dim, tag)
-                print(f"Physical Group (dim={dim}, tag={tag}) has name: '{name}'")
                 material_tags.append(name)
-            print("Material tags:", material_tags)
 
         dims_and_vol_ids = gmsh.model.getEntities(3)
 
