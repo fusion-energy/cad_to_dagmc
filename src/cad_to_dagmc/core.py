@@ -409,11 +409,11 @@ class MeshToDagmc:
     # TODO add export_unstructured_mesh_file
     # TODO add add_gmsh_msh_file
     # TODO test for exports result in files
-    
+
     def export_gmsh_object_to_dagmc_h5m_file(
         self,
         gmsh_object: gmsh.model,
-        material_tags: list[str]  | None = None,
+        material_tags: list[str] | None = None,
     ):
 
         # Get all 3D physical groups (volumes)

@@ -11,7 +11,7 @@
 import gmsh
 
 gmsh.initialize()
-mesh_file = gmsh.open('tests/tagged_mesh.msh')
+mesh_file = gmsh.open("tests/tagged_mesh.msh")
 
 # Get all 3D physical groups (volumes)
 volume_groups = gmsh.model.getPhysicalGroups(3)
