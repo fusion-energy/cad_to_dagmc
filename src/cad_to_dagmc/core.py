@@ -319,7 +319,9 @@ def mesh_to_vertices_and_triangles(
     for dim_and_vol in dims_and_vol_ids:
         # removes all groups so that the following getEntitiesForPhysicalGroup
         # command only finds surfaces for the volume
-        gmsh.model.removePhysicalGroups()
+        face_groups = gmsh.model.getPhysicalGroups(2)
+        if face_groups:  # Only remove if 2D groups exist
+            gmsh.model.removePhysicalGroups(face_groups)
 
         vol_id = dim_and_vol[1]
         entities_in_volume = gmsh.model.getAdjacencies(3, vol_id)
