@@ -454,7 +454,7 @@ class MeshToDagmc:
 
         return h5m_filename
 
-    def export_gmsh_file_to_dagmc_h5m_file(
+    def export_dagmc_h5m_file(
         self,
         material_tags: list[str],
         implicit_complement_material_tag: str | None = None,
