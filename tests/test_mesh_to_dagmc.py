@@ -6,6 +6,7 @@ import assembly_mesh_plugin.plugin
 import gmsh
 from cad_to_dagmc import MeshToDagmc
 
+
 def test_mesh_to_dagmc_with_mesh_object():
     gmsh.initialize()
     gmsh.open("tests/tagged_mesh.msh")
@@ -20,10 +21,11 @@ def test_mesh_to_dagmc_with_mesh_object():
         2: "mat:insert",
     }
 
+
 def test_mesh_to_dagmc_with_cadquery_object():
 
     box_shape1 = cq.Workplane("XY").box(50, 50, 50)
-    box_shape2 = cq.Workplane("XY").moveTo(0,50).box(50, 50, 50)
+    box_shape2 = cq.Workplane("XY").moveTo(0, 50).box(50, 50, 50)
 
     assembly = cq.Assembly()
     assembly.add(box_shape1, name="steel")
