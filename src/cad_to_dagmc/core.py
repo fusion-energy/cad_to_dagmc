@@ -434,7 +434,6 @@ class MeshToDagmc:
         Raises:
             ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
         """
-        
 
         # Get all 3D physical groups (volumes)
         volume_groups = gmsh.model.getPhysicalGroups(3)
@@ -490,7 +489,6 @@ class MeshToDagmc:
         Raises:
             ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
         """
-        
 
         gmsh.initialize()
         self.mesh_file = gmsh.open(self.filename)
