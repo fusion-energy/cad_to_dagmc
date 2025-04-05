@@ -35,7 +35,7 @@ write_to = "src/_version.py"
 tests = [
     "pytest",
     "vtk",
-    "assembly_mesh_plugin",
+    "assembly-mesh-plugin @ git+https://github.com/CadQuery/assembly-mesh-plugin",
 ]
 
 [project.urls]
