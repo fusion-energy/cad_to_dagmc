@@ -22,7 +22,9 @@ def test_get_volumes(scale_factor, expected_bbox):
 
     gmsh = cad_to_dagmc.init_gmsh()
 
-    gmsh, _ = cad_to_dagmc.get_volumes(gmsh, imprinted_assembly, method="file", scale_factor=scale_factor)
+    gmsh, _ = cad_to_dagmc.get_volumes(
+        gmsh, imprinted_assembly, method="file", scale_factor=scale_factor
+    )
 
     bbox_after = gmsh.model.getBoundingBox(-1, -1)
 
@@ -44,10 +46,13 @@ def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected
     assembly = cq.Assembly()
     assembly.add(result)
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(
-        filename=f"scale-{scale_factor}.h5m", min_mesh_size=0.5, max_mesh_size=1.0e6, scale_factor=scale_factor
+        filename=f"scale-{scale_factor}.h5m",
+        min_mesh_size=0.5,
+        max_mesh_size=1.0e6,
+        scale_factor=scale_factor,
     )
 
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")
