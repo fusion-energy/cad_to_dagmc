@@ -761,7 +761,7 @@ class CadToDagmc:
 
         gmsh.finalize()
 
-    def export_gmsh_file_to_dagmc_h5m_file(
+    def export_dagmc_h5m_file(
         self,
         filename: str = "dagmc.h5m",
         min_mesh_size: float | None = None,

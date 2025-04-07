@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 
 # make other shapes from the CadQuery examples
@@ -23,6 +23,6 @@ cq_shape_2 = r2.extrude(1)
 
 compound_of_shapes = cq.Compound.makeCompound([cq_shape_1.val(), cq_shape_2.val()])
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 my_model.add_cadquery_object(cadquery_object=compound_of_shapes, material_tags=["mat1", "mat2"])
 my_model.export_dagmc_h5m_file(max_mesh_size=0.2, min_mesh_size=0.1)

@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 
 result = cq.Workplane("XY").moveTo(10, 0).box(3, 3, 0.5).edges("|Z").fillet(0.125)
@@ -9,7 +9,7 @@ assembly.add(result2)
 assembly.save("single_cube.stp", exportType="STEP")
 
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 
 my_model.add_cadquery_object(
     cadquery_object=result,

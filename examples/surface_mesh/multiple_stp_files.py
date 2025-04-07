@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 
 result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
@@ -13,7 +13,7 @@ assembly = cq.Assembly()
 assembly.add(result)
 assembly.save("single_sphere.stp", exportType="STEP")
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 my_model.add_stp_file(
     filename="two_connected_cubes.stp",
     material_tags=["mat1", "mat2"],

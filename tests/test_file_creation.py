@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc, MeshToDagmc
+import cad_to_dagmc
 from pathlib import Path
 import cadquery as cq
 import pymoab as mb
@@ -49,7 +49,7 @@ def test_h5m_with_single_volume_list():
 
     h5m_file = "tests/single_cube.h5m"
     mesh_file = "test.msh"
-    my_model = CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
     my_model.export_gmsh_mesh_file(filename=mesh_file)
@@ -59,8 +59,8 @@ def test_h5m_with_single_volume_list():
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
     h5m_file = "tests/single_cube_from_mesh.h5m"
-    my_model2 = MeshToDagmc(mesh_file)
-    my_model2.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file, material_tags=["mat2"])
+    cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
+        gmsh_filenmae=mesh_file,filename=h5m_file, material_tags=["mat2"])
     assert Path(h5m_file).is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
 
@@ -70,7 +70,7 @@ def test_h5m_with_single_volume_2():
 
     h5m_file = "tests/curved_extrude.h5m"
 
-    my_model = CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
@@ -88,7 +88,7 @@ def test_h5m_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
-        my_model = CadToDagmc()
+        my_model = cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         my_model.export_dagmc_h5m_file(filename=h5m_file)
@@ -113,7 +113,7 @@ def test_h5m_with_multi_volume_touching():
         "tests/two_connected_cubes.h5m",
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
-        my_model = CadToDagmc()
+        my_model = cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
         my_model.export_dagmc_h5m_file(filename=h5m_file)
@@ -124,8 +124,10 @@ def test_h5m_with_multi_volume_touching():
             tags_dict[counter] = f"mat:{loop_mat_tag}"
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
-        my_model2 = MeshToDagmc(filename=h5m_file + ".msh")
-        my_model2.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
+        cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
+            gmsh_filename=h5m_file + ".msh",
+            filename=h5m_file, material_tags=mat_tags
+        )
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
@@ -151,7 +153,7 @@ def test_cq_compound():
 
     compound_of_workplanes = cq.Compound.makeCompound([cq_shape_1.val(), cq_shape_2.val()])
 
-    my_model = CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(
         cadquery_object=compound_of_workplanes,
         material_tags=["mat1", "mat2"],
@@ -174,7 +176,7 @@ def test_gmsh_mesh_with_single_volume_list():
 
     gmsh_mesh_file = "tests/single_cube.msh"
 
-    my_model = CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp")
     my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
     my_model.export_gmsh_mesh_file(filename="test2.msh")
@@ -189,7 +191,7 @@ def test_gmsh_mesh_with_single_volume_2():
 
     gmsh_mesh_file = "tests/curved_extrude.msh"
 
-    my_model = CadToDagmc()
+    my_model =cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/curved_extrude.stp")
     my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
 
@@ -205,7 +207,7 @@ def test_gmsh_mesh_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.msh",
     ]
     for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
-        my_model = CadToDagmc()
+        my_model =cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
@@ -225,7 +227,7 @@ def test_gmsh_mesh_with_multi_volume_touching():
         "tests/two_connected_cubes.msh",
     ]
     for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
-        my_model = CadToDagmc()
+        my_model =cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)

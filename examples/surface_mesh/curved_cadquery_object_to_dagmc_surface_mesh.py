@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 from math import sin, cos, pi, floor
 
@@ -37,7 +37,7 @@ result = (
 )
 
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 
 my_model.add_cadquery_object(
     cadquery_object=result,

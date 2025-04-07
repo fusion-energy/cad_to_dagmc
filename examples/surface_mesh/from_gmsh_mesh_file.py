@@ -3,7 +3,7 @@
 
 
 # making the GMESH file
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 
 result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
@@ -13,7 +13,7 @@ assembly.add(result1)
 assembly.add(result2)
 assembly.save("two_connected_cubes.stp", exportType="STEP")
 
-geometry = CadToDagmc()
+geometry =cad_to_dagmc.CadToDagmc()
 geometry.add_stp_file("two_connected_cubes.stp")
 geometry.export_gmsh_mesh_file(filename="example_gmsh_mesh.msh")
 

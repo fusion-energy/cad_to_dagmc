@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 import cadquery as cq
 from math import sin, cos, pi, floor
 
@@ -54,7 +54,7 @@ result2 = r.extrude(-20)
 assembly.add(result2)
 assembly.save("twist_and_extrude.step")
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 
 my_model.add_cadquery_object(result, material_tags=["mat1"])
 my_model.add_cadquery_object(result2, material_tags=["mat2"])

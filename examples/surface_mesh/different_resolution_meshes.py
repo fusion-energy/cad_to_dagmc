@@ -2,7 +2,7 @@
 # Meshes the 3 volumes with different resolutions
 # exports the mesh to a DAGMC h5m file and GMsh msh file
 import cadquery as cq
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 
 box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)
 box_set_size_fine_mesh = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
@@ -19,7 +19,7 @@ assembly.export("different_resolution_meshes.step")
 # from cadquery import vis
 # vis.show(assembly)
 
-model = CadToDagmc()
+model =cad_to_dagmc.CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
 model.export_gmsh_file_to_dagmc_h5m_file(

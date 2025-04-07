@@ -1,4 +1,4 @@
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 
 import cadquery as cq
 
@@ -19,6 +19,6 @@ assembly.add(result)
 assembly.save("spline_extrude.stp", exportType="STEP")
 
 
-my_model = CadToDagmc()
+my_model =cad_to_dagmc.CadToDagmc()
 my_model.add_stp_file(filename="spline_extrude.stp", material_tags=["mat1"])
 my_model.export_gmsh_file_to_dagmc_h5m_file()

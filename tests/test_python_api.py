@@ -8,7 +8,7 @@ import pymoab as mb
 import pytest
 from pymoab import core, types
 
-from cad_to_dagmc import CadToDagmc
+import cad_to_dagmc
 from cad_to_dagmc.core import check_material_tags
 
 
@@ -49,7 +49,7 @@ def test_max_mesh_size_impacts_file_size():
 
     sphere = cq.Workplane().sphere(100)
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(sphere, material_tags=["m1"])
     os.system("rm *.h5m")
     c2d.export_dagmc_h5m_file(
@@ -89,7 +89,7 @@ def test_h5m_file_tags():
     sphere2 = cq.Workplane().moveTo(100, 100).sphere(20)
     sphere3 = cq.Workplane().moveTo(-100, -100).sphere(20)
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(sphere1, material_tags=["mat1"])
     c2d.add_cadquery_object(sphere2, material_tags=["mat2"])
     c2d.add_cadquery_object(sphere3, material_tags=["mat3"])
@@ -117,7 +117,7 @@ def test_add_cadquery_object_returned_volumes():
     sphere2 = cq.Workplane().moveTo(100, 100).sphere(20)
     sphere3 = cq.Workplane().moveTo(-100, -100).sphere(20)
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     vols = c2d.add_cadquery_object(sphere1, material_tags=["mat1"])
     assert vols == 1
 
@@ -125,7 +125,7 @@ def test_add_cadquery_object_returned_volumes():
     assembly.add(sphere1)
     assembly.add(sphere2)
     assembly.add(sphere3)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     vols = c2d.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
     assert vols == 3
 
@@ -133,11 +133,11 @@ def test_add_cadquery_object_returned_volumes():
 def test_add_stp_file_returned_volumes():
     """Checks that a add_stp_file method returns the correct number of volumes"""
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     vols = c2d.add_stp_file("tests/curved_extrude.stp")
     assert vols == 1
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     vols = c2d.add_stp_file("tests/two_disconnected_cubes.stp")
     assert vols == 2
 
@@ -155,7 +155,7 @@ def test_export_gmsh_file_to_dagmc_h5m_file_handel_paths_folders_strings(filenam
     """Checks that a h5m file is created"""
 
     box = cq.Workplane().box(1, 1, 1)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
     c2d.export_dagmc_h5m_file(filename=filename)
@@ -178,7 +178,7 @@ def test_export_unstructured_mesh_file_handel_paths_folders_strings(filename):
     """Checks that a vtk file is created"""
 
     box = cq.Workplane().box(1, 1, 1)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
     c2d.export_unstructured_mesh_file(filename=filename)
@@ -201,7 +201,7 @@ def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
     """Checks that a vtk file is created"""
 
     box = cq.Workplane().box(1, 1, 1)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
     c2d.export_gmsh_mesh_file(filename=filename)
@@ -231,7 +231,7 @@ def test_check_material_tags_too_long():
 )
 def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
 
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_stp_file("tests/single_cube.stp", scale_factor=scale_factor)
     c2d.export_gmsh_mesh_file(f"st_test_scaling_factor_{scale_factor}.msh")
 
@@ -268,7 +268,7 @@ def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
 def test_scaling_factor_when_adding_cq_object(scale_factor, expected_width):
 
     box = cq.Workplane("XY").box(10, 10, 10)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
     c2d.export_gmsh_mesh_file(f"cq_test_scaling_factor_{scale_factor}.msh")
 
@@ -308,7 +308,7 @@ def test_two_box_scaling_factor_when_adding_cq_object(
 
     box = cq.Workplane("XY").box(10, 10, 10)
     box2 = cq.Workplane("XY").moveTo(10, 0).box(10, 10, 10)
-    c2d = CadToDagmc()
+    c2d =cad_to_dagmc.CadToDagmc()
     c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
     c2d.add_cadquery_object(box2, scale_factor=scale_factor, material_tags=["mat1"])
     c2d.export_gmsh_mesh_file(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
