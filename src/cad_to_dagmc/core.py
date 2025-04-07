@@ -402,7 +402,6 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     return material_tags_in_brep_order
 
 
-
 def export_gmsh_object_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
@@ -454,6 +453,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
     )
 
     return h5m_filename
+
 
 def export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename: str,

@@ -38,6 +38,7 @@ def test_mesh_to_dagmc_with_meshfile():
         nuclides=["H1", "H1"],
     )
 
+
 def test_mesh_to_dagmc_with_mesh_object():
     gmsh.initialize()
     gmsh.open("tests/tagged_mesh.msh")
