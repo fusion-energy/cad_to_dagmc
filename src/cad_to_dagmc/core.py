@@ -455,7 +455,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
     return h5m_filename
 
 
-def export_dagmc_h5m_file(
+def export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename: str,
     material_tags: list[str],
     implicit_complement_material_tag: str | None = None,

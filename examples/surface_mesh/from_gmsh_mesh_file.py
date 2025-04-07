@@ -21,7 +21,7 @@ import cad_to_dagmc
 
 # converting the mesh file to a DAGMC file
 
-cad_to_dagmc.export_dagmc_h5m_file(
+cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename="example_gmsh_mesh.msh",
     material_tags=["mat1", "mat2"],
     dagmc_filename="dagmc.h5m",
