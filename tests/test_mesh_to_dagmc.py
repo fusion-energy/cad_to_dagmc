@@ -9,6 +9,31 @@ import math
 import cad_to_dagmc
 
 
+def test_mesh_to_dagmc_with_gmsh_file_with_materials():
+    cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
+        gmsh_filename="tests/tagged_mesh.msh",
+        dagmc_filename="dagmc_from_gmsh_file.h5m",
+    )
+
+    assert get_volumes_and_materials_from_h5m("dagmc_from_gmsh_file.h5m") == {
+        1: "mat:shell",
+        2: "mat:insert",
+    }
+
+
+def test_mesh_to_dagmc_with_gmsh_file_without_materials():
+    cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
+        gmsh_filename="tests/tagged_mesh.msh",
+        material_tags=["shell1", "insert1"],
+        dagmc_filename="dagmc_from_gmsh_file1.h5m",
+    )
+
+    assert get_volumes_and_materials_from_h5m("dagmc_from_gmsh_file1.h5m") == {
+        1: "mat:shell1",
+        2: "mat:insert1",
+    }
+
+
 def test_mesh_to_dagmc_with_mesh_object():
     gmsh.initialize()
     gmsh.open("tests/tagged_mesh.msh")

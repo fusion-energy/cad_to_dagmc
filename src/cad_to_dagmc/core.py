@@ -424,15 +424,8 @@ def export_gmsh_object_to_dagmc_h5m_file(
         ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
     """
 
-    # Get all 3D physical groups (volumes)
-    volume_groups = gmsh.model.getPhysicalGroups(3)
-
     if material_tags is None:
-        material_tags = []
-        # Get the name for each physical group
-        for dim, tag in volume_groups:
-            name = gmsh.model.getPhysicalName(dim, tag)
-            material_tags.append(name)
+        material_tags = _get_material_tags_from_gmsh()
 
     dims_and_vol_ids = gmsh.model.getEntities(3)
 
@@ -455,9 +448,26 @@ def export_gmsh_object_to_dagmc_h5m_file(
     return h5m_filename
 
 
-def export_dagmc_h5m_file(
+def _get_material_tags_from_gmsh() -> list[str]:
+    """Gets the Physical groups of 3D groups from the GMSH object and returns
+    their names."""
+
+    # Get all 3D physical groups (volumes)
+    volume_groups = gmsh.model.getPhysicalGroups(3)
+
+    material_tags = []
+    # Get the name for each physical group
+    for dim, tag in volume_groups:
+        name = gmsh.model.getPhysicalName(dim, tag)
+        material_tags.append(name)
+        print(f"Material tag: {name}")
+    print(f"Material tags: {material_tags}")
+    return material_tags
+
+
+def export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename: str,
-    material_tags: list[str],
+    material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
     dagmc_filename: str = "dagmc.h5m",
 ) -> str:
@@ -483,6 +493,10 @@ def export_dagmc_h5m_file(
 
     gmsh.initialize()
     gmsh.open(gmsh_filename)
+
+    if material_tags is None:
+        material_tags = _get_material_tags_from_gmsh()
+
     dims_and_vol_ids = gmsh.model.getEntities(3)
 
     if len(dims_and_vol_ids) != len(material_tags):
