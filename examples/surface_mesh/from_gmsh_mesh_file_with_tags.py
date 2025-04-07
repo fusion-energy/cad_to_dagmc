@@ -12,7 +12,7 @@ import openmc
 # converting the mesh file to a DAGMC file
 
 cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-    gmsh_filename="tagged_mesh.msh",
+    gmsh_filename="examples/surface_mesh/tagged_mesh.msh",
     # no need to specify material tags as the mesh file already has physical
     # groups which are used as material tags
     # material_tags=["shell", "insert"],
