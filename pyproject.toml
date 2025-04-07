@@ -36,6 +36,7 @@ tests = [
     "pytest",
     "vtk",
     "assembly-mesh-plugin @ git+https://github.com/CadQuery/assembly-mesh-plugin",
+    "pydagmc @ git+https://github.com/shimwell/pydagmc@packaging-update",
 ]
 
 [project.urls]
