@@ -59,7 +59,7 @@ def test_mesh_to_dagmc_with_cadquery_object():
     
     test_h5m_filename = "dagmc_from_gmsh_obj2.h5m"
     dagmc_model.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
-    
+
     # finalize the GMSH API after using export_gmsh_object_to_dagmc_h5m_file
     # and getTaggedGmsh as these both need access to the GMSH object.
     gmsh.finalize()
