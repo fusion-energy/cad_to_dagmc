@@ -493,7 +493,7 @@ def export_gmsh_file_to_dagmc_h5m_file(
 
     gmsh.initialize()
     gmsh.open(gmsh_filename)
-    
+
     if material_tags is None:
         material_tags = _get_material_tags_from_gmsh()
 

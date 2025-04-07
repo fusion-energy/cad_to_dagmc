@@ -8,7 +8,6 @@ import cadquery as cq
 import cad_to_dagmc
 
 
-
 # converting the mesh file to a DAGMC file
 
 cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
