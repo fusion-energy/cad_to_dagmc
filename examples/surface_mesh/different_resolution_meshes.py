@@ -22,7 +22,7 @@ assembly.export("different_resolution_meshes.step")
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
-model.export_dagmc_h5m_file(
+model.export_gmsh_file_to_dagmc_h5m_file(
     filename="different_resolution_meshes.h5m",
     min_mesh_size=0.01,
     max_mesh_size=10,

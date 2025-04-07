@@ -23,7 +23,7 @@ my_model.add_stp_file(
     material_tags=["mat3"],
 )
 
-my_model.export_dagmc_h5m_file(
+my_model.export_gmsh_file_to_dagmc_h5m_file(
     max_mesh_size=1,
     min_mesh_size=0.5,
     implicit_complement_material_tag="air",

@@ -52,19 +52,19 @@ def test_max_mesh_size_impacts_file_size():
     c2d = CadToDagmc()
     c2d.add_cadquery_object(sphere, material_tags=["m1"])
     os.system("rm *.h5m")
-    c2d.export_dagmc_h5m_file(
+    c2d.export_gmsh_file_to_dagmc_h5m_file(
         min_mesh_size=10,
         max_mesh_size=20,
         mesh_algorithm=1,
         filename="test_10_30.h5m",
     )
-    c2d.export_dagmc_h5m_file(
+    c2d.export_gmsh_file_to_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
         filename="test_20_30.h5m",
     )
-    c2d.export_dagmc_h5m_file(
+    c2d.export_gmsh_file_to_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
@@ -97,7 +97,7 @@ def test_h5m_file_tags():
     test_h5m_filename = "test_dagmc.h5m"
     os.system(f"rm {test_h5m_filename}")
 
-    returned_filename = c2d.export_dagmc_h5m_file(filename=test_h5m_filename)
+    returned_filename = c2d.export_gmsh_file_to_dagmc_h5m_file(filename=test_h5m_filename)
 
     assert Path(test_h5m_filename).is_file()
     assert Path(returned_filename).is_file()
@@ -151,14 +151,14 @@ def test_add_stp_file_returned_volumes():
         Path("out_folder2/test_dagmc4.h5m"),
     ],
 )
-def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename):
+def test_export_gmsh_file_to_dagmc_h5m_file_handel_paths_folders_strings(filename):
     """Checks that a h5m file is created"""
 
     box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
-    c2d.export_dagmc_h5m_file(filename=filename)
+    c2d.export_gmsh_file_to_dagmc_h5m_file(filename=filename)
 
     assert Path(filename).is_file()
 

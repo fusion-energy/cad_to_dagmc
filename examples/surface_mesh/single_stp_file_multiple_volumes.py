@@ -13,4 +13,4 @@ my_model = CadToDagmc()
 my_model.add_stp_file(
     filename="text_dagmc.stp", material_tags=["mat1", "mat2", "mat2", "mat2", "mat1"]
 )
-my_model.export_dagmc_h5m_file()
+my_model.export_gmsh_file_to_dagmc_h5m_file()

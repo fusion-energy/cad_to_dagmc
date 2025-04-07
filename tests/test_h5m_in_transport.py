@@ -135,7 +135,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_filename)
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -154,7 +154,7 @@ def test_transport_result_h5m_with_1_curved_volumes():
 
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_filename)
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -175,7 +175,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes():
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(
+    my_model.export_gmsh_file_to_dagmc_h5m_file(
         filename=h5m_filename,
     )
 
@@ -194,7 +194,7 @@ def test_h5m_with_single_volume_list():
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
 
     h5m_files = [
         "tests/single_cube.h5m",
@@ -217,7 +217,7 @@ def test_h5m_with_multi_volume_not_touching():
     my_model.add_stp_file(
         filename="tests/two_disconnected_cubes.stp", material_tags=["mat1", "mat2"]
     )
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
 
     transport_particles_on_h5m_geometry(
         h5m_filename="tests/two_disconnected_cubes.h5m",
@@ -248,7 +248,7 @@ def test_h5m_with_multi_volume_touching():
             material_tags=mat_tags,
         )
 
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
 
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file,

@@ -44,7 +44,7 @@ my_model.add_cadquery_object(
     material_tags=["mat1"],
 )
 
-my_model.export_dagmc_h5m_file(
+my_model.export_gmsh_file_to_dagmc_h5m_file(
     filename="cadquery_objects_and_stp_files.h5m",
     max_mesh_size=1,
     min_mesh_size=0.1,

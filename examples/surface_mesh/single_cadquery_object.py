@@ -5,4 +5,4 @@ result = sphere = cq.Workplane().moveTo(100, 0).sphere(5)
 
 my_model = CadToDagmc()
 my_model.add_cadquery_object(cadquery_object=result, material_tags=["mat1"])
-my_model.export_dagmc_h5m_file()
+my_model.export_gmsh_file_to_dagmc_h5m_file()
