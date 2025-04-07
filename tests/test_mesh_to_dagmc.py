@@ -1,22 +1,20 @@
-from cad_to_dagmc import MeshToDagmc
 import gmsh
 from test_python_api import get_volumes_and_materials_from_h5m
 from test_h5m_in_transport import transport_particles_on_h5m_geometry
 import cadquery as cq
 import assembly_mesh_plugin.plugin
 import gmsh
-from cad_to_dagmc import MeshToDagmc
 import pydagmc
 import math
+import cad_to_dagmc
 
 
 def test_mesh_to_dagmc_with_mesh_object():
     gmsh.initialize()
     gmsh.open("tests/tagged_mesh.msh")
 
-    mesh = MeshToDagmc()
     test_h5m_filename = "dagmc_from_gmsh_obj.h5m"
-    mesh.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
+    cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
     gmsh.finalize()
 
     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
@@ -55,10 +53,8 @@ def test_mesh_to_dagmc_with_cadquery_object():
     mesh_object = assembly.getTaggedGmsh()
     mesh_object.model.mesh.generate(2)
 
-    dagmc_model = MeshToDagmc()
-
     test_h5m_filename = "dagmc_from_gmsh_obj2.h5m"
-    dagmc_model.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
+    cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
 
     # finalize the GMSH API after using export_gmsh_object_to_dagmc_h5m_file
     # and getTaggedGmsh as these both need access to the GMSH object.

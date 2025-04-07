@@ -1,8 +1,9 @@
-from cad_to_dagmc import CadToDagmc, MeshToDagmc
+from cad_to_dagmc import CadToDagmc
 from pathlib import Path
 import cadquery as cq
 import pymoab as mb
 from pymoab import core, types
+import cad_to_dagmc
 
 """
 Tests that check that:
@@ -59,8 +60,9 @@ def test_h5m_with_single_volume_list():
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
     h5m_file = "tests/single_cube_from_mesh.h5m"
-    my_model2 = MeshToDagmc(mesh_file)
-    my_model2.export_dagmc_h5m_file(filename=h5m_file, material_tags=["mat2"])
+    cad_to_dagmc.export_dagmc_h5m_file(
+        gmsh_filename=mesh_file, dagmc_filename=h5m_file, material_tags=["mat2"]
+    )
     assert Path(h5m_file).is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
 
@@ -124,8 +126,9 @@ def test_h5m_with_multi_volume_touching():
             tags_dict[counter] = f"mat:{loop_mat_tag}"
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
-        my_model2 = MeshToDagmc(filename=h5m_file + ".msh")
-        my_model2.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
+        cad_to_dagmc.export_dagmc_h5m_file(
+            dagmc_filename=h5m_file, material_tags=mat_tags, gmsh_filename=h5m_file + ".msh"
+        )
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
