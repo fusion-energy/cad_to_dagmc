@@ -20,10 +20,13 @@ cad-to-dagmc can create DAGMC compatible:
 
 cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 - STEP files
-- CadQuery objects (in memory)
-- Gmsh meshes
+- CadQuery objects (optionally use names as material tags)
+- Gmsh meshes (optionally use physical groups as material tags)
 
 Cad-to-dagmc offers a wide range of features including.
+- Compatibly with [assembly-mesh-plugin](https://github.com/CadQuery/assembly-mesh-plugin) (see examples)
+- Access to the Gmsh mesh to allow user to define full set of mesh parameters
+- Option to use Gmsh physical groups as material tags
 - Geometry scaling with ```scale_factor``` argument
 - Model wide mesh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
 - Volume specific mesh sizing parameters with the ```set_size``` argument
