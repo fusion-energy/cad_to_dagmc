@@ -1,5 +1,5 @@
-# this file makes a GMESH mesh file from a Step file
-# then loads up the GMESH file and converts it to a DAGMC file
+# this file makes a GMESH mesh file that contains 3D physical groups.
+# these groups are then used as the material tags in the DAGMC file.
 
 
 # making the GMESH file
@@ -7,23 +7,14 @@ from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 import cad_to_dagmc
 
-result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
-result2 = cq.Workplane("XY").moveTo(10, 0).box(10.0, 10.0, 5.0)
-assembly = cq.Assembly()
-assembly.add(result1)
-assembly.add(result2)
-assembly.save("two_connected_cubes.stp", exportType="STEP")
-
-geometry = CadToDagmc()
-geometry.add_stp_file("two_connected_cubes.stp")
-geometry.export_gmsh_mesh_file(filename="example_gmsh_mesh.msh")
 
 
 # converting the mesh file to a DAGMC file
 
 cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-    gmsh_filename="example_gmsh_mesh.msh",
-    material_tags=["mat1", "mat2"],
+    gmsh_filename="tagged_mesh.msh",
+    # no need to specify material tags as the mesh file already has them
+    # material_tags=["mat1", "mat2"],
     dagmc_filename="dagmc.h5m",
 )
 
@@ -32,11 +23,11 @@ import openmc
 
 openmc.config["cross_sections"] = "cross_sections.xml"
 
-mat1 = openmc.Material(name="mat1")
+mat1 = openmc.Material(name="shell")
 mat1.add_nuclide("H1", 1, percent_type="ao")
 mat1.set_density("g/cm3", 0.001)
 
-mat2 = openmc.Material(name="mat2")
+mat2 = openmc.Material(name="insert")
 mat2.add_nuclide("H1", 1, percent_type="ao")
 mat2.set_density("g/cm3", 0.002)
 
