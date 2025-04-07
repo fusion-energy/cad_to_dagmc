@@ -6,19 +6,20 @@
 from cad_to_dagmc import CadToDagmc
 import cadquery as cq
 import cad_to_dagmc
+import openmc
 
 
 # converting the mesh file to a DAGMC file
 
 cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename="tagged_mesh.msh",
-    # no need to specify material tags as the mesh file already has them
-    # material_tags=["mat1", "mat2"],
+    # no need to specify material tags as the mesh file already has physical
+    # groups which are used as material tags
+    # material_tags=["shell", "insert"],
     dagmc_filename="dagmc.h5m",
 )
 
 # making use of the DAGMC file in OpenMC
-import openmc
 
 openmc.config["cross_sections"] = "cross_sections.xml"
 
