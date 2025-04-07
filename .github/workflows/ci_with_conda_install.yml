@@ -66,6 +66,7 @@ jobs:
           python examples/surface_mesh/curved_cadquery_object_to_dagmc_surface_mesh.py
           python examples/surface_mesh/from_gmsh_mesh_file.py
           python examples/surface_mesh/from_gmsh_mesh_file_with_tags.py
+          python examples/surface_mesh/from_gmsh_object_with_tag.py
           python examples/surface_mesh/multiple_cadquery_objects.py
           python examples/surface_mesh/multiple_stp_files.py
           python examples/surface_mesh/single_cadquery_object.py
