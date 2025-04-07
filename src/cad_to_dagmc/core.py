@@ -402,117 +402,107 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     return material_tags_in_brep_order
 
 
-class MeshToDagmc:
-    """Convert a GMSH mesh file to a DAGMC h5m file"""
+def export_gmsh_object_to_dagmc_h5m_file(
+    material_tags: list[str] | None = None,
+    implicit_complement_material_tag: str | None = None,
+    filename: str = "dagmc.h5m",
+) -> str:
+    """
+    Exports a GMSH object to a DAGMC-compatible h5m file. Note gmsh should
+    be initialized by the user prior and the gmsh model should be meshed before
+    calling this. Also users should ensure that the gmsh model is finalized.
 
-    def __init__(self, filename: str | None = None):
-        self.filename = filename
+    Args:
+        material_tags: A list of material tags corresponding to the volumes in the GMSH object.
+        implicit_complement_material_tag: The material tag for the implicit complement (void space).
+        filename: The name of the output h5m file. Defaults to "dagmc.h5m".
 
-    # TODO add export_unstructured_mesh_file
-    # TODO add add_gmsh_msh_file
-    # TODO test for exports result in files
+    Returns:
+        str: The filename of the generated DAGMC h5m file.
 
-    def export_gmsh_object_to_dagmc_h5m_file(
-        self,
-        material_tags: list[str] | None = None,
-        implicit_complement_material_tag: str | None = None,
-        filename: str = "dagmc.h5m",
-    ) -> str:
-        """
-        Exports a GMSH object to a DAGMC-compatible h5m file. Note gmsh should
-        be initialized and the gmsh model should be made before calling this.
-        Also users should ensure that the gmsh model is finalized.
+    Raises:
+        ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
+    """
 
-        Args:
-            material_tags: A list of material tags corresponding to the volumes in the GMSH object.
-            implicit_complement_material_tag: The material tag for the implicit complement (void space).
-            filename: The name of the output h5m file. Defaults to "dagmc.h5m".
+    # Get all 3D physical groups (volumes)
+    volume_groups = gmsh.model.getPhysicalGroups(3)
 
-        Returns:
-            str: The filename of the generated DAGMC h5m file.
+    if material_tags is None:
+        material_tags = []
+        # Get the name for each physical group
+        for dim, tag in volume_groups:
+            name = gmsh.model.getPhysicalName(dim, tag)
+            material_tags.append(name)
 
-        Raises:
-            ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
-        """
+    dims_and_vol_ids = gmsh.model.getEntities(3)
 
-        # Get all 3D physical groups (volumes)
-        volume_groups = gmsh.model.getPhysicalGroups(3)
+    if len(dims_and_vol_ids) != len(material_tags):
+        msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+        raise ValueError(msg)
 
-        if material_tags is None:
-            material_tags = []
-            # Get the name for each physical group
-            for dim, tag in volume_groups:
-                name = gmsh.model.getPhysicalName(dim, tag)
-                material_tags.append(name)
+    vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+        dims_and_vol_ids=dims_and_vol_ids
+    )
 
-        dims_and_vol_ids = gmsh.model.getEntities(3)
+    h5m_filename = vertices_to_h5m(
+        vertices=vertices,
+        triangles_by_solid_by_face=triangles_by_solid_by_face,
+        material_tags=material_tags,
+        h5m_filename=filename,
+        implicit_complement_material_tag=implicit_complement_material_tag,
+    )
 
-        if len(dims_and_vol_ids) != len(material_tags):
-            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
-            raise ValueError(msg)
+    return h5m_filename
 
-        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-            dims_and_vol_ids=dims_and_vol_ids
-        )
+def export_dagmc_h5m_file(
+    gmsh_filename: str,
+    material_tags: list[str],
+    implicit_complement_material_tag: str | None = None,
+    dagmc_filename: str = "dagmc.h5m",
+) -> str:
+    """Saves a DAGMC h5m file of the geometry GMsh file. This function
+    initializes and finalizes Gmsh.
 
-        h5m_filename = vertices_to_h5m(
-            vertices=vertices,
-            triangles_by_solid_by_face=triangles_by_solid_by_face,
-            material_tags=material_tags,
-            h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag,
-        )
+    Args:
+        material_tags (list[str]): the names of the DAGMC
+            material tags to assign. These will need to be in the same
+            order as the volumes in the GMESH mesh and match the
+            material tags used in the neutronics code (e.g. OpenMC).
+        implicit_complement_material_tag (str | None, optional):
+            the name of the material tag to use for the implicit
+            complement (void space). Defaults to None which is a vacuum.
+        dagmc_filename (str, optional): _description_. Defaults to "dagmc.h5m".
 
-        return h5m_filename
+    Returns:
+        str: The filename of the generated DAGMC h5m file.
 
-    def export_dagmc_h5m_file(
-        self,
-        material_tags: list[str],
-        implicit_complement_material_tag: str | None = None,
-        filename: str = "dagmc.h5m",
-    ) -> str:
-        """Saves a DAGMC h5m file of the geometry
+    Raises:
+        ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
+    """
 
-        Args:
-            material_tags (list[str]): the names of the DAGMC
-                material tags to assign. These will need to be in the same
-                order as the volumes in the GMESH mesh and match the
-                material tags used in the neutronics code (e.g. OpenMC).
-            implicit_complement_material_tag (str | None, optional):
-                the name of the material tag to use for the implicit
-                complement (void space). Defaults to None which is a vacuum.
-            filename (str, optional): _description_. Defaults to "dagmc.h5m".
+    gmsh.initialize()
+    gmsh.open(gmsh_filename)
+    dims_and_vol_ids = gmsh.model.getEntities(3)
 
-        Returns:
-            str: The filename of the generated DAGMC h5m file.
+    if len(dims_and_vol_ids) != len(material_tags):
+        msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+        raise ValueError(msg)
 
-        Raises:
-            ValueError: If the number of material tags does not match the number of volumes in the GMSH object.
-        """
+    vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+        dims_and_vol_ids=dims_and_vol_ids
+    )
 
-        gmsh.initialize()
-        self.mesh_file = gmsh.open(self.filename)
-        dims_and_vol_ids = gmsh.model.getEntities(3)
+    gmsh.finalize()
 
-        if len(dims_and_vol_ids) != len(material_tags):
-            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
-            raise ValueError(msg)
+    h5m_filename = vertices_to_h5m(
+        vertices=vertices,
+        triangles_by_solid_by_face=triangles_by_solid_by_face,
+        material_tags=material_tags,
+        h5m_filename=dagmc_filename,
+        implicit_complement_material_tag=implicit_complement_material_tag,
+    )
 
-        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-            dims_and_vol_ids=dims_and_vol_ids
-        )
-
-        gmsh.finalize()
-
-        h5m_filename = vertices_to_h5m(
-            vertices=vertices,
-            triangles_by_solid_by_face=triangles_by_solid_by_face,
-            material_tags=material_tags,
-            h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag,
-        )
-
-        return h5m_filename
+    return h5m_filename
 
 
 class CadToDagmc:
