@@ -13,7 +13,7 @@ assembly.add(result1)
 assembly.add(result2)
 assembly.save("two_connected_cubes.stp", exportType="STEP")
 
-geometry =cad_to_dagmc.CadToDagmc()
+geometry = cad_to_dagmc.CadToDagmc()
 geometry.add_stp_file("two_connected_cubes.stp")
 geometry.export_gmsh_mesh_file(filename="example_gmsh_mesh.msh")
 

@@ -9,7 +9,7 @@ assembly.add(result2)
 assembly.save("single_cube.stp", exportType="STEP")
 
 
-my_model =cad_to_dagmc.CadToDagmc()
+my_model = cad_to_dagmc.CadToDagmc()
 
 my_model.add_cadquery_object(
     cadquery_object=result,

@@ -13,7 +13,7 @@ assembly = cq.Assembly()
 assembly.add(result)
 assembly.save("single_sphere.stp", exportType="STEP")
 
-my_model =cad_to_dagmc.CadToDagmc()
+my_model = cad_to_dagmc.CadToDagmc()
 my_model.add_stp_file(
     filename="two_connected_cubes.stp",
     material_tags=["mat1", "mat2"],

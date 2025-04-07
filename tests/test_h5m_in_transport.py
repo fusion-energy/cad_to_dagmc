@@ -132,7 +132,7 @@ def test_transport_result_h5m_with_2_sep_volumes():
     workplane2 = cq.Workplane("XY").moveTo(0, 15).cylinder(height=10, radius=5)
     # cq.Assembly().add(workplane1).add(workplane2)
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
     my_model.export_dagmc_h5m_file(filename=h5m_filename)
@@ -152,7 +152,7 @@ def test_transport_result_h5m_with_1_curved_volumes():
 
     workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.export_dagmc_h5m_file(filename=h5m_filename)
 
@@ -172,7 +172,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes():
     workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
     workplane2 = cq.Workplane("XY").cylinder(height=10, radius=5).cut(workplane1)
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
     my_model.export_dagmc_h5m_file(
@@ -192,7 +192,7 @@ def test_h5m_with_single_volume_list():
 
     h5m_file = "tests/single_cube.h5m"
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
     my_model.export_dagmc_h5m_file(filename=h5m_file)
 
@@ -213,7 +213,7 @@ def test_h5m_with_multi_volume_not_touching():
 
     h5m_file = "tests/two_disconnected_cubes.h5m"
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(
         filename="tests/two_disconnected_cubes.stp", material_tags=["mat1", "mat2"]
     )
@@ -242,7 +242,7 @@ def test_h5m_with_multi_volume_touching():
     ]
     for stp_file, mat_tags, h5m_file in zip(stp_files, material_tags, h5m_files):
 
-        my_model =cad_to_dagmc.CadToDagmc()
+        my_model = cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(
             filename=stp_file,
             material_tags=mat_tags,

@@ -19,7 +19,7 @@ assembly.export("different_resolution_meshes.step")
 # from cadquery import vis
 # vis.show(assembly)
 
-model =cad_to_dagmc.CadToDagmc()
+model = cad_to_dagmc.CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
 model.export_gmsh_file_to_dagmc_h5m_file(

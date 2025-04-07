@@ -60,7 +60,8 @@ def test_h5m_with_single_volume_list():
 
     h5m_file = "tests/single_cube_from_mesh.h5m"
     cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-        gmsh_filenmae=mesh_file,filename=h5m_file, material_tags=["mat2"])
+        gmsh_filenmae=mesh_file, filename=h5m_file, material_tags=["mat2"]
+    )
     assert Path(h5m_file).is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
 
@@ -125,8 +126,7 @@ def test_h5m_with_multi_volume_touching():
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
         cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-            gmsh_filename=h5m_file + ".msh",
-            filename=h5m_file, material_tags=mat_tags
+            gmsh_filename=h5m_file + ".msh", filename=h5m_file, material_tags=mat_tags
         )
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
@@ -191,7 +191,7 @@ def test_gmsh_mesh_with_single_volume_2():
 
     gmsh_mesh_file = "tests/curved_extrude.msh"
 
-    my_model =cad_to_dagmc.CadToDagmc()
+    my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_stp_file(filename="tests/curved_extrude.stp")
     my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
 
@@ -207,7 +207,7 @@ def test_gmsh_mesh_with_multi_volume_not_touching():
         "tests/two_disconnected_cubes.msh",
     ]
     for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
-        my_model =cad_to_dagmc.CadToDagmc()
+        my_model = cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)
@@ -227,7 +227,7 @@ def test_gmsh_mesh_with_multi_volume_touching():
         "tests/two_connected_cubes.msh",
     ]
     for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
-        my_model =cad_to_dagmc.CadToDagmc()
+        my_model = cad_to_dagmc.CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
         my_model.export_gmsh_mesh_file(filename=gmsh_mesh_file)

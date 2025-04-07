@@ -37,7 +37,7 @@ result = (
 )
 
 
-my_model =cad_to_dagmc.CadToDagmc()
+my_model = cad_to_dagmc.CadToDagmc()
 
 my_model.add_cadquery_object(
     cadquery_object=result,

@@ -8,7 +8,7 @@ assembly.add(result)
 assembly.save("text_dagmc.stp", exportType="STEP")
 
 
-my_model =cad_to_dagmc.CadToDagmc()
+my_model = cad_to_dagmc.CadToDagmc()
 # the d and c from the word dagmc would be tagged with one material and the agm are tagged with another material
 my_model.add_stp_file(
     filename="text_dagmc.stp", material_tags=["mat1", "mat2", "mat2", "mat2", "mat1"]
