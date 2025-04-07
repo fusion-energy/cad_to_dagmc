@@ -51,7 +51,7 @@ def test_h5m_with_single_volume_list():
     mesh_file = "test.msh"
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file)
     my_model.export_gmsh_mesh_file(filename=mesh_file)
     assert Path(mesh_file).is_file()
     my_model.export_gmsh_mesh_file(filename="test3d.msh", dimensions=3)
@@ -72,7 +72,7 @@ def test_h5m_with_single_volume_2():
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
-    my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
@@ -91,7 +91,7 @@ def test_h5m_with_multi_volume_not_touching():
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
-        my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(filename=h5m_file)
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
@@ -116,7 +116,7 @@ def test_h5m_with_multi_volume_touching():
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
-        my_model.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(filename=h5m_file)
         my_model.export_gmsh_mesh_file(filename=h5m_file + ".msh")
 
         tags_dict = {}
@@ -125,7 +125,7 @@ def test_h5m_with_multi_volume_touching():
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
         my_model2 = MeshToDagmc(filename=h5m_file + ".msh")
-        my_model2.export_gmsh_file_to_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
+        my_model2.export_dagmc_h5m_file(filename=h5m_file, material_tags=mat_tags)
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
@@ -156,7 +156,7 @@ def test_cq_compound():
         cadquery_object=compound_of_workplanes,
         material_tags=["mat1", "mat2"],
     )
-    my_model.export_gmsh_file_to_dagmc_h5m_file(
+    my_model.export_dagmc_h5m_file(
         filename="compound_dagmc.h5m",
         max_mesh_size=0.2,
         min_mesh_size=0.1,
