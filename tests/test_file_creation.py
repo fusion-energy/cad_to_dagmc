@@ -61,9 +61,7 @@ def test_h5m_with_single_volume_list():
 
     h5m_file = "tests/single_cube_from_mesh.h5m"
     cad_to_dagmc.export_dagmc_h5m_file(
-        gmsh_filename=mesh_file,
-        dagmc_filename=h5m_file,
-        material_tags=["mat2"]
+        gmsh_filename=mesh_file, dagmc_filename=h5m_file, material_tags=["mat2"]
     )
     assert Path(h5m_file).is_file()
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
@@ -129,9 +127,7 @@ def test_h5m_with_multi_volume_touching():
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
         cad_to_dagmc.export_dagmc_h5m_file(
-            dagmc_filename=h5m_file,
-            material_tags=mat_tags,
-            gmsh_filename=h5m_file + ".msh"
+            dagmc_filename=h5m_file, material_tags=mat_tags, gmsh_filename=h5m_file + ".msh"
         )
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 

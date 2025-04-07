@@ -18,6 +18,7 @@ geometry.add_stp_file("two_connected_cubes.stp")
 geometry.export_gmsh_mesh_file(filename="example_gmsh_mesh.msh")
 
 import cad_to_dagmc
+
 # converting the mesh file to a DAGMC file
 
 cad_to_dagmc.export_dagmc_h5m_file(

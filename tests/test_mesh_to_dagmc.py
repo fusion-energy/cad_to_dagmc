@@ -14,9 +14,7 @@ def test_mesh_to_dagmc_with_mesh_object():
     gmsh.open("tests/tagged_mesh.msh")
 
     test_h5m_filename = "dagmc_from_gmsh_obj.h5m"
-    cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(
-        filename=test_h5m_filename
-    )
+    cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename=test_h5m_filename)
     gmsh.finalize()
 
     assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
