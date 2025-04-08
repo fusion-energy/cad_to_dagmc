@@ -3,8 +3,6 @@
 
 
 # making the GMESH file
-from cad_to_dagmc import CadToDagmc
-import cadquery as cq
 import cad_to_dagmc
 import openmc
 
