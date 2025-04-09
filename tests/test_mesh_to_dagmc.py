@@ -2,7 +2,7 @@ import gmsh
 from test_python_api import get_volumes_and_materials_from_h5m
 from test_h5m_in_transport import transport_particles_on_h5m_geometry
 import cadquery as cq
-import assembly_mesh_plugin.plugin
+import assembly_mesh_plugin
 import gmsh
 import pydagmc
 import math
