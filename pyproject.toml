@@ -36,8 +36,9 @@ tests = [
     "pytest",
     "vtk",
     "assembly-mesh-plugin",
-    "pydagmc @ git+https://github.com/svalinn/pydagmc",
 ]
+# TODO once on pypi include pydagmc here and remove from CI
+# "pydagmc @ git+https://github.com/svalinn/pydagmc",
 
 [project.urls]
 "Homepage" = "https://github.com/fusion-energy/cad_to_dagmc"

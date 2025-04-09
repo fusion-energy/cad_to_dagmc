@@ -43,6 +43,7 @@ jobs:
           cd ..
           python -c "import pymoab"
           python -m pip install .[tests]
+          python -m pip install git+https://github.com/svalinn/pydagmc
           python -c "import cad_to_dagmc"
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
