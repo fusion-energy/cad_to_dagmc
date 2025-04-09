@@ -36,7 +36,7 @@ tests = [
     "pytest",
     "vtk",
     "assembly-mesh-plugin",
-    "pydagmc @ git+https://github.com/shimwell/pydagmc@packaging-update",
+    "pydagmc @ git+https://github.com/svalinn/pydagmc",
 ]
 
 [project.urls]
