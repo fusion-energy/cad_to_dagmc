@@ -13,10 +13,18 @@ assembly.add(box_shape2, name="second_material")
 # getTaggedGmsh initializes gmsh and creates a mesh object ready for meshing
 assembly.getTaggedGmsh()
 # Here you can set the mesh parameters
-# In this case, we set the minimum and maximum mesh size
-# but you can set any other Gmsh parameters
 # Remember that the gmsh has physical groups if you want to use them when meshing
-gmsh.option.setNumber("Mesh.MeshSizeMax", 4.2)
+# Retrieve the volume associated with "first_material"
+first_material_volume =   # 3 indicates volume
+
+# Set a smaller mesh size for the "first_material" volume
+for volume in gmsh.model.getEntitiesForPhysicalName(3, "first_material"):
+    # The 3 indicates that we are looking for volume entities.
+    gmsh.model.mesh.setSize(gmsh.model.getBoundary([(3, volume)], oriented=False), 0.5)  # 0.5 is the small mesh size
+
+for volume in gmsh.model.getEntitiesForPhysicalName(3, "second_material"):
+    gmsh.model.mesh.setSize(gmsh.model.getBoundary([(3, volume)], oriented=False), 1.5)  # 0.5 is the small mesh size
+
 gmsh.model.mesh.generate(2)  # for DAGMC surface mesh we just need a 2D surface mesh
 
 cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename="dagmc_from_gmsh_object.h5m")
