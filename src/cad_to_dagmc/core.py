@@ -275,7 +275,6 @@ def mesh_brep(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
 
-
     if set_size:
         volumes = gmsh.model.getEntities(3)
         available_volumes = [volume[1] for volume in volumes]
@@ -316,7 +315,6 @@ def mesh_brep(
         for boundary, size in averaged_boundary_sizes.items():
             gmsh.model.mesh.setSize([boundary], size)
             print(f"Set mesh size {size} for boundary {boundary}")
-
 
     gmsh.model.mesh.generate(dimensions)
 
