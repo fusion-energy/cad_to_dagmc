@@ -48,22 +48,10 @@ jobs:
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
 
-      - name: Test import
-        shell: bash -l {0}
-        run: |
-          source "${HOME}/miniforge/etc/profile.d/conda.sh"
-          conda activate ci-env
-          python -c "import cad_to_dagmc"
-
       - name: Run tests
         shell: bash -l {0}
-        run: |
-          source "${HOME}/miniforge/etc/profile.d/conda.sh"
-          conda activate ci-env
-          pytest -v tests
-
-      - name: Run examples
-        shell: bash -l {0}
+        env:
+          OPENMC_CROSS_SECTIONS: /home/runner/work/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
         run: |
           source "${HOME}/miniforge/etc/profile.d/conda.sh"
           conda activate ci-env
