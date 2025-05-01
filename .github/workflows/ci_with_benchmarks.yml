@@ -55,7 +55,6 @@ jobs:
         run: |
           source "${HOME}/miniforge/etc/profile.d/conda.sh"
           conda activate ci-env
-          mamba install -y -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
           python -m ensurepip --upgrade
           python -m pip install . --no-deps
           python -m pip install openmc_data_downloader
@@ -63,5 +62,4 @@ jobs:
           git clone --single-branch -b main --depth 1 https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
           python -m pip install .[tests]
-          pip install git+https://github.com/svalinn/pydagmc
           pytest tests/test_cad_to_dagmc -v
