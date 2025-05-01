@@ -316,7 +316,6 @@ def mesh_brep(
             gmsh.model.mesh.setSize([boundary], size)
             print(f"Set mesh size {size} for boundary {boundary}")
 
-
     gmsh.model.mesh.generate(dimensions)
 
     return gmsh
