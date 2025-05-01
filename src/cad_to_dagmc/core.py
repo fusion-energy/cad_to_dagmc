@@ -279,23 +279,42 @@ def mesh_brep(
         volumes = gmsh.model.getEntities(3)
         available_volumes = [volume[1] for volume in volumes]
         print("volumes", volumes)
-        for volume_id, size in set_size.items():
-            if volume_id in available_volumes:
-                size = set_size[volume_id]
-                if isinstance(size, dict):
-                    # TODO face specific mesh sizes
-                    pass
-                else:
-                    boundaries = gmsh.model.getBoundary(
-                        [(3, volume_id)], recursive=True
-                    )  # dim must be set to 3
-                    print("boundaries", boundaries)
-                    gmsh.model.mesh.setSize(boundaries, size)
-                    print(f"Set size of {size} for volume {volume_id}")
-            else:
+
+        # Ensure all volume IDs in set_size exist in the available volumes
+        for volume_id in set_size.keys():
+            if volume_id not in available_volumes:
                 raise ValueError(
                     f"volume ID of {volume_id} set in set_sizes but not found in available volumes {volumes}"
                 )
+
+        # Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes
+        boundary_sizes = {}  # Dictionary to store the mesh size and count for each boundary
+        for volume_id, size in set_size.items():
+            boundaries = gmsh.model.getBoundary(
+                [(3, volume_id)], recursive=True
+            )  # dim must be set to 3
+            print(f"Boundaries for volume {volume_id}: {boundaries}")
+
+            for boundary in boundaries:
+                boundary_key = (boundary[0], boundary[1])  # (dimension, tag)
+                if boundary_key in boundary_sizes:
+                    # If the boundary is already processed, add the size to the list
+                    boundary_sizes[boundary_key]["total_size"] += size
+                    boundary_sizes[boundary_key]["count"] += 1
+                else:
+                    # Otherwise, initialize the boundary with the current size
+                    boundary_sizes[boundary_key] = {"total_size": size, "count": 1}
+
+        # Step 2: Calculate the average size for each boundary
+        averaged_boundary_sizes = {
+            boundary: data["total_size"] / data["count"]
+            for boundary, data in boundary_sizes.items()
+        }
+
+        # Step 3: Apply mesh sizes to all boundaries
+        for boundary, size in averaged_boundary_sizes.items():
+            gmsh.model.mesh.setSize([boundary], size)
+            print(f"Set mesh size {size} for boundary {boundary}")
 
     gmsh.model.mesh.generate(dimensions)
 
