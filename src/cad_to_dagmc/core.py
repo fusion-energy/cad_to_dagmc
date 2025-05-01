@@ -241,7 +241,7 @@ def set_sizes_for_mesh(
     mesh_algorithm: int = 1,
     set_size: dict[int, float] | None = None,
 ):
-    """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
+    """Sets up the mesh sizes for each volume in the mesh.
 
     Args:
         occ_shape: the occ_shape of the Brep file to convert
