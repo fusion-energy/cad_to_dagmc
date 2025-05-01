@@ -234,15 +234,14 @@ def init_gmsh():
     return gmsh
 
 
-def mesh_brep(
+def set_sizes_for_mesh(
     gmsh,
     min_mesh_size: float | None = None,
     max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
-    dimensions: int = 2,
     set_size: dict[int, float] | None = None,
 ):
-    """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
+    """Sets up the mesh sizes for each volume in the mesh.
 
     Args:
         occ_shape: the occ_shape of the Brep file to convert
@@ -252,8 +251,6 @@ def mesh_brep(
             into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
         mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
-        dimensions: The number of dimensions, 2 for a surface mesh 3 for a
-            volume mesh. Passed to gmsh.model.mesh.generate()
         set_size: a dictionary of volume ids (int) and target mesh sizes
             (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
 
@@ -315,8 +312,6 @@ def mesh_brep(
         for boundary, size in averaged_boundary_sizes.items():
             gmsh.model.mesh.setSize([boundary], size)
             print(f"Set mesh size {size} for boundary {boundary}")
-
-    gmsh.model.mesh.generate(dimensions)
 
     return gmsh
 
@@ -693,14 +688,15 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=3,
             set_size=set_size,
         )
+
+        gmsh.model.mesh.generate(3)
 
         # makes the folder if it does not exist
         if Path(filename).parent:
@@ -770,14 +766,15 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=dimensions,
             set_size=set_size,
         )
+
+        gmsh.model.mesh.generate(dimensions)
 
         # makes the folder if it does not exist
         if Path(filename).parent:
@@ -871,13 +868,15 @@ class CadToDagmc:
             gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
         )
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             set_size=set_size,
         )
+
+        gmsh.model.mesh.generate(2)
 
         dims_and_vol_ids = volumes
 
