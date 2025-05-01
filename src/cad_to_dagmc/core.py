@@ -695,7 +695,7 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=set_size,
         )
-        
+
         gmsh.model.mesh.generate(3)
 
         # makes the folder if it does not exist
@@ -875,7 +875,7 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=set_size,
         )
-        
+
         gmsh.model.mesh.generate(2)
 
         dims_and_vol_ids = volumes
