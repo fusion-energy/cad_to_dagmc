@@ -878,19 +878,26 @@ class CadToDagmc:
 
         gmsh.model.mesh.generate(2)
 
-        dims_and_vol_ids = volumes
-
         vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-            dims_and_vol_ids=dims_and_vol_ids
+            dims_and_vol_ids=volumes
         )
 
+        # vertices_to_h5m(
+        #     vertices=vertices,
+        #     triangles_by_solid_by_face=triangles_by_solid_by_face,
+        #     material_tags=material_tags_in_brep_order,
+        #     h5m_filename=filename,
+        #     implicit_complement_material_tag=implicit_complement_material_tag,
+        # )
+        
+        gmsh.model.occ.remove([(3,1)], recursive=True)
+        gmsh.option.setNumber("Mesh.SaveAll", 1)
+        gmsh.model.occ.synchronize()
+        gmsh.model.mesh.generate(3) 
+        gmsh.write('just_2_vols.vtk')
+
+        print(volumes)
         gmsh.finalize()
 
         # checks and fixes triangle fix_normals within vertices_to_h5m
-        return vertices_to_h5m(
-            vertices=vertices,
-            triangles_by_solid_by_face=triangles_by_solid_by_face,
-            material_tags=material_tags_in_brep_order,
-            h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag,
-        )
+        # return 
