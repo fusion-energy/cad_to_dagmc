@@ -889,15 +889,15 @@ class CadToDagmc:
         #     h5m_filename=filename,
         #     implicit_complement_material_tag=implicit_complement_material_tag,
         # )
-        
-        gmsh.model.occ.remove([(3,1)], recursive=True)
+
+        gmsh.model.occ.remove([(3, 1)], recursive=True)
         gmsh.option.setNumber("Mesh.SaveAll", 1)
         gmsh.model.occ.synchronize()
-        gmsh.model.mesh.generate(3) 
-        gmsh.write('just_2_vols.vtk')
+        gmsh.model.mesh.generate(3)
+        gmsh.write("just_2_vols.vtk")
 
         print(volumes)
         gmsh.finalize()
 
         # checks and fixes triangle fix_normals within vertices_to_h5m
-        # return 
+        # return
