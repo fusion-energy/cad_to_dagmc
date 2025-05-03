@@ -333,3 +333,34 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     assert width_x == expected_x_width
     assert width_y == expected_y_width
     assert width_z == expected_z_width
+
+def test_unstrucutred_mesh_Export_With_surface_mesh():
+
+    box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)
+    box_set_size_fine_mesh = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
+    box_set_global_mesh = cq.Workplane().moveTo(2, 1).box(1, 1, 1)
+
+    assembly = cq.Assembly()
+    assembly.add(box_set_size_course_mesh, color=cq.Color(0, 0, 1))
+    assembly.add(box_set_size_fine_mesh, color=cq.Color(0, 1, 0))
+    assembly.add(box_set_global_mesh, color=cq.Color(1, 0, 0))
+
+
+    model = CadToDagmc()
+    model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
+
+    model.export_dagmc_h5m_file(
+        filename="conformal-surface-mesh.h5m",
+        min_mesh_size=0.01,
+        max_mesh_size=10,
+        set_size={
+            1: 0.9,
+            2: 0.1,
+        },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
+        unstructured_volumes=[2],
+        umesh_filename="conformal-volume-mesh.vtk",
+    )
+    assert Path("different_resolution_meshes.h5m").is_file()
+    assert Path("umesh.vtk").is_file()
+    
+    # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface

@@ -30,6 +30,7 @@ Cad-to-dagmc offers a wide range of features including.
 - Geometry scaling with ```scale_factor``` argument
 - Model wide mesh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
 - Volume specific mesh sizing parameters with the ```set_size``` argument
+- Unstructured mesh that share the same coordinates as the surface mesh.
 - Parallel meshing to quickly mesh the geometry using multiple CPU cores
 - Imprint and merging of CAD geometry, or disable with the ```imprint``` argument
 - Add geometry from multiple sources ([STEP](http://www.steptools.com/stds/step/) files, [CadQuery](https://cadquery.readthedocs.io) objects and [Gmsh](https://gmsh.info/) meshes)
