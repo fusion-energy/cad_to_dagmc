@@ -900,7 +900,6 @@ class CadToDagmc:
         if len(unstructured_volumes) != 0:
             for volume_id in volumes:
                 if volume_id[1] not in unstructured_volumes:
-                    print(f'removing volume {volume_id}')
                     gmsh.model.occ.remove([volume_id], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
             gmsh.model.occ.synchronize()
