@@ -13,11 +13,6 @@ assembly.add(box_set_size_course_mesh, color=cq.Color(0, 0, 1))
 assembly.add(box_set_size_fine_mesh, color=cq.Color(0, 1, 0))
 assembly.add(box_set_global_mesh, color=cq.Color(1, 0, 0))
 
-assembly.export("different_resolution_meshes.step")
-
-# uncomment to see the assembly in a pop up vtk viewer
-# from cadquery import vis
-# vis.show(assembly)
 
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
@@ -30,4 +25,6 @@ model.export_dagmc_h5m_file(
         1: 0.9,
         2: 0.1,
     },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
+    unstructured_volumes=[2],
+    umesh_filename = "umesh.vtk",
 )

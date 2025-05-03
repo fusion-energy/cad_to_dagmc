@@ -6,6 +6,7 @@ from cadquery import importers
 from pymoab import core, types
 import tempfile
 import warnings
+from typing import Iterable
 from cad_to_dagmc import __version__
 
 
@@ -801,6 +802,8 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        unstructured_volumes: Iterable[int] = [],
+        umesh_filename: str = "umesh.vtk",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -829,6 +832,10 @@ class CadToDagmc:
                 and this can save time.
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            unstructured_volumes: a list of volume ids to be saved in as an
+                unstructured mesh file.
+            umesh_filename: the filename to use for the optional unstructured
+                mesh file. Only used if unstructured_volumes is not empty.
 
         Returns:
             str: the DAGMC filename saved
@@ -882,22 +889,24 @@ class CadToDagmc:
             dims_and_vol_ids=volumes
         )
 
-        # vertices_to_h5m(
-        #     vertices=vertices,
-        #     triangles_by_solid_by_face=triangles_by_solid_by_face,
-        #     material_tags=material_tags_in_brep_order,
-        #     h5m_filename=filename,
-        #     implicit_complement_material_tag=implicit_complement_material_tag,
-        # )
+        dagmc_filename = vertices_to_h5m(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
+            material_tags=material_tags_in_brep_order,
+            h5m_filename=filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
+        )
         
-        gmsh.model.occ.remove([(3,1)], recursive=True)
-        gmsh.option.setNumber("Mesh.SaveAll", 1)
-        gmsh.model.occ.synchronize()
-        gmsh.model.mesh.generate(3) 
-        gmsh.write('just_2_vols.vtk')
+        if len(unstructured_volumes) != 0:
+            for volume_id in volumes:
+                if volume_id[1] not in unstructured_volumes:
+                    print(f'removing volume {volume_id}')
+                    gmsh.model.occ.remove([volume_id], recursive=True)
+            gmsh.option.setNumber("Mesh.SaveAll", 1)
+            gmsh.model.occ.synchronize()
+            gmsh.model.mesh.generate(3) 
+            gmsh.write(umesh_filename)
 
-        print(volumes)
         gmsh.finalize()
 
-        # checks and fixes triangle fix_normals within vertices_to_h5m
-        # return 
+        return dagmc_filename
