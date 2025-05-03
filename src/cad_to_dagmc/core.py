@@ -896,14 +896,14 @@ class CadToDagmc:
             h5m_filename=filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
         )
-        
+
         if len(unstructured_volumes) != 0:
             for volume_id in volumes:
                 if volume_id[1] not in unstructured_volumes:
                     gmsh.model.occ.remove([volume_id], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
             gmsh.model.occ.synchronize()
-            gmsh.model.mesh.generate(3) 
+            gmsh.model.mesh.generate(3)
             gmsh.write(umesh_filename)
 
         gmsh.finalize()
