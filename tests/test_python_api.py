@@ -345,7 +345,6 @@ def test_unstructured_mesh_Export_With_surface_mesh():
     assembly.add(box_set_size_fine_mesh, color=cq.Color(0, 1, 0))
     assembly.add(box_set_global_mesh, color=cq.Color(1, 0, 0))
 
-
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
