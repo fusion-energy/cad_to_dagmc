@@ -334,7 +334,7 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     assert width_y == expected_y_width
     assert width_z == expected_z_width
 
-def test_unstrucutred_mesh_Export_With_surface_mesh():
+def test_unstructured_mesh_Export_With_surface_mesh():
 
     box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)
     box_set_size_fine_mesh = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
@@ -360,7 +360,7 @@ def test_unstrucutred_mesh_Export_With_surface_mesh():
         unstructured_volumes=[2],
         umesh_filename="conformal-volume-mesh.vtk",
     )
-    assert Path("different_resolution_meshes.h5m").is_file()
-    assert Path("umesh.vtk").is_file()
+    assert Path("conformal-surface-mesh.h5m").is_file()
+    assert Path("conformal-volume-mesh.vtk").is_file()
     
     # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
