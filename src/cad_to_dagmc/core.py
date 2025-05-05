@@ -916,7 +916,7 @@ class CadToDagmc:
 
         if unstructured_volumes:
             # remove all the unused occ volumes, this prevents them being meshed
-            for (volume_dim, volume_id) in volumes:
+            for volume_dim, volume_id in volumes:
                 if volume_id not in unstructured_volumes:
                     gmsh.model.occ.remove([(volume_dim, volume_id)], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
