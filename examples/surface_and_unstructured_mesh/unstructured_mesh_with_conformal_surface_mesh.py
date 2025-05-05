@@ -27,8 +27,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
         2: 0.1,
     },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
     unstructured_volumes=[2],
-    umesh_filename="umesh.vtk", #
-
+    umesh_filename="umesh.vtk",  #
 )
 
 
@@ -48,8 +47,7 @@ with open("cross_sections.xml", "w") as file:
     )
 openmc.config["cross_sections"] = "cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh(umesh_filename, library="moab"
-)
+umesh = openmc.UnstructuredMesh(umesh_filename, library="moab")
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstructured_mesh_tally")
 tally.filters = [mesh_filter]
