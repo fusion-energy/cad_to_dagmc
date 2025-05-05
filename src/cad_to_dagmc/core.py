@@ -818,6 +818,8 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        unstructured_volumes=[],
+        umesh_filename="umesh.vtk",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -900,14 +902,26 @@ class CadToDagmc:
         vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
             dims_and_vol_ids=dims_and_vol_ids
         )
+        
+        gmsh.model.removePhysicalGroups()
+        v=gmsh.model.getEntities(3)
+        print(v)
+        print(v)
+        print(v)
+        print(v)
+        print(v)
+        print(v)
+        gmsh.model.addPhysicalGroup(3, [2])
+        gmsh.model.mesh.generate(3)
+        gmsh.write(umesh_filename)
 
         gmsh.finalize()
 
-        # checks and fixes triangle fix_normals within vertices_to_h5m
-        return vertices_to_h5m(
-            vertices=vertices,
-            triangles_by_solid_by_face=triangles_by_solid_by_face,
-            material_tags=material_tags_in_brep_order,
-            h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag,
-        )
+        # # checks and fixes triangle fix_normals within vertices_to_h5m
+        # return vertices_to_h5m(
+        #     vertices=vertices,
+        #     triangles_by_solid_by_face=triangles_by_solid_by_face,
+        #     material_tags=material_tags_in_brep_order,
+        #     h5m_filename=filename,
+        #     implicit_complement_material_tag=implicit_complement_material_tag,
+        # )
