@@ -926,7 +926,7 @@ class CadToDagmc:
             all_2d_groups = gmsh.model.getPhysicalGroups(2)
             for entry in all_2d_groups:
                 gmsh.model.removePhysicalGroups([entry])
-            
+
             gmsh.model.mesh.generate(3)
             gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
             gmsh.write(umesh_filename)
