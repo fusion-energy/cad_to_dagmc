@@ -22,6 +22,7 @@ def transport_particles_on_h5m_geometry(
     material_tags: list,
     nuclides: list = None,
     cross_sections_xml: str = None,
+    vtk_filename: str = None,
 ):
     """A function for testing the geometry file with particle transport in
     DAGMC OpenMC. Requires openmc and either the cross_sections_xml to be
@@ -102,9 +103,15 @@ def transport_particles_on_h5m_geometry(
     # adds a tally to record the heat deposited in entire geometry
     cell_tally = openmc.Tally(name="flux")
     cell_tally.scores = ["flux"]
-
-    # groups the two tallies
     tallies = openmc.Tallies([cell_tally])
+
+    if vtk_filename:
+        umesh_tally = openmc.Tally(name="unstructured_mesh_tally")
+        umesh = openmc.UnstructuredMesh(vtk_filename, library="moab")
+        mesh_filter = openmc.MeshFilter(umesh)
+        umesh_tally.filters = [mesh_filter]
+        umesh_tally.scores = ["flux"]
+        tallies.append(umesh_tally)
 
     # builds the openmc model
     my_model = openmc.Model(
@@ -255,3 +262,40 @@ def test_h5m_with_multi_volume_touching():
             material_tags=mat_tags,
             nuclides=["H1"] * len(mat_tags),
         )
+
+
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_umesh_with_volumes():
+    box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
+    inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
+    middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
+    outer_sphere = (
+        cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+    )
+
+    assembly = cq.Assembly()
+    assembly.add(inner_sphere, name="inner_sphere")
+    assembly.add(middle_sphere, name="middle_sphere")
+    assembly.add(outer_sphere, name="outer_sphere")
+
+    model = CadToDagmc()
+    mat_tags = ["mat1", "mat2", "mat3"]
+    model.add_cadquery_object(assembly, material_tags=mat_tags)
+
+    h5m_file = model.export_dagmc_h5m_file(
+        filename="dagmc.h5m",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+    )
+
+    vtk_file = model.export_unstructured_mesh_file(
+        filename="umesh_vol_1.vtk",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        volumes=[1],  # only mesh volume 2 out of the three volumes
+    )
+
+    transport_particles_on_h5m_geometry(
+        h5m_filename=h5m_file,
+        material_tags=mat_tags,
+        nuclides=["H1"] * len(mat_tags),
+        vtk_filename=vtk_file,
+    )

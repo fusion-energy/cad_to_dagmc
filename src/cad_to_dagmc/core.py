@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 import cadquery as cq
 import gmsh
 import numpy as np
@@ -629,11 +630,13 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        volumes: Iterable[int] | None = None,
     ):
         """
-        Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
-        Compatible with the MOAB unstructured mesh library. Example useage
-        openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
+        Exports an unstructured mesh file in VTK format for use with
+        openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
+        library. Example useage openmc.UnstructuredMesh(filename="umesh.vtk",
+        library="moab").
 
         Parameters:
         -----------
@@ -662,6 +665,8 @@ class CadToDagmc:
                 and this can save time.
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            volumes: a list of volume ids (int) to include in the mesh. If left
+                as default (None) then all volumes will be included.
 
 
         Returns:
@@ -686,7 +691,9 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, volumes_in_model = get_volumes(
+            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+        )
 
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
@@ -695,6 +702,16 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=set_size,
         )
+
+        if volumes:
+            for volume_id in volumes_in_model:
+                if volume_id[1] not in volumes:
+                    gmsh.model.occ.remove([volume_id], recursive=True)
+            gmsh.option.setNumber("Mesh.SaveAll", 1)
+            gmsh.model.occ.synchronize()
+            # Clear the mesh
+            gmsh.model.mesh.clear()
+            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
 
         gmsh.model.mesh.generate(3)
 
@@ -710,7 +727,7 @@ class CadToDagmc:
 
         gmsh.finalize()
 
-        return gmsh
+        return filename
 
     def export_gmsh_mesh_file(
         self,
