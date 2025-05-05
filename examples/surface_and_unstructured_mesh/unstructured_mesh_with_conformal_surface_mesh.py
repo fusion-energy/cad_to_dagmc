@@ -5,9 +5,10 @@
 # mesh as the same mesh parameters were used in both the surface and volume mesh.
 # Additionally only volume 2 is volume meshed, while all three volumes are surface meshed
 
-
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
+import openmc
+
 
 box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
 inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
@@ -23,20 +24,17 @@ assembly.add(outer_sphere, name="outer_sphere")
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
-
-h5m_file = model.export_dagmc_h5m_file(
-    filename="different_resolution_meshes.h5m",
-    set_size={1: 0.9, 2: 0.1, 3: 0.9},
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
+    filename="surface_mesh_conformal.h5m",
+    set_size={
+        1: 0.9,
+        2: 0.1,
+        3: 0.9,
+    },
+    unstructured_volumes=[2],
+    umesh_filename="volume_mesh_conformal.vtk",  #
 )
 
-vtk_file = model.export_unstructured_mesh_file(
-    filename="umesh.vtk",
-    set_size={1: 0.9, 2: 0.1, 3: 0.9},
-    volumes=[2],  # only mesh volume 2 out of the three volumes
-)
-
-
-import openmc
 
 with open("cross_sections.xml", "w") as file:
     file.write(
@@ -49,7 +47,7 @@ with open("cross_sections.xml", "w") as file:
     )
 openmc.config["cross_sections"] = "cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh(vtk_file, library="moab")
+umesh = openmc.UnstructuredMesh(umesh_filename, library="moab")
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstructured_mesh_tally")
 tally.filters = [mesh_filter]
@@ -68,10 +66,9 @@ mat3.add_nuclide("H1", 1, percent_type="ao")
 mat3.set_density("g/cm3", 0.003)
 my_materials = openmc.Materials([mat1, mat2, mat3])
 
-dag_univ = openmc.DAGMCUniverse(filename=h5m_file)
+dag_univ = openmc.DAGMCUniverse(filename=dagmc_filename)
 bound_dag_univ = dag_univ.bounded_universe()
 my_geometry = openmc.Geometry(root=bound_dag_univ)
-
 
 my_settings = openmc.Settings()
 my_settings.batches = 10
