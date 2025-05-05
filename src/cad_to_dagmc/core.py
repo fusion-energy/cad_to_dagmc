@@ -703,7 +703,7 @@ class CadToDagmc:
             set_size=set_size,
         )
 
-        if len(volumes) != 0:
+        if volumes:
             for volume_id in volumes_in_model:
                 if volume_id[1] not in volumes:
                     gmsh.model.occ.remove([volume_id], recursive=True)
