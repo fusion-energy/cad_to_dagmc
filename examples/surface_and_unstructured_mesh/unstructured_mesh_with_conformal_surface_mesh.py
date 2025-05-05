@@ -1,8 +1,14 @@
-# This example makes 3 CAD boxes
+# This example makes 3 CAD half spheres
 # Meshes the 3 volumes with different resolutions
-# exports the mesh to a DAGMC unstructured VTK file and Gmsh msh file
+# exports the mesh to a DAGMC unstructured VTK file and a DAGMC h5m file
+# The outer surface of the volume mesh should match the surface of the surface
+# mesh as the same mesh parameters were used in both the surface and volume mesh.
+# Additionally only volume 2 is volume meshed, while all three volumes are surface meshed
+
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
+import openmc
+
 
 box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
 inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
@@ -19,23 +25,18 @@ model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="different_resolution_meshes.h5m",
+    filename="surface_mesh_conformal.h5m",
     min_mesh_size=0.01,
     max_mesh_size=10,
     set_size={
         1: 0.9,
         2: 0.1,
-    },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
+        3: 0.9,
+    },
     unstructured_volumes=[2],
-    umesh_filename="umesh.vtk", #
-
+    umesh_filename="volume_mesh_conformal.vtk", #
 )
 
-
-# script assumes that "umesh.vtk" has been created by
-# curved_cadquery_object_to_dagmc_volume_mesh.py has been
-
-import openmc
 
 with open("cross_sections.xml", "w") as file:
     file.write(
@@ -48,8 +49,7 @@ with open("cross_sections.xml", "w") as file:
     )
 openmc.config["cross_sections"] = "cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh(umesh_filename, library="moab"
-)
+umesh = openmc.UnstructuredMesh(umesh_filename, library="moab")
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstructured_mesh_tally")
 tally.filters = [mesh_filter]
@@ -71,7 +71,6 @@ my_materials = openmc.Materials([mat1, mat2, mat3])
 dag_univ = openmc.DAGMCUniverse(filename=dagmc_filename)
 bound_dag_univ = dag_univ.bounded_universe()
 my_geometry = openmc.Geometry(root=bound_dag_univ)
-
 
 my_settings = openmc.Settings()
 my_settings.batches = 10
