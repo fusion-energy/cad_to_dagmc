@@ -666,7 +666,7 @@ class CadToDagmc:
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
             volumes: a list of volume ids (int) to include in the mesh. If left
-                as None then all volumes will be included.
+                as default (None) then all volumes will be included.
 
 
         Returns:

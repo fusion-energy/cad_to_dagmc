@@ -1,8 +1,9 @@
-# This example makes 3 CAD boxes
+# This example makes 3 CAD half spheres
 # Meshes the 3 volumes with different resolutions
 # exports the mesh to a DAGMC unstructured VTK file and a DAGMC h5m file
 # The outer surface of the volume mesh should match the surface of the surface
-# mesh.
+# mesh as the same mesh parameters were used in both the surface and volume mesh.
+# Additionally only volume 2 is volume meshed, while all three volumes are surface meshed 
 
 
 import cadquery as cq
@@ -92,7 +93,7 @@ sp = openmc.StatePoint(sp_filename)
 tally_result = sp.get_tally(name="unstructured_mesh_tally")
 
 # normally with regular meshes I would get the mesh from the tally
-# but with unstrucutred meshes the tally does not contain the mesh
+# but with unstructured meshes the tally does not contain the mesh
 # however we can get it from the statepoint file
 # umesh = tally_result.find_filter(openmc.MeshFilter)
 umesh_from_sp = sp.meshes[1]
