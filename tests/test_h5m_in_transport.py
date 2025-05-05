@@ -69,7 +69,6 @@ def transport_particles_on_h5m_geometry(
     dag_univ = openmc.DAGMCUniverse(filename=h5m_filename)
     bound_dag_univ = dag_univ.bounded_universe()
     geometry = openmc.Geometry(root=bound_dag_univ)
-    
 
     # initializes a new source object
     my_source = openmc.IndependentSource()
@@ -265,40 +264,32 @@ def test_h5m_with_multi_volume_touching():
         )
 
 
-
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_umesh_with_volumes():
     box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
     middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
-    outer_sphere = cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+    outer_sphere = (
+        cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+    )
 
     assembly = cq.Assembly()
     assembly.add(inner_sphere, name="inner_sphere")
     assembly.add(middle_sphere, name="middle_sphere")
     assembly.add(outer_sphere, name="outer_sphere")
 
-
     model = CadToDagmc()
     mat_tags = ["mat1", "mat2", "mat3"]
     model.add_cadquery_object(assembly, material_tags=mat_tags)
 
-    h5m_file= model.export_dagmc_h5m_file(
+    h5m_file = model.export_dagmc_h5m_file(
         filename="dagmc.h5m",
-        set_size={
-            1: 0.9,
-            2: 0.1,
-            3: 0.9
-        },
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
     )
 
     vtk_file = model.export_unstructured_mesh_file(
         filename="umesh_vol_1.vtk",
-        set_size={
-            1: 0.9,
-            2: 0.1,
-            3: 0.9
-        },
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
         volumes=[1],  # only mesh volume 2 out of the three volumes
     )
 
@@ -306,5 +297,5 @@ def test_umesh_with_volumes():
         h5m_filename=h5m_file,
         material_tags=mat_tags,
         nuclides=["H1"] * len(mat_tags),
-        vtk_filename = vtk_file
+        vtk_filename=vtk_file,
     )
