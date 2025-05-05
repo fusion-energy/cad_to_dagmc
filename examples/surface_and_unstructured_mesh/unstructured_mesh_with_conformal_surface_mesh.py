@@ -3,7 +3,7 @@
 # exports the mesh to a DAGMC unstructured VTK file and a DAGMC h5m file
 # The outer surface of the volume mesh should match the surface of the surface
 # mesh as the same mesh parameters were used in both the surface and volume mesh.
-# Additionally only volume 2 is volume meshed, while all three volumes are surface meshed 
+# Additionally only volume 2 is volume meshed, while all three volumes are surface meshed
 
 
 import cadquery as cq
