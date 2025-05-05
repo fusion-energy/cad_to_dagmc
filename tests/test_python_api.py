@@ -333,3 +333,74 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     assert width_x == expected_x_width
     assert width_y == expected_y_width
     assert width_z == expected_z_width
+
+def test_unstructured_mesh_with_volumes():
+
+    box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
+    inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
+    middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
+    outer_sphere = cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+
+    assembly = cq.Assembly()
+    assembly.add(inner_sphere, name="inner_sphere")
+    assembly.add(middle_sphere, name="middle_sphere")
+    assembly.add(outer_sphere, name="outer_sphere")
+
+
+    model = CadToDagmc()
+    model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
+
+    filename = model.export_dagmc_h5m_file(
+        filename="dagmc.h5m",
+        set_size={
+            1: 0.9,
+            2: 0.1,
+            3: 0.9
+        },
+    )
+    assert Path(filename).is_file()
+
+    filename = model.export_unstructured_mesh_file(
+        filename="umesh_vol_1.vtk",
+        set_size={
+            1: 0.9,
+            2: 0.1,
+            3: 0.9
+        },
+        volumes=[1],  # only mesh volume 2 out of the three volumes
+    )
+    assert Path(filename).is_file()
+
+    filename = model.export_unstructured_mesh_file(
+        filename="umesh_vol_2.vtk",
+        set_size={
+            1: 0.9,
+            2: 0.1,
+            3: 0.9
+        },
+        volumes=[2],  # only mesh volume 2 out of the three volumes
+    )
+    assert Path(filename).is_file()
+
+    filename = model.export_unstructured_mesh_file(
+        filename="umesh_vol_3.vtk",
+        set_size={
+            1: 0.9,
+            2: 0.1,
+            3: 0.9
+        },
+        volumes=[3],  # only mesh volume 2 out of the three volumes
+    )
+    assert Path(filename).is_file()
+
+    filename = model.export_unstructured_mesh_file(
+        filename="umesh_vol_1_2.vtk",
+        set_size={
+            1: 0.9,
+            2: 0.1,
+            3: 0.9
+        },
+        volumes=[1,2],  # only mesh volume 2 out of the three volumes
+    )
+    
+    assert Path(filename).is_file()
