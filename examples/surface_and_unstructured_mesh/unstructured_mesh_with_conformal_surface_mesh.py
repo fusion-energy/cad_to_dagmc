@@ -17,7 +17,7 @@ assembly.add(box_set_global_mesh, color=cq.Color(1, 0, 0))
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
-model.export_dagmc_h5m_file(
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="different_resolution_meshes.h5m",
     min_mesh_size=0.01,
     max_mesh_size=10,
@@ -29,19 +29,7 @@ model.export_dagmc_h5m_file(
     umesh_filename="umesh.vtk",
 )
 
-model.export_dagmc_h5m_file(
-    filename="different_resolution_meshes.h5m",
-    min_mesh_size=0.01,
-    max_mesh_size=10,
-    set_size={
-        1: 0.9,
-        2: 0.1,
-    },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
-    unstructured_volumes=[2],
-    umesh_filename="umesh_broken.vtk",
-)
-
-model.export_unstructured_mesh_file(
+umesh_filename = model.export_unstructured_mesh_file(
     filename="umesh.vtk",
     min_mesh_size=0.01,
     max_mesh_size=10,
@@ -49,7 +37,7 @@ model.export_unstructured_mesh_file(
         1: 0.9,
         2: 0.1,
     },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
-    volumes=[2],
+    volume=[2],
 )
 
 
@@ -58,20 +46,18 @@ model.export_unstructured_mesh_file(
 
 import openmc
 
-# with open("cross_sections.xml", "w") as file:
-#     file.write(
-#         """
-#         <?xml version='1.0' encoding='UTF-8'?>
-#         <cross_sections>
-#         <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
-#         </cross_sections>
-#         """
-#     )
-# openmc.config["cross_sections"] = "cross_sections.xml"
-openmc.config["cross_sections"] = "/home/jon/nuclear_data/endfb-viii.0-hdf5/cross_sections.xml"
+with open("cross_sections.xml", "w") as file:
+    file.write(
+        """
+        <?xml version='1.0' encoding='UTF-8'?>
+        <cross_sections>
+        <library materials="H1" path="tests/ENDFB-7.1-NNDC_H1.h5" type="neutron"/>
+        </cross_sections>
+        """
+    )
+openmc.config["cross_sections"] = "cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh(
-    "/home/jon/cad_to_dagmc/examples/surface_and_unstructured_mesh/umesh.vtk", library="moab"
+umesh = openmc.UnstructuredMesh(umesh_filename, library="moab"
 )
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstructured_mesh_tally")
@@ -91,7 +77,7 @@ mat3.add_nuclide("H1", 1, percent_type="ao")
 mat3.set_density("g/cm3", 0.003)
 my_materials = openmc.Materials([mat1, mat2, mat3])
 
-dag_univ = openmc.DAGMCUniverse(filename="different_resolution_meshes.h5m")
+dag_univ = openmc.DAGMCUniverse(filename=dagmc_filename)
 bound_dag_univ = dag_univ.bounded_universe()
 my_geometry = openmc.Geometry(root=bound_dag_univ)
 
