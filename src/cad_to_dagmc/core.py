@@ -630,6 +630,7 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        volumes: Iterable[int] | None = None,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
@@ -687,7 +688,7 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, volumes_in_model = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
@@ -696,6 +697,16 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=set_size,
         )
+
+        if len(volumes) != 0:
+            for volume_id in volumes_in_model:
+                if volume_id[1] not in volumes:
+                    gmsh.model.occ.remove([volume_id], recursive=True)
+            gmsh.option.setNumber("Mesh.SaveAll", 1)
+            gmsh.model.occ.synchronize()
+            # Clear the mesh
+            gmsh.model.mesh.clear()
+            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
 
         gmsh.model.mesh.generate(3)
 
@@ -903,7 +914,10 @@ class CadToDagmc:
                     gmsh.model.occ.remove([volume_id], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
             gmsh.model.occ.synchronize()
+            # Clear the mesh
+            gmsh.model.mesh.clear()
             gmsh.model.mesh.generate(3)
+            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
             gmsh.write(umesh_filename)
 
         gmsh.finalize()
