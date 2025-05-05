@@ -922,6 +922,11 @@ class CadToDagmc:
             gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
             gmsh.write(umesh_filename)
 
+        import meshio
+        mesh = meshio.read(filename)
+        mesh.cells = [c for c in mesh.cells if c.type in {"tetra"}]
+        mesh.write(umesh_filename, binary=True)
+
         gmsh.finalize()
 
-        return dagmc_filename
+        return dagmc_filename, umesh_filename
