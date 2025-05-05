@@ -819,7 +819,7 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
-        unstructured_volumes: Iterable[int] = [],
+        unstructured_volumes: Iterable[int] | None = None,
         umesh_filename: str = "umesh.vtk",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
@@ -914,15 +914,15 @@ class CadToDagmc:
             implicit_complement_material_tag=implicit_complement_material_tag,
         )
 
-        if len(unstructured_volumes) != 0:
+        if unstructured_volumes:
             # remove all the unused occ volumes, this prevents them being meshed
-            for volume_id in volumes:
-                if volume_id[1] not in unstructured_volumes:
-                    gmsh.model.occ.remove([volume_id], recursive=True)
+            for (volume_dim, volume_id) in volumes:
+                if volume_id not in unstructured_volumes:
+                    gmsh.model.occ.remove([(volume_dim, volume_id)], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
             gmsh.model.occ.synchronize()
 
-            # removes all the 2D groups so that they are not included in the vtk file
+            # removes all the 2D groups so that 2D faces are not included in the vtk file
             all_2d_groups = gmsh.model.getPhysicalGroups(2)
             for entry in all_2d_groups:
                 gmsh.model.removePhysicalGroups([entry])
