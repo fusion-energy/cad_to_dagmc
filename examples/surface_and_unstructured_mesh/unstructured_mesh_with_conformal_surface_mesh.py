@@ -25,20 +25,12 @@ model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
 h5m_file = model.export_dagmc_h5m_file(
     filename="different_resolution_meshes.h5m",
-    set_size={
-        1: 0.9,
-        2: 0.1,
-        3: 0.9
-    },
+    set_size={1: 0.9, 2: 0.1, 3: 0.9},
 )
 
 vtk_file = model.export_unstructured_mesh_file(
     filename="umesh.vtk",
-    set_size={
-        1: 0.9,
-        2: 0.1,
-        3: 0.9
-    },
+    set_size={1: 0.9, 2: 0.1, 3: 0.9},
     volumes=[2],  # only mesh volume 2 out of the three volumes
 )
 
@@ -78,7 +70,6 @@ my_materials = openmc.Materials([mat1, mat2, mat3])
 dag_univ = openmc.DAGMCUniverse(filename=h5m_file)
 bound_dag_univ = dag_univ.bounded_universe()
 my_geometry = openmc.Geometry(root=bound_dag_univ)
-
 
 
 my_settings = openmc.Settings()
