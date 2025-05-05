@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 import cadquery as cq
 import gmsh
 import numpy as np
@@ -633,9 +634,10 @@ class CadToDagmc:
         volumes: Iterable[int] | None = None,
     ):
         """
-        Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
-        Compatible with the MOAB unstructured mesh library. Example useage
-        openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
+        Exports an unstructured mesh file in VTK format for use with
+        openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
+        library. Example useage openmc.UnstructuredMesh(filename="umesh.vtk",
+        library="moab").
 
         Parameters:
         -----------
@@ -664,6 +666,8 @@ class CadToDagmc:
                 and this can save time.
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            volumes: a list of volume ids (int) to include in the mesh. If left
+                as default (None) then all volumes will be included.
 
 
         Returns:
@@ -700,7 +704,7 @@ class CadToDagmc:
             set_size=set_size,
         )
 
-        if len(volumes) != 0:
+        if volumes:
             for volume_id in volumes_in_model:
                 if volume_id[1] not in volumes:
                     gmsh.model.occ.remove([volume_id], recursive=True)
@@ -724,7 +728,7 @@ class CadToDagmc:
 
         gmsh.finalize()
 
-        return gmsh
+        return filename
 
     def export_gmsh_mesh_file(
         self,
@@ -911,21 +915,21 @@ class CadToDagmc:
         )
 
         if len(unstructured_volumes) != 0:
+            # remove all the unused occ volumes, this prevents them being meshed
             for volume_id in volumes:
                 if volume_id[1] not in unstructured_volumes:
                     gmsh.model.occ.remove([volume_id], recursive=True)
             gmsh.option.setNumber("Mesh.SaveAll", 1)
             gmsh.model.occ.synchronize()
-            # Clear the mesh
-            gmsh.model.mesh.clear()
+
+            # removes all the 2D groups so that they are not included in the vtk file
+            all_2d_groups = gmsh.model.getPhysicalGroups(2)
+            for entry in all_2d_groups:
+                gmsh.model.removePhysicalGroups([entry])
+            
             gmsh.model.mesh.generate(3)
             gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
             gmsh.write(umesh_filename)
-
-        import meshio
-        mesh = meshio.read(filename)
-        mesh.cells = [c for c in mesh.cells if c.type in {"tetra"}]
-        mesh.write(umesh_filename, binary=True)
 
         gmsh.finalize()
 

@@ -4,14 +4,15 @@
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)
-box_set_size_fine_mesh = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
-box_set_global_mesh = cq.Workplane().moveTo(2, 1).box(1, 1, 1)
+box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
+inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
+middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
+outer_sphere = cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
 
 assembly = cq.Assembly()
-assembly.add(box_set_size_course_mesh, color=cq.Color(0, 0, 1))
-assembly.add(box_set_size_fine_mesh, color=cq.Color(0, 1, 0))
-assembly.add(box_set_global_mesh, color=cq.Color(1, 0, 0))
+assembly.add(inner_sphere, name="inner_sphere")
+assembly.add(middle_sphere, name="middle_sphere")
+assembly.add(outer_sphere, name="outer_sphere")
 
 
 model = CadToDagmc()
@@ -26,18 +27,8 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
         2: 0.1,
     },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
     unstructured_volumes=[2],
-    umesh_filename="umesh.vtk",
-)
+    umesh_filename="umesh.vtk", #
 
-umesh_filename = model.export_unstructured_mesh_file(
-    filename="umesh.vtk",
-    min_mesh_size=0.01,
-    max_mesh_size=10,
-    set_size={
-        1: 0.9,
-        2: 0.1,
-    },  # not volume 3 is not specified in the set_size so it uses only the min max mesh sizes
-    volume=[2],
 )
 
 
@@ -89,7 +80,7 @@ my_settings.run_mode = "fixed source"
 
 # Create a DT point source
 my_source = openmc.IndependentSource()
-my_source.space = openmc.stats.Point((0, 0, 0))
+my_source.space = openmc.stats.Point(my_geometry.bounding_box.center)
 my_source.angle = openmc.stats.Isotropic()
 my_source.energy = openmc.stats.Discrete([14e6], [1])
 my_settings.source = my_source
@@ -102,7 +93,7 @@ sp = openmc.StatePoint(sp_filename)
 tally_result = sp.get_tally(name="unstructured_mesh_tally")
 
 # normally with regular meshes I would get the mesh from the tally
-# but with unstrucutred meshes the tally does not contain the mesh
+# but with unstructured meshes the tally does not contain the mesh
 # however we can get it from the statepoint file
 # umesh = tally_result.find_filter(openmc.MeshFilter)
 umesh_from_sp = sp.meshes[1]
