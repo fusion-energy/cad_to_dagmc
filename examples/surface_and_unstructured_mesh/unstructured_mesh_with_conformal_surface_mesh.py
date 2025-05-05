@@ -53,7 +53,6 @@ model.export_unstructured_mesh_file(
 )
 
 
-
 # script assumes that "umesh.vtk" has been created by
 # curved_cadquery_object_to_dagmc_volume_mesh.py has been
 
@@ -71,7 +70,9 @@ import openmc
 # openmc.config["cross_sections"] = "cross_sections.xml"
 openmc.config["cross_sections"] = "/home/jon/nuclear_data/endfb-viii.0-hdf5/cross_sections.xml"
 
-umesh = openmc.UnstructuredMesh("/home/jon/cad_to_dagmc/examples/surface_and_unstructured_mesh/umesh.vtk", library="moab")
+umesh = openmc.UnstructuredMesh(
+    "/home/jon/cad_to_dagmc/examples/surface_and_unstructured_mesh/umesh.vtk", library="moab"
+)
 mesh_filter = openmc.MeshFilter(umesh)
 tally = openmc.Tally(name="unstructured_mesh_tally")
 tally.filters = [mesh_filter]
@@ -93,7 +94,6 @@ my_materials = openmc.Materials([mat1, mat2, mat3])
 dag_univ = openmc.DAGMCUniverse(filename="different_resolution_meshes.h5m")
 bound_dag_univ = dag_univ.bounded_universe()
 my_geometry = openmc.Geometry(root=bound_dag_univ)
-
 
 
 my_settings = openmc.Settings()

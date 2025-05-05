@@ -688,7 +688,9 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, volumes_in_model = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, volumes_in_model = get_volumes(
+            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+        )
 
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
