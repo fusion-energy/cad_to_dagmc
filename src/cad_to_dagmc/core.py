@@ -902,9 +902,9 @@ class CadToDagmc:
         vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
             dims_and_vol_ids=dims_and_vol_ids
         )
-        
+
         gmsh.model.removePhysicalGroups()
-        v=gmsh.model.getEntities(3)
+        v = gmsh.model.getEntities(3)
         print(v)
         print(v)
         print(v)

@@ -42,7 +42,6 @@ model.export_dagmc_h5m_file(
 )
 
 
-
 # # script assumes that "umesh.vtk" has been created by
 # # curved_cadquery_object_to_dagmc_volume_mesh.py has been
 
