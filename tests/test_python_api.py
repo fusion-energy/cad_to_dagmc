@@ -349,7 +349,7 @@ def test_unstructured_mesh_export_with_surface_mesh():
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
-    model.export_dagmc_h5m_file(
+    dag_filename, umesh_filename = model.export_dagmc_h5m_file(
         filename="conformal-surface-mesh2.h5m",
         min_mesh_size=0.01,
         max_mesh_size=10,
@@ -363,6 +363,9 @@ def test_unstructured_mesh_export_with_surface_mesh():
     )
     assert Path("conformal-surface-mesh2.h5m").is_file()
     assert Path("conformal-volume-mesh2.vtk").is_file()
+    assert Path(dag_filename).is_file()
+    assert Path(umesh_filename).is_file()
+    # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
 
 
 def test_unstructured_mesh_with_volumes():
@@ -382,7 +385,6 @@ def test_unstructured_mesh_with_volumes():
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
-    # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
     filename = model.export_dagmc_h5m_file(
         filename="dagmc.h5m",
         set_size={1: 0.9, 2: 0.1, 3: 0.9},

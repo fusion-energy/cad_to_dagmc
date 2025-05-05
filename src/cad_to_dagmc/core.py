@@ -855,7 +855,7 @@ class CadToDagmc:
                 mesh file. Only used if unstructured_volumes is not empty.
 
         Returns:
-            str: the DAGMC filename saved
+            str: the filenames(s) for the files created.
         """
 
         assembly = cq.Assembly()
@@ -931,6 +931,8 @@ class CadToDagmc:
             gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
             gmsh.write(umesh_filename)
 
-        gmsh.finalize()
+            gmsh.finalize()
 
-        return dagmc_filename, umesh_filename
+            return dagmc_filename, umesh_filename
+        else:
+            return dagmc_filename

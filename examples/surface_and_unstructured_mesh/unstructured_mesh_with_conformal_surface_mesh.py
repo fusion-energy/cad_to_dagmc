@@ -26,8 +26,6 @@ model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="surface_mesh_conformal.h5m",
-    min_mesh_size=0.01,
-    max_mesh_size=10,
     set_size={
         1: 0.9,
         2: 0.1,
