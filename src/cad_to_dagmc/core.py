@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 import cadquery as cq
 import gmsh
 import numpy as np
@@ -6,6 +7,7 @@ from cadquery import importers
 from pymoab import core, types
 import tempfile
 import warnings
+from typing import Iterable
 from cad_to_dagmc import __version__
 
 
@@ -234,15 +236,14 @@ def init_gmsh():
     return gmsh
 
 
-def mesh_brep(
+def set_sizes_for_mesh(
     gmsh,
     min_mesh_size: float | None = None,
     max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
-    dimensions: int = 2,
     set_size: dict[int, float] | None = None,
 ):
-    """Creates a conformal surface meshes of the volumes in a Brep file using Gmsh.
+    """Sets up the mesh sizes for each volume in the mesh.
 
     Args:
         occ_shape: the occ_shape of the Brep file to convert
@@ -252,8 +253,6 @@ def mesh_brep(
             into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
         mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
-        dimensions: The number of dimensions, 2 for a surface mesh 3 for a
-            volume mesh. Passed to gmsh.model.mesh.generate()
         set_size: a dictionary of volume ids (int) and target mesh sizes
             (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
 
@@ -316,9 +315,6 @@ def mesh_brep(
         for boundary, size in averaged_boundary_sizes.items():
             gmsh.model.mesh.setSize([boundary], size)
             print(f"Set mesh size {size} for boundary {boundary}")
-
-
-    gmsh.model.mesh.generate(dimensions)
 
     return gmsh
 
@@ -636,11 +632,13 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        volumes: Iterable[int] | None = None,
     ):
         """
-        Exports an unstructured mesh file in VTK format for use with openmc.UnstructuredMesh.
-        Compatible with the MOAB unstructured mesh library. Example useage
-        openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
+        Exports an unstructured mesh file in VTK format for use with
+        openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
+        library. Example useage openmc.UnstructuredMesh(filename="umesh.vtk",
+        library="moab").
 
         Parameters:
         -----------
@@ -669,6 +667,8 @@ class CadToDagmc:
                 and this can save time.
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            volumes: a list of volume ids (int) to include in the mesh. If left
+                as default (None) then all volumes will be included.
 
 
         Returns:
@@ -693,16 +693,29 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, volumes_in_model = get_volumes(
+            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+        )
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=3,
             set_size=set_size,
         )
+
+        if volumes:
+            for volume_id in volumes_in_model:
+                if volume_id[1] not in volumes:
+                    gmsh.model.occ.remove([volume_id], recursive=True)
+            gmsh.option.setNumber("Mesh.SaveAll", 1)
+            gmsh.model.occ.synchronize()
+            # Clear the mesh
+            gmsh.model.mesh.clear()
+            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
+
+        gmsh.model.mesh.generate(3)
 
         # makes the folder if it does not exist
         if Path(filename).parent:
@@ -716,7 +729,7 @@ class CadToDagmc:
 
         gmsh.finalize()
 
-        return gmsh
+        return filename
 
     def export_gmsh_mesh_file(
         self,
@@ -772,14 +785,15 @@ class CadToDagmc:
 
         gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            dimensions=dimensions,
             set_size=set_size,
         )
+
+        gmsh.model.mesh.generate(dimensions)
 
         # makes the folder if it does not exist
         if Path(filename).parent:
@@ -806,6 +820,8 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int, float] | None = None,
+        unstructured_volumes: Iterable[int] | None = None,
+        umesh_filename: str = "umesh.vtk",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -834,9 +850,13 @@ class CadToDagmc:
                 and this can save time.
             set_size: a dictionary of volume ids (int) and target mesh sizes
                 (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            unstructured_volumes: a list of volume ids to be saved in as an
+                unstructured mesh file.
+            umesh_filename: the filename to use for the optional unstructured
+                mesh file. Only used if unstructured_volumes is not empty.
 
         Returns:
-            str: the DAGMC filename saved
+            str: the filenames(s) for the files created.
         """
 
         assembly = cq.Assembly()
@@ -873,7 +893,7 @@ class CadToDagmc:
             gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
         )
 
-        gmsh = mesh_brep(
+        gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
@@ -881,19 +901,39 @@ class CadToDagmc:
             set_size=set_size,
         )
 
-        dims_and_vol_ids = volumes
+        gmsh.model.mesh.generate(2)
 
         vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-            dims_and_vol_ids=dims_and_vol_ids
+            dims_and_vol_ids=volumes
         )
 
-        gmsh.finalize()
-
-        # checks and fixes triangle fix_normals within vertices_to_h5m
-        return vertices_to_h5m(
+        dagmc_filename = vertices_to_h5m(
             vertices=vertices,
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
         )
+
+        if unstructured_volumes:
+            # remove all the unused occ volumes, this prevents them being meshed
+            for volume_dim, volume_id in volumes:
+                if volume_id not in unstructured_volumes:
+                    gmsh.model.occ.remove([(volume_dim, volume_id)], recursive=True)
+            gmsh.option.setNumber("Mesh.SaveAll", 1)
+            gmsh.model.occ.synchronize()
+
+            # removes all the 2D groups so that 2D faces are not included in the vtk file
+            all_2d_groups = gmsh.model.getPhysicalGroups(2)
+            for entry in all_2d_groups:
+                gmsh.model.removePhysicalGroups([entry])
+
+            gmsh.model.mesh.generate(3)
+            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
+            gmsh.write(umesh_filename)
+
+            gmsh.finalize()
+
+            return dagmc_filename, umesh_filename
+        else:
+            return dagmc_filename
