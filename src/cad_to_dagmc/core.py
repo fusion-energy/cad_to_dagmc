@@ -274,7 +274,6 @@ def set_sizes_for_mesh(
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
     gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
 
-
     if set_size:
         volumes = gmsh.model.getEntities(3)
         available_volumes = [volume[1] for volume in volumes]
