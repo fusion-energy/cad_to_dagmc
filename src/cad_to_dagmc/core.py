@@ -9,6 +9,7 @@ import tempfile
 import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
+import cadquery_direct_mesh_plugin
 
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -870,10 +871,12 @@ class CadToDagmc:
             msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
-        if imprint:
-            imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
-                assembly
-            )
+        # Mesh the assembly using CadQuery's direct-mesh plugin
+        cq_mesh = assembly.to_mesh(imprint)
+
+        # Fix the material tag order for imprinted assemblies
+        if cq_mesh["imprinted_assembly"] is not None:
+            imprinted_solids_with_org_id = cq_mesh["imprinted_solids_with_orginal_ids"]
 
             scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
@@ -882,29 +885,12 @@ class CadToDagmc:
             )
         else:
             material_tags_in_brep_order = self.material_tags
-            imprinted_assembly = assembly
 
         check_material_tags(material_tags_in_brep_order, self.parts)
 
-        gmsh = init_gmsh()
-
-        gmsh, volumes = get_volumes(
-            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-        )
-
-        gmsh = set_sizes_for_mesh(
-            gmsh=gmsh,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            mesh_algorithm=mesh_algorithm,
-            set_size=set_size,
-        )
-
-        gmsh.model.mesh.generate(2)
-
-        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-            dims_and_vol_ids=volumes
-        )
+        # Extract the mesh information to allow export to h5m from the direct-mesh result
+        vertices = cq_mesh["vertices"]
+        triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
 
         dagmc_filename = vertices_to_h5m(
             vertices=vertices,
