@@ -2,7 +2,11 @@ import cadquery as cq
 from OCP.BRep import BRep_Builder
 from OCP.TopoDS import TopoDS_Shell, TopoDS_Solid
 from OCP.gp import gp_Pnt
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
+from OCP.BRepBuilderAPI import (
+    BRepBuilderAPI_MakeEdge,
+    BRepBuilderAPI_MakeWire,
+    BRepBuilderAPI_MakeFace,
+)
 from cadquery.vis import show
 
 # Define the 4 vertices of the tetrahedron
@@ -57,7 +61,8 @@ result = cq.Solid(solid)
 # assembly = cq.Assembly()
 # assembly.add(result, name="tetrahedron")
 
-from cad_to_dagmc import CadToDagmc  # installed with 
+from cad_to_dagmc import CadToDagmc  # installed with
+
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 # python -m pip install cad_to_dagmc
 
@@ -67,20 +72,21 @@ my_model.add_cadquery_object(cadquery_object=result, material_tags=["mat1"])
 # tried adding via assembly but this did not help avoid the lost particles
 # my_model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1"])
 
-my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=False)
+my_model.export_dagmc_h5m_file(filename="dagmc_tet.h5m", imprint=False)
 # tried various export options but all have lost particles
 # my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=True)
 # my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=False, min_mesh_size= 1., max_mesh_size=2.)
 # my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=True, min_mesh_size= 1., max_mesh_size=2.)
 
-import openmc # installed with python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
+import openmc  # installed with python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
 
-dag_univ = openmc.DAGMCUniverse('dagmc_tet.h5m')
+dag_univ = openmc.DAGMCUniverse("dagmc_tet.h5m")
 bound_dag_univ = dag_univ.bounded_universe(padding_distance=10)
 my_geometry = openmc.Geometry(root=bound_dag_univ)
 
 from matplotlib import pyplot as plt
-my_geometry.plot(origin=bound_dag_univ.bounding_box.center, width=(3,3))
+
+my_geometry.plot(origin=bound_dag_univ.bounding_box.center, width=(3, 3))
 plt.show()
 
 mat1 = openmc.Material(name="mat1")
@@ -94,7 +100,9 @@ my_settings.particles = 50
 my_settings.run_mode = "fixed source"
 
 my_source = openmc.IndependentSource()
-my_source.space = openmc.stats.Point(bound_dag_univ.bounding_box.center)  # source in the center of the bounding box
+my_source.space = openmc.stats.Point(
+    bound_dag_univ.bounding_box.center
+)  # source in the center of the bounding box
 my_source.angle = openmc.stats.Isotropic()
 my_source.energy = openmc.stats.Discrete([14e6], [1])
 my_settings.source = my_source
@@ -102,4 +110,3 @@ my_settings.source = my_source
 model = openmc.model.Model(my_geometry, my_materials, my_settings)
 
 model.run()
-
