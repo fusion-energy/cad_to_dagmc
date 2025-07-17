@@ -2,7 +2,6 @@ import cadquery as cq
 from cadquery.vis import show_object
 
 
-
 import numpy as np
 import cadquery as cq
 
@@ -30,7 +29,6 @@ result = cq.Solid.makeSolid(shell)
 # show_object(result)
 
 
-
 from cad_to_dagmc import CadToDagmc  # installed with
 
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
@@ -39,7 +37,9 @@ from cad_to_dagmc import CadToDagmc  # installed with
 
 my_model = CadToDagmc()
 my_model.add_cadquery_object(cadquery_object=result, material_tags=["mat1"])
-my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=False, min_mesh_size= 2., max_mesh_size=4.)
+my_model.export_dagmc_h5m_file(
+    filename="dagmc_tet.h5m", imprint=False, min_mesh_size=2.0, max_mesh_size=4.0
+)
 
 import openmc  # installed with python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
 
@@ -48,7 +48,8 @@ bound_dag_univ = dag_univ.bounded_universe(padding_distance=10)
 my_geometry = openmc.Geometry(root=bound_dag_univ)
 
 from matplotlib import pyplot as plt
-my_geometry.plot(origin=bound_dag_univ.bounding_box.center, width=(3,3))
+
+my_geometry.plot(origin=bound_dag_univ.bounding_box.center, width=(3, 3))
 # plt.show()
 
 mat1 = openmc.Material(name="mat1")
