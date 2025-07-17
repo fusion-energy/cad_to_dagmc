@@ -1,15 +1,12 @@
 import cadquery as cq
-from OCP.BRep import BRep_Builder
-from OCP.TopoDS import TopoDS_Shell, TopoDS_Solid
-from OCP.gp import gp_Pnt
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
 from cadquery.vis import show_object
-import math
-# Start with a cube
+
+
 
 import numpy as np
-
 import cadquery as cq
+
+from cadquery.vis import show
 
 # Define the 4 vertices of the tetrahedron
 A = cq.Vector(0, 0, 0)
@@ -34,7 +31,8 @@ result = cq.Solid.makeSolid(shell)
 
 
 
-from cad_to_dagmc import CadToDagmc  # installed with 
+from cad_to_dagmc import CadToDagmc  # installed with
+
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 # python -m pip install cad_to_dagmc
 
@@ -43,10 +41,9 @@ my_model = CadToDagmc()
 my_model.add_cadquery_object(cadquery_object=result, material_tags=["mat1"])
 my_model.export_dagmc_h5m_file(filename='dagmc_tet.h5m', imprint=False, min_mesh_size= 2., max_mesh_size=4.)
 
+import openmc  # installed with python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
 
-import openmc # installed with python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
-
-dag_univ = openmc.DAGMCUniverse('dagmc_tet.h5m')
+dag_univ = openmc.DAGMCUniverse("dagmc_tet.h5m")
 bound_dag_univ = dag_univ.bounded_universe(padding_distance=10)
 my_geometry = openmc.Geometry(root=bound_dag_univ)
 
@@ -65,7 +62,9 @@ my_settings.particles = 50
 my_settings.run_mode = "fixed source"
 
 my_source = openmc.IndependentSource()
-my_source.space = openmc.stats.Point(bound_dag_univ.bounding_box.center)  # source in the center of the bounding box
+my_source.space = openmc.stats.Point(
+    bound_dag_univ.bounding_box.center
+)  # source in the center of the bounding box
 my_source.angle = openmc.stats.Isotropic()
 my_source.energy = openmc.stats.Discrete([14e6], [1])
 my_settings.source = my_source
@@ -73,4 +72,3 @@ my_settings.source = my_source
 model = openmc.model.Model(my_geometry, my_materials, my_settings)
 
 model.run()
-
