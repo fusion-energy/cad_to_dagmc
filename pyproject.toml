@@ -23,7 +23,7 @@ dependencies = [
     "cadquery>=2.5.2",
     "numpy",
     "gmsh",
-    "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
+    # "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
 ]
 dynamic = ["version"]
 
