@@ -43,5 +43,3 @@ cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename="dagmc_from_gmsh_obje
 # finalize the GMSH API after using export_gmsh_object_to_dagmc_h5m_file
 # and getImprintedGmsh as these both need access to the GMSH object.
 gmsh.finalize()
-
-
