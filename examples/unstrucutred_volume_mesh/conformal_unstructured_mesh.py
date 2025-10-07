@@ -20,7 +20,7 @@ assembly.add(middle_sphere, name="middle_sphere")
 # show(assembly)
 
 # getTaggedGmsh initializes gmsh and creates a mesh object ready for meshing
-assembly.getTaggedGmsh()
+assembly.getImprintedGmsh()
 # Here you can set the mesh parameters
 
 # Retrieve the volume associated with "inner_sphere"
