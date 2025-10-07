@@ -38,10 +38,11 @@ gmsh.model.mesh.setSize(boundaries, 0.1)  # 0.1 is the small mesh size
 
 gmsh.model.mesh.generate(2)  # for DAGMC surface mesh we just need a 2D surface mesh
 
+# material tags are found automatically as they are the names used for the
+# 3d physical groups in the gmsh object which in turn come from the names
+# used in the cadquery assembly. "inner_sphere" and "middle_sphere" in this case.
 cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(filename="dagmc_from_gmsh_object.h5m")
 
 # finalize the GMSH API after using export_gmsh_object_to_dagmc_h5m_file
 # and getImprintedGmsh as these both need access to the GMSH object.
 gmsh.finalize()
-
-
