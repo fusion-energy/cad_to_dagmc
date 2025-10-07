@@ -65,3 +65,4 @@ jobs:
           python examples/surface_mesh/different_resolution_meshes.py
           python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
           python examples/surface_and_unstructured_mesh/unstructured_mesh_with_conformal_surface_mesh.py
+          python examples/surface_mesh/cadquery_and_gmsh.py
