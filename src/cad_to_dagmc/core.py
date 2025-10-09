@@ -872,7 +872,7 @@ class CadToDagmc:
             raise ValueError(msg)
 
         # Mesh the assembly using CadQuery's direct-mesh plugin
-        cq_mesh = assembly.toMesh(imprint)
+        cq_mesh = assembly.toMesh(imprint, tolerance=0.1, angular_tolerance=0.1)
 
         # Fix the material tag order for imprinted assemblies
         if cq_mesh["imprinted_assembly"] is not None:
