@@ -10,9 +10,6 @@ import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
 
-# Controls whether or not CadQuery's direct mesh plugin is used
-use_cq = True
-
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
@@ -824,7 +821,7 @@ class CadToDagmc:
         set_size: dict[int, float] | None = None,
         unstructured_volumes: Iterable[int] | None = None,
         umesh_filename: str = "umesh.vtk",
-        # use_cq: bool = False,
+        use_cq: bool = True,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
