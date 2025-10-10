@@ -9,7 +9,9 @@ import tempfile
 import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
-import cadquery_direct_mesh_plugin
+
+# Controls whether or not CadQuery's direct mesh plugin is used
+use_cq = True
 
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -822,6 +824,7 @@ class CadToDagmc:
         set_size: dict[int, float] | None = None,
         unstructured_volumes: Iterable[int] | None = None,
         umesh_filename: str = "umesh.vtk",
+        # use_cq: bool = False,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -871,26 +874,70 @@ class CadToDagmc:
             msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
-        # Mesh the assembly using CadQuery's direct-mesh plugin
-        cq_mesh = assembly.toMesh(imprint, tolerance=0.1, angular_tolerance=0.1)
+        # Use the CadQuery direct mesh plugin
+        if use_cq:
+            import cadquery_direct_mesh_plugin
 
-        # Fix the material tag order for imprinted assemblies
-        if cq_mesh["imprinted_assembly"] is not None:
-            imprinted_solids_with_org_id = cq_mesh["imprinted_solids_with_orginal_ids"]
+            # Mesh the assembly using CadQuery's direct-mesh plugin
+            cq_mesh = assembly.toMesh(imprint, tolerance=0.1, angular_tolerance=0.1)
 
-            scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+            # Fix the material tag order for imprinted assemblies
+            if cq_mesh["imprinted_assembly"] is not None:
+                imprinted_solids_with_org_id = cq_mesh["imprinted_solids_with_orginal_ids"]
 
-            material_tags_in_brep_order = order_material_ids_by_brep_order(
-                original_ids, scrambled_ids, self.material_tags
-            )
+                scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+
+                material_tags_in_brep_order = order_material_ids_by_brep_order(
+                    original_ids, scrambled_ids, self.material_tags
+                )
+            else:
+                material_tags_in_brep_order = self.material_tags
+
+            check_material_tags(material_tags_in_brep_order, self.parts)
+
+            # Extract the mesh information to allow export to h5m from the direct-mesh result
+            vertices = cq_mesh["vertices"]
+            triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
+        # Use gmsh
         else:
-            material_tags_in_brep_order = self.material_tags
+            # If assembly is not to be imprinted, pass through the assembly as-is
+            if imprint:
+                imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
+                    assembly
+                )
 
-        check_material_tags(material_tags_in_brep_order, self.parts)
+                scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
 
-        # Extract the mesh information to allow export to h5m from the direct-mesh result
-        vertices = cq_mesh["vertices"]
-        triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
+                material_tags_in_brep_order = order_material_ids_by_brep_order(
+                    original_ids, scrambled_ids, self.material_tags
+                )
+
+            else:
+                material_tags_in_brep_order = self.material_tags
+                imprinted_assembly = assembly
+
+            check_material_tags(material_tags_in_brep_order, self.parts)
+
+            # Start generating the mesh
+            gmsh = init_gmsh()
+
+            gmsh, volumes = get_volumes(
+                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+            )
+
+            gmsh = set_sizes_for_mesh(
+                gmsh=gmsh,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
+                mesh_algorithm=mesh_algorithm,
+                set_size=set_size,
+            )
+
+            gmsh.model.mesh.generate(2)
+
+            vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+                dims_and_vol_ids=volumes
+            )
 
         dagmc_filename = vertices_to_h5m(
             vertices=vertices,
