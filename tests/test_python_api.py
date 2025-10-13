@@ -360,6 +360,7 @@ def test_unstructured_mesh_export_with_surface_mesh():
         },
         unstructured_volumes=[2],
         umesh_filename="conformal-volume-mesh2.vtk",
+        meshing_backend="gmsh",
     )
     assert Path("conformal-surface-mesh2.h5m").is_file()
     assert Path("conformal-volume-mesh2.vtk").is_file()

@@ -32,7 +32,8 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
         3: 0.9,
     },
     unstructured_volumes=[2],
-    umesh_filename="volume_mesh_conformal.vtk",  #
+    umesh_filename="volume_mesh_conformal.vtk",
+    meshing_backend="gmsh",
 )
 
 
