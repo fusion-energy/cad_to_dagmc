@@ -44,6 +44,7 @@ jobs:
           python -c "import pymoab"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
+          python -m pip install git+https://github.com/jmwright/cadquery-direct-mesh-plugin
           python -c "import cad_to_dagmc"
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
