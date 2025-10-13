@@ -36,11 +36,7 @@ jobs:
           apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
           apt install python3
           apt install python3-pip
-          python -m pip install --upgrade pip
-          git clone --single-branch -b master --depth 1 https://bitbucket.org/fathomteam/moab/
-          cd moab
-          python -m pip install . --config-settings=cmake.args=-DENABLE_HDF5=ON
-          cd ..
+          python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
           python -c "import pymoab"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
