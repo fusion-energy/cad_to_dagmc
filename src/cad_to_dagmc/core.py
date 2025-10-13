@@ -821,7 +821,7 @@ class CadToDagmc:
         set_size: dict[int, float] | None = None,
         unstructured_volumes: Iterable[int] | None = None,
         umesh_filename: str = "umesh.vtk",
-        use_cq: bool = True,
+        meshing_backend: str = "cadquery",
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -854,6 +854,8 @@ class CadToDagmc:
                 unstructured mesh file.
             umesh_filename: the filename to use for the optional unstructured
                 mesh file. Only used if unstructured_volumes is not empty.
+            meshing_backend: determines whether gmsh or cadquery's direct mesh method
+                is used for meshing.
 
         Returns:
             str: the filenames(s) for the files created.
@@ -872,7 +874,7 @@ class CadToDagmc:
             raise ValueError(msg)
 
         # Use the CadQuery direct mesh plugin
-        if use_cq:
+        if meshing_backend == "cadquery":
             import cadquery_direct_mesh_plugin
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
