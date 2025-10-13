@@ -47,6 +47,8 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
 def test_max_mesh_size_impacts_file_size():
     """Checks the reducing max_mesh_size value increases the file size"""
 
+    # TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
+
     sphere = cq.Workplane().sphere(100)
 
     c2d = CadToDagmc()
@@ -57,18 +59,21 @@ def test_max_mesh_size_impacts_file_size():
         max_mesh_size=20,
         mesh_algorithm=1,
         filename="test_10_30.h5m",
+        meshing_backend="gmsh",
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
         filename="test_20_30.h5m",
+        meshing_backend="gmsh",
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
         filename="test_20_25.h5m",
+        meshing_backend="gmsh",
     )
 
     assert Path("test_10_30.h5m").is_file()
