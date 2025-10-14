@@ -44,10 +44,10 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     return vol_mat
 
 
-def test_max_mesh_size_impacts_file_size():
+# TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
+@pytest.mark.parametrize("meshing_backend", ["cadquery"])
+def test_max_mesh_size_impacts_file_size(meshing_backend):
     """Checks the reducing max_mesh_size value increases the file size"""
-
-    # TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
 
     sphere = cq.Workplane().sphere(100)
 
@@ -59,21 +59,21 @@ def test_max_mesh_size_impacts_file_size():
         max_mesh_size=20,
         mesh_algorithm=1,
         filename="test_10_30.h5m",
-        meshing_backend="gmsh",
+        meshing_backend=meshing_backend,
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
         filename="test_20_30.h5m",
-        meshing_backend="gmsh",
+        meshing_backend=meshing_backend,
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
         filename="test_20_25.h5m",
-        meshing_backend="gmsh",
+        meshing_backend=meshing_backend,
     )
 
     assert Path("test_10_30.h5m").is_file()
@@ -87,7 +87,8 @@ def test_max_mesh_size_impacts_file_size():
     assert small_file < medium_file
 
 
-def test_h5m_file_tags():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_h5m_file_tags(meshing_backend):
     """Checks that a h5m file is created with the correct tags"""
 
     sphere1 = cq.Workplane().sphere(20)
@@ -102,7 +103,7 @@ def test_h5m_file_tags():
     test_h5m_filename = "test_dagmc.h5m"
     os.system(f"rm {test_h5m_filename}")
 
-    returned_filename = c2d.export_dagmc_h5m_file(filename=test_h5m_filename)
+    returned_filename = c2d.export_dagmc_h5m_file(filename=test_h5m_filename, meshing_backend=meshing_backend)
 
     assert Path(test_h5m_filename).is_file()
     assert Path(returned_filename).is_file()
@@ -148,22 +149,22 @@ def test_add_stp_file_returned_volumes():
 
 
 @pytest.mark.parametrize(
-    "filename",
+    "filename, meshing_backend",
     [
         "test_dagmc1.h5m",
         "out_folder1/test_dagmc2.h5m",
         Path("test_dagmc3.h5m"),
         Path("out_folder2/test_dagmc4.h5m"),
-    ],
+    ],["cadquery", "gmsh"]
 )
-def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename):
+def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename, meshing_backend):
     """Checks that a h5m file is created"""
 
     box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
-    c2d.export_dagmc_h5m_file(filename=filename)
+    c2d.export_dagmc_h5m_file(filename=filename, meshing_backend=meshing_backend)
 
     assert Path(filename).is_file()
 
@@ -374,7 +375,8 @@ def test_unstructured_mesh_export_with_surface_mesh():
     # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
 
 
-def test_unstructured_mesh_with_volumes():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_unstructured_mesh_with_volumes(meshing_backend):
 
     box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
@@ -394,6 +396,7 @@ def test_unstructured_mesh_with_volumes():
     filename = model.export_dagmc_h5m_file(
         filename="dagmc.h5m",
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        meshing_backend=meshing_backend
     )
     assert Path(filename).is_file()
 

@@ -4,6 +4,8 @@ import cadquery as cq
 import pymoab as mb
 from pymoab import core, types
 import cad_to_dagmc
+import pytest
+
 
 """
 Tests that check that:
@@ -45,14 +47,15 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     return vol_mat
 
 
-def test_h5m_with_single_volume_list():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_h5m_with_single_volume_list(meshing_backend):
     """Simple geometry, a single 4 sided shape"""
 
     h5m_file = "tests/single_cube.h5m"
     mesh_file = "test.msh"
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
     my_model.export_gmsh_mesh_file(filename=mesh_file)
     assert Path(mesh_file).is_file()
     my_model.export_gmsh_mesh_file(filename="test3d.msh", dimensions=3)
@@ -67,19 +70,21 @@ def test_h5m_with_single_volume_list():
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
 
 
-def test_h5m_with_single_volume_2():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_h5m_with_single_volume_2(meshing_backend):
     """Simple geometry, a single 4 sided shape"""
 
     h5m_file = "tests/curved_extrude.h5m"
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/curved_extrude.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
 
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
-def test_h5m_with_multi_volume_not_touching():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_h5m_with_multi_volume_not_touching(meshing_backend):
     stp_files = [
         "tests/two_disconnected_cubes.stp",
     ]
@@ -93,7 +98,7 @@ def test_h5m_with_multi_volume_not_touching():
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
@@ -101,7 +106,8 @@ def test_h5m_with_multi_volume_not_touching():
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
-def test_h5m_with_multi_volume_touching():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_h5m_with_multi_volume_touching(meshing_backend):
     stp_files = [
         "tests/multi_volume_cylinders.stp",
         "tests/two_connected_cubes.stp",
@@ -118,7 +124,7 @@ def test_h5m_with_multi_volume_touching():
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
         my_model.export_gmsh_mesh_file(filename=h5m_file + ".msh")
 
         tags_dict = {}
@@ -132,7 +138,8 @@ def test_h5m_with_multi_volume_touching():
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
-def test_cq_compound():
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_cq_compound(meshing_backend):
     # make other shapes from the CadQuery examples
     spline_points = [
         (2.75, 1.5),
@@ -163,6 +170,7 @@ def test_cq_compound():
         filename="compound_dagmc.h5m",
         max_mesh_size=0.2,
         min_mesh_size=0.1,
+        meshing_backend=meshing_backend
     )
 
     assert Path("compound_dagmc.h5m").is_file()
