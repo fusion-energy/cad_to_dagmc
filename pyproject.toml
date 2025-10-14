@@ -22,10 +22,9 @@ dependencies = [
     "networkx",
     "cadquery>=2.5.2",
     "numpy",
-    "gmsh"
+    "gmsh",
 ]
 dynamic = ["version"]
-
 
 [tool.setuptools_scm]
 write_to = "src/_version.py"
@@ -37,6 +36,11 @@ tests = [
     "vtk",
     "assembly-mesh-plugin",
 ]
+# TODO: once on pypi include the direct mesh plugin here and remove from CI
+# features = [
+#     "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
+# ]
+
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
 
