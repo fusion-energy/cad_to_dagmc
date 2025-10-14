@@ -161,7 +161,7 @@ def test_add_stp_file_returned_volumes():
         (Path("test_dagmc3.h5m"), "gmsh"),
         (Path("out_folder2/test_dagmc4.h5m"), "cadquery"),
         (Path("out_folder2/test_dagmc4.h5m"), "gmsh"),
-    ]
+    ],
 )
 def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename, meshing_backend):
     """Checks that a h5m file is created"""
