@@ -153,12 +153,15 @@ def test_add_stp_file_returned_volumes():
 @pytest.mark.parametrize(
     "filename, meshing_backend",
     [
-        "test_dagmc1.h5m",
-        "out_folder1/test_dagmc2.h5m",
-        Path("test_dagmc3.h5m"),
-        Path("out_folder2/test_dagmc4.h5m"),
-    ],
-    ["cadquery", "gmsh"],
+        ("test_dagmc1.h5m", "cadquery"),
+        ("test_dagmc1.h5m", "gmsh"),
+        ("out_folder1/test_dagmc2.h5m", "cadquery"),
+        ("out_folder1/test_dagmc2.h5m", "gmsh"),
+        (Path("test_dagmc3.h5m"), "cadquery"),
+        (Path("test_dagmc3.h5m"), "gmsh"),
+        (Path("out_folder2/test_dagmc4.h5m"), "cadquery"),
+        (Path("out_folder2/test_dagmc4.h5m"), "gmsh"),
+    ]
 )
 def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename, meshing_backend):
     """Checks that a h5m file is created"""
