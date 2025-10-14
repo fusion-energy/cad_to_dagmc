@@ -863,7 +863,7 @@ class CadToDagmc:
 
         # Check to make sure an invalid combination of mesher backend and surface vs volume mesh has not been chosen
         if unstructured_volumes != None and meshing_backend == "cadquery":
-            raise(ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
+            raise (ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
 
         assembly = cq.Assembly()
         for part in self.parts:

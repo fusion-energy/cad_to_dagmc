@@ -170,7 +170,7 @@ def test_cq_compound(meshing_backend):
         filename="compound_dagmc.h5m",
         max_mesh_size=0.2,
         min_mesh_size=0.1,
-        meshing_backend=meshing_backend
+        meshing_backend=meshing_backend,
     )
 
     assert Path("compound_dagmc.h5m").is_file()
