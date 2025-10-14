@@ -864,7 +864,7 @@ class CadToDagmc:
 
         # Check to make sure an invalid combination of mesher backend and surface vs volume mesh has not been chosen
         if unstructured_volumes != None and meshing_backend == "cadquery":
-            raise(ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
+            raise (ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -942,9 +942,11 @@ class CadToDagmc:
             vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
                 dims_and_vol_ids=volumes
             )
-        
+
         else:
-            raise ValueError(f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"')
+            raise ValueError(
+                f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"'
+            )
 
         dagmc_filename = vertices_to_h5m(
             vertices=vertices,
