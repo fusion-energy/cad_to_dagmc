@@ -855,7 +855,8 @@ class CadToDagmc:
             umesh_filename: the filename to use for the optional unstructured
                 mesh file. Only used if unstructured_volumes is not empty.
             meshing_backend: determines whether gmsh or cadquery's direct mesh method
-                is used for meshing.
+                is used for meshing. Options are 'gmsh' or 'cadquery'. Defaults
+                to 'gmsh'.
 
         Returns:
             str: the filenames(s) for the files created.
@@ -902,7 +903,7 @@ class CadToDagmc:
             vertices = cq_mesh["vertices"]
             triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
         # Use gmsh
-        else:
+        elif meshing_backend == "gmsh":
             # If assembly is not to be imprinted, pass through the assembly as-is
             if imprint:
                 imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
@@ -941,6 +942,9 @@ class CadToDagmc:
             vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
                 dims_and_vol_ids=volumes
             )
+        
+        else:
+            raise ValueError(f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"')
 
         dagmc_filename = vertices_to_h5m(
             vertices=vertices,
