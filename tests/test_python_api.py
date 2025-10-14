@@ -103,7 +103,9 @@ def test_h5m_file_tags(meshing_backend):
     test_h5m_filename = "test_dagmc.h5m"
     os.system(f"rm {test_h5m_filename}")
 
-    returned_filename = c2d.export_dagmc_h5m_file(filename=test_h5m_filename, meshing_backend=meshing_backend)
+    returned_filename = c2d.export_dagmc_h5m_file(
+        filename=test_h5m_filename, meshing_backend=meshing_backend
+    )
 
     assert Path(test_h5m_filename).is_file()
     assert Path(returned_filename).is_file()
@@ -155,7 +157,8 @@ def test_add_stp_file_returned_volumes():
         "out_folder1/test_dagmc2.h5m",
         Path("test_dagmc3.h5m"),
         Path("out_folder2/test_dagmc4.h5m"),
-    ],["cadquery", "gmsh"]
+    ],
+    ["cadquery", "gmsh"],
 )
 def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename, meshing_backend):
     """Checks that a h5m file is created"""
@@ -394,9 +397,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend):
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
     filename = model.export_dagmc_h5m_file(
-        filename="dagmc.h5m",
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
-        meshing_backend=meshing_backend
+        filename="dagmc.h5m", set_size={1: 0.9, 2: 0.1, 3: 0.9}, meshing_backend=meshing_backend
     )
     assert Path(filename).is_file()
 
