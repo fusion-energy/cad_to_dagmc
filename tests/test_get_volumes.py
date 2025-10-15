@@ -40,9 +40,10 @@ def test_get_volumes(scale_factor, expected_bbox):
         (10.0, (-50.0000001, -50.0000001, -50.0000001), (50.0000001, 50.0000001, 50.0000001)),
     ],
 )
-def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected_bbox_upper_right):
-
-    # TODO: Add scale feature to CadQuery direct mesher and enable it for this test
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_scale_factor_in_openmc(
+    scale_factor, expected_bbox_lower_left, expected_bbox_upper_right, meshing_backend
+):
 
     result = cq.Workplane("XY").box(10, 10, 10)
     assembly = cq.Assembly()
@@ -55,6 +56,7 @@ def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected
         min_mesh_size=0.5,
         max_mesh_size=1.0e6,
         scale_factor=scale_factor,
+        meshing_backend=meshing_backend,
     )
 
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")
