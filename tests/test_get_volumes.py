@@ -55,7 +55,6 @@ def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected
         min_mesh_size=0.5,
         max_mesh_size=1.0e6,
         scale_factor=scale_factor,
-        meshing_backend="gmsh",
     )
 
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")
