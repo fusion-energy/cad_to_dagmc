@@ -23,6 +23,8 @@ dependencies = [
     "cadquery>=2.5.2",
     "numpy",
     "gmsh",
+# TODO: once on pypi include the direct mesh plugin here and remove from CI
+#     "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
 ]
 dynamic = ["version"]
 
@@ -35,14 +37,10 @@ tests = [
     "pytest",
     "vtk",
     "assembly-mesh-plugin",
-]
-# TODO: once on pypi include the direct mesh plugin here and remove from CI
-# features = [
-#     "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
-# ]
-
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
+]
+
 
 [project.urls]
 "Homepage" = "https://github.com/fusion-energy/cad_to_dagmc"
