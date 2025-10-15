@@ -863,7 +863,7 @@ class CadToDagmc:
 
         # Check to make sure an invalid combination of mesher backend and surface vs volume mesh has not been chosen
         if unstructured_volumes != None and meshing_backend == "cadquery":
-            raise(ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
+            raise (ValueError, "CadQuery direct meshing backend cannot be used for volume meshing.")
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -882,7 +882,9 @@ class CadToDagmc:
             import cadquery_direct_mesh_plugin
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
-            cq_mesh = assembly.toMesh(imprint, tolerance=0.1, angular_tolerance=0.1, scale_factor=scale_factor)
+            cq_mesh = assembly.toMesh(
+                imprint, tolerance=0.1, angular_tolerance=0.1, scale_factor=scale_factor
+            )
 
             # Fix the material tag order for imprinted assemblies
             if cq_mesh["imprinted_assembly"] is not None:
