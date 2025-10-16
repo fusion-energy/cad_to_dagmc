@@ -33,16 +33,39 @@ def test_get_volumes(scale_factor, expected_bbox):
 
 
 @pytest.mark.parametrize(
-    "scale_factor, expected_bbox_lower_left, expected_bbox_upper_right",
+    "scale_factor, expected_bbox_lower_left, expected_bbox_upper_right, meshing_backend",
     [
-        (1.0, (-5.0000001, -5.0000001, -5.0000001), (5.0000001, 5.0000001, 5.0000001)),
-        (2.0, (-10.0000001, -10.0000001, -10.0000001), (10.0000001, 10.0000001, 10.0000001)),
-        (10.0, (-50.0000001, -50.0000001, -50.0000001), (50.0000001, 50.0000001, 50.0000001)),
+        (1.0, (-5.0000001, -5.0000001, -5.0000001), (5.0000001, 5.0000001, 5.0000001), "cadquery"),
+        (1.0, (-5.0000001, -5.0000001, -5.0000001), (5.0000001, 5.0000001, 5.0000001), "gmsh"),
+        (
+            2.0,
+            (-10.0000001, -10.0000001, -10.0000001),
+            (10.0000001, 10.0000001, 10.0000001),
+            "cadquery",
+        ),
+        (
+            2.0,
+            (-10.0000001, -10.0000001, -10.0000001),
+            (10.0000001, 10.0000001, 10.0000001),
+            "gmsh",
+        ),
+        (
+            10.0,
+            (-50.0000001, -50.0000001, -50.0000001),
+            (50.0000001, 50.0000001, 50.0000001),
+            "cadquery",
+        ),
+        (
+            10.0,
+            (-50.0000001, -50.0000001, -50.0000001),
+            (50.0000001, 50.0000001, 50.0000001),
+            "gmsh",
+        ),
     ],
 )
-def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected_bbox_upper_right):
-
-    # TODO: Add scale feature to CadQuery direct mesher and enable it for this test
+def test_scale_factor_in_openmc(
+    scale_factor, expected_bbox_lower_left, expected_bbox_upper_right, meshing_backend
+):
 
     result = cq.Workplane("XY").box(10, 10, 10)
     assembly = cq.Assembly()
@@ -55,7 +78,7 @@ def test_scale_factor_in_openmc(scale_factor, expected_bbox_lower_left, expected
         min_mesh_size=0.5,
         max_mesh_size=1.0e6,
         scale_factor=scale_factor,
-        meshing_backend="gmsh",
+        meshing_backend=meshing_backend,
     )
 
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")
