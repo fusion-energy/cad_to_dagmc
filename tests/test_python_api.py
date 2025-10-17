@@ -44,8 +44,7 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     return vol_mat
 
 
-# TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
-@pytest.mark.parametrize("meshing_backend", ["gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cadquery"])
 def test_max_mesh_size_impacts_file_size(meshing_backend):
     """Checks the reducing max_mesh_size value increases the file size"""
 
