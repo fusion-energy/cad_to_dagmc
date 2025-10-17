@@ -884,7 +884,12 @@ class CadToDagmc:
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
             cq_mesh = assembly.toMesh(
-                imprint, tolerance=0.1, angular_tolerance=0.1, scale_factor=scale_factor
+                imprint,
+                tolerance=0.1,
+                angular_tolerance=0.5,
+                scale_factor=scale_factor,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
             )
 
             # Fix the material tag order for imprinted assemblies
