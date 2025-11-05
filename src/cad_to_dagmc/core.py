@@ -11,6 +11,7 @@ from typing import Iterable
 from cad_to_dagmc import __version__
 from .direct_mesh_plugin import to_mesh
 
+
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance

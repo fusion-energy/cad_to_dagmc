@@ -1,4 +1,4 @@
-# This is a temporary solution until we have to_mesh like functionality in a 
+# This is a temporary solution until we have to_mesh like functionality in a
 # PYPI distributed version of CadQuery.
 # This code is adapted from the cadquery-direct-mesh-plugin repository:
 # https://github.com/jmwright/cadquery-direct-mesh-plugin
