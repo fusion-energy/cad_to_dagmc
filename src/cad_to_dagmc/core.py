@@ -815,7 +815,7 @@ class CadToDagmc:
         implicit_complement_material_tag: str | None = None,
         scale_factor: float = 1.0,
         imprint: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
 
@@ -823,40 +823,40 @@ class CadToDagmc:
             filename: the filename to use for the saved DAGMC file.
             meshing_backend: determines whether gmsh or cadquery's direct mesh method
                 is used for meshing. Options are 'gmsh' or 'cadquery'.
-            implicit_complement_material_tag: the name of the material tag to use 
+            implicit_complement_material_tag: the name of the material tag to use
                 for the implicit complement (void space).
             scale_factor: a scaling factor to apply to the geometry.
             imprint: whether to imprint the geometry or not.
-            
+
             **kwargs: Backend-specific parameters:
-            
+
                 For GMSH backend:
                 - min_mesh_size (float): minimum mesh element size
-                - max_mesh_size (float): maximum mesh element size  
+                - max_mesh_size (float): maximum mesh element size
                 - mesh_algorithm (int): GMSH mesh algorithm (default: 1)
                 - method (str): import method 'file' or 'in memory' (default: 'file')
                 - set_size (dict[int, float]): volume ids and target mesh sizes
                 - unstructured_volumes (Iterable[int]): volume ids for unstructured mesh
                 - umesh_filename (str): filename for unstructured mesh (default: 'umesh.vtk')
-                
+
                 For CadQuery backend:
                 - tolerance (float): meshing tolerance (default: 0.1)
                 - angular_tolerance (float): angular tolerance (default: 0.1)
 
         Returns:
             str: the filename(s) for the files created.
-            
+
         Raises:
             ValueError: If invalid parameter combinations are used.
         """
-        
+
         # Validate meshing backend
         if meshing_backend not in ["gmsh", "cadquery"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
                 'Available options are "gmsh" or "cadquery"'
             )
-        
+
         # Initialize variables to avoid unbound errors
         tolerance = 0.1
         angular_tolerance = 0.1
@@ -867,43 +867,49 @@ class CadToDagmc:
         set_size = None
         unstructured_volumes = None
         umesh_filename = "umesh.vtk"
-        
+
         # Extract backend-specific parameters with defaults
         if meshing_backend == "cadquery":
             # CadQuery parameters
-            tolerance = kwargs.get('tolerance', 0.1)
-            angular_tolerance = kwargs.get('angular_tolerance', 0.1)
-            
+            tolerance = kwargs.get("tolerance", 0.1)
+            angular_tolerance = kwargs.get("angular_tolerance", 0.1)
+
             # Check for invalid parameters
-            unstructured_volumes = kwargs.get('unstructured_volumes')
+            unstructured_volumes = kwargs.get("unstructured_volumes")
             if unstructured_volumes is not None:
                 raise ValueError(
                     "CadQuery backend cannot be used for volume meshing. "
                     "unstructured_volumes must be None when using 'cadquery' backend."
                 )
-            
+
             # Warn about unused GMSH parameters
-            gmsh_params = ['min_mesh_size', 'max_mesh_size', 'mesh_algorithm', 
-                           'set_size', 'umesh_filename', 'method']
+            gmsh_params = [
+                "min_mesh_size",
+                "max_mesh_size",
+                "mesh_algorithm",
+                "set_size",
+                "umesh_filename",
+                "method",
+            ]
             unused_params = [param for param in gmsh_params if param in kwargs]
             if unused_params:
                 warnings.warn(
                     f"The following parameters are ignored when using CadQuery backend: "
                     f"{', '.join(unused_params)}"
                 )
-        
+
         elif meshing_backend == "gmsh":
             # GMSH parameters
-            min_mesh_size = kwargs.get('min_mesh_size')
-            max_mesh_size = kwargs.get('max_mesh_size')
-            mesh_algorithm = kwargs.get('mesh_algorithm', 1)
-            method = kwargs.get('method', 'file')
-            set_size = kwargs.get('set_size')
-            unstructured_volumes = kwargs.get('unstructured_volumes')
-            umesh_filename = kwargs.get('umesh_filename', 'umesh.vtk')
-            
+            min_mesh_size = kwargs.get("min_mesh_size")
+            max_mesh_size = kwargs.get("max_mesh_size")
+            mesh_algorithm = kwargs.get("mesh_algorithm", 1)
+            method = kwargs.get("method", "file")
+            set_size = kwargs.get("set_size")
+            unstructured_volumes = kwargs.get("unstructured_volumes")
+            umesh_filename = kwargs.get("umesh_filename", "umesh.vtk")
+
             # Warn about unused CadQuery parameters
-            cq_params = ['tolerance', 'angular_tolerance']
+            cq_params = ["tolerance", "angular_tolerance"]
             unused_params = [param for param in cq_params if param in kwargs]
             if unused_params:
                 warnings.warn(
@@ -929,7 +935,10 @@ class CadToDagmc:
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
             cq_mesh = assembly.toMesh(
-                imprint, tolerance=tolerance, angular_tolerance=angular_tolerance, scale_factor=scale_factor
+                imprint,
+                tolerance=tolerance,
+                angular_tolerance=angular_tolerance,
+                scale_factor=scale_factor,
             )
 
             # Fix the material tag order for imprinted assemblies
