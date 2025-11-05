@@ -25,6 +25,8 @@ dependencies = [
     "gmsh",
 # TODO: once on pypi include the direct mesh plugin here and remove from CI
 #     "git+https://github.com/jmwright/cadquery-direct-mesh-plugin.git"
+# TODO once on pypi include moab here and remove from CI
+# python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 ]
 dynamic = ["version"]
 
