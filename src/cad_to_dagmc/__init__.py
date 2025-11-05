@@ -13,4 +13,5 @@ except PackageNotFoundError:
 
 __all__ = ["__version__"]
 
+from .direct_mesh_plugin import *
 from .core import *

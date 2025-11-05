@@ -47,7 +47,6 @@ jobs:
           conda install -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh vtk
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
-          python -m pip install git+https://github.com/jmwright/cadquery-direct-mesh-plugin
 
       - name: Run tests
         shell: bash -l {0}
