@@ -24,11 +24,9 @@ cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 - Gmsh meshes (optionally use physical groups as material tags)
 
 Cad-to-dagmc offers a wide range of features including.
-- Compatibly with [assembly-mesh-plugin](https://github.com/CadQuery/assembly-mesh-plugin) (see examples)
-- Access to the Gmsh mesh to allow user to define full set of mesh parameters
-- Option to use Gmsh physical groups as material tags
 - Geometry scaling with ```scale_factor``` argument
-- Model wide mesh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
+- Ddirect surface meshing of CadQuery geometry with ```tolerance``` and ```angular_tolerance``` arguments (avoids using Gmsh)
+- Model wide mesh Gmsh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
 - Volume specific mesh sizing parameters with the ```set_size``` argument
 - Unstructured mesh that share the same coordinates as the surface mesh.
 - Volume mesh allows selecting individual volumes in the geometry.
@@ -40,6 +38,9 @@ Cad-to-dagmc offers a wide range of features including.
 - Pass CadQuery objects in memory for fast transfer of geometry using the ```method``` argument
 - Easy to install with [pip](https://pypi.org/project/cad-to-dagmc/) and [Conda/Mamba](https://anaconda.org/conda-forge/cad_to_dagmc)
 - Well tested both with [CI unit tests](https://github.com/fusion-energy/cad_to_dagmc/tree/main/tests), integration tests and the CSG [Model Benchmark Zoo](https://github.com/fusion-energy/model_benchmark_zoo).
+- Access to the Gmsh mesh to allow user to define full set of mesh parameters
+- Option to use Gmsh physical groups as material tags
+- Compatibly with [assembly-mesh-plugin](https://github.com/CadQuery/assembly-mesh-plugin) (see examples)
 - Compatible with [Paramak](https://github.com/fusion-energy/paramak) geometry for fusion simulations.
 
 
