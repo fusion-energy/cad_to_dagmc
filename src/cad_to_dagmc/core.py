@@ -829,7 +829,7 @@ class CadToDagmc:
             **kwargs: Backend-specific parameters:
 
                 Backend selection:
-                - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'. 
+                - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'.
                   If not provided, backend is auto-selected based on other arguments.
                   Defaults to 'cadquery' if no backend-specific arguments are given.
 
@@ -855,14 +855,21 @@ class CadToDagmc:
             ValueError: If invalid parameter combinations are used.
         """
 
-
         # Handle meshing_backend - either from kwargs or auto-detect
         meshing_backend = kwargs.pop("meshing_backend", None)
-        
+
         if meshing_backend is None:
             # Auto-select meshing_backend based on kwargs
             cadquery_keys = {"tolerance", "angular_tolerance"}
-            gmsh_keys = {"min_mesh_size", "max_mesh_size", "mesh_algorithm", "set_size", "umesh_filename", "method", "unstructured_volumes"}
+            gmsh_keys = {
+                "min_mesh_size",
+                "max_mesh_size",
+                "mesh_algorithm",
+                "set_size",
+                "umesh_filename",
+                "method",
+                "unstructured_volumes",
+            }
             has_cadquery = any(key in kwargs for key in cadquery_keys)
             has_gmsh = any(key in kwargs for key in gmsh_keys)
             if has_cadquery and not has_gmsh:
@@ -882,14 +889,14 @@ class CadToDagmc:
                 )
             else:
                 meshing_backend = "cadquery"  # default
-        
+
         # Validate meshing backend
         if meshing_backend not in ["gmsh", "cadquery"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
                 'Available options are "gmsh" or "cadquery"'
             )
-        
+
         print(f"Using meshing backend: {meshing_backend}")
 
         # Initialize variables to avoid unbound errors
