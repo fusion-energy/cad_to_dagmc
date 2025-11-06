@@ -865,7 +865,7 @@ class CadToDagmc:
             "unstructured_volumes",
         }
         all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend"}
-        
+
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
         if invalid_keys:
