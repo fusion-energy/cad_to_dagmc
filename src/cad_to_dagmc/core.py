@@ -846,8 +846,6 @@ class CadToDagmc:
                 - tolerance (float): meshing tolerance (default: 0.1)
                 - angular_tolerance (float): angular tolerance (default: 0.1)
 
-
-
         Returns:
             str: the filename(s) for the files created.
 
