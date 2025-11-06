@@ -187,6 +187,121 @@ class TestKwargsExportDagmcH5mFile:
         assert output_file_gmsh.exists()
 
 
+class TestKwargsValidation:
+    """Test kwargs validation for export_dagmc_h5m_file method"""
+
+    def setup_method(self):
+        """Setup method to create a simple geometry for testing"""
+        self.my_model = CadToDagmc()
+
+        # Create a simple box
+        box = cq.Workplane("XY").box(10, 10, 10)
+        self.my_model.add_cadquery_object(box, material_tags=["steel"])
+
+    def test_invalid_kwargs_raises_error(self, tmp_path):
+        """Test that invalid kwargs raise ValueError with helpful message"""
+        output_file = tmp_path / "test_invalid_kwargs.h5m"
+
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(output_file),
+                invalid_param=123,
+                another_invalid=True,
+            )
+
+        error_message = str(excinfo.value)
+        assert "Invalid keyword arguments:" in error_message
+        assert "another_invalid" in error_message
+        assert "invalid_param" in error_message
+        assert "Acceptable arguments are:" in error_message
+
+    def test_mixed_valid_invalid_kwargs_raises_error(self, tmp_path):
+        """Test that mix of valid and invalid kwargs raises error"""
+        output_file = tmp_path / "test_mixed_kwargs.h5m"
+
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(output_file),
+                tolerance=0.1,  # valid
+                bad_param=456,  # invalid
+                min_mesh_size=0.5,  # valid
+            )
+
+        error_message = str(excinfo.value)
+        assert "Invalid keyword arguments:" in error_message
+        assert "bad_param" in error_message
+        assert "tolerance" not in error_message  # valid param shouldn't be in error
+        assert "min_mesh_size" not in error_message  # valid param shouldn't be in error
+
+    def test_all_valid_cadquery_kwargs_accepted(self, tmp_path):
+        """Test that all valid CadQuery kwargs are accepted"""
+        output_file = tmp_path / "test_valid_cq_kwargs.h5m"
+
+        # Should not raise any error
+        result = self.my_model.export_dagmc_h5m_file(
+            filename=str(output_file),
+            meshing_backend="cadquery",
+            tolerance=0.1,
+            angular_tolerance=0.2,
+        )
+
+        assert result == str(output_file)
+        assert output_file.exists()
+
+    def test_all_valid_gmsh_kwargs_accepted(self, tmp_path):
+        """Test that all valid GMSH kwargs are accepted"""
+        output_file = tmp_path / "test_valid_gmsh_kwargs.h5m"
+
+        # Should not raise any error
+        result = self.my_model.export_dagmc_h5m_file(
+            filename=str(output_file),
+            meshing_backend="gmsh",
+            min_mesh_size=0.1,
+            max_mesh_size=1.0,
+            mesh_algorithm=1,
+            set_size={1: 0.5},
+            umesh_filename="test.vtk",
+            method="file",
+            # unstructured_volumes would be tested separately
+        )
+
+        assert result == str(output_file)
+        assert output_file.exists()
+
+    def test_typo_in_kwarg_name_raises_helpful_error(self, tmp_path):
+        """Test that typos in parameter names give helpful error messages"""
+        output_file = tmp_path / "test_typo.h5m"
+
+        # Common typo: "tolerance" -> "tollerance"
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(output_file),
+                tollerance=0.1,  # typo
+            )
+
+        error_message = str(excinfo.value)
+        assert "Invalid keyword arguments:" in error_message
+        assert "tollerance" in error_message
+        assert "tolerance" in error_message  # should show the correct options
+
+    def test_case_sensitivity_in_kwargs(self, tmp_path):
+        """Test that kwargs are case sensitive"""
+        output_file = tmp_path / "test_case_sensitive.h5m"
+
+        # Wrong case should raise error
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(output_file),
+                Tolerance=0.1,  # wrong case
+                MESHING_BACKEND="cadquery",  # wrong case
+            )
+
+        error_message = str(excinfo.value)
+        assert "Invalid keyword arguments:" in error_message
+        assert "Tolerance" in error_message
+        assert "MESHING_BACKEND" in error_message
+
+
 class TestKwargsWithMultipleVolumes:
     """Test kwargs functionality with multiple volumes"""
 
