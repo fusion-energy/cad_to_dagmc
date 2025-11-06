@@ -812,7 +812,6 @@ class CadToDagmc:
     def export_dagmc_h5m_file(
         self,
         filename: str = "dagmc.h5m",
-        meshing_backend: str = "cadquery",
         implicit_complement_material_tag: str | None = None,
         scale_factor: float = 1.0,
         imprint: bool = True,
@@ -822,14 +821,17 @@ class CadToDagmc:
 
         Args:
             filename: the filename to use for the saved DAGMC file.
-            meshing_backend: determines whether gmsh or cadquery's direct mesh method
-                is used for meshing. Options are 'gmsh' or 'cadquery'.
             implicit_complement_material_tag: the name of the material tag to use
                 for the implicit complement (void space).
             scale_factor: a scaling factor to apply to the geometry.
             imprint: whether to imprint the geometry or not.
 
             **kwargs: Backend-specific parameters:
+
+                Backend selection:
+                - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'.
+                  If not provided, backend is auto-selected based on other arguments.
+                  Defaults to 'cadquery' if no backend-specific arguments are given.
 
                 For GMSH backend:
                 - min_mesh_size (float): minimum mesh element size
@@ -851,12 +853,49 @@ class CadToDagmc:
             ValueError: If invalid parameter combinations are used.
         """
 
+        # Handle meshing_backend - either from kwargs or auto-detect
+        meshing_backend = kwargs.pop("meshing_backend", None)
+
+        if meshing_backend is None:
+            # Auto-select meshing_backend based on kwargs
+            cadquery_keys = {"tolerance", "angular_tolerance"}
+            gmsh_keys = {
+                "min_mesh_size",
+                "max_mesh_size",
+                "mesh_algorithm",
+                "set_size",
+                "umesh_filename",
+                "method",
+                "unstructured_volumes",
+            }
+            has_cadquery = any(key in kwargs for key in cadquery_keys)
+            has_gmsh = any(key in kwargs for key in gmsh_keys)
+            if has_cadquery and not has_gmsh:
+                meshing_backend = "cadquery"
+            elif has_gmsh and not has_cadquery:
+                meshing_backend = "gmsh"
+            elif has_cadquery and has_gmsh:
+                provided_cadquery = [key for key in cadquery_keys if key in kwargs]
+                provided_gmsh = [key for key in gmsh_keys if key in kwargs]
+                raise ValueError(
+                    "Ambiguous backend: both CadQuery and GMSH-specific arguments provided.\n"
+                    f"CadQuery-specific arguments: {sorted(cadquery_keys)}\n"
+                    f"GMSH-specific arguments: {sorted(gmsh_keys)}\n"
+                    f"Provided CadQuery arguments: {provided_cadquery}\n"
+                    f"Provided GMSH arguments: {provided_gmsh}\n"
+                    "Please provide only one backend's arguments."
+                )
+            else:
+                meshing_backend = "cadquery"  # default
+
         # Validate meshing backend
         if meshing_backend not in ["gmsh", "cadquery"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
                 'Available options are "gmsh" or "cadquery"'
             )
+
+        print(f"Using meshing backend: {meshing_backend}")
 
         # Initialize variables to avoid unbound errors
         tolerance = 0.1
