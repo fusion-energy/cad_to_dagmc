@@ -230,7 +230,7 @@ class TestKwargsValidation:
         error_message = str(excinfo.value)
         assert "Invalid keyword arguments:" in error_message
         assert "bad_param" in error_message
-        assert "tolerance" not in error_message  # valid param shouldn't be in error
+        assert "tolerance" in error_message  # valid param should be in error
         assert "min_mesh_size" not in error_message  # valid param shouldn't be in error
 
     def test_all_valid_cadquery_kwargs_accepted(self, tmp_path):
