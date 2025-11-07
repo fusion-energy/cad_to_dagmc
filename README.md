@@ -25,7 +25,7 @@ cad-to-dagmc can convert the following in to DAGMC compatible meshes:
 
 Cad-to-dagmc offers a wide range of features including.
 - Geometry scaling with ```scale_factor``` argument
-- Ddirect surface meshing of CadQuery geometry with ```tolerance``` and ```angular_tolerance``` arguments (avoids using Gmsh)
+- Direct surface meshing of CadQuery geometry with ```tolerance``` and ```angular_tolerance``` arguments (avoids using Gmsh)
 - Model wide mesh Gmsh size parameters with ```min_mesh_size``` and ```max_mesh_size``` arguments
 - Volume specific mesh sizing parameters with the ```set_size``` argument
 - Unstructured mesh that share the same coordinates as the surface mesh.

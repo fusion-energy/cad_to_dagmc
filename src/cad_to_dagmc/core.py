@@ -853,21 +853,32 @@ class CadToDagmc:
             ValueError: If invalid parameter combinations are used.
         """
 
+        # Define all acceptable kwargs
+        cadquery_keys = {"tolerance", "angular_tolerance"}
+        gmsh_keys = {
+            "min_mesh_size",
+            "max_mesh_size",
+            "mesh_algorithm",
+            "set_size",
+            "umesh_filename",
+            "method",
+            "unstructured_volumes",
+        }
+        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend"}
+
+        # Check for invalid kwargs
+        invalid_keys = set(kwargs.keys()) - all_acceptable_keys
+        if invalid_keys:
+            raise ValueError(
+                f"Invalid keyword arguments: {sorted(invalid_keys)}\n"
+                f"Acceptable arguments are: {sorted(all_acceptable_keys)}"
+            )
+
         # Handle meshing_backend - either from kwargs or auto-detect
         meshing_backend = kwargs.pop("meshing_backend", None)
 
         if meshing_backend is None:
             # Auto-select meshing_backend based on kwargs
-            cadquery_keys = {"tolerance", "angular_tolerance"}
-            gmsh_keys = {
-                "min_mesh_size",
-                "max_mesh_size",
-                "mesh_algorithm",
-                "set_size",
-                "umesh_filename",
-                "method",
-                "unstructured_volumes",
-            }
             has_cadquery = any(key in kwargs for key in cadquery_keys)
             has_gmsh = any(key in kwargs for key in gmsh_keys)
             if has_cadquery and not has_gmsh:
