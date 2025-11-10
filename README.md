@@ -48,7 +48,7 @@ Cad-to-dagmc offers a wide range of features including.
 
 - Install using Mamba
 - Install using Conda
-- Install using pip and source compilations
+- Install using pip
 
 ## Install using Mamba
 
@@ -126,10 +126,10 @@ You may also want to install OpenMC with DAGMC to make use of the h5m geometry f
 
 To install OpenMC you can run ```mamba install -c conda-forge openmc``` however this more specific command makes sure the latest version of OpenMC which contains DAGMC is chosen by conda / mamba
 ```bash
-mamba install -c conda-forge -y "openmc=0.15.0=dagmc*nompi*"
+mamba install -c conda-forge -y "openmc=0.15.2=dagmc*nompi*"
 ```
 
-It might not be possible to install OpenMC and cad-to-dagmc in the same conda/mamba python environment so you may have to create a new conda/mamba environment and install OpenMC there.
+You could also install using this [wheel repo](https://github.com/shimwell/wheels)
 
 Another option would be to [install OpenMC from source](https://docs.openmc.org/en/stable/quickinstall.html) which would also need compiling with MOAB and DAGMC options.
 
