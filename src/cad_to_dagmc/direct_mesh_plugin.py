@@ -291,6 +291,7 @@ def to_mesh(
     # Imprinted assemblies end up being compounds, whereas you have to step through each of the
     # parts in an assembly and extract the solids.
     if imprint:
+        print('Imprinting assembly for mesh export...')
         # Imprint the assembly and process it as a compound
         (
             imprinted_assembly,
