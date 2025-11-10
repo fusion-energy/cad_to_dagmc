@@ -685,9 +685,8 @@ class CadToDagmc:
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
-
+ 
         if imprint:
-            print("Imprinting assembly for unstructured mesh generation")
             imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
         else:
             imprinted_assembly = assembly
