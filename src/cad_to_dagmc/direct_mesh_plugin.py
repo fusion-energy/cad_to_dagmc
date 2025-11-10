@@ -292,7 +292,6 @@ def to_mesh(
     # parts in an assembly and extract the solids.
     if imprint:
         # Imprint the assembly and process it as a compound
-        print("Imprinting assembly for mesh generation")
         (
             imprinted_assembly,
             imprinted_solids_with_orginal_ids,
