@@ -388,7 +388,11 @@ def test_unstructured_mesh_with_volumes(meshing_backend):
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
     middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
     outer_sphere = (
-        cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+        cq.Workplane("XY")
+        .sphere(10)
+        .cut(box_cutter)
+        .cut(inner_sphere)
+        .cut(middle_sphere)
     )
 
     assembly = cq.Assembly()
@@ -400,7 +404,9 @@ def test_unstructured_mesh_with_volumes(meshing_backend):
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
     filename = model.export_dagmc_h5m_file(
-        filename="dagmc.h5m", set_size={1: 0.9, 2: 0.1, 3: 0.9}, meshing_backend=meshing_backend
+        filename="dagmc.h5m",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        meshing_backend=meshing_backend,
     )
     assert Path(filename).is_file()
 

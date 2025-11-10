@@ -89,7 +89,11 @@ def vertices_to_h5m(
         raise ValueError(msg)
 
     # limited attribute checking to see if user passed in a list of CadQuery vectors
-    if hasattr(vertices[0], "x") and hasattr(vertices[0], "y") and hasattr(vertices[0], "z"):
+    if (
+        hasattr(vertices[0], "x")
+        and hasattr(vertices[0], "y")
+        and hasattr(vertices[0], "z")
+    ):
         vertices_floats = []
         for vert in vertices:
             vertices_floats.append((vert.x, vert.y, vert.z))
@@ -139,7 +143,9 @@ def vertices_to_h5m(
                 if len(face_ids_with_solid_ids[face_id]) == 2:
                     other_solid_id = face_ids_with_solid_ids[face_id][1]
                     other_volume_set = volume_sets_by_solid_id[other_solid_id]
-                    sense_data = np.array([other_volume_set, volume_set], dtype="uint64")
+                    sense_data = np.array(
+                        [other_volume_set, volume_set], dtype="uint64"
+                    )
                 else:
                     sense_data = np.array([volume_set, 0], dtype="uint64")
 
@@ -223,7 +229,9 @@ def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
 
     if scale_factor != 1.0:
         dim_tags = gmsh.model.getEntities(3)
-        gmsh.model.occ.dilate(dim_tags, 0.0, 0.0, 0.0, scale_factor, scale_factor, scale_factor)
+        gmsh.model.occ.dilate(
+            dim_tags, 0.0, 0.0, 0.0, scale_factor, scale_factor, scale_factor
+        )
         # update the model to ensure the scaling factor has been applied
         gmsh.model.occ.synchronize()
 
@@ -288,7 +296,9 @@ def set_sizes_for_mesh(
                 )
 
         # Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes
-        boundary_sizes = {}  # Dictionary to store the mesh size and count for each boundary
+        boundary_sizes = (
+            {}
+        )  # Dictionary to store the mesh size and count for each boundary
         for volume_id, size in set_size.items():
             boundaries = gmsh.model.getBoundary(
                 [(3, volume_id)], recursive=True
@@ -363,7 +373,8 @@ def mesh_to_vertices_and_triangles(
             for nodeTag in nodeTags:
                 shifted_node_tags.append(nodeTag - 1)
             grouped_node_tags = [
-                shifted_node_tags[i : i + n] for i in range(0, len(shifted_node_tags), n)
+                shifted_node_tags[i : i + n]
+                for i in range(0, len(shifted_node_tags), n)
             ]
             nodes_in_each_surface[surface] = grouped_node_tags
         triangles_by_solid_by_face[vol_id] = nodes_in_each_surface
@@ -573,12 +584,16 @@ class CadToDagmc:
             scaled_part = part
         else:
             scaled_part = part.scale(scale_factor)
-        return self.add_cadquery_object(cadquery_object=scaled_part, material_tags=material_tags)
+        return self.add_cadquery_object(
+            cadquery_object=scaled_part, material_tags=material_tags
+        )
 
     def add_cadquery_object(
         self,
         cadquery_object: (
-            cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid
+            cq.assembly.Assembly
+            | cq.occ_impl.shapes.Compound
+            | cq.occ_impl.shapes.Solid
         ),
         material_tags: list[str] | None,
         scale_factor: float = 1.0,
@@ -605,7 +620,9 @@ class CadToDagmc:
         if isinstance(cadquery_object, cq.assembly.Assembly):
             cadquery_object = cadquery_object.toCompound()
 
-        if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+        if isinstance(
+            cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)
+        ):
             iterable_solids = cadquery_object.Solids()
         else:
             iterable_solids = cadquery_object.val().Solids()
@@ -613,7 +630,9 @@ class CadToDagmc:
         if scale_factor == 1.0:
             scaled_iterable_solids = iterable_solids
         else:
-            scaled_iterable_solids = [part.scale(scale_factor) for part in iterable_solids]
+            scaled_iterable_solids = [
+                part.scale(scale_factor) for part in iterable_solids
+            ]
 
         check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
@@ -713,7 +732,9 @@ class CadToDagmc:
             gmsh.model.occ.synchronize()
             # Clear the mesh
             gmsh.model.mesh.clear()
-            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
+            gmsh.option.setNumber(
+                "Mesh.SaveElementTagType", 3
+            )  # Save only volume elements
 
         gmsh.model.mesh.generate(3)
 
@@ -783,7 +804,9 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(gmsh, imprinted_assembly, method=method, scale_factor=scale_factor)
+        gmsh, _ = get_volumes(
+            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
+        )
 
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
@@ -994,9 +1017,13 @@ class CadToDagmc:
 
             # Fix the material tag order for imprinted assemblies
             if cq_mesh["imprinted_assembly"] is not None:
-                imprinted_solids_with_org_id = cq_mesh["imprinted_solids_with_orginal_ids"]
+                imprinted_solids_with_org_id = cq_mesh[
+                    "imprinted_solids_with_orginal_ids"
+                ]
 
-                scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+                scrambled_ids = get_ids_from_imprinted_assembly(
+                    imprinted_solids_with_org_id
+                )
 
                 material_tags_in_brep_order = order_material_ids_by_brep_order(
                     original_ids, scrambled_ids, self.material_tags
@@ -1013,11 +1040,13 @@ class CadToDagmc:
         elif meshing_backend == "gmsh":
             # If assembly is not to be imprinted, pass through the assembly as-is
             if imprint:
-                imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
-                    assembly
+                imprinted_assembly, imprinted_solids_with_org_id = (
+                    cq.occ_impl.assembly.imprint(assembly)
                 )
 
-                scrambled_ids = get_ids_from_imprinted_assembly(imprinted_solids_with_org_id)
+                scrambled_ids = get_ids_from_imprinted_assembly(
+                    imprinted_solids_with_org_id
+                )
 
                 material_tags_in_brep_order = order_material_ids_by_brep_order(
                     original_ids, scrambled_ids, self.material_tags
@@ -1077,7 +1106,9 @@ class CadToDagmc:
                 gmsh.model.removePhysicalGroups([entry])
 
             gmsh.model.mesh.generate(3)
-            gmsh.option.setNumber("Mesh.SaveElementTagType", 3)  # Save only volume elements
+            gmsh.option.setNumber(
+                "Mesh.SaveElementTagType", 3
+            )  # Save only volume elements
             gmsh.write(umesh_filename)
 
             gmsh.finalize()
