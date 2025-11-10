@@ -687,6 +687,7 @@ class CadToDagmc:
             assembly.add(part)
 
         if imprint:
+            print("Imprinting assembly for unstructured mesh generation")
             imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
         else:
             imprinted_assembly = assembly
@@ -777,6 +778,7 @@ class CadToDagmc:
             assembly.add(part)
 
         if imprint:
+            print("Imprinting assembly for mesh generation")
             imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
         else:
             imprinted_assembly = assembly
@@ -1013,6 +1015,7 @@ class CadToDagmc:
         elif meshing_backend == "gmsh":
             # If assembly is not to be imprinted, pass through the assembly as-is
             if imprint:
+                print("Imprinting assembly for mesh generation")
                 imprinted_assembly, imprinted_solids_with_org_id = cq.occ_impl.assembly.imprint(
                     assembly
                 )
