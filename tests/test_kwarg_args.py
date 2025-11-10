@@ -52,9 +52,7 @@ class TestKwargsExportDagmcH5mFile:
         """Test that CadQuery backend with unstructured_volumes raises ValueError"""
         output_file = tmp_path / "test_invalid.h5m"
 
-        with pytest.raises(
-            ValueError, match="CadQuery backend cannot be used for volume meshing"
-        ):
+        with pytest.raises(ValueError, match="CadQuery backend cannot be used for volume meshing"):
             self.my_model.export_dagmc_h5m_file(
                 filename=str(output_file),
                 meshing_backend="cadquery",
@@ -86,9 +84,8 @@ class TestKwargsExportDagmcH5mFile:
 
             # Check that warning was issued
             assert len(w) == 1
-            assert (
-                "following parameters are ignored when using CadQuery backend"
-                in str(w[0].message)
+            assert "following parameters are ignored when using CadQuery backend" in str(
+                w[0].message
             )
             assert "min_mesh_size" in str(w[0].message)
 
@@ -108,9 +105,7 @@ class TestKwargsExportDagmcH5mFile:
 
             # Check that warning was issued
             assert len(w) == 1
-            assert "following parameters are ignored when using GMSH backend" in str(
-                w[0].message
-            )
+            assert "following parameters are ignored when using GMSH backend" in str(w[0].message)
             assert "tolerance" in str(w[0].message)
 
     def test_cadquery_backend_uses_default_tolerances(self, tmp_path):

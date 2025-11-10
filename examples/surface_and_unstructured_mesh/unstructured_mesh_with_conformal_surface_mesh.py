@@ -13,9 +13,7 @@ import openmc
 box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
 inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
 middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
-outer_sphere = (
-    cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
-)
+outer_sphere = cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
 
 assembly = cq.Assembly()
 assembly.add(inner_sphere, name="inner_sphere")
@@ -103,7 +101,5 @@ umesh_from_sp = sp.meshes[1]
 centroids = umesh_from_sp.centroids
 mesh_vols = umesh_from_sp.volumes
 
-flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(
-    umesh_from_sp.dimension
-)
+flux_mean = tally_result.get_values(scores=["flux"], value="mean").reshape(umesh_from_sp.dimension)
 umesh_from_sp.write_data_to_vtk(filename="tally.vtk", datasets={"mean": flux_mean})

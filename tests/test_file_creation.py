@@ -98,9 +98,7 @@ def test_h5m_with_multi_volume_not_touching(meshing_backend):
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
-        my_model.export_dagmc_h5m_file(
-            filename=h5m_file, meshing_backend=meshing_backend
-        )
+        my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
 
         tags_dict = {}
         for counter, loop_mat_tag in enumerate(mat_tags, 1):
@@ -126,9 +124,7 @@ def test_h5m_with_multi_volume_touching(meshing_backend):
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 
-        my_model.export_dagmc_h5m_file(
-            filename=h5m_file, meshing_backend=meshing_backend
-        )
+        my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
         my_model.export_gmsh_mesh_file(filename=h5m_file + ".msh")
 
         tags_dict = {}
@@ -158,26 +154,14 @@ def test_cq_compound(meshing_backend):
     ]
 
     s = cq.Workplane("XY")
-    r = (
-        s.lineTo(3.0, 0)
-        .lineTo(3.0, 1.0)
-        .spline(spline_points, includeCurrent=True)
-        .close()
-    )
+    r = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True).close()
     cq_shape_1 = r.extrude(-1)
 
     s2 = cq.Workplane("XY")
-    r2 = (
-        s2.lineTo(3.0, 0)
-        .lineTo(3.0, 1.0)
-        .spline(spline_points, includeCurrent=True)
-        .close()
-    )
+    r2 = s2.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True).close()
     cq_shape_2 = r2.extrude(1)
 
-    compound_of_workplanes = cq.Compound.makeCompound(
-        [cq_shape_1.val(), cq_shape_2.val()]
-    )
+    compound_of_workplanes = cq.Compound.makeCompound([cq_shape_1.val(), cq_shape_2.val()])
 
     my_model = CadToDagmc()
     my_model.add_cadquery_object(
@@ -233,9 +217,7 @@ def test_gmsh_mesh_with_multi_volume_not_touching():
     gmsh_mesh_files = [
         "tests/two_disconnected_cubes.msh",
     ]
-    for stp_file, mat_tags, gmsh_mesh_file in zip(
-        stp_files, material_tags, gmsh_mesh_files
-    ):
+    for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
         my_model = CadToDagmc()
         my_model.add_stp_file(filename=stp_file, material_tags=mat_tags)
 
@@ -255,9 +237,7 @@ def test_gmsh_mesh_with_multi_volume_touching():
         "tests/multi_volume_cylinders.msh",
         "tests/two_connected_cubes.msh",
     ]
-    for stp_file, mat_tags, gmsh_mesh_file in zip(
-        stp_files, material_tags, gmsh_mesh_files
-    ):
+    for stp_file, mat_tags, gmsh_mesh_file in zip(stp_files, material_tags, gmsh_mesh_files):
         my_model = CadToDagmc()
         my_model.add_stp_file(stp_file, material_tags=mat_tags)
 

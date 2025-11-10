@@ -388,11 +388,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend):
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
     middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
     outer_sphere = (
-        cq.Workplane("XY")
-        .sphere(10)
-        .cut(box_cutter)
-        .cut(inner_sphere)
-        .cut(middle_sphere)
+        cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
     )
 
     assembly = cq.Assembly()
