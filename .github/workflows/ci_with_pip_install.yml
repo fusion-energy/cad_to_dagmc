@@ -21,22 +21,25 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container:
-      image: openmc/openmc:develop-dagmc
+    strategy:
+      matrix:
+        python-version: [3.12]
     steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: install non pypi dependencies
         shell: bash
         run: |
-          apt-get --allow-releaseinfo-change update
-          apt-get update -y
-          apt-get upgrade -y
-          apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
-          apt install python3
-          apt install python3-pip
-          python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
+          sudo apt-get update -y
+          sudo apt-get upgrade -y
+          sudo apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
+          # Python3 and pip are pre-installed on GitHub Actions runners
+          python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
           python -c "import pymoab"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
