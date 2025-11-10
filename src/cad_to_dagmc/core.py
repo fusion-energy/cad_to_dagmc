@@ -685,7 +685,7 @@ class CadToDagmc:
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
- 
+
         if imprint:
             imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
         else:
