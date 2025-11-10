@@ -330,7 +330,7 @@ def to_mesh(
 
     # Step through all of the collected solids and their respective faces to get the vertices
     for solid in solids:
-        print(f'Tessellating solid {solid_idx} of {len(solids)}')
+        print(f"Tessellating solid {solid_idx} of {len(solids)}")
         # Reset this each time so that we get the correct number of faces per solid
         face_triangles = {}
 
