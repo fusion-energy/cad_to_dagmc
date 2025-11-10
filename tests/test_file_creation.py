@@ -133,7 +133,9 @@ def test_h5m_with_multi_volume_touching(meshing_backend):
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
         cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-            dagmc_filename=h5m_file, material_tags=mat_tags, gmsh_filename=h5m_file + ".msh"
+            dagmc_filename=h5m_file,
+            material_tags=mat_tags,
+            gmsh_filename=h5m_file + ".msh",
         )
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 

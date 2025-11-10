@@ -288,7 +288,9 @@ def test_umesh_with_volumes(meshing_backend):
     model.add_cadquery_object(assembly, material_tags=mat_tags)
 
     h5m_file = model.export_dagmc_h5m_file(
-        filename="dagmc.h5m", set_size={1: 0.9, 2: 0.1, 3: 0.9}, meshing_backend=meshing_backend
+        filename="dagmc.h5m",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        meshing_backend=meshing_backend,
     )
 
     vtk_file = model.export_unstructured_mesh_file(

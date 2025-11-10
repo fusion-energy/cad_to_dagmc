@@ -54,7 +54,9 @@ class TestKwargsExportDagmcH5mFile:
 
         with pytest.raises(ValueError, match="CadQuery backend cannot be used for volume meshing"):
             self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file), meshing_backend="cadquery", unstructured_volumes=[1]
+                filename=str(output_file),
+                meshing_backend="cadquery",
+                unstructured_volumes=[1],
             )
 
     def test_invalid_meshing_backend_raises_error(self, tmp_path):
