@@ -106,6 +106,9 @@ def vertices_to_h5m(
 
     moab_core, tags = define_moab_core_and_tags()
 
+    # Add the vertices once at the start
+    all_moab_verts = moab_core.create_vertices(vertices)
+
     volume_sets_by_solid_id = {}
     for material_tag, (solid_id, triangles_on_each_face) in zip(
         material_tags, triangles_by_solid_by_face.items()
@@ -145,14 +148,21 @@ def vertices_to_h5m(
 
                 moab_core.tag_set_data(tags["surf_sense"], face_set, sense_data)
 
-                moab_verts = moab_core.create_vertices(vertices)
+                # Collect only the vertices that lie on triangles on this face
+                face_vertices_set = set()
+                for triangle in triangles_on_face:
+                    face_vertices_set.update(triangle)
+                face_vertices_list = sorted(face_vertices_set)
+
+                # Only add these to the MOAB face
+                moab_verts = [all_moab_verts[ii] for ii in face_vertices_list]
                 moab_core.add_entity(face_set, moab_verts)
 
                 for triangle in triangles_on_face:
                     tri = (
-                        moab_verts[int(triangle[0])],
-                        moab_verts[int(triangle[1])],
-                        moab_verts[int(triangle[2])],
+                        all_moab_verts[int(triangle[0])],
+                        all_moab_verts[int(triangle[1])],
+                        all_moab_verts[int(triangle[2])],
                     )
 
                     moab_triangle = moab_core.create_element(types.MBTRI, tri)
