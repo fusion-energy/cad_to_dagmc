@@ -9,7 +9,6 @@ import tempfile
 import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
-from .direct_mesh_plugin import to_mesh
 
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -612,6 +611,15 @@ class CadToDagmc:
             int: number of volumes in the stp file.
         """
 
+        # If the user did not pass a list of materials and the assembly contains materials, use them
+        temp_material_tags = []
+        if not material_tags and isinstance(cadquery_object, cq.assembly.Assembly):
+            for child in cadquery_object.children:
+                if child.material:
+                    temp_material_tags.append(child.material.name)
+        if len(temp_material_tags) > 0:
+            material_tags = temp_material_tags
+
         if isinstance(cadquery_object, cq.assembly.Assembly):
             cadquery_object = cadquery_object.toCompound()
 
@@ -996,9 +1004,9 @@ class CadToDagmc:
         if meshing_backend == "cadquery":
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
-            cq_mesh = to_mesh(
+            cq_mesh = cq.occ_impl.assembly.toMesh(
                 assembly,
-                imprint=imprint,
+                do_imprint=imprint,
                 tolerance=tolerance,
                 angular_tolerance=angular_tolerance,
                 scale_factor=scale_factor,

@@ -20,7 +20,8 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery>=2.5.2",
+#    "cadquery>=2.5.2",
+#    "git+https://github.com/CadQuery/cadquery.git@direct-mesh",
     "numpy",
     "gmsh",
 # TODO once on pypi include moab here and remove from CI

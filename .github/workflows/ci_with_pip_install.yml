@@ -42,6 +42,7 @@ jobs:
           python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
           python -c "import pymoab"
           python -m pip install .[tests]
+          python -m pip install "git+https://github.com/CadQuery/cadquery.git@direct-mesh"
           python -m pip install git+https://github.com/svalinn/pydagmc
           python -c "import cad_to_dagmc"
           pytest -v tests
