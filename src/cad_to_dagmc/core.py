@@ -601,6 +601,15 @@ class CadToDagmc:
             int: number of volumes in the stp file.
         """
 
+        # If the user did not pass a list of materials and the assembly contains materials, use them
+        temp_material_tags = []
+        if not material_tags and isinstance(cadquery_object, cq.assembly.Assembly):
+            for child in cadquery_object.children:
+                if child.material:
+                    temp_material_tags.append(child.material.name)
+        if len(temp_material_tags) > 0:
+            material_tags = temp_material_tags
+
         if isinstance(cadquery_object, cq.assembly.Assembly):
             cadquery_object = cadquery_object.toCompound()
 
