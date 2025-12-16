@@ -40,17 +40,21 @@ jobs:
           sudo apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
           # Python3 and pip are pre-installed on GitHub Actions runners
           python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
+          # install the latest cadquery master branch as it has PR https://github.com/CadQuery/cadquery/pull/1923 merged in
+          python -m pip install git+https://github.com/CadQuery/cadquery
           python -c "import pymoab"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
           python -c "import cad_to_dagmc"
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
+          python examples/surface_mesh/cadquery_assembly_with_materials.py
           python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py
           python examples/surface_mesh/cadquery_text.py
           python examples/surface_mesh/curved_cadquery_object_to_dagmc_surface_mesh.py
+          python examples/surface_mesh/different_resolution_meshes.py
           python examples/surface_mesh/from_gmsh_mesh_file.py
           python examples/surface_mesh/from_gmsh_mesh_file_with_tags.py
           python examples/surface_mesh/from_gmsh_object_with_tag.py
@@ -62,6 +66,4 @@ jobs:
           python examples/unstrucutred_volume_mesh/curved_cadquery_object_to_dagmc_volume_mesh.py
           python examples/unstrucutred_volume_mesh/simulate_unstrucutred_volume_mesh_with_openmc.py
           python examples/unstrucutred_volume_mesh/different_resolution_meshes.py
-          python examples/surface_mesh/different_resolution_meshes.py
-          python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
           python examples/surface_and_unstructured_mesh/unstructured_mesh_with_conformal_surface_mesh.py
