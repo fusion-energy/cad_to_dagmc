@@ -627,6 +627,8 @@ class CadToDagmc:
                         )
 
             cadquery_compound = cadquery_object.toCompound()
+        else:
+            cadquery_compound = cadquery_object
 
         if isinstance(cadquery_compound, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = cadquery_compound.Solids()

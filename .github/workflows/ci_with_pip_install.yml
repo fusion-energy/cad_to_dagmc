@@ -40,6 +40,8 @@ jobs:
           sudo apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
           # Python3 and pip are pre-installed on GitHub Actions runners
           python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
+          # install the latest cadquery master branch as it has PR https://github.com/CadQuery/cadquery/pull/1923 merged in
+          python -m pip install git+https://github.com/CadQuery/cadquery
           python -c "import pymoab"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
