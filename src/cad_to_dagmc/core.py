@@ -617,19 +617,16 @@ class CadToDagmc:
             if material_tags is None:
                 material_tags = []
                 for child in cadquery_object.children:
-                    if child.material.name is not None:
-                        material_tags.append(child.material.name)                        
+                    if child.material is not None and child.material.name is not None:
+                        material_tags.append(child.material.name)
                     else:
                         raise ValueError(
-                            'Not all parts in the assembly have material tags '
-                            'assigned. Please assign material tags to all '
-                            'parts or provide material_tags argument when '
-                            'adding the assembly.'
+                            f"Not all parts in the assembly have material tags assigned. "
+                            f"Missing material tag for child: {child}. "
+                            "Please assign material tags to all parts or provide material_tags argument when adding the assembly."
                         )
 
             cadquery_compound = cadquery_object.toCompound()
-
-
 
         if isinstance(cadquery_compound, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
             iterable_solids = cadquery_compound.Solids()
