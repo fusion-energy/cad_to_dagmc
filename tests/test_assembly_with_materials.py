@@ -25,9 +25,7 @@ def test_cadquery_assembly_with_materials():
         my_model.add_cadquery_object(
             cadquery_object=assembly
         )  # note that material tags are not needed here
-        test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
-        )
+        test_h5m_filename = my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
 
         assert Path(test_h5m_filename).is_file()
 
