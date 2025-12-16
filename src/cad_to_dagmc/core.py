@@ -590,7 +590,7 @@ class CadToDagmc:
         cadquery_object: (
             cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid
         ),
-        material_tags: list[str] | None,
+        material_tags: list[str] | None = None,
         scale_factor: float = 1.0,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
@@ -613,17 +613,36 @@ class CadToDagmc:
         """
 
         if isinstance(cadquery_object, cq.assembly.Assembly):
-            cadquery_object = cadquery_object.toCompound()
+            # look for materials in each part of the assembly
+            if material_tags is None:
+                material_tags = []
+                for child in cadquery_object.children:
+                    if child.material.name is not None:
+                        material_tags.append(child.material.name)                        
+                    else:
+                        raise ValueError(
+                            'Not all parts in the assembly have material tags '
+                            'assigned. Please assign material tags to all '
+                            'parts or provide material_tags argument when '
+                            'adding the assembly.'
+                        )
 
-        if isinstance(cadquery_object, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
-            iterable_solids = cadquery_object.Solids()
+            cadquery_compound = cadquery_object.toCompound()
+
+
+
+        if isinstance(cadquery_compound, (cq.occ_impl.shapes.Compound, cq.occ_impl.shapes.Solid)):
+            iterable_solids = cadquery_compound.Solids()
         else:
-            iterable_solids = cadquery_object.val().Solids()
+            iterable_solids = cadquery_compound.val().Solids()
 
         if scale_factor == 1.0:
             scaled_iterable_solids = iterable_solids
         else:
             scaled_iterable_solids = [part.scale(scale_factor) for part in iterable_solids]
+
+        # look for materials in the
+        # if material_tags is None:
 
         check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
