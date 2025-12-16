@@ -577,7 +577,8 @@ class CadToDagmc:
         Returns:
             int: number of volumes in the stp file.
         """
-        part = importers.importStep(str(filename)).val()
+        # part = importers.importStep(str(filename)).val()
+        part = cq.Assembly().importStep(str(filename))
 
         if scale_factor == 1.0:
             scaled_part = part
@@ -602,7 +603,9 @@ class CadToDagmc:
                 DAGMC material tags to assign. These will need to be in the
                 same order as the volumes in the geometry added (STP file and
                 CadQuery objects) and match the material tags used in the
-                neutronics code (e.g. OpenMC).
+                neutronics code (e.g. OpenMC). If not provided and the cadquery_object
+                is an assembly then the material tags will be taken from the
+                material.name attribute of each part in the assembly.
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
