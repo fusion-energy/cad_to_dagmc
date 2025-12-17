@@ -46,9 +46,7 @@ def test_cadquery_assembly_with_names():
         assembly.add(
             result, name="result", material=cq.Material("diamond")
         )  # note material assigned here
-        assembly.add(
-            result2, material=cq.Material("gold")
-        )  # note material assigned here
+        assembly.add(result2, material=cq.Material("gold"))  # note material assigned here
 
         my_model = CadToDagmc()
         # note that material tags are not needed here
@@ -62,4 +60,3 @@ def test_cadquery_assembly_with_names():
         assert names_dict[2].startswith("mat:")
         assert isinstance(names_dict[2], str)
         assert len(names_dict) == 2
-
