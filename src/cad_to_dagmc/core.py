@@ -590,7 +590,7 @@ class CadToDagmc:
         cadquery_object: (
             cq.assembly.Assembly | cq.occ_impl.shapes.Compound | cq.occ_impl.shapes.Solid
         ),
-        material_tags: list[str] | None = None,
+        material_tags: list[str] | str,
         scale_factor: float = 1.0,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
@@ -612,19 +612,32 @@ class CadToDagmc:
             int: number of volumes in the stp file.
         """
 
+        if isinstance(material_tags, str) and material_tags not in ["assembly_materials", "assembly_names"]:
+                raise ValueError(
+                    f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
+                )
+
         if isinstance(cadquery_object, cq.assembly.Assembly):
             # look for materials in each part of the assembly
-            if material_tags is None:
+            if material_tags == "assembly_materials":
                 material_tags = []
                 for child in cadquery_object.children:
                     if child.material is not None and child.material.name is not None:
                         material_tags.append(child.material.name)
                     else:
                         raise ValueError(
-                            f"Not all parts in the assembly have material tags assigned. "
-                            f"Missing material tag for child: {child}. "
-                            "Please assign material tags to all parts or provide material_tags argument when adding the assembly."
+                            f"Not all parts in the assembly have materials assigned.\n"
+                            f"When adding to an assembly include material=cadquery.Material('material_name')\n"
+                            f"Missing material tag for child: {child}.\n"
+                            "Please assign material tags to all parts or provide material_tags argument when adding the assembly.\n"
                         )
+                print("material_tags found from assembly materials:", material_tags)
+            elif material_tags == "assembly_names":
+                material_tags = []
+                for child in cadquery_object.children:
+                    # parts always have a name as cq will auto assign one
+                    material_tags.append(child.name)
+                print("material_tags found from assembly names:", material_tags)
 
             cadquery_compound = cadquery_object.toCompound()
         else:
@@ -639,9 +652,6 @@ class CadToDagmc:
             scaled_iterable_solids = iterable_solids
         else:
             scaled_iterable_solids = [part.scale(scale_factor) for part in iterable_solids]
-
-        # look for materials in the
-        # if material_tags is None:
 
         check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
