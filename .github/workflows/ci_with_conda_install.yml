@@ -69,6 +69,8 @@ jobs:
           source "${HOME}/miniforge/etc/profile.d/conda.sh"
           conda activate ci-env
           python examples/surface_mesh/cadquery_assembly.py
+          python examples/surface_mesh/cadquery_assembly_with_materials.py
+          python examples/surface_mesh/cadquery_assembly_with_names.py
           python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py
           python examples/surface_mesh/cadquery_compound.py
           python examples/surface_mesh/cadquery_object_and_stp_file.py
