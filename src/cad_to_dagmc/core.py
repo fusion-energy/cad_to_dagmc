@@ -612,10 +612,13 @@ class CadToDagmc:
             int: number of volumes in the stp file.
         """
 
-        if isinstance(material_tags, str) and material_tags not in ["assembly_materials", "assembly_names"]:
-                raise ValueError(
-                    f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
-                )
+        if isinstance(material_tags, str) and material_tags not in [
+            "assembly_materials",
+            "assembly_names",
+        ]:
+            raise ValueError(
+                f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
+            )
 
         if isinstance(cadquery_object, cq.assembly.Assembly):
             # look for materials in each part of the assembly
