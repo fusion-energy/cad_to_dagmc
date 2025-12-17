@@ -14,8 +14,5 @@ assembly.add(result, name="result")
 assembly.add(result2, name="result2")
 
 my_model = CadToDagmc()
-my_model.add_cadquery_object(
-    cadquery_object=assembly
-    , material_tags="assembly_names"
-)
+my_model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_names")
 my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
