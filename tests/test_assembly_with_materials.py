@@ -51,7 +51,6 @@ def test_assembly_missing_material_tag_raises():
     assert "Not all parts in the assembly have materials assigned" in str(excinfo.value)
 
 
-
 def test_cadquery_assembly_with_nested_assembly():
 
     with tempfile.TemporaryDirectory() as tmpdir:
