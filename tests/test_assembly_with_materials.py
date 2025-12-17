@@ -49,3 +49,34 @@ def test_assembly_missing_material_tag_raises():
         my_model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_materials")
     # Check error message is informative
     assert "Not all parts in the assembly have materials assigned" in str(excinfo.value)
+
+
+
+def test_cadquery_assembly_with_nested_assembly():
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+
+        result = cq.Workplane().sphere(5)
+        result2 = cq.Workplane().moveTo(10, 0).sphere(2)
+        result3 = cq.Workplane().moveTo(-10, 0).sphere(2)
+
+        assembly = cq.Assembly()
+        assembly.add(result, name="result", material=cq.Material("diamond"))
+        assembly.add(result2, name="result2", material=cq.Material("gold"))
+
+        assembly2 = cq.Assembly()
+        assembly2.add(assembly, name="assembly1")
+        assembly2.add(result3, name="result3", material=cq.Material("silver"))
+
+        my_model = CadToDagmc()
+        # note that material tags are not needed here
+        my_model.add_cadquery_object(cadquery_object=assembly2, material_tags="assembly_materials")
+        test_h5m_filename = my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+
+        assert Path(test_h5m_filename).is_file()
+
+        assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+            1: "mat:diamond",
+            2: "mat:gold",
+            3: "mat:silver",
+        }

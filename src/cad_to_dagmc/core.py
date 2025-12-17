@@ -621,9 +621,9 @@ class CadToDagmc:
             # look for materials in each part of the assembly
             if material_tags == "assembly_materials":
                 material_tags = []
-                for child in cadquery_object.children:
+                for child in _get_all_leaf_children(cadquery_object):
                     if child.material is not None and child.material.name is not None:
-                        material_tags.append(child.material.name)
+                        material_tags.append(str(child.material.name))
                     else:
                         raise ValueError(
                             f"Not all parts in the assembly have materials assigned.\n"
@@ -634,7 +634,7 @@ class CadToDagmc:
                 print("material_tags found from assembly materials:", material_tags)
             elif material_tags == "assembly_names":
                 material_tags = []
-                for child in cadquery_object.children:
+                for child in _get_all_leaf_children(cadquery_object):
                     # parts always have a name as cq will auto assign one
                     material_tags.append(child.name)
                 print("material_tags found from assembly names:", material_tags)
@@ -1126,3 +1126,13 @@ class CadToDagmc:
             return dagmc_filename, umesh_filename
         else:
             return dagmc_filename
+
+
+def _get_all_leaf_children(assembly):
+    """Recursively yield all leaf children (parts, not assemblies) from a CadQuery assembly."""
+    for child in assembly.children:
+        # If the child is itself an assembly, recurse
+        if hasattr(child, "children") and len(child.children) > 0:
+            yield from _get_all_leaf_children(child)
+        else:
+            yield child
