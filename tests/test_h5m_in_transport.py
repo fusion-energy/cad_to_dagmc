@@ -143,7 +143,9 @@ def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename, meshing_backend=meshing_backend)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename, meshing_backend=meshing_backend
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -163,7 +165,9 @@ def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
 
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename, meshing_backend=meshing_backend)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename, meshing_backend=meshing_backend
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -185,7 +189,9 @@ def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename, meshing_backend=meshing_backend)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename, meshing_backend=meshing_backend
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -259,7 +265,9 @@ def test_h5m_with_multi_volume_touching(meshing_backend):
             material_tags=mat_tags,
         )
 
-        my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
+        my_model.export_dagmc_h5m_file(
+            filename=h5m_file, meshing_backend=meshing_backend
+        )
 
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file,
@@ -275,7 +283,11 @@ def test_umesh_with_volumes(meshing_backend):
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
     middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
     outer_sphere = (
-        cq.Workplane("XY").sphere(10).cut(box_cutter).cut(inner_sphere).cut(middle_sphere)
+        cq.Workplane("XY")
+        .sphere(10)
+        .cut(box_cutter)
+        .cut(inner_sphere)
+        .cut(middle_sphere)
     )
 
     assembly = cq.Assembly()

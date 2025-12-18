@@ -24,8 +24,12 @@ def test_cadquery_assembly_with_names():
 
         my_model = CadToDagmc()
         # note that material tags are not needed here
-        my_model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_names")
-        test_h5m_filename = my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+        my_model.add_cadquery_object(
+            cadquery_object=assembly, material_tags="assembly_names"
+        )
+        test_h5m_filename = my_model.export_dagmc_h5m_file(
+            min_mesh_size=0.5, max_mesh_size=1.0e6
+        )
 
         assert Path(test_h5m_filename).is_file()
 
@@ -46,12 +50,18 @@ def test_cadquery_assembly_with_incomplete_names():
         assembly.add(
             result, name="result", material=cq.Material("diamond")
         )  # note material assigned here
-        assembly.add(result2, material=cq.Material("gold"))  # note material assigned here
+        assembly.add(
+            result2, material=cq.Material("gold")
+        )  # note material assigned here
 
         my_model = CadToDagmc()
         # note that material tags are not needed here
-        my_model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_names")
-        test_h5m_filename = my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+        my_model.add_cadquery_object(
+            cadquery_object=assembly, material_tags="assembly_names"
+        )
+        test_h5m_filename = my_model.export_dagmc_h5m_file(
+            min_mesh_size=0.5, max_mesh_size=1.0e6
+        )
 
         assert Path(test_h5m_filename).is_file()
 
@@ -80,8 +90,12 @@ def test_cadquery_assembly_with_nested_assembly():
 
         my_model = CadToDagmc()
         # note that material tags are not needed here
-        my_model.add_cadquery_object(cadquery_object=assembly2, material_tags="assembly_names")
-        test_h5m_filename = my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+        my_model.add_cadquery_object(
+            cadquery_object=assembly2, material_tags="assembly_names"
+        )
+        test_h5m_filename = my_model.export_dagmc_h5m_file(
+            min_mesh_size=0.5, max_mesh_size=1.0e6
+        )
 
         assert Path(test_h5m_filename).is_file()
 
