@@ -1,5 +1,5 @@
-# This example makes a CadQuery assembly and assigns materials to the parts
-# These part materials are then used when exporting to a DAGMC H5M file
+# This example makes a CadQuery assembly and assigns names to the parts
+# These part names are then used when exporting to a DAGMC H5M file
 # This avoids needing to specify material tags separately when adding the CadQuery object
 
 
