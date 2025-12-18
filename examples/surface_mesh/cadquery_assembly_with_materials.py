@@ -10,11 +10,16 @@ result = cq.Workplane().sphere(5)
 result2 = cq.Workplane().moveTo(10, 0).sphere(2)
 
 assembly = cq.Assembly()
-assembly.add(result, name="result", material=cq.Material("mat1"))  # note material assigned here
-assembly.add(result2, name="result2", material=cq.Material("mat2"))  # note material assigned here
+assembly.add(
+    result, name="result", material=cq.Material("mat1")
+)  # note material assigned here
+assembly.add(
+    result2, name="result2", material=cq.Material("mat2")
+)  # note material assigned here
 
 my_model = CadToDagmc()
 my_model.add_cadquery_object(
-    cadquery_object=assembly
-)  # note that material tags are not needed here
+    cadquery_object=assembly,
+    material_tags="assembly_materials",
+)
 my_model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
