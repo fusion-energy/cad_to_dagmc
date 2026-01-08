@@ -10,6 +10,7 @@ import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
 from .direct_mesh_plugin import to_mesh
+import cadquery_direct_mesh_plugin
 
 
 def define_moab_core_and_tags() -> tuple[core.Core, dict]:
@@ -1050,8 +1051,7 @@ class CadToDagmc:
         if meshing_backend == "cadquery":
 
             # Mesh the assembly using CadQuery's direct-mesh plugin
-            cq_mesh = to_mesh(
-                assembly,
+            cq_mesh = assembly.toMesh(
                 imprint=imprint,
                 tolerance=tolerance,
                 angular_tolerance=angular_tolerance,
