@@ -9,7 +9,6 @@ import tempfile
 import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
-from .direct_mesh_plugin import to_mesh
 import cadquery_direct_mesh_plugin
 
 
