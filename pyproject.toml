@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery>=2.5.2",
+    "cadquery>=2.6.0",
     "numpy",
     "gmsh",
     "cadquery_direct_mesh_plugin>=0.1.0"
