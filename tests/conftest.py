@@ -9,8 +9,8 @@ def pytest_addoption(parser):
     parser.addoption(
         "--h5m-backend",
         action="store",
-        default=os.environ.get("H5M_BACKEND", "pymoab"),
-        help="H5M backend to use: pymoab or h5py (default: pymoab)",
+        default=os.environ.get("H5M_BACKEND", "h5py"),
+        help="H5M backend to use: pymoab or h5py (default: h5py)",
     )
 
 

@@ -4,7 +4,6 @@ import cadquery as cq
 import gmsh
 import numpy as np
 from cadquery import importers
-from pymoab import core, types
 import tempfile
 import warnings
 from typing import Iterable
@@ -12,7 +11,7 @@ from cad_to_dagmc import __version__
 import cadquery_direct_mesh_plugin
 
 
-def define_moab_core_and_tags() -> tuple[core.Core, dict]:
+def define_moab_core_and_tags():
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
 
@@ -20,6 +19,7 @@ def define_moab_core_and_tags() -> tuple[core.Core, dict]:
         (pymoab Core): A pymoab.core.Core() instance
         (pymoab tag_handle): A pymoab.core.tag_get_handle() instance
     """
+    from pymoab import core, types
 
     # create pymoab instance
     moab_core = core.Core()
@@ -113,6 +113,7 @@ def _vertices_to_h5m_pymoab(
     implicit_complement_material_tag: str | None = None,
 ):
     """PyMOAB backend for vertices_to_h5m."""
+    from pymoab import types
 
     if len(material_tags) != len(triangles_by_solid_by_face):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
