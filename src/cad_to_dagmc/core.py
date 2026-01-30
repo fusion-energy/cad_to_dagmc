@@ -72,7 +72,7 @@ def vertices_to_h5m(
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
     implicit_complement_material_tag: str | None = None,
-    method: str = "pymoab",
+    method: str = "h5py",
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -892,7 +892,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
     filename: str = "dagmc.h5m",
-    h5m_backend: str = "pymoab",
+    h5m_backend: str = "h5py",
 ) -> str:
     """
     Exports a GMSH object to a DAGMC-compatible h5m file. Note gmsh should
@@ -903,7 +903,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
         material_tags: A list of material tags corresponding to the volumes in the GMSH object.
         implicit_complement_material_tag: The material tag for the implicit complement (void space).
         filename: The name of the output h5m file. Defaults to "dagmc.h5m".
-        h5m_backend: Backend for writing h5m file, 'pymoab' or 'h5py'. Defaults to 'pymoab'.
+        h5m_backend: Backend for writing h5m file, 'pymoab' or 'h5py'. Defaults to 'h5py'.
 
     Returns:
         str: The filename of the generated DAGMC h5m file.
@@ -959,7 +959,7 @@ def export_gmsh_file_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
     dagmc_filename: str = "dagmc.h5m",
-    h5m_backend: str = "pymoab",
+    h5m_backend: str = "h5py",
 ) -> str:
     """Saves a DAGMC h5m file of the geometry GMsh file. This function
     initializes and finalizes Gmsh.
@@ -975,7 +975,7 @@ def export_gmsh_file_to_dagmc_h5m_file(
             complement (void space). Defaults to None which is a vacuum.
         dagmc_filename (str, optional): Output filename. Defaults to "dagmc.h5m".
         h5m_backend (str, optional): Backend for writing h5m file, 'pymoab' or 'h5py'.
-            Defaults to 'pymoab'.
+            Defaults to 'h5py'.
 
     Returns:
         str: The filename of the generated DAGMC h5m file.
@@ -1355,7 +1355,7 @@ class CadToDagmc:
                   If not provided, backend is auto-selected based on other arguments.
                   Defaults to 'cadquery' if no backend-specific arguments are given.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
-                  Defaults to 'pymoab'.
+                  Defaults to 'h5py'.
 
                 For GMSH backend:
                 - min_mesh_size (float): minimum mesh element size
@@ -1402,7 +1402,7 @@ class CadToDagmc:
         meshing_backend = kwargs.pop("meshing_backend", None)
 
         # Handle h5m_backend - pymoab or h5py
-        h5m_backend = kwargs.pop("h5m_backend", "pymoab")
+        h5m_backend = kwargs.pop("h5m_backend", "h5py")
 
         if meshing_backend is None:
             # Auto-select meshing_backend based on kwargs
