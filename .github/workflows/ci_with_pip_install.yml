@@ -32,21 +32,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: install non pypi dependencies
+      - name: Install system dependencies
         shell: bash
         run: |
           sudo apt-get update -y
           sudo apt-get upgrade -y
           sudo apt-get install -y libblas-dev liblapack-dev libgl1 libglx-mesa0 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libosmesa6 libosmesa6-dev libgles2-mesa-dev libarchive-dev libpangocairo-1.0-0 libxcursor-dev libxft2 libxinerama-dev make cmake libeigen3-dev
-          # Python3 and pip are pre-installed on GitHub Actions runners
-          python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
+
+      - name: Install package (without pymoab)
+        shell: bash
+        run: |
           # install the latest cadquery master branch as it has PR https://github.com/CadQuery/cadquery/pull/1923 merged in
           python -m pip install git+https://github.com/CadQuery/cadquery
-          python -c "import pymoab"
           python -m pip install .[tests]
-          python -m pip install git+https://github.com/svalinn/pydagmc
           python -c "import cad_to_dagmc"
+
+      - name: Run tests with h5py backend only (validates package works without pymoab)
+        shell: bash
+        run: |
+          pytest -v tests --h5m-backend=h5py
+
+      - name: Install pymoab and openmc
+        shell: bash
+        run: |
+          python -m pip install --extra-index-url https://shimwell.github.io/wheels moab openmc
+          python -c "import pymoab"
+          python -m pip install git+https://github.com/svalinn/pydagmc
+
+      - name: Run full tests with both backends
+        shell: bash
+        run: |
           pytest -v tests
+
+      - name: Run examples
+        shell: bash
+        run: |
           python examples/surface_mesh/cadquery_assembly.py
           python examples/surface_mesh/cadquery_assembly_with_different_h5m_backends.py
           python examples/surface_mesh/cadquery_assembly_with_materials.py
