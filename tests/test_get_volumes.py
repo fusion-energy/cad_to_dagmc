@@ -1,8 +1,14 @@
 import cadquery as cq
-import openmc
 import pytest
 
 import cad_to_dagmc
+
+try:
+    import openmc
+    OPENMC_AVAILABLE = True
+except ImportError:
+    openmc = None
+    OPENMC_AVAILABLE = False
 
 
 @pytest.mark.parametrize(
@@ -79,6 +85,7 @@ def test_get_volumes(scale_factor, expected_bbox):
         ),
     ],
 )
+@pytest.mark.skipif(not OPENMC_AVAILABLE, reason="openmc not installed")
 def test_scale_factor_in_openmc(
     scale_factor, expected_bbox_lower_left, expected_bbox_upper_right, meshing_backend
 ):

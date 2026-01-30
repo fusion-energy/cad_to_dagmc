@@ -4,9 +4,16 @@ from test_h5m_in_transport import transport_particles_on_h5m_geometry
 import cadquery as cq
 import assembly_mesh_plugin
 import gmsh
-import pydagmc
 import math
 import cad_to_dagmc
+import pytest
+
+try:
+    import pydagmc
+    PYDAGMC_AVAILABLE = True
+except ImportError:
+    pydagmc = None
+    PYDAGMC_AVAILABLE = False
 
 
 def test_mesh_to_dagmc_with_gmsh_file_with_materials():
@@ -34,6 +41,7 @@ def test_mesh_to_dagmc_with_gmsh_file_without_materials():
     }
 
 
+@pytest.mark.skipif(not PYDAGMC_AVAILABLE, reason="pydagmc not installed")
 def test_mesh_to_dagmc_with_mesh_object():
     gmsh.initialize()
     gmsh.open("tests/tagged_mesh.msh")
@@ -64,6 +72,7 @@ def test_mesh_to_dagmc_with_mesh_object():
     )
 
 
+@pytest.mark.skipif(not PYDAGMC_AVAILABLE, reason="pydagmc not installed")
 def test_mesh_to_dagmc_with_cadquery_object():
 
     box_shape1 = cq.Workplane("XY").box(50, 50, 50)

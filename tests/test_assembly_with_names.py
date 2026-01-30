@@ -5,8 +5,17 @@ from cad_to_dagmc import CadToDagmc
 from pathlib import Path
 import pytest
 from test_python_api import get_volumes_and_materials_from_h5m
+from packaging.version import Version
+
+# cq.Material requires CadQuery > 2.6.1
+CADQUERY_VERSION = Version(cq.__version__)
+CQ_MATERIAL_AVAILABLE = CADQUERY_VERSION > Version("2.6.1")
 
 
+@pytest.mark.skipif(
+    not CQ_MATERIAL_AVAILABLE,
+    reason="cq.Material requires CadQuery > 2.6.1",
+)
 def test_cadquery_assembly_with_names():
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -39,6 +48,10 @@ def test_cadquery_assembly_with_names():
         }
 
 
+@pytest.mark.skipif(
+    not CQ_MATERIAL_AVAILABLE,
+    reason="cq.Material requires CadQuery > 2.6.1",
+)
 def test_cadquery_assembly_with_incomplete_names():
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -72,6 +85,10 @@ def test_cadquery_assembly_with_incomplete_names():
         assert len(names_dict) == 2
 
 
+@pytest.mark.skipif(
+    not CQ_MATERIAL_AVAILABLE,
+    reason="cq.Material requires CadQuery > 2.6.1",
+)
 def test_cadquery_assembly_with_nested_assembly():
 
     with tempfile.TemporaryDirectory() as tmpdir:

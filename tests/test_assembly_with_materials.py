@@ -4,8 +4,17 @@ from cad_to_dagmc import CadToDagmc
 from pathlib import Path
 import pytest
 from test_python_api import get_volumes_and_materials_from_h5m
+from packaging.version import Version
+
+# assembly_materials feature requires CadQuery > 2.6.1
+CADQUERY_VERSION = Version(cq.__version__)
+ASSEMBLY_MATERIALS_AVAILABLE = CADQUERY_VERSION > Version("2.6.1")
 
 
+@pytest.mark.skipif(
+    not ASSEMBLY_MATERIALS_AVAILABLE,
+    reason="material_tags='assembly_materials' requires CadQuery > 2.6.1",
+)
 def test_cadquery_assembly_with_materials():
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -38,6 +47,10 @@ def test_cadquery_assembly_with_materials():
         }
 
 
+@pytest.mark.skipif(
+    not ASSEMBLY_MATERIALS_AVAILABLE,
+    reason="material_tags='assembly_materials' requires CadQuery > 2.6.1",
+)
 def test_assembly_missing_material_tag_raises():
     # Create two parts, only one with a material
     result = cq.Workplane().sphere(5)
@@ -57,6 +70,10 @@ def test_assembly_missing_material_tag_raises():
     assert "Not all parts in the assembly have materials assigned" in str(excinfo.value)
 
 
+@pytest.mark.skipif(
+    not ASSEMBLY_MATERIALS_AVAILABLE,
+    reason="material_tags='assembly_materials' requires CadQuery > 2.6.1",
+)
 def test_cadquery_assembly_with_nested_assembly():
 
     with tempfile.TemporaryDirectory() as tmpdir:

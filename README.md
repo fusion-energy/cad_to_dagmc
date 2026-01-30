@@ -42,6 +42,7 @@ Cad-to-dagmc offers a wide range of features including.
 - Option to use Gmsh physical groups as material tags
 - Compatibly with [assembly-mesh-plugin](https://github.com/CadQuery/assembly-mesh-plugin) (see examples)
 - Compatible with [Paramak](https://github.com/fusion-energy/paramak) geometry for fusion simulations.
+- Support for different h5m file writing h5m_backend (PyMoab and h5py).
 
 
 # Installation options
