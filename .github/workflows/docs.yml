@@ -63,10 +63,10 @@ jobs:
         run: |
           sphinx-build -b linkcheck docs _build/linkcheck || true
 
-      - name: Add .nojekyll file
+      - name: Add root redirect
         if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/')
         run: |
-          touch _build/.nojekyll
+          cp docs/_static/root_redirect.html _build/index.html
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/')
