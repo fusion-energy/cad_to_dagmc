@@ -532,12 +532,30 @@ def _vertices_to_h5m_h5py(
             gs2_dset.write(h5py.h5s.ALL, h5py.h5s.ALL, gs2_values, mtype=gs2_arr_type)
             gs2_dset.close()
 
-        # GLOBAL_ID tag
+        # GLOBAL_ID tag - store as sparse tag with id_list and values
+        # This stores the user-facing IDs for surfaces and volumes
+        gid_ids = []
+        gid_values = []
+        # Surfaces get their face_id as global_id
+        for face_id in sorted(all_faces.keys()):
+            gid_ids.append(surface_set_ids[face_id])
+            gid_values.append(face_id)
+        # Volumes get their solid_id as global_id
+        for solid_id in solid_ids:
+            gid_ids.append(volume_set_ids[solid_id])
+            gid_values.append(solid_id)
+        # Groups also get the solid_id
+        for solid_id in solid_ids:
+            gid_ids.append(group_set_ids[solid_id])
+            gid_values.append(solid_id)
+
         gid_group = tstt_tags.create_group("GLOBAL_ID")
         gid_group["type"] = np.dtype("i4")
         gid_group.attrs.create("class", 2, dtype=np.int32)
         gid_group.attrs.create("default", -1, dtype=gid_group["type"])
         gid_group.attrs.create("global", -1, dtype=gid_group["type"])
+        gid_group.create_dataset("id_list", data=np.array(gid_ids, dtype=np.uint64))
+        gid_group.create_dataset("values", data=np.array(gid_values, dtype=np.int32))
 
         # NAME tag (for groups - material names)
         name_ids = []

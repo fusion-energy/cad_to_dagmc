@@ -31,51 +31,70 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     Returns:
         A dictionary of volume ids and material tags
     """
+
+    def _read_sparse_tag(tag_group):
+        """Read a sparse tag (id_list + values) and return as dict."""
+        if "id_list" not in tag_group or "values" not in tag_group:
+            return {}
+        ids = tag_group["id_list"][:]
+        values = tag_group["values"][:]
+        result = {}
+        for i, h in enumerate(ids):
+            val = values[i]
+            # Handle string/opaque types
+            if hasattr(val, "tobytes"):
+                val = val.tobytes().rstrip(b"\x00").decode("ascii", "replace")
+            elif isinstance(val, bytes):
+                val = val.rstrip(b"\x00").decode("ascii", "replace")
+            result[int(h)] = val
+        return result
+
+    def _slices_from_end_indices(ends):
+        """Convert end indices to slices. End index -1 means empty."""
+        prev_end = -1
+        slices = []
+        for end in ends:
+            end = int(end)
+            start = prev_end + 1
+            if end >= start:
+                slices.append(slice(start, end + 1))
+            else:
+                slices.append(None)
+            prev_end = end
+        return slices
+
     with h5py.File(filename, "r") as f:
         tstt = f["tstt"]
         sets = tstt["sets"]
         tags = tstt["tags"]
 
-        # Get set list and contents
+        # Get set list, contents, and start_id
         set_list = sets["list"][:]
         set_contents = sets["contents"][:]
+        sets_start_id = int(sets["list"].attrs.get("start_id", 0))
+        num_sets = len(set_list)
 
-        # Get CATEGORY tag to identify Groups and Volumes
-        cat_values = tags["CATEGORY"]["values"][:]
-        cat_id_list = tags["CATEGORY"]["id_list"][:]
+        # Build slices for set contents (column 0 is contents end index)
+        contents_slices = _slices_from_end_indices(set_list[:, 0])
 
-        # Get NAME tag for material names
-        name_values = tags["NAME"]["values"][:]
-        name_id_list = tags["NAME"]["id_list"][:]
+        # Read sparse tags
+        cat_lookup = _read_sparse_tag(tags["CATEGORY"])
+        name_lookup = _read_sparse_tag(tags["NAME"])
 
-        # Get GLOBAL_ID tag for volume IDs
-        global_id_values = tags["GLOBAL_ID"]["values"][:]
-        global_id_list = tags["GLOBAL_ID"]["id_list"][:]
-
-        # Build lookup dictionaries: entity_handle -> tag_value
-        # Entity handles in h5m are 1-based, but arrays are 0-based
-        cat_lookup = {}
-        for i, handle in enumerate(cat_id_list):
-            cat_lookup[handle] = cat_values[i].tobytes().rstrip(b"\x00").decode("ascii")
-
-        name_lookup = {}
-        for i, handle in enumerate(name_id_list):
-            name_lookup[handle] = name_values[i].tobytes().rstrip(b"\x00").decode("ascii")
-
+        # GLOBAL_ID may be sparse (pymoab) or dense (h5py backend)
         global_id_lookup = {}
-        for i, handle in enumerate(global_id_list):
-            global_id_lookup[handle] = int(global_id_values[i])
+        if "GLOBAL_ID" in tags and "id_list" in tags["GLOBAL_ID"] and "values" in tags["GLOBAL_ID"]:
+            # Sparse storage (pymoab style)
+            global_id_lookup = _read_sparse_tag(tags["GLOBAL_ID"])
+        elif "tags" in sets and "GLOBAL_ID" in sets["tags"]:
+            # Dense storage (h5py backend style) - one value per set
+            dense_ids = sets["tags"]["GLOBAL_ID"][:]
+            for i, gid in enumerate(dense_ids):
+                handle = sets_start_id + i
+                global_id_lookup[handle] = int(gid)
 
-        # Find all Groups (material groups start with "mat:")
-        # and all Volumes
+        # Find all Groups (material groups start with "mat:") and all Volumes
         vol_mat = {}
-
-        # Sets are stored starting at some handle offset
-        # The first set handle is typically after all nodes and elements
-        # We need to figure out the set handle offset
-        # In MOAB, entity sets have handles in a specific range
-        # Let's iterate through categories to find Groups and Volumes
-
         groups = {}  # handle -> name
         volumes = {}  # handle -> global_id
 
@@ -88,44 +107,26 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
                 global_id = global_id_lookup.get(handle, 0)
                 volumes[handle] = global_id
 
-        # Now we need to find which volumes belong to which groups
-        # This requires parsing the set contents
-        # Each set can have children (other sets it contains)
-
-        # The set_list has format: [start_idx, end_idx] for each set's contents in set_contents
-        # We need to map set handles to their position in set_list
-
-        # Get the starting handle for sets
-        # This is tricky - we need to figure out the handle offset
-        # Let's use the fact that we know the handles from the tag id_lists
-
-        # Get all handles that are sets (from CATEGORY tag)
-        all_set_handles = sorted(cat_lookup.keys())
-        if not all_set_handles:
+        if not groups:
             return vol_mat
-
-        # The set_list array corresponds to sets in order of their handles
-        # Build a mapping from set index to handle
-        min_set_handle = min(all_set_handles)
 
         # For each group, find its child sets (volumes)
         for group_handle, mat_name in groups.items():
             # Get the index into set_list for this group
-            set_idx = group_handle - min_set_handle
-            if set_idx < 0 or set_idx >= len(set_list):
+            set_idx = group_handle - sets_start_id
+            if set_idx < 0 or set_idx >= num_sets:
                 continue
 
-            # Get the range of contents for this set
-            if set_idx == 0:
-                start = 0
-            else:
-                start = set_list[set_idx - 1]
-            end = set_list[set_idx]
+            # Get the contents slice for this set
+            contents_slice = contents_slices[set_idx]
+            if contents_slice is None:
+                continue
 
             # The contents are child entity handles
-            child_handles = set_contents[start:end]
+            child_handles = set_contents[contents_slice]
 
             for child_handle in child_handles:
+                child_handle = int(child_handle)
                 # Check if this child is a Volume
                 if child_handle in volumes:
                     vol_id = volumes[child_handle]
