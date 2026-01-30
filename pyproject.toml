@@ -37,10 +37,23 @@ write_to = "src/_version.py"
 [project.optional-dependencies]
 tests = [
     "pytest",
+    "pytest-codeblocks",
     "vtk",
     "assembly-mesh-plugin",
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
+]
+docs = [
+    "sphinx",
+    "myst-parser",
+    "sphinx-book-theme",
+    "sphinx-autodoc-typehints",
+    "sphinx-design",
+    "sphinxcontrib-mermaid",
+    "sphinxcadquery",
+    "pyvista[jupyter]",
+    "panel",
+    "jupyter-sphinx",
 ]
 
 
