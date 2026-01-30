@@ -418,50 +418,61 @@ def _vertices_to_h5m_h5py(
         # === TAGS ===
         tstt_tags = tstt.create_group("tags")
 
-        # Collect all tagged set IDs and their values
-        all_set_ids = []
+        # Collect tagged set IDs for CATEGORY (all entities)
+        # and GEOM_DIMENSION (only surfaces and volumes - not groups, to match pymoab)
+        category_set_ids = []
         categories = []
+        geom_dim_set_ids = []
         geom_dimensions = []
+
+        # Volumes first (to match pymoab ordering)
+        for solid_id in solid_ids:
+            category_set_ids.append(volume_set_ids[solid_id])
+            categories.append("Volume")
+            geom_dim_set_ids.append(volume_set_ids[solid_id])
+            geom_dimensions.append(3)
+
+        # Groups (CATEGORY only - pymoab doesn't set geom_dimension on groups)
+        # Note: Groups COULD have geom_dimension=4 set, but pymoab doesn't do this
+        for solid_id in solid_ids:
+            category_set_ids.append(group_set_ids[solid_id])
+            categories.append("Group")
 
         # Surfaces
         for face_id in sorted(all_faces.keys()):
-            all_set_ids.append(surface_set_ids[face_id])
+            category_set_ids.append(surface_set_ids[face_id])
             categories.append("Surface")
+            geom_dim_set_ids.append(surface_set_ids[face_id])
             geom_dimensions.append(2)
 
-        # Volumes
-        for solid_id in solid_ids:
-            all_set_ids.append(volume_set_ids[solid_id])
-            categories.append("Volume")
-            geom_dimensions.append(3)
-
-        # Groups
-        for solid_id in solid_ids:
-            all_set_ids.append(group_set_ids[solid_id])
-            categories.append("Group")
-            geom_dimensions.append(4)
-
-        # Implicit complement
+        # Implicit complement (CATEGORY only)
         if implicit_complement_material_tag:
-            all_set_ids.append(implicit_complement_set_id)
+            category_set_ids.append(implicit_complement_set_id)
             categories.append("Group")
-            geom_dimensions.append(4)
 
         # CATEGORY tag
+        # Note: We use opaque dtype (|V32) to match pymoab output exactly.
+        # A string dtype (|S32) would also work and be more readable in h5dump,
+        # but we match pymoab for maximum compatibility.
         cat_group = tstt_tags.create_group("CATEGORY")
         cat_group.attrs.create("class", 1, dtype=np.int32)
-        cat_group.create_dataset("id_list", data=np.array(all_set_ids, dtype=np.uint64))
-        dt = h5py.opaque_dtype(np.dtype("S32"))
-        cat_group["type"] = dt
-        cat_group.create_dataset("values", data=categories, dtype=dt)
+        cat_group.create_dataset("id_list", data=np.array(category_set_ids, dtype=np.uint64))
+        # Create opaque 32-byte type to match pymoab's H5T_OPAQUE
+        opaque_dt = h5py.opaque_dtype(np.dtype("V32"))
+        cat_group["type"] = opaque_dt
+        # Encode category strings as 32-byte null-padded values
+        cat_values = np.array([s.encode("ascii").ljust(32, b"\x00") for s in categories], dtype="V32")
+        cat_group.create_dataset("values", data=cat_values)
 
         # GEOM_DIMENSION tag
+        # Note: We only tag surfaces (dim=2) and volumes (dim=3), not groups.
+        # Groups COULD have geom_dimension=4, but pymoab doesn't set this.
         geom_group = tstt_tags.create_group("GEOM_DIMENSION")
         geom_group["type"] = np.dtype("i4")
         geom_group.attrs.create("class", 1, dtype=np.int32)
         geom_group.attrs.create("default", -1, dtype=geom_group["type"])
         geom_group.attrs.create("global", -1, dtype=geom_group["type"])
-        geom_group.create_dataset("id_list", data=np.array(all_set_ids, dtype=np.uint64))
+        geom_group.create_dataset("id_list", data=np.array(geom_dim_set_ids, dtype=np.uint64))
         geom_group.create_dataset("values", data=np.array(geom_dimensions, dtype=np.int32))
 
         # GEOM_SENSE_2 tag (only for surfaces)
@@ -562,14 +573,14 @@ def _vertices_to_h5m_h5py(
             verts = face_vertex_sets[face_id]
             tri_start, tri_count = face_triangle_ranges[face_id]
 
-            # Add vertex range (1-based IDs)
-            # Find contiguous ranges in vertices
-            if verts:
-                contents.extend([verts[0] + 1, len(verts)])  # start_id (1-based), count
+            # Add individual vertex handles (1-based IDs)
+            # Don't assume vertices are contiguous - store each one
+            for v in verts:
+                contents.append(v + 1)  # 1-based vertex ID
 
-            # Add triangle range
-            if tri_count > 0:
-                contents.extend([triangle_start_id + tri_start, tri_count])
+            # Add individual triangle handles
+            for i in range(tri_count):
+                contents.append(triangle_start_id + tri_start + i)
 
             contents_end = len(contents) - 1
 
@@ -579,8 +590,8 @@ def _vertices_to_h5m_h5py(
                 parents_list.append(volume_set_ids[solid_id])
             parents_end = len(parents_list) - 1
 
-            # flags: 10 = range-compressed content (0b1010)
-            list_rows.append([contents_end, children_end, parents_end, 10])
+            # flags: 2 = MESHSET_SET (handles, not ranges)
+            list_rows.append([contents_end, children_end, parents_end, 2])
 
         # Volume sets (empty contents, but have surface children)
         for solid_id in solid_ids:
@@ -881,6 +892,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
     filename: str = "dagmc.h5m",
+    h5m_backend: str = "pymoab",
 ) -> str:
     """
     Exports a GMSH object to a DAGMC-compatible h5m file. Note gmsh should
@@ -891,6 +903,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
         material_tags: A list of material tags corresponding to the volumes in the GMSH object.
         implicit_complement_material_tag: The material tag for the implicit complement (void space).
         filename: The name of the output h5m file. Defaults to "dagmc.h5m".
+        h5m_backend: Backend for writing h5m file, 'pymoab' or 'h5py'. Defaults to 'pymoab'.
 
     Returns:
         str: The filename of the generated DAGMC h5m file.
@@ -918,6 +931,7 @@ def export_gmsh_object_to_dagmc_h5m_file(
         material_tags=material_tags,
         h5m_filename=filename,
         implicit_complement_material_tag=implicit_complement_material_tag,
+        method=h5m_backend,
     )
 
     return h5m_filename
@@ -945,11 +959,13 @@ def export_gmsh_file_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
     dagmc_filename: str = "dagmc.h5m",
+    h5m_backend: str = "pymoab",
 ) -> str:
     """Saves a DAGMC h5m file of the geometry GMsh file. This function
     initializes and finalizes Gmsh.
 
     Args:
+        gmsh_filename (str): the filename of the GMSH mesh file.
         material_tags (list[str]): the names of the DAGMC
             material tags to assign. These will need to be in the same
             order as the volumes in the GMESH mesh and match the
@@ -957,7 +973,9 @@ def export_gmsh_file_to_dagmc_h5m_file(
         implicit_complement_material_tag (str | None, optional):
             the name of the material tag to use for the implicit
             complement (void space). Defaults to None which is a vacuum.
-        dagmc_filename (str, optional): _description_. Defaults to "dagmc.h5m".
+        dagmc_filename (str, optional): Output filename. Defaults to "dagmc.h5m".
+        h5m_backend (str, optional): Backend for writing h5m file, 'pymoab' or 'h5py'.
+            Defaults to 'pymoab'.
 
     Returns:
         str: The filename of the generated DAGMC h5m file.
@@ -990,6 +1008,7 @@ def export_gmsh_file_to_dagmc_h5m_file(
         material_tags=material_tags,
         h5m_filename=dagmc_filename,
         implicit_complement_material_tag=implicit_complement_material_tag,
+        method=h5m_backend,
     )
 
     return h5m_filename
@@ -1335,6 +1354,8 @@ class CadToDagmc:
                 - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'.
                   If not provided, backend is auto-selected based on other arguments.
                   Defaults to 'cadquery' if no backend-specific arguments are given.
+                - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
+                  Defaults to 'pymoab'.
 
                 For GMSH backend:
                 - min_mesh_size (float): minimum mesh element size
@@ -1367,7 +1388,7 @@ class CadToDagmc:
             "method",
             "unstructured_volumes",
         }
-        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend"}
+        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend", "h5m_backend"}
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -1379,6 +1400,9 @@ class CadToDagmc:
 
         # Handle meshing_backend - either from kwargs or auto-detect
         meshing_backend = kwargs.pop("meshing_backend", None)
+
+        # Handle h5m_backend - pymoab or h5py
+        h5m_backend = kwargs.pop("h5m_backend", "pymoab")
 
         if meshing_backend is None:
             # Auto-select meshing_backend based on kwargs
@@ -1570,6 +1594,7 @@ class CadToDagmc:
             material_tags=material_tags_in_brep_order,
             h5m_filename=filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
+            method=h5m_backend,
         )
 
         if unstructured_volumes:

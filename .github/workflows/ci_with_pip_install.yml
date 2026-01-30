@@ -48,6 +48,7 @@ jobs:
           python -c "import cad_to_dagmc"
           pytest -v tests
           python examples/surface_mesh/cadquery_assembly.py
+          python examples/surface_mesh/cadquery_assembly_with_different_h5m_backends.py
           python examples/surface_mesh/cadquery_assembly_with_materials.py
           python examples/surface_mesh/cadquery_assembly_with_names.py
           python examples/surface_mesh/cadquery_assembly_with_scaled_geometry.py

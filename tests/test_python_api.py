@@ -1,4 +1,3 @@
-import os
 import warnings
 from pathlib import Path
 
@@ -46,49 +45,54 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
 
 # TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
 @pytest.mark.parametrize("meshing_backend", ["gmsh"])
-def test_max_mesh_size_impacts_file_size(meshing_backend):
+def test_max_mesh_size_impacts_file_size(meshing_backend, tmp_path):
     """Checks the reducing max_mesh_size value increases the file size"""
 
     sphere = cq.Workplane().sphere(100)
 
     c2d = CadToDagmc()
     c2d.add_cadquery_object(sphere, material_tags=["m1"])
-    os.system("rm *.h5m")
+
+    file1 = tmp_path / "test_10_30.h5m"
+    file2 = tmp_path / "test_20_30.h5m"
+    file3 = tmp_path / "test_20_25.h5m"
+
     c2d.export_dagmc_h5m_file(
         min_mesh_size=10,
         max_mesh_size=20,
         mesh_algorithm=1,
-        filename="test_10_30.h5m",
+        filename=str(file1),
         meshing_backend=meshing_backend,
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=30,
         mesh_algorithm=1,
-        filename="test_20_30.h5m",
+        filename=str(file2),
         meshing_backend=meshing_backend,
     )
     c2d.export_dagmc_h5m_file(
         min_mesh_size=20,
         max_mesh_size=25,
         mesh_algorithm=1,
-        filename="test_20_25.h5m",
+        filename=str(file3),
         meshing_backend=meshing_backend,
     )
 
-    assert Path("test_10_30.h5m").is_file()
-    assert Path("test_20_30.h5m").is_file()
-    assert Path("test_20_25.h5m").is_file()
+    assert file1.is_file()
+    assert file2.is_file()
+    assert file3.is_file()
 
-    large_file = Path("test_10_30.h5m").stat().st_size
-    small_file = Path("test_20_30.h5m").stat().st_size
-    medium_file = Path("test_20_25.h5m").stat().st_size
+    large_file = file1.stat().st_size
+    small_file = file2.stat().st_size
+    medium_file = file3.stat().st_size
     assert small_file < large_file
     assert small_file < medium_file
 
 
 @pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
-def test_h5m_file_tags(meshing_backend):
+@pytest.mark.parametrize("h5m_backend", ["pymoab", "h5py"])
+def test_h5m_file_tags(meshing_backend, h5m_backend, tmp_path):
     """Checks that a h5m file is created with the correct tags"""
 
     sphere1 = cq.Workplane().sphere(20)
@@ -100,18 +104,19 @@ def test_h5m_file_tags(meshing_backend):
     c2d.add_cadquery_object(sphere2, material_tags=["mat2"])
     c2d.add_cadquery_object(sphere3, material_tags=["mat3"])
 
-    test_h5m_filename = "test_dagmc.h5m"
-    os.system(f"rm {test_h5m_filename}")
+    test_h5m_filename = tmp_path / "test_dagmc.h5m"
 
     returned_filename = c2d.export_dagmc_h5m_file(
-        filename=test_h5m_filename, meshing_backend=meshing_backend
+        filename=str(test_h5m_filename),
+        meshing_backend=meshing_backend,
+        h5m_backend=h5m_backend,
     )
 
-    assert Path(test_h5m_filename).is_file()
+    assert test_h5m_filename.is_file()
     assert Path(returned_filename).is_file()
-    assert test_h5m_filename == returned_filename
+    assert str(test_h5m_filename) == returned_filename
 
-    assert get_volumes_and_materials_from_h5m(test_h5m_filename) == {
+    assert get_volumes_and_materials_from_h5m(str(test_h5m_filename)) == {
         1: "mat:mat1",
         2: "mat:mat2",
         3: "mat:mat3",
@@ -150,77 +155,89 @@ def test_add_stp_file_returned_volumes():
     assert vols == 2
 
 
-@pytest.mark.parametrize(
-    "filename, meshing_backend",
-    [
-        ("test_dagmc1.h5m", "cadquery"),
-        ("test_dagmc1.h5m", "gmsh"),
-        ("out_folder1/test_dagmc2.h5m", "cadquery"),
-        ("out_folder1/test_dagmc2.h5m", "gmsh"),
-        (Path("test_dagmc3.h5m"), "cadquery"),
-        (Path("test_dagmc3.h5m"), "gmsh"),
-        (Path("out_folder2/test_dagmc4.h5m"), "cadquery"),
-        (Path("out_folder2/test_dagmc4.h5m"), "gmsh"),
-    ],
-)
-def test_export_dagmc_h5m_file_handel_paths_folders_strings(filename, meshing_backend):
-    """Checks that a h5m file is created"""
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+def test_export_dagmc_h5m_file_handles_paths_folders_strings(meshing_backend, tmp_path):
+    """Checks that a h5m file is created with various path formats"""
 
     box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
-    c2d.export_dagmc_h5m_file(filename=filename, meshing_backend=meshing_backend)
+    # Test string filename
+    file1 = tmp_path / "test_dagmc1.h5m"
+    c2d.export_dagmc_h5m_file(filename=str(file1), meshing_backend=meshing_backend)
+    assert file1.is_file()
 
-    assert Path(filename).is_file()
+    # Test nested folder with string
+    file2 = tmp_path / "out_folder1" / "test_dagmc2.h5m"
+    c2d.export_dagmc_h5m_file(filename=str(file2), meshing_backend=meshing_backend)
+    assert file2.is_file()
 
-    os.system(f"rm -rf {filename}")
+    # Test Path object
+    file3 = tmp_path / "test_dagmc3.h5m"
+    c2d.export_dagmc_h5m_file(filename=file3, meshing_backend=meshing_backend)
+    assert file3.is_file()
 
-
-@pytest.mark.parametrize(
-    "filename",
-    [
-        "test_dagmc1.vtk",
-        "out_folder3/test_dagmc2.vtk",
-        Path("test_dagmc3.vtk"),
-        Path("out_folder4/test_dagmc4.vtk"),
-    ],
-)
-def test_export_unstructured_mesh_file_handel_paths_folders_strings(filename):
-    """Checks that a vtk file is created"""
-
-    box = cq.Workplane().box(1, 1, 1)
-    c2d = CadToDagmc()
-    c2d.add_cadquery_object(box, material_tags=["mat1"])
-
-    c2d.export_unstructured_mesh_file(filename=filename)
-
-    assert Path(filename).is_file()
-
-    os.system(f"rm -rf {filename}")
+    # Test nested folder with Path
+    file4 = tmp_path / "out_folder2" / "test_dagmc4.h5m"
+    c2d.export_dagmc_h5m_file(filename=file4, meshing_backend=meshing_backend)
+    assert file4.is_file()
 
 
-@pytest.mark.parametrize(
-    "filename",
-    [
-        "test_dagmc1.msh",
-        "out_folder5/test_dagmc2.msh",
-        Path("test_dagmc3.msh"),
-        Path("out_folder6/test_dagmc4.msh"),
-    ],
-)
-def test_export_gmsh_mesh_file_handel_paths_folders_strings(filename):
-    """Checks that a vtk file is created"""
+def test_export_unstructured_mesh_file_handles_paths_folders_strings(tmp_path):
+    """Checks that a vtk file is created with various path formats"""
 
     box = cq.Workplane().box(1, 1, 1)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, material_tags=["mat1"])
 
-    c2d.export_gmsh_mesh_file(filename=filename)
+    # Test string filename
+    file1 = tmp_path / "test_dagmc1.vtk"
+    c2d.export_unstructured_mesh_file(filename=str(file1))
+    assert file1.is_file()
 
-    assert Path(filename).is_file()
+    # Test nested folder with string
+    file2 = tmp_path / "out_folder3" / "test_dagmc2.vtk"
+    c2d.export_unstructured_mesh_file(filename=str(file2))
+    assert file2.is_file()
 
-    os.system(f"rm -rf {filename}")
+    # Test Path object
+    file3 = tmp_path / "test_dagmc3.vtk"
+    c2d.export_unstructured_mesh_file(filename=file3)
+    assert file3.is_file()
+
+    # Test nested folder with Path
+    file4 = tmp_path / "out_folder4" / "test_dagmc4.vtk"
+    c2d.export_unstructured_mesh_file(filename=file4)
+    assert file4.is_file()
+
+
+def test_export_gmsh_mesh_file_handles_paths_folders_strings(tmp_path):
+    """Checks that a msh file is created with various path formats"""
+
+    box = cq.Workplane().box(1, 1, 1)
+    c2d = CadToDagmc()
+    c2d.add_cadquery_object(box, material_tags=["mat1"])
+
+    # Test string filename
+    file1 = tmp_path / "test_dagmc1.msh"
+    c2d.export_gmsh_mesh_file(filename=str(file1))
+    assert file1.is_file()
+
+    # Test nested folder with string
+    file2 = tmp_path / "out_folder5" / "test_dagmc2.msh"
+    c2d.export_gmsh_mesh_file(filename=str(file2))
+    assert file2.is_file()
+
+    # Test Path object
+    file3 = tmp_path / "test_dagmc3.msh"
+    c2d.export_gmsh_mesh_file(filename=file3)
+    assert file3.is_file()
+
+    # Test nested folder with Path
+    file4 = tmp_path / "out_folder6" / "test_dagmc4.msh"
+    c2d.export_gmsh_mesh_file(filename=file4)
+    assert file4.is_file()
 
 
 def test_check_material_tags_too_long():
@@ -241,14 +258,15 @@ def test_check_material_tags_too_long():
         (10, 100.0),
     ],
 )
-def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
+def test_scaling_factor_when_adding_stp(scale_factor, expected_width, tmp_path):
 
     c2d = CadToDagmc()
     c2d.add_stp_file("tests/single_cube.stp", scale_factor=scale_factor)
-    c2d.export_gmsh_mesh_file(f"st_test_scaling_factor_{scale_factor}.msh")
+    mesh_file = tmp_path / f"st_test_scaling_factor_{scale_factor}.msh"
+    c2d.export_gmsh_mesh_file(str(mesh_file))
 
     gmsh.initialize()
-    gmsh.open(f"st_test_scaling_factor_{scale_factor}.msh")
+    gmsh.open(str(mesh_file))
     _, node_coords, _ = gmsh.model.mesh.getNodes()
 
     # Reshape the node coordinates into a 2D array
@@ -277,15 +295,16 @@ def test_scaling_factor_when_adding_stp(scale_factor, expected_width):
         (10, 100.0),
     ],
 )
-def test_scaling_factor_when_adding_cq_object(scale_factor, expected_width):
+def test_scaling_factor_when_adding_cq_object(scale_factor, expected_width, tmp_path):
 
     box = cq.Workplane("XY").box(10, 10, 10)
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
-    c2d.export_gmsh_mesh_file(f"cq_test_scaling_factor_{scale_factor}.msh")
+    mesh_file = tmp_path / f"cq_test_scaling_factor_{scale_factor}.msh"
+    c2d.export_gmsh_mesh_file(str(mesh_file))
 
     gmsh.initialize()
-    gmsh.open(f"cq_test_scaling_factor_{scale_factor}.msh")
+    gmsh.open(str(mesh_file))
     _, node_coords, _ = gmsh.model.mesh.getNodes()
 
     # Reshape the node coordinates into a 2D array
@@ -315,7 +334,7 @@ def test_scaling_factor_when_adding_cq_object(scale_factor, expected_width):
     ],
 )
 def test_two_box_scaling_factor_when_adding_cq_object(
-    scale_factor, expected_x_width, expected_y_width, expected_z_width
+    scale_factor, expected_x_width, expected_y_width, expected_z_width, tmp_path
 ):
 
     box = cq.Workplane("XY").box(10, 10, 10)
@@ -323,10 +342,11 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     c2d = CadToDagmc()
     c2d.add_cadquery_object(box, scale_factor=scale_factor, material_tags=["mat1"])
     c2d.add_cadquery_object(box2, scale_factor=scale_factor, material_tags=["mat1"])
-    c2d.export_gmsh_mesh_file(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
+    mesh_file = tmp_path / f"cq_test_2_box_scaling_factor_{scale_factor}.msh"
+    c2d.export_gmsh_mesh_file(str(mesh_file))
 
     gmsh.initialize()
-    gmsh.open(f"cq_test_2_box_scaling_factor_{scale_factor}.msh")
+    gmsh.open(str(mesh_file))
     _, node_coords, _ = gmsh.model.mesh.getNodes()
 
     # Reshape the node coordinates into a numpy 2D array
@@ -347,7 +367,7 @@ def test_two_box_scaling_factor_when_adding_cq_object(
     assert width_z == expected_z_width
 
 
-def test_unstructured_mesh_export_with_surface_mesh():
+def test_unstructured_mesh_export_with_surface_mesh(tmp_path):
 
     box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)
     box_set_size_fine_mesh = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
@@ -361,8 +381,11 @@ def test_unstructured_mesh_export_with_surface_mesh():
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
+    h5m_file = tmp_path / "conformal-surface-mesh2.h5m"
+    vtk_file = tmp_path / "conformal-volume-mesh2.vtk"
+
     dag_filename, umesh_filename = model.export_dagmc_h5m_file(
-        filename="conformal-surface-mesh2.h5m",
+        filename=str(h5m_file),
         min_mesh_size=0.01,
         max_mesh_size=10,
         set_size={
@@ -371,18 +394,18 @@ def test_unstructured_mesh_export_with_surface_mesh():
             3: 0.4,
         },
         unstructured_volumes=[2],
-        umesh_filename="conformal-volume-mesh2.vtk",
+        umesh_filename=str(vtk_file),
         meshing_backend="gmsh",
     )
-    assert Path("conformal-surface-mesh2.h5m").is_file()
-    assert Path("conformal-volume-mesh2.vtk").is_file()
+    assert h5m_file.is_file()
+    assert vtk_file.is_file()
     assert Path(dag_filename).is_file()
     assert Path(umesh_filename).is_file()
     # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
 
 
 @pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
-def test_unstructured_mesh_with_volumes(meshing_backend):
+def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
 
     box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
     inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
@@ -403,38 +426,43 @@ def test_unstructured_mesh_with_volumes(meshing_backend):
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
+    h5m_file = tmp_path / "dagmc.h5m"
     filename = model.export_dagmc_h5m_file(
-        filename="dagmc.h5m",
+        filename=str(h5m_file),
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
         meshing_backend=meshing_backend,
     )
     assert Path(filename).is_file()
 
+    vtk_file1 = tmp_path / "umesh_vol_1.vtk"
     filename = model.export_unstructured_mesh_file(
-        filename="umesh_vol_1.vtk",
+        filename=str(vtk_file1),
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
-        volumes=[1],  # only mesh volume 2 out of the three volumes
+        volumes=[1],  # only mesh volume 1 out of the three volumes
     )
     assert Path(filename).is_file()
 
+    vtk_file2 = tmp_path / "umesh_vol_2.vtk"
     filename = model.export_unstructured_mesh_file(
-        filename="umesh_vol_2.vtk",
+        filename=str(vtk_file2),
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
         volumes=[2],  # only mesh volume 2 out of the three volumes
     )
     assert Path(filename).is_file()
 
+    vtk_file3 = tmp_path / "umesh_vol_3.vtk"
     filename = model.export_unstructured_mesh_file(
-        filename="umesh_vol_3.vtk",
+        filename=str(vtk_file3),
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
-        volumes=[3],  # only mesh volume 2 out of the three volumes
+        volumes=[3],  # only mesh volume 3 out of the three volumes
     )
     assert Path(filename).is_file()
 
+    vtk_file4 = tmp_path / "umesh_vol_1_2.vtk"
     filename = model.export_unstructured_mesh_file(
-        filename="umesh_vol_1_2.vtk",
+        filename=str(vtk_file4),
         set_size={1: 0.9, 2: 0.1, 3: 0.9},
-        volumes=[1, 2],  # only mesh volume 2 out of the three volumes
+        volumes=[1, 2],  # only mesh volumes 1 and 2 out of the three volumes
     )
 
     assert Path(filename).is_file()
