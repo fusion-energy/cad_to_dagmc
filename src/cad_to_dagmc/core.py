@@ -68,21 +68,51 @@ def define_moab_core_and_tags() -> tuple[core.Core, dict]:
 
 def vertices_to_h5m(
     vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
-    triangles_by_solid_by_face: list[list[tuple[int, int, int]]],
+    triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
     implicit_complement_material_tag: str | None = None,
+    method: str = "pymoab",
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
 
     Args:
-        vertices:
-        triangles:
-        material_tags:
-        h5m_filename:
-        implicit_complement_material_tag:
+        vertices: List of vertex coordinates as (x, y, z) tuples or CadQuery vectors
+        triangles_by_solid_by_face: Dict mapping solid_id -> face_id -> list of triangles
+        material_tags: List of material tag names, one per solid
+        h5m_filename: Output filename for the h5m file
+        implicit_complement_material_tag: Optional material tag for implicit complement
+        method: Backend to use for writing h5m file ('pymoab' or 'h5py')
     """
+    if method == "pymoab":
+        return _vertices_to_h5m_pymoab(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
+            material_tags=material_tags,
+            h5m_filename=h5m_filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
+        )
+    elif method == "h5py":
+        return _vertices_to_h5m_h5py(
+            vertices=vertices,
+            triangles_by_solid_by_face=triangles_by_solid_by_face,
+            material_tags=material_tags,
+            h5m_filename=h5m_filename,
+            implicit_complement_material_tag=implicit_complement_material_tag,
+        )
+    else:
+        raise ValueError(f"method must be 'pymoab' or 'h5py', not '{method}'")
+
+
+def _vertices_to_h5m_pymoab(
+    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
+    material_tags: list[str],
+    h5m_filename: str = "dagmc.h5m",
+    implicit_complement_material_tag: str | None = None,
+):
+    """PyMOAB backend for vertices_to_h5m."""
 
     if len(material_tags) != len(triangles_by_solid_by_face):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
@@ -218,6 +248,413 @@ def vertices_to_h5m(
 
     print(f"written DAGMC file {h5m_filename}")
 
+    return h5m_filename
+
+
+def _vertices_to_h5m_h5py(
+    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
+    material_tags: list[str],
+    h5m_filename: str = "dagmc.h5m",
+    implicit_complement_material_tag: str | None = None,
+):
+    """H5PY backend for vertices_to_h5m.
+
+    Creates an h5m file compatible with DAGMC using h5py directly,
+    without requiring pymoab.
+    """
+    import h5py
+    from datetime import datetime
+
+    if len(material_tags) != len(triangles_by_solid_by_face):
+        msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
+        raise ValueError(msg)
+
+    # Convert CadQuery vectors to floats if needed
+    if (
+        hasattr(vertices[0], "x")
+        and hasattr(vertices[0], "y")
+        and hasattr(vertices[0], "z")
+    ):
+        vertices_floats = [(vert.x, vert.y, vert.z) for vert in vertices]
+    else:
+        vertices_floats = vertices
+
+    # Build face_ids_with_solid_ids to track shared faces
+    face_ids_with_solid_ids = {}
+    for solid_id, triangles_on_each_face in triangles_by_solid_by_face.items():
+        for face_id in triangles_on_each_face.keys():
+            if face_id in face_ids_with_solid_ids:
+                face_ids_with_solid_ids[face_id].append(solid_id)
+            else:
+                face_ids_with_solid_ids[face_id] = [solid_id]
+
+    # Collect all unique faces and their triangles
+    all_faces = {}  # face_id -> list of triangles
+    for solid_id, triangles_on_each_face in triangles_by_solid_by_face.items():
+        for face_id, triangles_on_face in triangles_on_each_face.items():
+            if face_id not in all_faces:
+                all_faces[face_id] = triangles_on_face
+
+    # Convert vertices to numpy array
+    vertices_arr = np.asarray(vertices_floats, dtype=np.float64)
+    num_vertices = len(vertices_arr)
+
+    # Collect all triangles
+    all_triangles = []
+    for face_id in sorted(all_faces.keys()):
+        all_triangles.extend(all_faces[face_id])
+    all_triangles = np.asarray(all_triangles, dtype=np.int64)
+    num_triangles = len(all_triangles)
+
+    # Create the h5m file
+    # makes the folder if it does not exist
+    if Path(h5m_filename).parent:
+        Path(h5m_filename).parent.mkdir(parents=True, exist_ok=True)
+
+    with h5py.File(h5m_filename, "w") as f:
+        tstt = f.create_group("tstt")
+
+        # Global ID counter - starts at 1
+        global_id = 1
+
+        # === NODES ===
+        nodes_group = tstt.create_group("nodes")
+        coords = nodes_group.create_dataset("coordinates", data=vertices_arr)
+        coords.attrs.create("start_id", global_id)
+        global_id += num_vertices
+
+        # Node tags
+        node_tags = nodes_group.create_group("tags")
+        node_tags.create_dataset("GLOBAL_ID", data=np.full(num_vertices, -1, dtype=np.int32))
+
+        # === ELEMENTS ===
+        elements = tstt.create_group("elements")
+
+        # Element type enum
+        elems = {
+            "Edge": 1, "Tri": 2, "Quad": 3, "Polygon": 4, "Tet": 5,
+            "Pyramid": 6, "Prism": 7, "Knife": 8, "Hex": 9, "Polyhedron": 10,
+        }
+        tstt["elemtypes"] = h5py.enum_dtype(elems)
+
+        # History
+        now = datetime.now()
+        tstt.create_dataset(
+            "history",
+            data=[
+                "cad_to_dagmc".encode("ascii"),
+                __version__.encode("ascii"),
+                now.strftime("%m/%d/%y").encode("ascii"),
+                now.strftime("%H:%M:%S").encode("ascii"),
+            ],
+        )
+
+        # Triangles
+        tri3_group = elements.create_group("Tri3")
+        tri3_group.attrs.create("element_type", elems["Tri"], dtype=tstt["elemtypes"])
+
+        # Node indices are 1-based in h5m
+        connectivity = tri3_group.create_dataset(
+            "connectivity",
+            data=all_triangles + 1,
+            dtype=np.uint64,
+        )
+        triangle_start_id = global_id
+        connectivity.attrs.create("start_id", triangle_start_id)
+        global_id += num_triangles
+
+        # Triangle tags
+        tags_tri3 = tri3_group.create_group("tags")
+        tags_tri3.create_dataset("GLOBAL_ID", data=np.full(num_triangles, -1, dtype=np.int32))
+
+        # === SETS ===
+        # Plan out the entity set structure:
+        # For each solid: 1 volume set, N surface sets (one per face), 1 group set (material)
+        # Plus: 1 file set at the end, optionally 1 implicit complement group
+
+        solid_ids = list(triangles_by_solid_by_face.keys())
+        num_solids = len(solid_ids)
+
+        # Assign set IDs
+        sets_start_id = global_id
+
+        # Map solid_id -> volume_set_id
+        volume_set_ids = {}
+        # Map face_id -> surface_set_id
+        surface_set_ids = {}
+        # Map solid_id -> group_set_id
+        group_set_ids = {}
+
+        current_set_id = sets_start_id
+
+        # First, assign IDs to all surfaces (one per unique face)
+        for face_id in sorted(all_faces.keys()):
+            surface_set_ids[face_id] = current_set_id
+            current_set_id += 1
+
+        # Then assign IDs to volumes
+        for solid_id in solid_ids:
+            volume_set_ids[solid_id] = current_set_id
+            current_set_id += 1
+
+        # Then assign IDs to groups (materials)
+        for solid_id in solid_ids:
+            group_set_ids[solid_id] = current_set_id
+            current_set_id += 1
+
+        # Implicit complement group (if requested)
+        implicit_complement_set_id = None
+        if implicit_complement_material_tag:
+            implicit_complement_set_id = current_set_id
+            current_set_id += 1
+
+        # File set
+        file_set_id = current_set_id
+        current_set_id += 1
+
+        global_id = current_set_id
+
+        # === TAGS ===
+        tstt_tags = tstt.create_group("tags")
+
+        # Collect all tagged set IDs and their values
+        all_set_ids = []
+        categories = []
+        geom_dimensions = []
+
+        # Surfaces
+        for face_id in sorted(all_faces.keys()):
+            all_set_ids.append(surface_set_ids[face_id])
+            categories.append("Surface")
+            geom_dimensions.append(2)
+
+        # Volumes
+        for solid_id in solid_ids:
+            all_set_ids.append(volume_set_ids[solid_id])
+            categories.append("Volume")
+            geom_dimensions.append(3)
+
+        # Groups
+        for solid_id in solid_ids:
+            all_set_ids.append(group_set_ids[solid_id])
+            categories.append("Group")
+            geom_dimensions.append(4)
+
+        # Implicit complement
+        if implicit_complement_material_tag:
+            all_set_ids.append(implicit_complement_set_id)
+            categories.append("Group")
+            geom_dimensions.append(4)
+
+        # CATEGORY tag
+        cat_group = tstt_tags.create_group("CATEGORY")
+        cat_group.attrs.create("class", 1, dtype=np.int32)
+        cat_group.create_dataset("id_list", data=np.array(all_set_ids, dtype=np.uint64))
+        dt = h5py.opaque_dtype(np.dtype("S32"))
+        cat_group["type"] = dt
+        cat_group.create_dataset("values", data=categories, dtype=dt)
+
+        # GEOM_DIMENSION tag
+        geom_group = tstt_tags.create_group("GEOM_DIMENSION")
+        geom_group["type"] = np.dtype("i4")
+        geom_group.attrs.create("class", 1, dtype=np.int32)
+        geom_group.attrs.create("default", -1, dtype=geom_group["type"])
+        geom_group.attrs.create("global", -1, dtype=geom_group["type"])
+        geom_group.create_dataset("id_list", data=np.array(all_set_ids, dtype=np.uint64))
+        geom_group.create_dataset("values", data=np.array(geom_dimensions, dtype=np.int32))
+
+        # GEOM_SENSE_2 tag (only for surfaces)
+        surface_ids_list = [surface_set_ids[fid] for fid in sorted(all_faces.keys())]
+        gs2_group = tstt_tags.create_group("GEOM_SENSE_2")
+        gs2_dtype = np.dtype("(2,)u8")
+        gs2_group["type"] = gs2_dtype
+        gs2_group.attrs.create("class", 1, dtype=np.int32)
+        gs2_group.attrs.create("is_handle", 1, dtype=np.int32)
+        gs2_group.create_dataset("id_list", data=np.array(surface_ids_list, dtype=np.uint64))
+
+        # Build sense data for each surface
+        sense_values = []
+        for face_id in sorted(all_faces.keys()):
+            solids_for_face = face_ids_with_solid_ids[face_id]
+            if len(solids_for_face) == 2:
+                # Shared face - both volumes
+                vol1 = volume_set_ids[solids_for_face[0]]
+                vol2 = volume_set_ids[solids_for_face[1]]
+                sense_values.append([vol1, vol2])
+            else:
+                # Single volume
+                vol = volume_set_ids[solids_for_face[0]]
+                sense_values.append([vol, 0])
+
+        if sense_values:
+            gs2_values = np.zeros((len(sense_values),), dtype=[("f0", "<u8", (2,))])
+            gs2_values["f0"] = np.array(sense_values, dtype=np.uint64)
+            gs2_space = h5py.h5s.create_simple((len(sense_values),))
+            gs2_arr_type = h5py.h5t.array_create(h5py.h5t.NATIVE_UINT64, (2,))
+            gs2_dset = h5py.h5d.create(gs2_group.id, b"values", gs2_arr_type, gs2_space)
+            gs2_dset.write(h5py.h5s.ALL, h5py.h5s.ALL, gs2_values, mtype=gs2_arr_type)
+            gs2_dset.close()
+
+        # GLOBAL_ID tag
+        gid_group = tstt_tags.create_group("GLOBAL_ID")
+        gid_group["type"] = np.dtype("i4")
+        gid_group.attrs.create("class", 2, dtype=np.int32)
+        gid_group.attrs.create("default", -1, dtype=gid_group["type"])
+        gid_group.attrs.create("global", -1, dtype=gid_group["type"])
+
+        # NAME tag (for groups - material names)
+        name_ids = []
+        name_values = []
+        for solid_id, mat_tag in zip(solid_ids, material_tags):
+            name_ids.append(group_set_ids[solid_id])
+            name_values.append(f"mat:{mat_tag}")
+        if implicit_complement_material_tag:
+            name_ids.append(implicit_complement_set_id)
+            name_values.append(f"mat:{implicit_complement_material_tag}_comp")
+
+        name_group = tstt_tags.create_group("NAME")
+        name_group.attrs.create("class", 1, dtype=np.int32)
+        name_group.create_dataset("id_list", data=np.array(name_ids, dtype=np.uint64))
+        name_group["type"] = h5py.opaque_dtype(np.dtype("S32"))
+        name_group.create_dataset("values", data=name_values, dtype=name_group["type"])
+
+        # Other standard tags (empty but needed)
+        for tag_name in ["DIRICHLET_SET", "MATERIAL_SET", "NEUMANN_SET"]:
+            tag_grp = tstt_tags.create_group(tag_name)
+            tag_grp["type"] = np.dtype("i4")
+            tag_grp.attrs.create("class", 1, dtype=np.int32)
+            tag_grp.attrs.create("default", -1, dtype=tag_grp["type"])
+            tag_grp.attrs.create("global", -1, dtype=tag_grp["type"])
+
+        # === SETS structure ===
+        sets_group = tstt.create_group("sets")
+
+        # Build contents, parents, children, and list arrays
+        contents = []
+        list_rows = []
+        parents_list = []
+        children_list = []
+
+        # Track triangle ranges per face
+        tri_offset = 0
+        face_triangle_ranges = {}
+        for face_id in sorted(all_faces.keys()):
+            tris = all_faces[face_id]
+            face_triangle_ranges[face_id] = (tri_offset, len(tris))
+            tri_offset += len(tris)
+
+        # Track vertices per face
+        face_vertex_sets = {}
+        for face_id, tris in all_faces.items():
+            verts = set()
+            for tri in tris:
+                verts.update(tri)
+            face_vertex_sets[face_id] = sorted(verts)
+
+        contents_end = -1
+        children_end = -1
+        parents_end = -1
+
+        # Surface sets
+        for face_id in sorted(all_faces.keys()):
+            # Content: vertices + triangles for this face
+            verts = face_vertex_sets[face_id]
+            tri_start, tri_count = face_triangle_ranges[face_id]
+
+            # Add vertex range (1-based IDs)
+            # Find contiguous ranges in vertices
+            if verts:
+                contents.extend([verts[0] + 1, len(verts)])  # start_id (1-based), count
+
+            # Add triangle range
+            if tri_count > 0:
+                contents.extend([triangle_start_id + tri_start, tri_count])
+
+            contents_end = len(contents) - 1
+
+            # Parent-child: surface is child of volume(s)
+            solids_for_face = face_ids_with_solid_ids[face_id]
+            for solid_id in solids_for_face:
+                parents_list.append(volume_set_ids[solid_id])
+            parents_end = len(parents_list) - 1
+
+            # flags: 10 = range-compressed content (0b1010)
+            list_rows.append([contents_end, children_end, parents_end, 10])
+
+        # Volume sets (empty contents, but have surface children)
+        for solid_id in solid_ids:
+            # Volumes have no direct content
+            # Children are the surfaces
+            faces_in_solid = list(triangles_by_solid_by_face[solid_id].keys())
+            for face_id in faces_in_solid:
+                children_list.append(surface_set_ids[face_id])
+            children_end = len(children_list) - 1
+
+            # flags: 2 = handle-based (0b0010)
+            list_rows.append([contents_end, children_end, parents_end, 2])
+
+        # Group sets (contain volume handles)
+        for solid_id in solid_ids:
+            contents.append(volume_set_ids[solid_id])
+            contents_end = len(contents) - 1
+            list_rows.append([contents_end, children_end, parents_end, 2])
+
+        # Implicit complement group
+        if implicit_complement_material_tag:
+            # Add the last volume to the implicit complement group
+            contents.append(volume_set_ids[solid_ids[-1]])
+            contents_end = len(contents) - 1
+            list_rows.append([contents_end, children_end, parents_end, 2])
+
+        # File set (contains everything)
+        contents.extend([1, file_set_id - 1])  # range of all entities
+        contents_end = len(contents) - 1
+        list_rows.append([contents_end, children_end, parents_end, 10])
+
+        # Write sets datasets
+        sets_group.create_dataset("contents", data=np.array(contents, dtype=np.uint64))
+        if children_list:
+            sets_group.create_dataset("children", data=np.array(children_list, dtype=np.uint64))
+        else:
+            sets_group.create_dataset("children", data=np.array([], dtype=np.uint64))
+        if parents_list:
+            sets_group.create_dataset("parents", data=np.array(parents_list, dtype=np.uint64))
+        else:
+            sets_group.create_dataset("parents", data=np.array([], dtype=np.uint64))
+
+        lst = sets_group.create_dataset("list", data=np.array(list_rows, dtype=np.int64))
+        lst.attrs.create("start_id", sets_start_id)
+
+        # Set tags (GLOBAL_ID for each set)
+        sets_tags = sets_group.create_group("tags")
+        set_global_ids = []
+
+        # Surface global IDs
+        for face_id in sorted(all_faces.keys()):
+            set_global_ids.append(face_id)
+
+        # Volume global IDs
+        for solid_id in solid_ids:
+            set_global_ids.append(solid_id)
+
+        # Group global IDs
+        for solid_id in solid_ids:
+            set_global_ids.append(solid_id)
+
+        # Implicit complement
+        if implicit_complement_material_tag:
+            set_global_ids.append(-1)
+
+        # File set
+        set_global_ids.append(-1)
+
+        sets_tags.create_dataset("GLOBAL_ID", data=np.array(set_global_ids, dtype=np.int32))
+
+        # Max ID attribute
+        tstt.attrs.create("max_id", np.uint64(global_id - 1))
+
+    print(f"written DAGMC file {h5m_filename}")
     return h5m_filename
 
 
