@@ -5,8 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from cad_to_dagmc.core import vertices_to_h5m
+from cad_to_dagmc.core import vertices_to_h5m, PyMoabNotFoundError
 from test_python_api import get_volumes_and_materials_from_h5m
+
+# Check if pymoab is available
+try:
+    import pymoab
+    PYMOAB_AVAILABLE = True
+except ImportError:
+    PYMOAB_AVAILABLE = False
 
 
 # Single tetrahedron: 4 vertices, 4 triangular faces, 1 volume
@@ -109,3 +116,32 @@ def test_implicit_complement(method, tmp_path):
     )
 
     assert h5m_filename.exists()
+
+
+@pytest.mark.skipif(PYMOAB_AVAILABLE, reason="Test only runs when pymoab is not installed")
+def test_pymoab_not_found_error_message(tmp_path):
+    """Test that PyMoabNotFoundError provides helpful installation instructions."""
+    h5m_filename = tmp_path / "test.h5m"
+
+    with pytest.raises(PyMoabNotFoundError) as excinfo:
+        vertices_to_h5m(
+            vertices=TETRAHEDRON_VERTICES,
+            triangles_by_solid_by_face=TETRAHEDRON_SINGLE_VOLUME,
+            material_tags=["mat1"],
+            h5m_filename=str(h5m_filename),
+            method="pymoab",  # explicitly request pymoab backend
+        )
+
+    error_message = str(excinfo.value)
+    # Check that the error message contains helpful installation instructions
+    assert "pymoab is not installed" in error_message
+    assert "conda-forge" in error_message
+    assert "pip install --extra-index-url" in error_message
+    assert "shimwell.github.io/wheels" in error_message
+    assert "bitbucket" in error_message.lower()
+    assert "h5py" in error_message  # mentions the alternative
+
+
+def test_pymoab_not_found_error_is_importerror():
+    """Test that PyMoabNotFoundError is a subclass of ImportError."""
+    assert issubclass(PyMoabNotFoundError, ImportError)

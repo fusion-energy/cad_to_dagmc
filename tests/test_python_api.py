@@ -3,17 +3,27 @@ from pathlib import Path
 
 import cadquery as cq
 import gmsh
-import pymoab as mb
+import h5py
+import numpy as np
 import pytest
-from pymoab import core, types
 
 from cad_to_dagmc import CadToDagmc
 from cad_to_dagmc.core import check_material_tags
 
+# Check if pymoab is available
+try:
+    import pymoab as mb
+    from pymoab import core, types
+    PYMOAB_AVAILABLE = True
+except ImportError:
+    PYMOAB_AVAILABLE = False
+
 
 def get_volumes_and_materials_from_h5m(filename: str) -> dict:
-    """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
-    their associated material tags.
+    """Reads in a DAGMC h5m file and finds the volume ids with their associated
+    material tags.
+
+    Uses h5py to read the file directly, which works whether or not pymoab is installed.
 
     Arguments:
         filename: the filename of the DAGMC h5m file
@@ -21,26 +31,107 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
     Returns:
         A dictionary of volume ids and material tags
     """
+    with h5py.File(filename, "r") as f:
+        tstt = f["tstt"]
+        sets = tstt["sets"]
+        tags = tstt["tags"]
 
-    mbcore = core.Core()
-    mbcore.load_file(filename)
-    category_tag = mbcore.tag_get_handle(mb.types.CATEGORY_TAG_NAME)
-    group_category = ["Group"]
-    group_ents = mbcore.get_entities_by_type_and_tag(
-        0, mb.types.MBENTITYSET, category_tag, group_category
-    )
-    name_tag = mbcore.tag_get_handle(mb.types.NAME_TAG_NAME)
-    id_tag = mbcore.tag_get_handle(mb.types.GLOBAL_ID_TAG_NAME)
-    vol_mat = {}
-    for group_ent in group_ents:
-        group_name = mbcore.tag_get_data(name_tag, group_ent)[0][0]
-        # confirm that this is a material!
-        if group_name.startswith("mat:"):
-            vols = mbcore.get_entities_by_type(group_ent, mb.types.MBENTITYSET)
-            for vol in vols:
-                id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
-                vol_mat[id] = group_name
-    return vol_mat
+        # Get set list and contents
+        set_list = sets["list"][:]
+        set_contents = sets["contents"][:]
+
+        # Get CATEGORY tag to identify Groups and Volumes
+        cat_values = tags["CATEGORY"]["values"][:]
+        cat_id_list = tags["CATEGORY"]["id_list"][:]
+
+        # Get NAME tag for material names
+        name_values = tags["NAME"]["values"][:]
+        name_id_list = tags["NAME"]["id_list"][:]
+
+        # Get GLOBAL_ID tag for volume IDs
+        global_id_values = tags["GLOBAL_ID"]["values"][:]
+        global_id_list = tags["GLOBAL_ID"]["id_list"][:]
+
+        # Build lookup dictionaries: entity_handle -> tag_value
+        # Entity handles in h5m are 1-based, but arrays are 0-based
+        cat_lookup = {}
+        for i, handle in enumerate(cat_id_list):
+            cat_lookup[handle] = cat_values[i].tobytes().rstrip(b"\x00").decode("ascii")
+
+        name_lookup = {}
+        for i, handle in enumerate(name_id_list):
+            name_lookup[handle] = name_values[i].tobytes().rstrip(b"\x00").decode("ascii")
+
+        global_id_lookup = {}
+        for i, handle in enumerate(global_id_list):
+            global_id_lookup[handle] = int(global_id_values[i])
+
+        # Find all Groups (material groups start with "mat:")
+        # and all Volumes
+        vol_mat = {}
+
+        # Sets are stored starting at some handle offset
+        # The first set handle is typically after all nodes and elements
+        # We need to figure out the set handle offset
+        # In MOAB, entity sets have handles in a specific range
+        # Let's iterate through categories to find Groups and Volumes
+
+        groups = {}  # handle -> name
+        volumes = {}  # handle -> global_id
+
+        for handle, category in cat_lookup.items():
+            if category == "Group":
+                name = name_lookup.get(handle, "")
+                if name.startswith("mat:"):
+                    groups[handle] = name
+            elif category == "Volume":
+                global_id = global_id_lookup.get(handle, 0)
+                volumes[handle] = global_id
+
+        # Now we need to find which volumes belong to which groups
+        # This requires parsing the set contents
+        # Each set can have children (other sets it contains)
+
+        # The set_list has format: [start_idx, end_idx] for each set's contents in set_contents
+        # We need to map set handles to their position in set_list
+
+        # Get the starting handle for sets
+        # This is tricky - we need to figure out the handle offset
+        # Let's use the fact that we know the handles from the tag id_lists
+
+        # Get all handles that are sets (from CATEGORY tag)
+        all_set_handles = sorted(cat_lookup.keys())
+        if not all_set_handles:
+            return vol_mat
+
+        # The set_list array corresponds to sets in order of their handles
+        # Build a mapping from set index to handle
+        min_set_handle = min(all_set_handles)
+
+        # For each group, find its child sets (volumes)
+        for group_handle, mat_name in groups.items():
+            # Get the index into set_list for this group
+            set_idx = group_handle - min_set_handle
+            if set_idx < 0 or set_idx >= len(set_list):
+                continue
+
+            # Get the range of contents for this set
+            if set_idx == 0:
+                start = 0
+            else:
+                start = set_list[set_idx - 1]
+            end = set_list[set_idx]
+
+            # The contents are child entity handles
+            child_handles = set_contents[start:end]
+
+            for child_handle in child_handles:
+                # Check if this child is a Volume
+                if child_handle in volumes:
+                    vol_id = volumes[child_handle]
+                    vol_mat[vol_id] = mat_name
+
+        return vol_mat
 
 
 # TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test

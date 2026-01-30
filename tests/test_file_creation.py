@@ -1,10 +1,10 @@
 from cad_to_dagmc import CadToDagmc
 from pathlib import Path
 import cadquery as cq
-import pymoab as mb
-from pymoab import core, types
 import cad_to_dagmc
 import pytest
+
+from test_python_api import get_volumes_and_materials_from_h5m
 
 
 """
@@ -13,38 +13,6 @@ Tests that check that:
     - h5m files contain the correct number of volumes
     - h5m files contain the correct material tags
 """
-
-
-def get_volumes_and_materials_from_h5m(filename: str) -> dict:
-    """Reads in a DAGMC h5m file and uses PyMoab to find the volume ids with
-    their associated material tags.
-
-    Arguments:
-        filename: the filename of the DAGMC h5m file
-
-    Returns:
-        A dictionary of volume ids and material tags
-    """
-
-    mbcore = core.Core()
-    mbcore.load_file(filename)
-    category_tag = mbcore.tag_get_handle(mb.types.CATEGORY_TAG_NAME)
-    group_category = ["Group"]
-    group_ents = mbcore.get_entities_by_type_and_tag(
-        0, mb.types.MBENTITYSET, category_tag, group_category
-    )
-    name_tag = mbcore.tag_get_handle(mb.types.NAME_TAG_NAME)
-    id_tag = mbcore.tag_get_handle(mb.types.GLOBAL_ID_TAG_NAME)
-    vol_mat = {}
-    for group_ent in group_ents:
-        group_name = mbcore.tag_get_data(name_tag, group_ent)[0][0]
-        # confirm that this is a material!
-        if group_name.startswith("mat:"):
-            vols = mbcore.get_entities_by_type(group_ent, mb.types.MBENTITYSET)
-            for vol in vols:
-                id = mbcore.tag_get_data(id_tag, vol)[0][0].item()
-                vol_mat[id] = group_name
-    return vol_mat
 
 
 @pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
