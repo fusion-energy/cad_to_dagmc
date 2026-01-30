@@ -39,13 +39,20 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
         ids = tag_group["id_list"][:]
         values = tag_group["values"][:]
         result = {}
+        # Check if values are string/opaque type or numeric
+        dtype_kind = values.dtype.kind
+        is_string_type = dtype_kind in ("S", "V", "O")  # bytes, void (opaque), object
         for i, h in enumerate(ids):
             val = values[i]
-            # Handle string/opaque types
-            if hasattr(val, "tobytes"):
-                val = val.tobytes().rstrip(b"\x00").decode("ascii", "replace")
-            elif isinstance(val, bytes):
-                val = val.rstrip(b"\x00").decode("ascii", "replace")
+            if is_string_type:
+                # Handle string/opaque types
+                if hasattr(val, "tobytes"):
+                    val = val.tobytes().rstrip(b"\x00").decode("ascii", "replace")
+                elif isinstance(val, bytes):
+                    val = val.rstrip(b"\x00").decode("ascii", "replace")
+            else:
+                # Numeric type - convert to Python int
+                val = int(val)
             result[int(h)] = val
         return result
 
