@@ -24,7 +24,7 @@ model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_names")
 
 # You can see what material tags are available
-print("Material tags:", model.get_material_tags())
+print("Material tags:", model.material_tags)
 
 # Use material tag names in set_size instead of volume IDs
 model.export_gmsh_mesh_file(
