@@ -990,6 +990,69 @@ def resolve_unstructured_volumes(
     return unique_ids
 
 
+def resolve_set_size(
+    set_size: dict[int | str, float],
+    volumes: list[tuple[int, int]],
+    material_tags: list[str],
+) -> dict[int, float]:
+    """Resolve a set_size dict with int or str keys to int keys only.
+
+    Args:
+        set_size: A dictionary mapping volume IDs (int) or material tag names (str)
+            to mesh sizes (float). Material tags are resolved to all volume IDs
+            that have that tag.
+        volumes: List of (dim, volume_id) tuples from GMSH, where the order corresponds
+            to the order of material_tags.
+        material_tags: List of material tags in the same order as volumes.
+
+    Returns:
+        A dictionary mapping volume IDs (int) to mesh sizes (float).
+
+    Raises:
+        ValueError: If a material tag string is not found in material_tags,
+            or if a volume ID is specified multiple times with different sizes.
+        TypeError: If a key is neither int nor str.
+    """
+    resolved: dict[int, float] = {}
+
+    # Build a mapping from material tag to volume IDs
+    material_to_volume_ids: dict[str, list[int]] = {}
+    for (_, volume_id), material_tag in zip(volumes, material_tags):
+        if material_tag not in material_to_volume_ids:
+            material_to_volume_ids[material_tag] = []
+        material_to_volume_ids[material_tag].append(volume_id)
+
+    for key, size in set_size.items():
+        if isinstance(key, int):
+            volume_ids = [key]
+        elif isinstance(key, str):
+            if key not in material_to_volume_ids:
+                available_tags = sorted(set(material_tags))
+                raise ValueError(
+                    f"Material tag '{key}' not found in set_size. "
+                    f"Available material tags are: {available_tags}"
+                )
+            volume_ids = material_to_volume_ids[key]
+        else:
+            raise TypeError(
+                f"set_size keys must be int (volume ID) or str (material tag), "
+                f"got {type(key).__name__}"
+            )
+
+        for vol_id in volume_ids:
+            if vol_id in resolved:
+                if resolved[vol_id] != size:
+                    raise ValueError(
+                        f"Volume ID {vol_id} specified multiple times with different sizes: "
+                        f"{resolved[vol_id]} and {size}. "
+                        f"Each volume can only have one mesh size."
+                    )
+            else:
+                resolved[vol_id] = size
+
+    return resolved
+
+
 def export_gmsh_object_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
@@ -1283,8 +1346,9 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
-            set_size: a dictionary of volume ids (int) and target mesh sizes
-                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            set_size: a dictionary mapping volume IDs (int) or material tag names
+                (str) to target mesh sizes (floats). Material tags are resolved to
+                all volume IDs that have that tag.
             volumes: a list of volume ids (int) to include in the mesh. If left
                 as default (None) then all volumes will be included.
 
@@ -1316,12 +1380,19 @@ class CadToDagmc:
             gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
         )
 
+        # Resolve any material tag strings in set_size to volume IDs
+        resolved_set_size = None
+        if set_size:
+            resolved_set_size = resolve_set_size(
+                set_size, volumes_in_model, self.material_tags
+            )
+
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            set_size=set_size,
+            set_size=resolved_set_size,
         )
 
         if volumes:
@@ -1389,8 +1460,9 @@ class CadToDagmc:
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
-            set_size: a dictionary of volume ids (int) and target mesh sizes
-                (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+            set_size: a dictionary mapping volume IDs (int) or material tag names
+                (str) to target mesh sizes (floats). Material tags are resolved to
+                all volume IDs that have that tag.
         """
 
         assembly = cq.Assembly()
@@ -1405,16 +1477,23 @@ class CadToDagmc:
 
         gmsh = init_gmsh()
 
-        gmsh, _ = get_volumes(
+        gmsh, volumes = get_volumes(
             gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
         )
+
+        # Resolve any material tag strings in set_size to volume IDs
+        resolved_set_size = None
+        if set_size:
+            resolved_set_size = resolve_set_size(
+                set_size, volumes, self.material_tags
+            )
 
         gmsh = set_sizes_for_mesh(
             gmsh=gmsh,
             min_mesh_size=min_mesh_size,
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
-            set_size=set_size,
+            set_size=resolved_set_size,
         )
 
         gmsh.model.mesh.generate(dimensions)
@@ -1464,7 +1543,9 @@ class CadToDagmc:
                 - max_mesh_size (float): maximum mesh element size
                 - mesh_algorithm (int): GMSH mesh algorithm (default: 1)
                 - method (str): import method 'file' or 'in memory' (default: 'file')
-                - set_size (dict[int, float]): volume ids and target mesh sizes
+                - set_size (dict[int | str, float]): volume IDs (int) or material tag
+                  names (str) mapped to target mesh sizes. Material tags are resolved
+                  to all volume IDs that have that tag.
                 - unstructured_volumes (Iterable[int | str]): volume IDs (int) or material
                   tag names (str) for unstructured mesh. Material tags are resolved to
                   all volume IDs that have that tag. Can mix ints and strings.
@@ -1673,12 +1754,19 @@ class CadToDagmc:
                 gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
             )
 
+            # Resolve any material tag strings in set_size to volume IDs
+            resolved_set_size = None
+            if set_size:
+                resolved_set_size = resolve_set_size(
+                    set_size, volumes, material_tags_in_brep_order
+                )
+
             gmsh = set_sizes_for_mesh(
                 gmsh=gmsh,
                 min_mesh_size=min_mesh_size,
                 max_mesh_size=max_mesh_size,
                 mesh_algorithm=mesh_algorithm,
-                set_size=set_size,
+                set_size=resolved_set_size,
             )
 
             gmsh.model.mesh.generate(2)
