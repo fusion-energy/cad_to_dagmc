@@ -52,6 +52,40 @@ my_model.add_cadquery_object(
 Parts without names will get auto-generated UUIDs as material tags.
 :::
 
+## Discovering Material Tags
+
+When using `assembly_names` to extract material tags from a CadQuery assembly, you may
+not know what names are contained within. Use `get_material_tags()` to discover the
+material tags after loading:
+
+```python
+import cadquery as cq
+import cad_to_dagmc
+
+# Load or create an assembly - names may come from external sources
+assembly = cq.Assembly()
+assembly.add(cq.Workplane().box(10, 10, 10), name="fuel_rod_1")
+assembly.add(cq.Workplane().center(20, 0).box(10, 10, 10), name="coolant_channel")
+assembly.add(cq.Workplane().center(40, 0).box(10, 10, 10), name="fuel_rod_2")
+
+my_model = cad_to_dagmc.CadToDagmc()
+my_model.add_cadquery_object(assembly, material_tags="assembly_names")
+
+# Discover what material tags were extracted from the assembly
+tags = my_model.get_material_tags()
+print(f"Found {len(tags)} volumes with tags: {tags}")
+# Output: Found 3 volumes with tags: ['fuel_rod_1', 'coolant_channel', 'fuel_rod_2']
+
+# Check if a specific material is present
+if "coolant_channel" in tags:
+    print("Coolant channel found in geometry")
+```
+
+This is particularly useful when:
+- Working with assemblies where names come from external sources
+- You need to inspect the geometry before running the full export
+- You want to programmatically select specific volumes for further processing
+
 ## Using Assembly Materials (CadQuery > 2.6.1)
 
 CadQuery 2.6.1+ supports `cq.Material` objects. Use these as material tags.

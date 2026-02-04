@@ -1064,6 +1064,14 @@ class CadToDagmc:
         self.parts = []
         self.material_tags = []
 
+    def get_material_tags(self) -> list[str]:
+        """Returns the material tags in the model.
+
+        Returns:
+            list[str]: A list of material tags that have been added to the model.
+        """
+        return self.material_tags
+
     def add_stp_file(
         self,
         filename: str,
