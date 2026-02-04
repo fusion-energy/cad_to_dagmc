@@ -100,6 +100,7 @@ model.export_gmsh_mesh_file(
 
 Export to GMSH format and open in the GMSH GUI:
 
+<!--pytest-codeblocks:skip-->
 ```bash
 gmsh mesh.msh
 ```
