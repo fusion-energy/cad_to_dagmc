@@ -108,10 +108,34 @@ dagmc_filename, umesh_filename = my_model.export_dagmc_h5m_file(
 )
 ```
 
+You can also use material tag names instead of volume IDs, which is convenient when you
+don't know the exact volume IDs:
+
+<!--pytest-codeblocks:skip-->
+```python
+# Use material tag names - "steel" will select all volumes with that material
+dagmc_filename, umesh_filename = my_model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    unstructured_volumes=["steel"],  # selects all volumes tagged with "steel"
+    umesh_filename="umesh.vtk",
+    meshing_backend="gmsh",
+)
+
+# You can mix volume IDs and material tag names
+dagmc_filename, umesh_filename = my_model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    unstructured_volumes=[1, "tungsten"],  # volume 1 and all tungsten volumes
+    umesh_filename="umesh.vtk",
+    meshing_backend="gmsh",
+)
+```
+
 :::{note}
 The `unstructured_volumes` parameter specifies which volumes should have a tetrahedral
-volume mesh created. By exporting both meshes in a single call, the surface triangles
-of the DAGMC geometry will exactly match the boundary faces of the volume mesh.
+volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+tag names are resolved to all volumes that have that tag. By exporting both meshes in
+a single call, the surface triangles of the DAGMC geometry will exactly match the
+boundary faces of the volume mesh.
 :::
 
 ## GMSH Mesh Files
