@@ -11,8 +11,10 @@ from cad_to_dagmc import CadToDagmc
 from test_python_api import get_volumes_and_materials_from_h5m
 
 # cq.Material requires CadQuery > 2.6.1
+# Reading materials from STEP files requires CadQuery >= 2.6.2
 CADQUERY_VERSION = Version(cq.__version__)
 CQ_MATERIAL_AVAILABLE = CADQUERY_VERSION > Version("2.6.1")
+CQ_STEP_MATERIALS_AVAILABLE = CADQUERY_VERSION >= Version("2.6.2")
 
 
 def test_stp_file_with_assembly_names():
@@ -50,8 +52,8 @@ def test_stp_file_with_assembly_names():
 
 
 @pytest.mark.skipif(
-    not CQ_MATERIAL_AVAILABLE,
-    reason="cq.Material requires CadQuery > 2.6.1",
+    not CQ_STEP_MATERIALS_AVAILABLE,
+    reason="Reading materials from STEP files requires CadQuery >= 2.6.2",
 )
 def test_stp_file_with_assembly_materials():
     """Test that STEP files can use assembly_materials to get material tags."""
