@@ -16,14 +16,14 @@ box = cq.Workplane("XY").box(30, 30, 30)
 
 # Create an assembly
 assembly = cq.Assembly()
-assembly.add(sphere, name="sphere")
-assembly.add(box, name="box")
+assembly.add(sphere, name="tungsten")
+assembly.add(box, name="steel")
 
 # Convert to DAGMC
 model = CadToDagmc()
 model.add_cadquery_object(
     cadquery_object=assembly,
-    material_tags=["tungsten", "steel"]
+    material_tags="assembly_names"
 )
 model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```
