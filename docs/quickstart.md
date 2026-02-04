@@ -82,6 +82,7 @@ you can create conformal meshes where the surface and volume meshes share the sa
 boundary coordinates. This is done in a single export call using the `unstructured_volumes`
 parameter:
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc

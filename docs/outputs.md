@@ -111,6 +111,7 @@ dagmc_filename, umesh_filename = my_model.export_dagmc_h5m_file(
 You can also use material tag names instead of volume IDs, which is convenient when you
 don't know the exact volume IDs:
 
+<!--pytest-codeblocks:skip-->
 ```python
 # Use material tag names - "steel" will select all volumes with that material
 dagmc_filename, umesh_filename = my_model.export_dagmc_h5m_file(
