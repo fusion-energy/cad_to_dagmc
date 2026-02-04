@@ -16,14 +16,14 @@ box = cq.Workplane("XY").box(30, 30, 30)
 
 # Create an assembly
 assembly = cq.Assembly()
-assembly.add(sphere, name="sphere")
-assembly.add(box, name="box")
+assembly.add(sphere, name="tungsten")
+assembly.add(box, name="steel")
 
 # Convert to DAGMC
 model = CadToDagmc()
 model.add_cadquery_object(
     cadquery_object=assembly,
-    material_tags=["tungsten", "steel"]
+    material_tags="assembly_names"  # there are a few ways to set the material tags, here we refer to the names used in the assembly
 )
 model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```
@@ -40,7 +40,7 @@ from cad_to_dagmc import CadToDagmc
 model = CadToDagmc()
 model.add_stp_file(
     filename="geometry.step",
-    material_tags=["mat1", "mat2", "mat3"]
+    material_tags=["mat1", "mat2", "mat3"]  # there are a few ways to set the material tags, here we know the step file has 3 volumes and we know their oder.
 )
 model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```
@@ -100,7 +100,7 @@ model.add_cadquery_object(assembly, material_tags=["tungsten", "steel"])
 # This ensures the meshes are conformal (share the same boundary)
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    unstructured_volumes=[1, 2],  # volume IDs to create volume mesh for
+    unstructured_volumes=[2],  # volume IDs to create volume mesh for
     umesh_filename="umesh.vtk",
     meshing_backend="gmsh",
 )

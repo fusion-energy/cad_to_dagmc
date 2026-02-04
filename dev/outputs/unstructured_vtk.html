@@ -1,0 +1,769 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Unstructured Mesh VTK Files &#8212; cad_to_dagmc 0.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=b9472d72"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'outputs/unstructured_vtk';</script>
+    <link rel="icon" href="../_static/logo.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GMSH Mesh Files" href="gmsh_mesh.html" />
+    <link rel="prev" title="DAGMC H5M Files" href="dagmc_h5m.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.1 documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="cad_to_dagmc 0.1 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Inputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../inputs/index.html">Input Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/index.html">Material Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dagmc_h5m.html">DAGMC H5M Files</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_mesh.html">GMSH Mesh Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conformal_meshes.html">Conformal Meshes</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/geometry_scaling.html">Geometry Scaling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/imprinting.html">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Python API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/fusion-energy/cad_to_dagmc" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/outputs/unstructured_vtk.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Unstructured Mesh VTK Files</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export">Basic Export</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-geometry-example">Complex Geometry Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-specific-volumes">Selecting Specific Volumes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#export-unstructured-mesh-file"><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-in-openmc">Using in OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-openmc-workflow">Complete OpenMC Workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="unstructured-mesh-vtk-files">
+<h1>Unstructured Mesh VTK Files<a class="headerlink" href="#unstructured-mesh-vtk-files" title="Link to this heading">#</a></h1>
+<p>Creates tetrahedral volume meshes for use with OpenMC’s <code class="docutils literal notranslate"><span class="pre">UnstructuredMesh</span></code> tally.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Volume mesh output <strong>requires the GMSH backend</strong>. The CadQuery meshing backend cannot create volume meshes.</p>
+</div>
+<section id="basic-export">
+<h2>Basic Export<a class="headerlink" href="#basic-export" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">])</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="complex-geometry-example">
+<h2>Complex Geometry Example<a class="headerlink" href="#complex-geometry-example" title="Link to this heading">#</a></h2>
+<p>Volume meshes work with complex curved geometries:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">floor</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hypocycloid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">r1</span> <span class="o">-</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">t</span> <span class="o">-</span> <span class="n">t</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">r1</span> <span class="o">-</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">t</span> <span class="o">-</span> <span class="n">t</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">epicycloid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">t</span> <span class="o">+</span> <span class="n">t</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">t</span> <span class="o">+</span> <span class="n">t</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gear</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r1</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">r2</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">floor</span><span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">epicycloid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hypocycloid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+
+<span class="c1"># Create gear with twist</span>
+<span class="n">gear_shape</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">parametricCurve</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">gear</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">twistExtrude</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">faces</span><span class="p">(</span><span class="s2">&quot;&gt;Z&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">workplane</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cutThruAll</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Create spline extrusion</span>
+<span class="n">spline_points</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mf">2.75</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">spline</span><span class="p">(</span><span class="n">spline_points</span><span class="p">,</span> <span class="n">includeCurrent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">spline_shape</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">extrude</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">gear_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">spline_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="selecting-specific-volumes">
+<h2>Selecting Specific Volumes<a class="headerlink" href="#selecting-specific-volumes" title="Link to this heading">#</a></h2>
+<p>Export only certain volumes to the VTK file:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;partial_mesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>  <span class="c1"># Only include volumes 1 and 3</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use material tag names:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;fuel_mesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fuel&quot;</span><span class="p">],</span>  <span class="c1"># All volumes with &quot;fuel&quot; material tag</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h2>
+<section id="export-unstructured-mesh-file">
+<h3><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code><a class="headerlink" href="#export-unstructured-mesh-file" title="Link to this heading">#</a></h3>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>     <span class="c1"># Output file path</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Minimum element size</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>       <span class="c1"># Maximum element size</span>
+    <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>         <span class="c1"># GMSH algorithm (1-10)</span>
+    <span class="n">set_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>            <span class="c1"># Per-volume sizes</span>
+    <span class="n">volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>             <span class="c1"># Specific volumes to include</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Imprint shared surfaces</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>            <span class="c1"># CAD transfer method</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Parameters:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p></td>
+<td><p>str</p></td>
+<td><p>“umesh.vtk”</p></td>
+<td><p>Output VTK file path</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code></p></td>
+<td><p>float</p></td>
+<td><p>None</p></td>
+<td><p>Minimum mesh element size</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code></p></td>
+<td><p>float</p></td>
+<td><p>None</p></td>
+<td><p>Maximum mesh element size</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code></p></td>
+<td><p>int</p></td>
+<td><p>1</p></td>
+<td><p>GMSH meshing algorithm</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>None</p></td>
+<td><p>Per-volume mesh sizes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">volumes</span></code></p></td>
+<td><p>list</p></td>
+<td><p>None</p></td>
+<td><p>Specific volumes to mesh</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
+<td><p>float</p></td>
+<td><p>1.0</p></td>
+<td><p>Geometry scale factor</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>True</p></td>
+<td><p>Imprint shared surfaces</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p>str</p></td>
+<td><p>“file”</p></td>
+<td><p>CAD transfer method</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="using-in-openmc">
+<h2>Using in OpenMC<a class="headerlink" href="#using-in-openmc" title="Link to this heading">#</a></h2>
+<p>Load the unstructured mesh for tallies:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
+
+<span class="c1"># Create mesh from VTK file</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">&quot;moab&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create tally with mesh filter</span>
+<span class="n">mesh_filter</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">MeshFilter</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">()</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh_filter</span><span class="p">]</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="s2">&quot;heating&quot;</span><span class="p">]</span>
+
+<span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-openmc-workflow">
+<h2>Complete OpenMC Workflow<a class="headerlink" href="#complete-openmc-workflow" title="Link to this heading">#</a></h2>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
+
+<span class="c1"># Create geometry</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+
+<span class="c1"># Export both surface and volume mesh</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">)</span>
+
+<span class="c1"># Set up OpenMC</span>
+<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mat1&quot;</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">&quot;ao&quot;</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+<span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">mat1</span><span class="p">])</span>
+
+<span class="c1"># Geometry from DAGMC</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+
+<span class="c1"># Unstructured mesh tally</span>
+<span class="n">umesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">&quot;moab&quot;</span><span class="p">)</span>
+<span class="n">mesh_filter</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">MeshFilter</span><span class="p">(</span><span class="n">umesh</span><span class="p">)</span>
+<span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mesh_tally&quot;</span><span class="p">)</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh_filter</span><span class="p">]</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+<span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
+
+<span class="c1"># Settings</span>
+<span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;fixed source&quot;</span>
+
+<span class="c1"># Run</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">tallies</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a> - When you need matching surface and volume meshes</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Control mesh density</p></li>
+<li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Meshing options</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dagmc_h5m.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">DAGMC H5M Files</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gmsh_mesh.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">GMSH Mesh Files</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export">Basic Export</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-geometry-example">Complex Geometry Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-specific-volumes">Selecting Specific Volumes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#export-unstructured-mesh-file"><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-in-openmc">Using in OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-openmc-workflow">Complete OpenMC Workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Fusion Energy
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fusion Energy.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

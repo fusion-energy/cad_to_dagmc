@@ -85,24 +85,79 @@ flowchart LR
 | | |
 |---|---|
 | **Multiple Input Formats** | **Flexible Material Tagging** |
-| • CadQuery objects<br>• STEP files<br>• GMSH mesh files | • Manual tags<br>• Assembly names<br>• CadQuery Materials<br>• GMSH physical groups |
+| - CadQuery objects<br>- STEP files<br>- GMSH mesh files | - Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups |
 | **Two Meshing Backends** | **Multiple Output Formats** |
-| • GMSH (full control, volume meshing)<br>• CadQuery (simpler, direct) | • DAGMC h5m (surface mesh)<br>• Unstructured VTK (volume mesh)<br>• GMSH files |
+| - GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
 | **Two H5M Backends** | **Advanced Options** |
-| • h5py (default, no MOAB needed)<br>• pymoab (official MOAB) | • Per-volume mesh sizing<br>• Geometry scaling<br>• Parallel meshing |
+| - h5py (default, no MOAB needed)<br>- pymoab (official MOAB) | - Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing |
 
 
 ```{toctree}
 :maxdepth: 2
-:caption: Documentation
+:caption: Getting Started
 
 installation
 quickstart
-inputs
-material_tagging
-outputs
-meshing_backends
-h5m_backends
-advanced
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Inputs
+
+inputs/index
+inputs/cadquery_objects
+inputs/cadquery_assemblies
+inputs/step_files
+inputs/gmsh_files
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Material Tagging
+
+material_tagging/index
+material_tagging/manual_tags
+material_tagging/assembly_names
+material_tagging/assembly_materials
+material_tagging/gmsh_physical_groups
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Outputs
+
+outputs/index
+outputs/dagmc_h5m
+outputs/unstructured_vtk
+outputs/gmsh_mesh
+outputs/conformal_meshes
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Meshing
+
+meshing/index
+meshing/gmsh_backend
+meshing/cadquery_backend
+meshing/mesh_sizing
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Advanced
+
+advanced/index
+advanced/geometry_scaling
+advanced/imprinting
+advanced/implicit_complement
+advanced/parallel_processing
+advanced/h5m_backends
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Reference
+
 api
 ```

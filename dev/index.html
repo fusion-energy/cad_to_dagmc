@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=e1a75a79"></script>
+    <script src="_static/documentation_options.js?v=b9472d72"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -599,16 +599,53 @@ window.addEventListener("load", load);</script>
  </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Sources</a></li>
-<li class="toctree-l1"><a class="reference internal" href="material_tagging.html">Material Tagging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing_backends.html">Meshing Backends</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Options</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Inputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="inputs/index.html">Input Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_objects.html">CadQuery Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/step_files.html">STEP Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">GMSH Files</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/index.html">Material Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/manual_tags.html">Manual Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/geometry_scaling.html">Geometry Scaling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/imprinting.html">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a></li>
 </ul>
 
@@ -774,7 +811,9 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features">Key Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features">Key Features</a><ul class="visible nav section-nav flex-column">
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -877,30 +916,29 @@ flowchart LR
 <tr class="row-even"><td><p><strong>Multiple Input Formats</strong></p></td>
 <td><p><strong>Flexible Material Tagging</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p>• CadQuery objects<br>• STEP files<br>• GMSH mesh files</p></td>
-<td><p>• Manual tags<br>• Assembly names<br>• CadQuery Materials<br>• GMSH physical groups</p></td>
+<tr class="row-odd"><td><p>- CadQuery objects<br>- STEP files<br>- GMSH mesh files</p></td>
+<td><p>- Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Two Meshing Backends</strong></p></td>
 <td><p><strong>Multiple Output Formats</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p>• GMSH (full control, volume meshing)<br>• CadQuery (simpler, direct)</p></td>
-<td><p>• DAGMC h5m (surface mesh)<br>• Unstructured VTK (volume mesh)<br>• GMSH files</p></td>
+<tr class="row-odd"><td><p>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)</p></td>
+<td><p>- DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Two H5M Backends</strong></p></td>
 <td><p><strong>Advanced Options</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p>• h5py (default, no MOAB needed)<br>• pymoab (official MOAB)</p></td>
-<td><p>• Per-volume mesh sizing<br>• Geometry scaling<br>• Parallel meshing</p></td>
+<tr class="row-odd"><td><p>- h5py (default, no MOAB needed)<br>- pymoab (official MOAB)</p></td>
+<td><p>- Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#install-using-pip">Install using pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#install-using-mamba">Install using Mamba</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#install-using-conda">Install using Conda</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#optional-installing-pymoab">Optional: Installing pymoab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#optional-installing-openmc">Optional: Installing OpenMC</a></li>
@@ -914,53 +952,275 @@ flowchart LR
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-in-openmc">Using in OpenMC</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Sources</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#cadquery-objects">CadQuery Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#step-files">STEP Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#gmsh-files">GMSH Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#using-assembly-mesh-plugin">Using assembly-mesh-plugin</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Inputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="inputs/index.html">Input Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inputs/index.html#basic-pattern">Basic Pattern</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="material_tagging.html">Material Tagging</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="material_tagging.html#manual-material-tags">Manual Material Tags</a></li>
-<li class="toctree-l2"><a class="reference internal" href="material_tagging.html#using-assembly-names">Using Assembly Names</a></li>
-<li class="toctree-l2"><a class="reference internal" href="material_tagging.html#using-assembly-materials-cadquery-2-6-1">Using Assembly Materials (CadQuery &gt; 2.6.1)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="material_tagging.html#gmsh-physical-groups">GMSH Physical Groups</a></li>
-<li class="toctree-l2"><a class="reference internal" href="material_tagging.html#material-tag-format-in-h5m-files">Material Tag Format in H5M Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_objects.html">CadQuery Objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#supported-object-types">Supported Object Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#basic-example">Basic Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#multiple-objects">Multiple Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#using-compounds">Using Compounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#using-assemblies">Using Assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_objects.html#see-also">See Also</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Formats</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="outputs.html#dagmc-h5m-files-surface-mesh">DAGMC H5M Files (Surface Mesh)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs.html#unstructured-mesh-vtk-files-volume-mesh">Unstructured Mesh VTK Files (Volume Mesh)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs.html#conformal-surface-and-volume-meshes">Conformal Surface and Volume Meshes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs.html#gmsh-mesh-files">GMSH Mesh Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_assemblies.html">CadQuery Assemblies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#basic-assembly">Basic Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#using-assembly-names-as-material-tags">Using Assembly Names as Material Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#using-assembly-materials-as-tags">Using Assembly Materials as Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#assemblies-with-mesh-parameters">Assemblies with Mesh Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#nested-assemblies">Nested Assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#assembly-tagging-options-comparison">Assembly Tagging Options Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/cadquery_assemblies.html#see-also">See Also</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="meshing_backends.html">Meshing Backends</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="meshing_backends.html#gmsh-backend-default">GMSH Backend (Default)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing_backends.html#cadquery-backend">CadQuery Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing_backends.html#comparison">Comparison</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing_backends.html#when-to-use-each">When to Use Each</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/step_files.html">STEP Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#single-step-file">Single STEP File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#using-assembly-names-from-step-files">Using Assembly Names from STEP Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#using-assembly-materials-from-step-files">Using Assembly Materials from STEP Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#multiple-step-files">Multiple STEP Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#mixing-step-files-with-cadquery-objects">Mixing STEP Files with CadQuery Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#scaling-step-files">Scaling STEP Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/step_files.html#see-also">See Also</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="h5m_backends.html#h5py-backend-default">h5py Backend (Default)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="h5m_backends.html#pymoab-backend">pymoab Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="h5m_backends.html#file-compatibility">File Compatibility</a></li>
-<li class="toctree-l2"><a class="reference internal" href="h5m_backends.html#comparison">Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">GMSH Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#from-gmsh-file-with-manual-tags">From GMSH File with Manual Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#from-gmsh-file-with-physical-groups">From GMSH File with Physical Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#using-assembly-mesh-plugin">Using assembly-mesh-plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#from-gmsh-object-in-memory">From GMSH Object in Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#complete-openmc-workflow">Complete OpenMC Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs/gmsh_files.html#see-also">See Also</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Options</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#geometry-scaling">Geometry Scaling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#per-volume-mesh-sizing">Per-Volume Mesh Sizing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#mesh-algorithms">Mesh Algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#imprinting-control">Imprinting Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#cad-transfer-method">CAD Transfer Method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#implicit-complement-material">Implicit Complement Material</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#accessing-the-gmsh-object">Accessing the GMSH Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#parallel-processing">Parallel Processing</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/index.html">Material Tagging</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/index.html#tagging-methods">Tagging Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/index.html#quick-comparison">Quick Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/index.html#how-tags-are-stored">How Tags Are Stored</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/index.html#tag-name-guidelines">Tag Name Guidelines</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/manual_tags.html">Manual Material Tags</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#single-volume">Single Volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#multiple-volumes-with-same-material">Multiple Volumes with Same Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#with-step-files">With STEP Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#reserved-tag-names">Reserved Tag Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#multiple-additions">Multiple Additions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#determining-volume-count">Determining Volume Count</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#using-tags-with-set-size">Using Tags with set_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/manual_tags.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_names.html">Assembly Names as Material Tags</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#why-use-assembly-names">Why Use Assembly Names?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#using-names-with-mesh-sizing">Using Names with Mesh Sizing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#unnamed-parts">Unnamed Parts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#naming-conventions">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#using-colors-for-visualization">Using Colors for Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_names.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_materials.html">Assembly Materials as Tags</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#when-to-use-assembly-materials">When to Use Assembly Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#example-names-vs-materials">Example: Names vs Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#multiple-parts-same-material">Multiple Parts, Same Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#requirements-and-errors">Requirements and Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#comparison-with-assembly-names">Comparison with Assembly Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/assembly_materials.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#how-it-works">How It Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#complete-example-with-openmc">Complete Example with OpenMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#using-assembly-mesh-plugin">Using assembly-mesh-plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#overriding-physical-groups">Overriding Physical Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#creating-physical-groups-in-gmsh">Creating Physical Groups in GMSH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#checking-physical-groups">Checking Physical Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="outputs/index.html#output-types">Output Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/index.html#quick-comparison">Quick Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/index.html#basic-export-pattern">Basic Export Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/index.html#choosing-an-output-format">Choosing an Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC H5M Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#basic-export">Basic Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#with-different-backends">With Different Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#with-meshing-backends">With Meshing Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#using-in-openmc">Using in OpenMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/dagmc_h5m.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#basic-export">Basic Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#complex-geometry-example">Complex Geometry Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#selecting-specific-volumes">Selecting Specific Volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#using-in-openmc">Using in OpenMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#complete-openmc-workflow">Complete OpenMC Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">GMSH Mesh Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="outputs/gmsh_mesh.html#basic-export">Basic Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/gmsh_mesh.html#with-per-volume-mesh-sizing">With Per-Volume Mesh Sizing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/gmsh_mesh.html#api-reference">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/gmsh_mesh.html#use-cases">Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/gmsh_mesh.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#why-conformal-meshes">Why Conformal Meshes?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#complete-example-with-openmc">Complete Example with OpenMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#how-it-works">How It Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#api-notes">API Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meshing/index.html#available-backends">Available Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/index.html#quick-comparison">Quick Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/index.html#choosing-a-backend">Choosing a Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/index.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/index.html#mesh-sizing-overview">Mesh Sizing Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#mesh-size-parameters">Mesh Size Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#mesh-algorithms">Mesh Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#per-volume-mesh-sizing">Per-Volume Mesh Sizing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#cad-transfer-method">CAD Transfer Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#advanced-gmsh-options">Advanced GMSH Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#volume-meshing">Volume Meshing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#parameters-reference">Parameters Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#advantages">Advantages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#when-to-use-cadquery-backend">When to Use CadQuery Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#comparison-example">Comparison Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#specifying-volumes">Specifying Volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#how-it-works">How It Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#using-with-volume-meshes">Using with Volume Meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/index.html#topics">Topics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/index.html#quick-reference">Quick Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/geometry_scaling.html">Geometry Scaling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#scaling-at-different-stages">Scaling at Different Stages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#common-scale-factors">Common Scale Factors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#different-scales-for-different-parts">Different Scales for Different Parts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#neutronics-unit-conventions">Neutronics Unit Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#mesh-size-and-scaling">Mesh Size and Scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/geometry_scaling.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/imprinting.html">Imprinting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#what-is-imprinting">What is Imprinting?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#default-behavior">Default Behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#disabling-imprinting">Disabling Imprinting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#when-to-disable-imprinting">When to Disable Imprinting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#what-is-the-implicit-complement">What is the Implicit Complement?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#using-in-openmc">Using in OpenMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#with-gmsh-files">With GMSH Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#common-use-cases">Common Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#when-to-use">When to Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/implicit_complement.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#when-to-limit-threads">When to Limit Threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#limiting-cadquery-threads">Limiting CadQuery Threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#limiting-gmsh-threads">Limiting GMSH Threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#thread-options-summary">Thread Options Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/parallel_processing.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#h5py-backend-default">h5py Backend (Default)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#pymoab-backend">pymoab Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#installing-pymoab">Installing pymoab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#comparing-backends">Comparing Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#file-compatibility">File Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#comparison-table">Comparison Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/h5m_backends.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#main-class">Main Class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#standalone-functions">Standalone Functions</a></li>
@@ -1009,7 +1269,9 @@ flowchart LR
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features">Key Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features">Key Features</a><ul class="visible nav section-nav flex-column">
+</ul>
+</li>
 </ul>
   </nav></div>
 
