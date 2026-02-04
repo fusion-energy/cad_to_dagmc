@@ -385,9 +385,11 @@ between units (e.g., mm to cm for neutronics).</p>
 </section>
 <section id="per-volume-mesh-sizing">
 <h2>Per-Volume Mesh Sizing<a class="headerlink" href="#per-volume-mesh-sizing" title="Link to this heading">#</a></h2>
-<p>Set different mesh sizes for different volumes using <code class="docutils literal notranslate"><span class="pre">set_size</span></code>.</p>
+<p>Set different mesh sizes for different volumes using <code class="docutils literal notranslate"><span class="pre">set_size</span></code>. You can specify
+volumes by ID (int) or by material tag name (str).</p>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using volume IDs</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
@@ -397,11 +399,34 @@ between units (e.g., mm to cm for neutronics).</p>
         <span class="mi">3</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>   <span class="c1"># Volume 3: medium mesh (1.0)</span>
     <span class="p">}</span>
 <span class="p">)</span>
+
+<span class="c1"># Using material tag names</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;fuel&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># All fuel volumes: fine mesh</span>
+        <span class="s2">&quot;coolant&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>   <span class="c1"># All coolant volumes: coarse mesh</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Mixing volume IDs and material tags</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>           <span class="c1"># Volume 1 specifically</span>
+        <span class="s2">&quot;coolant&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>   <span class="c1"># All coolant volumes</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> only works with the GMSH meshing backend.</p>
+<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> only works with the GMSH meshing backend. When using material tags,
+the size is applied to all volumes with that tag.</p>
 </div>
 </section>
 <section id="mesh-algorithms">

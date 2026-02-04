@@ -31,7 +31,7 @@ my_model.export_dagmc_h5m_file(
 - `min_mesh_size`: Minimum mesh element size
 - `max_mesh_size`: Maximum mesh element size
 - `mesh_algorithm`: GMSH algorithm (1-10, default 1)
-- `set_size`: Dict of volume IDs to target sizes
+- `set_size`: Dict of volume IDs (int) or material tags (str) to target sizes
 
 ## CadQuery Backend
 
