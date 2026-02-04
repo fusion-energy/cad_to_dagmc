@@ -33,7 +33,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     unstructured_volumes=[1, 2],  # Volumes to include in VTK mesh
     umesh_filename="umesh.vtk",
-    meshing_backend="gmsh",
+    meshing_backend="gmsh",  # must use gmsh backend for conformal surface and volume meshing
 )
 ```
 

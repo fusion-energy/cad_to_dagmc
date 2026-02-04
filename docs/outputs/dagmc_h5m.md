@@ -80,45 +80,48 @@ model.export_dagmc_h5m_file(
 
 ### `export_dagmc_h5m_file()`
 
-```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",                  # Output file path
-    min_mesh_size=1.0,                     # Minimum element size (GMSH)
-    max_mesh_size=10.0,                    # Maximum element size (GMSH)
-    mesh_algorithm=1,                      # GMSH algorithm (1-10)
-    set_size=None,                         # Per-volume sizes {vol_id: size}
-    h5m_backend="h5py",                    # "h5py" or "pymoab"
-    meshing_backend="gmsh",                # "gmsh" or "cadquery"
-    tolerance=0.1,                         # Linear tolerance (CadQuery)
-    angular_tolerance=0.1,                 # Angular tolerance (CadQuery)
-    scale_factor=1.0,                      # Geometry scaling
-    imprint=True,                          # Imprint shared surfaces
-    method="file",                         # CAD transfer method
-    implicit_complement_material_tag=None, # Void material tag
-    unstructured_volumes=None,             # Volumes for conformal mesh
-    umesh_filename=None,                   # VTK output for conformal mesh
-)
-```
-
-**Parameters:**
+**Common Parameters:**
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `filename` | str | "dagmc.h5m" | Output file path |
-| `min_mesh_size` | float | None | Minimum mesh element size |
-| `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
-| `set_size` | dict | None | Per-volume mesh sizes |
-| `h5m_backend` | str | "h5py" | H5M writing backend |
-| `meshing_backend` | str | "gmsh" | Meshing backend |
-| `tolerance` | float | 0.1 | CadQuery linear tolerance |
-| `angular_tolerance` | float | 0.1 | CadQuery angular tolerance |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | bool | True | Imprint shared surfaces |
-| `method` | str | "file" | CAD transfer method |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
-| `unstructured_volumes` | list | None | Volumes for volume mesh |
-| `umesh_filename` | str | None | Volume mesh output file |
+
+**Backend Selection:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `meshing_backend` | str | auto | `"gmsh"` or `"cadquery"`. Auto-selected based on other arguments provided. Defaults to `"cadquery"` if no backend-specific args given. |
+| `h5m_backend` | str | "h5py" | `"h5py"` or `"pymoab"` for writing h5m files |
+
+**GMSH Backend Parameters:**
+
+These parameters only apply when using `meshing_backend="gmsh"` (or when auto-selected):
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `min_mesh_size` | float | None | Minimum mesh element size |
+| `max_mesh_size` | float | None | Maximum mesh element size |
+| `mesh_algorithm` | int | 1 | GMSH meshing algorithm (1-10) |
+| `method` | str | "file" | CAD transfer method: `"file"` or `"in memory"` |
+| `set_size` | dict | None | Per-volume mesh sizes. Keys can be volume IDs (int) or material tag names (str). |
+| `unstructured_volumes` | list | None | Volume IDs (int) or material tags (str) for conformal volume mesh |
+| `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
+
+**CadQuery Backend Parameters:**
+
+These parameters only apply when using `meshing_backend="cadquery"`:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `tolerance` | float | 0.1 | Linear tolerance for tessellation |
+| `angular_tolerance` | float | 0.1 | Angular tolerance for tessellation |
+
+:::{warning}
+Do not mix GMSH and CadQuery backend parameters in the same call. If you provide parameters from both backends without explicitly setting `meshing_backend`, an error will be raised.
+:::
 
 **Returns:**
 - `str` - Path to the created h5m file

@@ -4,6 +4,7 @@ import cadquery as cq
 import gmsh
 import numpy as np
 from cadquery import importers
+from cadquery.occ_impl.importers.assembly import importStep as importStepAssembly
 import tempfile
 import warnings
 from typing import Iterable
@@ -1190,17 +1191,19 @@ class CadToDagmc:
         self,
         filename: str,
         scale_factor: float = 1.0,
-        material_tags: list[str] | None = None,
+        material_tags: list[str] | str | None = None,
     ) -> int:
         """Loads the parts from stp file into the model.
 
         Args:
             filename: the filename used to save the html graph.
-            material_tags (list[str]): the names of the DAGMC
-                material tags to assign. These will need to be in the
-                same order as the volumes in the geometry added (STP
-                file and CadQuery objects) and match the material tags
-                used in the neutronics code (e.g. OpenMC).
+            material_tags: the names of the DAGMC material tags to assign.
+                Can be a list of strings (one per volume), or one of the
+                special strings "assembly_names" or "assembly_materials" to
+                automatically extract tags from the STEP file's assembly
+                structure (if the STEP file contains named parts or materials).
+                When using a list, tags must be in the same order as the
+                volumes in the geometry.
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
@@ -1209,6 +1212,29 @@ class CadToDagmc:
         Returns:
             int: number of volumes in the stp file.
         """
+        # If using assembly_names or assembly_materials, try to load as assembly
+        if material_tags in ("assembly_names", "assembly_materials"):
+            assembly = cq.Assembly()
+            importStepAssembly(assembly, str(filename))
+            if scale_factor != 1.0:
+                # Scale each part in the assembly
+                scaled_assembly = cq.Assembly()
+                for child in assembly.children:
+                    scaled_shape = child.obj.scale(scale_factor)
+                    scaled_assembly.add(
+                        scaled_shape,
+                        name=child.name,
+                        color=child.color,
+                        loc=child.loc,
+                    )
+                    if hasattr(child, "material") and child.material is not None:
+                        scaled_assembly.children[-1].material = child.material
+                assembly = scaled_assembly
+            return self.add_cadquery_object(
+                cadquery_object=assembly, material_tags=material_tags
+            )
+
+        # Default behavior: load as compound/solid
         part = importers.importStep(str(filename)).val()
 
         if scale_factor == 1.0:

@@ -61,19 +61,34 @@ model.export_dagmc_h5m_file()
 
 ## With STEP Files
 
-STEP files require manual tags (they don't have assembly metadata):
+STEP files can use manual tags or automatic tagging from assembly structure:
 
 <!--pytest-codeblocks:skip-->
 ```python
 from cad_to_dagmc import CadToDagmc
 
 model = CadToDagmc()
+
+# Option 1: Manual tags
 model.add_stp_file(
     filename="geometry.step",
     material_tags=["mat1", "mat2", "mat3"]  # Must match volume count
 )
-model.export_dagmc_h5m_file()
+
+# Option 2: If STEP was saved from a named assembly
+model.add_stp_file(
+    filename="geometry.step",
+    material_tags="assembly_names"  # Extract names from STEP structure
+)
 ```
+
+See [STEP Files](../inputs/step_files.md) for more details on using assembly names with STEP files.
+
+## Reserved Tag Names
+
+:::{warning}
+**Do not use `"vacuum"` as a material tag.** DAGMC and OpenMC treat volumes tagged with `"vacuum"` as true vacuum (void space). Particles entering a vacuum region will be lost. If you need to model low-density gas, use a different name like `"air"` or `"helium"`.
+:::
 
 ## Multiple Additions
 

@@ -17,7 +17,7 @@ Material tags identify each volume in the DAGMC geometry. They connect your CAD 
 |---------|-------------|----------------|-------------------|-------------|
 | Requires ordering | Yes | No | No | No |
 | Auto from geometry | No | Yes | Yes | Yes |
-| Works with STEP | Yes | No | No | No |
+| Works with STEP | Yes | Yes | Yes | No |
 | CadQuery version | Any | Any | > 2.6.1 | Any |
 
 ## How Tags Are Stored
@@ -42,11 +42,16 @@ tungsten.set_density("g/cm3", 19.3)
 ## Tag Name Guidelines
 
 :::{warning}
+**Reserved name:** Do not use `"vacuum"` as a material tag. DAGMC and OpenMC treat volumes tagged with `"vacuum"` as true vacuum (void space with no material). Particles entering a vacuum region will be lost. If you need to model low-density gas, use a different name like `"air"` or `"helium"`.
+:::
+
+:::{warning}
 DAGMC truncates material tag names longer than 28 characters. Keep your tags concise.
 :::
 
 Recommended practices:
 - Use descriptive but short names: `"fuel"`, `"coolant"`, `"shield"`
 - Avoid special characters
+- Avoid using `"vacuum"` (reserved for true void)
 - Use lowercase for consistency
 - Match names to your OpenMC material definitions

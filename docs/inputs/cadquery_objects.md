@@ -64,6 +64,34 @@ model.add_cadquery_object(cadquery_object=compound, material_tags=["mat1", "mat2
 model.export_dagmc_h5m_file(max_mesh_size=0.2, min_mesh_size=0.1)
 ```
 
+## Using Assemblies
+
+Assemblies allow you to name parts and use those names as material tags:
+
+```python
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+# Create shapes
+sphere = cq.Workplane().sphere(5)
+box = cq.Workplane().moveTo(15, 0).box(5, 5, 5)
+
+# Create assembly with named parts
+assembly = cq.Assembly()
+assembly.add(sphere, name="tungsten")
+assembly.add(box, name="steel")
+
+# Use assembly names as material tags
+model = CadToDagmc()
+model.add_cadquery_object(
+    cadquery_object=assembly,
+    material_tags="assembly_names"  # Names become material tags
+)
+model.export_dagmc_h5m_file()
+```
+
+See [CadQuery Assemblies](cadquery_assemblies.md) for more assembly features including nested assemblies and using `cq.Material` objects.
+
 ## API Reference
 
 ### `add_cadquery_object()`
