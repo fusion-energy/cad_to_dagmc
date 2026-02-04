@@ -6,17 +6,8 @@ cad_to_dagmc accepts geometry from three sources:
 |------------|-------------|----------|
 | [CadQuery Objects](cadquery_objects.md) | Python-defined geometry | Parametric models, scripted geometry |
 | [CadQuery Assemblies](cadquery_assemblies.md) | Multi-part CadQuery assemblies | Complex models with multiple components |
-| [STEP Files](step_files.md) | Industry-standard CAD format | Importing from CAD software |
+| [STEP Files](step_files.md) | Industry-standard CAD format can also contain assemblies | Importing from CAD software |
 | [GMSH Files](gmsh_files.md) | Pre-existing mesh files | When you already have a mesh |
-
-## Quick Comparison
-
-| Feature | CadQuery Objects | STEP Files | GMSH Files |
-|---------|------------------|------------|------------|
-| Parametric | Yes | No | No |
-| External CAD | No | Yes | No |
-| Pre-meshed | No | No | Yes |
-| Material from source | Via assembly | No | Via physical groups |
 
 ## Basic Pattern
 
