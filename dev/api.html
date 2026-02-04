@@ -577,8 +577,14 @@ Defaults to ‘h5py’.</p></li>
 - mesh_algorithm (int): GMSH mesh algorithm (default: 1)
 - method (str): import method ‘file’ or ‘in memory’ (default: ‘file’)
 - set_size (dict[int, float]): volume ids and target mesh sizes
-- unstructured_volumes (Iterable[int]): volume ids for unstructured mesh
-- umesh_filename (str): filename for unstructured mesh (default: ‘umesh.vtk’)</p>
+- unstructured_volumes (Iterable[int | str]): volume IDs (int) or material</p>
+<blockquote>
+<div><p>tag names (str) for unstructured mesh. Material tags are resolved to
+all volume IDs that have that tag. Can mix ints and strings.</p>
+</div></blockquote>
+<ul>
+<li><p>umesh_filename (str): filename for unstructured mesh (default: ‘umesh.vtk’)</p></li>
+</ul>
 <p>For CadQuery backend:
 - tolerance (float): meshing tolerance (default: 0.1)
 - angular_tolerance (float): angular tolerance (default: 0.1)</p>

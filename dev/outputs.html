@@ -452,11 +452,33 @@ export both in a single call using the <code class="docutils literal notranslate
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>You can also use material tag names instead of volume IDs, which is convenient when you
+don’t know the exact volume IDs:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use material tag names - &quot;steel&quot; will select all volumes with that material</span>
+<span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steel&quot;</span><span class="p">],</span>  <span class="c1"># selects all volumes tagged with &quot;steel&quot;</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># You can mix volume IDs and material tag names</span>
+<span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">my_model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;tungsten&quot;</span><span class="p">],</span>  <span class="c1"># volume 1 and all tungsten volumes</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter specifies which volumes should have a tetrahedral
-volume mesh created. By exporting both meshes in a single call, the surface triangles
-of the DAGMC geometry will exactly match the boundary faces of the volume mesh.</p>
+volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+tag names are resolved to all volumes that have that tag. By exporting both meshes in
+a single call, the surface triangles of the DAGMC geometry will exactly match the
+boundary faces of the volume mesh.</p>
 </div>
 </section>
 <section id="gmsh-mesh-files">

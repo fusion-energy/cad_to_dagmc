@@ -432,6 +432,7 @@ The CadQuery backend only supports surface meshes.</p>
 you can create conformal meshes where the surface and volume meshes share the same
 boundary coordinates. This is done in a single export call using the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>
 parameter:</p>
+<!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -452,13 +453,23 @@ parameter:</p>
     <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="c1"># Alternatively, use material tag names instead of volume IDs:</span>
+<span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steel&quot;</span><span class="p">],</span>  <span class="c1"># selects all volumes with &quot;steel&quot; material</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter specifies which volumes should have a tetrahedral
-volume mesh created. By exporting both meshes in a single call, the surface triangles
-of the DAGMC geometry will exactly match the boundary faces of the volume mesh.</p>
+volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+tags are resolved to all volumes that have that tag. By exporting both meshes in a
+single call, the surface triangles of the DAGMC geometry will exactly match the
+boundary faces of the volume mesh.</p>
 </div>
 </section>
 <section id="using-in-openmc">
