@@ -9,7 +9,6 @@ import tempfile
 import warnings
 from typing import Iterable
 from cad_to_dagmc import __version__
-import cadquery_direct_mesh_plugin
 
 
 class PyMoabNotFoundError(ImportError):
@@ -1720,7 +1719,7 @@ class CadToDagmc:
 
         # Use the CadQuery direct mesh plugin
         if meshing_backend == "cadquery":
-
+            import cadquery_direct_mesh_plugin
             # Mesh the assembly using CadQuery's direct-mesh plugin
             cq_mesh = assembly.toMesh(
                 imprint=imprint,
