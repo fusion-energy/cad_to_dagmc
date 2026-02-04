@@ -8,7 +8,7 @@ cad_to_dagmc can be installed using pip or Conda/Mamba.
 ```bash
 pip install cad_to_dagmc
 ```
-
+<!-- 
 ## Install using Mamba
 
 Mamba is faster than Conda and recommended for installing this package.
@@ -38,7 +38,7 @@ conda activate cad_to_dagmc_env
 # Install cad_to_dagmc
 conda install -y -c conda-forge cad_to_dagmc
 ```
-
+ -->
 
 :::{note}
 The pip installation uses the **h5py backend** by default, which does not require MOAB/pymoab.

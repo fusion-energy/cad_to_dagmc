@@ -59,7 +59,10 @@ html_theme_options = {
     "repository_url": "https://github.com/fusion-energy/cad_to_dagmc",
     "use_repository_button": True,
     "show_toc_level": 2,
-    "show_navbar_depth": 2,
+    "show_navbar_depth": 3,
+    "navigation_depth": 3,
+    "collapse_navigation": False,
+    "navigation_with_keys": True,
 }
 
 # Hide "Created using Sphinx" in footer
