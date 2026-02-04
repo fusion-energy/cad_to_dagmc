@@ -103,12 +103,22 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     umesh_filename="umesh.vtk",
     meshing_backend="gmsh",
 )
+
+# Alternatively, use material tag names instead of volume IDs:
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    unstructured_volumes=["steel"],  # selects all volumes with "steel" material
+    umesh_filename="umesh.vtk",
+    meshing_backend="gmsh",
+)
 ```
 
 :::{note}
 The `unstructured_volumes` parameter specifies which volumes should have a tetrahedral
-volume mesh created. By exporting both meshes in a single call, the surface triangles
-of the DAGMC geometry will exactly match the boundary faces of the volume mesh.
+volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+tags are resolved to all volumes that have that tag. By exporting both meshes in a
+single call, the surface triangles of the DAGMC geometry will exactly match the
+boundary faces of the volume mesh.
 :::
 
 ## Using in OpenMC

@@ -931,6 +931,65 @@ def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
     return material_tags_in_brep_order
 
 
+def resolve_unstructured_volumes(
+    unstructured_volumes: Iterable[int | str],
+    volumes: list[tuple[int, int]],
+    material_tags: list[str],
+) -> list[int]:
+    """Resolve a mixed list of volume IDs (int) and material tags (str) to volume IDs.
+
+    Args:
+        unstructured_volumes: An iterable containing volume IDs (int) or material tag
+            names (str). Material tags are resolved to all volume IDs that have that tag.
+        volumes: List of (dim, volume_id) tuples from GMSH, where the order corresponds
+            to the order of material_tags.
+        material_tags: List of material tags in the same order as volumes.
+
+    Returns:
+        A list of unique volume IDs (int) corresponding to the input.
+
+    Raises:
+        ValueError: If a material tag string is not found in material_tags.
+        TypeError: If an element is neither int nor str.
+    """
+    resolved_ids = []
+
+    # Build a mapping from material tag to volume IDs
+    # volumes is a list of (dim, volume_id), and material_tags has the same order
+    material_to_volume_ids: dict[str, list[int]] = {}
+    for (_, volume_id), material_tag in zip(volumes, material_tags):
+        if material_tag not in material_to_volume_ids:
+            material_to_volume_ids[material_tag] = []
+        material_to_volume_ids[material_tag].append(volume_id)
+
+    for item in unstructured_volumes:
+        if isinstance(item, int):
+            resolved_ids.append(item)
+        elif isinstance(item, str):
+            if item not in material_to_volume_ids:
+                available_tags = sorted(set(material_tags))
+                raise ValueError(
+                    f"Material tag '{item}' not found. "
+                    f"Available material tags are: {available_tags}"
+                )
+            resolved_ids.extend(material_to_volume_ids[item])
+        else:
+            raise TypeError(
+                f"unstructured_volumes must contain int (volume ID) or str (material tag), "
+                f"got {type(item).__name__}"
+            )
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_ids = []
+    for vol_id in resolved_ids:
+        if vol_id not in seen:
+            seen.add(vol_id)
+            unique_ids.append(vol_id)
+
+    return unique_ids
+
+
 def export_gmsh_object_to_dagmc_h5m_file(
     material_tags: list[str] | None = None,
     implicit_complement_material_tag: str | None = None,
@@ -1406,7 +1465,9 @@ class CadToDagmc:
                 - mesh_algorithm (int): GMSH mesh algorithm (default: 1)
                 - method (str): import method 'file' or 'in memory' (default: 'file')
                 - set_size (dict[int, float]): volume ids and target mesh sizes
-                - unstructured_volumes (Iterable[int]): volume ids for unstructured mesh
+                - unstructured_volumes (Iterable[int | str]): volume IDs (int) or material
+                  tag names (str) for unstructured mesh. Material tags are resolved to
+                  all volume IDs that have that tag. Can mix ints and strings.
                 - umesh_filename (str): filename for unstructured mesh (default: 'umesh.vtk')
 
                 For CadQuery backend:
@@ -1641,6 +1702,10 @@ class CadToDagmc:
         )
 
         if unstructured_volumes:
+            # Resolve any material tag strings to volume IDs
+            unstructured_volumes = resolve_unstructured_volumes(
+                unstructured_volumes, volumes, material_tags_in_brep_order
+            )
             # remove all the unused occ volumes, this prevents them being meshed
             for volume_dim, volume_id in volumes:
                 if volume_id not in unstructured_volumes:
