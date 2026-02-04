@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Material Tagging &#8212; cad_to_dagmc 0.11.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=116144d8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=37fc6485"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'material_tagging';</script>
+    <link rel="icon" href="_static/logo.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Output Formats" href="outputs.html" />
+    <link rel="prev" title="Input Sources" href="inputs.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.11.0 documentation - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="cad_to_dagmc 0.11.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Sources</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Material Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing_backends.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/fusion-energy/cad_to_dagmc" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/material_tagging.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Material Tagging</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-material-tags">Manual Material Tags</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-names">Using Assembly Names</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-materials-cadquery-2-6-1">Using Assembly Materials (CadQuery &gt; 2.6.1)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gmsh-physical-groups">GMSH Physical Groups</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#material-tag-format-in-h5m-files">Material Tag Format in H5M Files</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="material-tagging">
+<h1>Material Tagging<a class="headerlink" href="#material-tagging" title="Link to this heading">#</a></h1>
+<p>Material tags identify each volume in the DAGMC geometry. There are several ways to assign them.</p>
+<section id="manual-material-tags">
+<h2>Manual Material Tags<a class="headerlink" href="#manual-material-tags" title="Link to this heading">#</a></h2>
+<p>The most explicit method - provide a list of material names matching the order of volumes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
+    <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">,</span> <span class="s2">&quot;steel&quot;</span><span class="p">]</span>  <span class="c1"># Order matters!</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The first material tag is assigned to the first volume, second to second, etc.</p>
+</section>
+<section id="using-assembly-names">
+<h2>Using Assembly Names<a class="headerlink" href="#using-assembly-names" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter from CadQuery assemblies as material tags.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>  <span class="c1"># Name becomes material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;steel&quot;</span><span class="p">)</span>        <span class="c1"># Name becomes material tag</span>
+
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
+    <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span>  <span class="c1"># Use names as tags</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Parts without names will get auto-generated UUIDs as material tags.</p>
+</div>
+</section>
+<section id="using-assembly-materials-cadquery-2-6-1">
+<h2>Using Assembly Materials (CadQuery &gt; 2.6.1)<a class="headerlink" href="#using-assembly-materials-cadquery-2-6-1" title="Link to this heading">#</a></h2>
+<p>CadQuery 2.6.1+ supports <code class="docutils literal notranslate"><span class="pre">cq.Material</span></code> objects. Use these as material tags.</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;steel&quot;</span><span class="p">))</span>
+
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">my_model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
+    <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span>  <span class="c1"># Use Material objects as tags</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature requires CadQuery &gt; 2.6.1. All parts must have materials assigned,
+or a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> will be raised.</p>
+</div>
+</section>
+<section id="gmsh-physical-groups">
+<h2>GMSH Physical Groups<a class="headerlink" href="#gmsh-physical-groups" title="Link to this heading">#</a></h2>
+<p>When importing from GMSH files, physical group names become material tags.</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+
+<span class="c1"># Physical groups in the .msh file become material tags</span>
+<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;mesh_with_physical_groups.msh&quot;</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also override physical groups with manual tags:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;mesh.msh&quot;</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">]</span>  <span class="c1"># Override physical groups</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="material-tag-format-in-h5m-files">
+<h2>Material Tag Format in H5M Files<a class="headerlink" href="#material-tag-format-in-h5m-files" title="Link to this heading">#</a></h2>
+<p>Material tags are stored in the h5m file with a <code class="docutils literal notranslate"><span class="pre">mat:</span></code> prefix:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;tungsten&quot;</span></code> becomes <code class="docutils literal notranslate"><span class="pre">&quot;mat:tungsten&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;steel&quot;</span></code> becomes <code class="docutils literal notranslate"><span class="pre">&quot;mat:steel&quot;</span></code></p></li>
+</ul>
+<p>When using the geometry in OpenMC, reference materials without the prefix:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
+
+<span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>
+<span class="c1"># ... define material properties</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="inputs.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Input Sources</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="outputs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Output Formats</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-material-tags">Manual Material Tags</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-names">Using Assembly Names</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-materials-cadquery-2-6-1">Using Assembly Materials (CadQuery &gt; 2.6.1)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gmsh-physical-groups">GMSH Physical Groups</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#material-tag-format-in-h5m-files">Material Tag Format in H5M Files</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Fusion Energy
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fusion Energy.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,871 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Python API Reference &#8212; cad_to_dagmc 0.11.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=116144d8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=37fc6485"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
+    <link rel="icon" href="_static/logo.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Advanced Options" href="advanced.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.11.0 documentation - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="cad_to_dagmc 0.11.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging.html">Material Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing_backends.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Options</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Python API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/fusion-energy/cad_to_dagmc" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/api.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Python API Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-class">Main Class</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc"><code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_stp_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_stp_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_cadquery_object"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_cadquery_object()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_unstructured_mesh_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_gmsh_mesh_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_dagmc_h5m_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#standalone-functions">Standalone Functions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gmsh-to-dagmc-conversion">GMSH to DAGMC Conversion</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">export_gmsh_file_to_dagmc_h5m_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#low-level-functions">Low-Level Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.vertices_to_h5m"><code class="docutils literal notranslate"><span class="pre">vertices_to_h5m()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.init_gmsh"><code class="docutils literal notranslate"><span class="pre">init_gmsh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.get_volumes"><code class="docutils literal notranslate"><span class="pre">get_volumes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.set_sizes_for_mesh"><code class="docutils literal notranslate"><span class="pre">set_sizes_for_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.mesh_to_vertices_and_triangles"><code class="docutils literal notranslate"><span class="pre">mesh_to_vertices_and_triangles()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.PyMoabNotFoundError"><code class="docutils literal notranslate"><span class="pre">PyMoabNotFoundError</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="python-api-reference">
+<h1>Python API Reference<a class="headerlink" href="#python-api-reference" title="Link to this heading">#</a></h1>
+<section id="main-class">
+<h2>Main Class<a class="headerlink" href="#main-class" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">CadToDagmc</span></span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Converts Step files and CadQuery parts to a DAGMC h5m file</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.add_stp_file">
+<span class="sig-name descname"><span class="pre">add_stp_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.add_stp_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.add_stp_file" title="Link to this definition">#</a></dt>
+<dd><p>Loads the parts from stp file into the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – the filename used to save the html graph.</p></li>
+<li><p><strong>material_tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – the names of the DAGMC
+material tags to assign. These will need to be in the
+same order as the volumes in the geometry added (STP
+file and CadQuery objects) and match the material tags
+used in the neutronics code (e.g. OpenMC).</p></li>
+<li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry that can be
+used to increase the size or decrease the size of the geometry.
+Useful when converting the geometry to cm for use in neutronics
+simulations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>number of volumes in the stp file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.add_cadquery_object">
+<span class="sig-name descname"><span class="pre">add_cadquery_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cadquery_object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.add_cadquery_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.add_cadquery_object" title="Link to this definition">#</a></dt>
+<dd><p>Loads the parts from CadQuery object into the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cadquery_object</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://cadquery.readthedocs.io/en/latest/classreference.html#cadquery.Assembly" title="(in CadQuery v2.7.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Assembly</span></code></a> | <a class="reference external" href="https://cadquery.readthedocs.io/en/latest/classreference.html#cadquery.occ_impl.shapes.Compound" title="(in CadQuery v2.7.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compound</span></code></a> | <a class="reference external" href="https://cadquery.readthedocs.io/en/latest/classreference.html#cadquery.occ_impl.shapes.Solid" title="(in CadQuery v2.7.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a></span>) – the cadquery object to convert, can be a CadQuery assembly
+cadquery workplane or a cadquery solid</p></li>
+<li><p><strong>material_tags</strong> (<em>Optional list</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – the names of the
+DAGMC material tags to assign. These will need to be in the
+same order as the volumes in the geometry added (STP file and
+CadQuery objects) and match the material tags used in the
+neutronics code (e.g. OpenMC).</p></li>
+<li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry that can be
+used to increase the size or decrease the size of the geometry.
+Useful when converting the geometry to cm for use in neutronics
+simulations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>number of volumes in the stp file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file">
+<span class="sig-name descname"><span class="pre">export_unstructured_mesh_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umesh.vtk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.export_unstructured_mesh_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file" title="Link to this definition">#</a></dt>
+<dd><p>Exports an unstructured mesh file in VTK format for use with
+openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
+library. Example useage openmc.UnstructuredMesh(filename=”umesh.vtk”,
+library=”moab”).</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>filename<span class="classifier">str, optional</span></dt><dd><p>The name of the output file. Default is “umesh.vtk”.</p>
+</dd>
+<dt>min_mesh_size: the minimum mesh element size to use in Gmsh. Passed</dt><dd><p>into gmsh.option.setNumber(“Mesh.MeshSizeMin”, min_mesh_size)</p>
+</dd>
+<dt>max_mesh_size: the maximum mesh element size to use in Gmsh. Passed</dt><dd><p>into gmsh.option.setNumber(“Mesh.MeshSizeMax”, max_mesh_size)</p>
+</dd>
+<dt>mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into</dt><dd><p>gmsh.option.setNumber(“Mesh.Algorithm”, mesh_algorithm)</p>
+</dd>
+<dt>method: the method to use to import the geometry into gmsh. Options</dt><dd><p>are ‘file’ or ‘in memory’. ‘file’ is the default and will write
+the geometry to a temporary file before importing it into gmsh.
+‘in memory’ will import the geometry directly into gmsh but
+requires the version of OpenCASCADE used to build gmsh to be
+the same as the version used by CadQuery. This is possible to
+ensure when installing the package with Conda but harder when
+installing from PyPI.</p>
+</dd>
+<dt>scale_factor: a scaling factor to apply to the geometry that can be</dt><dd><p>used to enlarge or shrink the geometry. Useful when converting
+Useful when converting the geometry to cm for use in neutronics</p>
+</dd>
+<dt>imprint: whether to imprint the geometry or not. Defaults to True as this is</dt><dd><p>normally needed to ensure the geometry is meshed correctly. However if
+you know your geometry does not need imprinting you can set this to False
+and this can save time.</p>
+</dd>
+<dt>set_size: a dictionary of volume ids (int) and target mesh sizes</dt><dd><p>(floats) to set for each volume, passed to gmsh.model.mesh.setSize.</p>
+</dd>
+<dt>volumes: a list of volume ids (int) to include in the mesh. If left</dt><dd><p>as default (None) then all volumes will be included.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>:</dt><dd><dl class="simple">
+<dt>gmsh<span class="classifier">gmsh</span></dt><dd><p>The gmsh object after finalizing the mesh.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>min_mesh_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>max_mesh_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>mesh_algorithm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>scale_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>imprint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>set_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>volumes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file">
+<span class="sig-name descname"><span class="pre">export_gmsh_mesh_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mesh.msh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.export_gmsh_mesh_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves a GMesh msh file of the geometry in either 2D surface mesh or
+3D volume mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
+<li><p><strong>min_mesh_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the minimum size of mesh elements to use.</p></li>
+<li><p><strong>max_mesh_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the maximum size of mesh elements to use.</p></li>
+<li><p><strong>mesh_algorithm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – the gmsh mesh algorithm to use.</p></li>
+<li><p><strong>dimensions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The number of dimensions, 2 for a surface mesh 3 for a
+volume mesh. Passed to gmsh.model.mesh.generate()</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – the method to use to import the geometry into gmsh. Options
+are ‘file’ or ‘in memory’. ‘file’ is the default and will write
+the geometry to a temporary file before importing it into gmsh.
+‘in memory’ will import the geometry directly into gmsh but
+requires the version of OpenCASCADE used to build gmsh to be
+the same as the version used by CadQuery. This is possible to
+ensure when installing the package with Conda but harder when
+installing from PyPI.</p></li>
+<li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry that can be
+used to enlarge or shrink the geometry. Useful when converting
+Useful when converting the geometry to cm for use in neutronics</p></li>
+<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – whether to imprint the geometry or not. Defaults to True as this is
+normally needed to ensure the geometry is meshed correctly. However if
+you know your geometry does not need imprinting you can set this to False
+and this can save time.</p></li>
+<li><p><strong>set_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – a dictionary of volume ids (int) and target mesh sizes
+(floats) to set for each volume, passed to gmsh.model.mesh.setSize.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file">
+<span class="sig-name descname"><span class="pre">export_dagmc_h5m_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dagmc.h5m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_complement_material_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.export_dagmc_h5m_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves a DAGMC h5m file of the geometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – the filename to use for the saved DAGMC file.</p></li>
+<li><p><strong>implicit_complement_material_tag</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the name of the material tag to use
+for the implicit complement (void space).</p></li>
+<li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry.</p></li>
+<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – whether to imprint the geometry or not.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Backend-specific parameters:</p>
+<p>Backend selection:
+- meshing_backend (str, optional): explicitly specify ‘gmsh’ or ‘cadquery’.</p>
+<blockquote>
+<div><p>If not provided, backend is auto-selected based on other arguments.
+Defaults to ‘cadquery’ if no backend-specific arguments are given.</p>
+</div></blockquote>
+<ul>
+<li><p>h5m_backend (str, optional): ‘pymoab’ or ‘h5py’ for writing h5m files.
+Defaults to ‘h5py’.</p></li>
+</ul>
+<p>For GMSH backend:
+- min_mesh_size (float): minimum mesh element size
+- max_mesh_size (float): maximum mesh element size
+- mesh_algorithm (int): GMSH mesh algorithm (default: 1)
+- method (str): import method ‘file’ or ‘in memory’ (default: ‘file’)
+- set_size (dict[int, float]): volume ids and target mesh sizes
+- unstructured_volumes (Iterable[int]): volume ids for unstructured mesh
+- umesh_filename (str): filename for unstructured mesh (default: ‘umesh.vtk’)</p>
+<p>For CadQuery backend:
+- tolerance (float): meshing tolerance (default: 0.1)
+- angular_tolerance (float): angular tolerance (default: 0.1)</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the filename(s) for the files created.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If invalid parameter combinations are used.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="standalone-functions">
+<h2>Standalone Functions<a class="headerlink" href="#standalone-functions" title="Link to this heading">#</a></h2>
+<section id="gmsh-to-dagmc-conversion">
+<h3>GMSH to DAGMC Conversion<a class="headerlink" href="#gmsh-to-dagmc-conversion" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">export_gmsh_file_to_dagmc_h5m_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gmsh_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_complement_material_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dagmc_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dagmc.h5m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5m_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'h5py'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#export_gmsh_file_to_dagmc_h5m_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves a DAGMC h5m file of the geometry GMsh file. This function
+initializes and finalizes Gmsh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gmsh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – the filename of the GMSH mesh file.</p></li>
+<li><p><strong>material_tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – the names of the DAGMC
+material tags to assign. These will need to be in the same
+order as the volumes in the GMESH mesh and match the
+material tags used in the neutronics code (e.g. OpenMC).</p></li>
+<li><p><strong>implicit_complement_material_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – the name of the material tag to use for the implicit
+complement (void space). Defaults to None which is a vacuum.</p></li>
+<li><p><strong>dagmc_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Output filename. Defaults to “dagmc.h5m”.</p></li>
+<li><p><strong>h5m_backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Backend for writing h5m file, ‘pymoab’ or ‘h5py’.
+Defaults to ‘h5py’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The filename of the generated DAGMC h5m file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the number of material tags does not match the number of volumes in the GMSH object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">export_gmsh_object_to_dagmc_h5m_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_complement_material_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dagmc.h5m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5m_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'h5py'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#export_gmsh_object_to_dagmc_h5m_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file" title="Link to this definition">#</a></dt>
+<dd><p>Exports a GMSH object to a DAGMC-compatible h5m file. Note gmsh should
+be initialized by the user prior and the gmsh model should be meshed before
+calling this. Also users should ensure that the gmsh model is finalized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_tags</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – A list of material tags corresponding to the volumes in the GMSH object.</p></li>
+<li><p><strong>implicit_complement_material_tag</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The material tag for the implicit complement (void space).</p></li>
+<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – The name of the output h5m file. Defaults to “dagmc.h5m”.</p></li>
+<li><p><strong>h5m_backend</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Backend for writing h5m file, ‘pymoab’ or ‘h5py’. Defaults to ‘h5py’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The filename of the generated DAGMC h5m file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the number of material tags does not match the number of volumes in the GMSH object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="low-level-functions">
+<h3>Low-Level Functions<a class="headerlink" href="#low-level-functions" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.vertices_to_h5m">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">vertices_to_h5m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triangles_by_solid_by_face</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5m_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dagmc.h5m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_complement_material_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'h5py'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#vertices_to_h5m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.vertices_to_h5m" title="Link to this definition">#</a></dt>
+<dd><p>Converts vertices and triangle sets into a tagged h5m file compatible
+with DAGMC enabled neutronics simulations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertices</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]] | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[cadquery.occ_impl.geom.Vector]</span>) – List of vertex coordinates as (x, y, z) tuples or CadQuery vectors</p></li>
+<li><p><strong>triangles_by_solid_by_face</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]]]</span>) – Dict mapping solid_id -&gt; face_id -&gt; list of triangles</p></li>
+<li><p><strong>material_tags</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – List of material tag names, one per solid</p></li>
+<li><p><strong>h5m_filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Output filename for the h5m file</p></li>
+<li><p><strong>implicit_complement_material_tag</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional material tag for implicit complement</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Backend to use for writing h5m file (‘pymoab’ or ‘h5py’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.init_gmsh">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">init_gmsh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#init_gmsh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.init_gmsh" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.get_volumes">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">get_volumes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gmsh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assembly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#get_volumes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.get_volumes" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.set_sizes_for_mesh">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">set_sizes_for_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gmsh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#set_sizes_for_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.set_sizes_for_mesh" title="Link to this definition">#</a></dt>
+<dd><p>Sets up the mesh sizes for each volume in the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>occ_shape</strong> – the occ_shape of the Brep file to convert</p></li>
+<li><p><strong>min_mesh_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the minimum mesh element size to use in Gmsh. Passed
+into gmsh.option.setNumber(“Mesh.MeshSizeMin”, min_mesh_size)</p></li>
+<li><p><strong>max_mesh_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the maximum mesh element size to use in Gmsh. Passed
+into gmsh.option.setNumber(“Mesh.MeshSizeMax”, max_mesh_size)</p></li>
+<li><p><strong>mesh_algorithm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The Gmsh mesh algorithm number to use. Passed into
+gmsh.option.setNumber(“Mesh.Algorithm”, mesh_algorithm)</p></li>
+<li><p><strong>set_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – a dictionary of volume ids (int) and target mesh sizes
+(floats) to set for each volume, passed to gmsh.model.mesh.setSize.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resulting gmsh object and volumes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cad_to_dagmc.mesh_to_vertices_and_triangles">
+<span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">mesh_to_vertices_and_triangles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims_and_vol_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#mesh_to_vertices_and_triangles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.mesh_to_vertices_and_triangles" title="Link to this definition">#</a></dt>
+<dd><p>Converts gmsh volumes into vertices and triangles for each face.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>volumes</strong> – the volumes in the gmsh file, found with gmsh.model.occ.importShapes</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>vertices and triangles (grouped by solid then by face)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">#</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="cad_to_dagmc.PyMoabNotFoundError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">PyMoabNotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#PyMoabNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.PyMoabNotFoundError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImportError</span></code></a></p>
+<p>Raised when pymoab is not installed but the pymoab backend is requested.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="advanced.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Advanced Options</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-class">Main Class</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc"><code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_stp_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_stp_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_cadquery_object"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_cadquery_object()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_unstructured_mesh_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_gmsh_mesh_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_dagmc_h5m_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#standalone-functions">Standalone Functions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gmsh-to-dagmc-conversion">GMSH to DAGMC Conversion</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">export_gmsh_file_to_dagmc_h5m_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#low-level-functions">Low-Level Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.vertices_to_h5m"><code class="docutils literal notranslate"><span class="pre">vertices_to_h5m()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.init_gmsh"><code class="docutils literal notranslate"><span class="pre">init_gmsh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.get_volumes"><code class="docutils literal notranslate"><span class="pre">get_volumes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.set_sizes_for_mesh"><code class="docutils literal notranslate"><span class="pre">set_sizes_for_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.mesh_to_vertices_and_triangles"><code class="docutils literal notranslate"><span class="pre">mesh_to_vertices_and_triangles()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.PyMoabNotFoundError"><code class="docutils literal notranslate"><span class="pre">PyMoabNotFoundError</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Fusion Energy
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fusion Energy.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
