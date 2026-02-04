@@ -24,10 +24,12 @@ my_model.export_dagmc_h5m_file(
 
 ## Per-Volume Mesh Sizing
 
-Set different mesh sizes for different volumes using `set_size`.
+Set different mesh sizes for different volumes using `set_size`. You can specify
+volumes by ID (int) or by material tag name (str).
 
 <!--pytest-codeblocks:skip-->
 ```python
+# Using volume IDs
 my_model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     min_mesh_size=1.0,
@@ -38,10 +40,33 @@ my_model.export_dagmc_h5m_file(
         3: 1.0,   # Volume 3: medium mesh (1.0)
     }
 )
+
+# Using material tag names
+my_model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    min_mesh_size=1.0,
+    max_mesh_size=10.0,
+    set_size={
+        "fuel": 0.5,      # All fuel volumes: fine mesh
+        "coolant": 5.0,   # All coolant volumes: coarse mesh
+    }
+)
+
+# Mixing volume IDs and material tags
+my_model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    min_mesh_size=1.0,
+    max_mesh_size=10.0,
+    set_size={
+        1: 0.5,           # Volume 1 specifically
+        "coolant": 5.0,   # All coolant volumes
+    }
+)
 ```
 
 :::{note}
-`set_size` only works with the GMSH meshing backend.
+`set_size` only works with the GMSH meshing backend. When using material tags,
+the size is applied to all volumes with that tag.
 :::
 
 ## Mesh Algorithms
