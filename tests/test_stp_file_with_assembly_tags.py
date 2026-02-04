@@ -51,9 +51,8 @@ def test_stp_file_with_assembly_names():
         assert "mat:steel" in mat_values
 
 
-@pytest.mark.skipif(
-    not CQ_STEP_MATERIALS_AVAILABLE,
-    reason="Reading materials from STEP files requires CadQuery > 2.6.2",
+@pytest.mark.skip(
+    reason="Reading materials from STEP files not yet supported - awaiting CadQuery release",
 )
 def test_stp_file_with_assembly_materials():
     """Test that STEP files can use assembly_materials to get material tags."""
