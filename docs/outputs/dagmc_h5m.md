@@ -25,6 +25,7 @@ model.export_dagmc_h5m_file(
 
 Choose between h5py (default) and pymoab backends:
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc

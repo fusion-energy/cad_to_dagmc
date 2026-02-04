@@ -166,6 +166,7 @@ Common scale factors:
 
 ### `add_stp_file()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 model.add_stp_file(
     filename,             # Path to the STEP file
@@ -187,6 +188,7 @@ model.add_stp_file(
 :::{tip}
 **Counting volumes**: If you don't know how many volumes are in a STEP file, load it in CadQuery first:
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 

@@ -43,6 +43,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 Specify which volumes should have a volume mesh:
 
+<!--pytest-codeblocks:skip-->
 ```python
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
@@ -82,6 +83,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 ## Complete Example with OpenMC
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
@@ -178,6 +180,7 @@ This guarantees:
 
 When `unstructured_volumes` is specified, `export_dagmc_h5m_file()` returns a tuple:
 
+<!--pytest-codeblocks:skip-->
 ```python
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
@@ -188,6 +191,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 Without `unstructured_volumes`, it returns just the filename:
 
+<!--pytest-codeblocks:skip-->
 ```python
 dagmc_filename = model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```

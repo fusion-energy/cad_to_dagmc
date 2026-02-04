@@ -50,16 +50,22 @@ model.export_dagmc_h5m_file(
 pymoab/MOAB must be installed separately (not available on PyPI):
 
 **Option 1: Conda (easiest)**
+
+<!--pytest-codeblocks:skip-->
 ```bash
 conda install -c conda-forge moab
 ```
 
 **Option 2: Extra index**
+
+<!--pytest-codeblocks:skip-->
 ```bash
 pip install --extra-index-url https://shimwell.github.io/wheels moab
 ```
 
 **Option 3: From source**
+
+<!--pytest-codeblocks:skip-->
 ```bash
 pip install git+https://bitbucket.org/fathomteam/moab/
 ```
@@ -68,6 +74,7 @@ pip install git+https://bitbucket.org/fathomteam/moab/
 
 If you request pymoab but it's not installed:
 
+<!--pytest-codeblocks:skip-->
 ```python
 >>> model.export_dagmc_h5m_file(h5m_backend="pymoab")
 PyMoabNotFoundError: pymoab is not installed. pymoab/MOAB is not available
@@ -84,6 +91,7 @@ Alternatively, use the h5py backend (the default) which does not require pymoab:
 
 ## Comparing Backends
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc

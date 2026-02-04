@@ -98,6 +98,7 @@ Always name your assembly parts to ensure meaningful, predictable material tags.
 
 Recommended naming practices:
 
+<!--pytest-codeblocks:skip-->
 ```python
 # Good names - descriptive, match OpenMC materials
 assembly.add(inner_wall, name="tungsten")

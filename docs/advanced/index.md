@@ -16,6 +16,7 @@ This section covers advanced configuration options for fine-tuning your CAD to D
 
 ### Common Options
 
+<!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",

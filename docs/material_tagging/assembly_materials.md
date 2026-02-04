@@ -39,6 +39,7 @@ This creates volumes tagged with `mat:tungsten` and `mat:steel`.
 
 ## Example: Names vs Materials
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
@@ -100,6 +101,7 @@ model.add_cadquery_object(assembly, material_tags="assembly_materials")
 
 **All parts need materials**: Every part must have a material assigned, or you'll get an error:
 
+<!--pytest-codeblocks:skip-->
 ```python
 assembly.add(sphere, name="sphere")  # No material!
 model.add_cadquery_object(assembly, material_tags="assembly_materials")

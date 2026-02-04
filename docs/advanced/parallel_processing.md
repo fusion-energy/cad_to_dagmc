@@ -40,6 +40,7 @@ from cad_to_dagmc import CadToDagmc
 
 ### Alternative: Environment Variable
 
+<!--pytest-codeblocks:skip-->
 ```bash
 export OMP_NUM_THREADS=4
 python my_script.py

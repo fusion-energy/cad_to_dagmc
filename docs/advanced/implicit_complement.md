@@ -16,21 +16,16 @@ In DAGMC, the implicit complement is the region of space not occupied by any exp
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-# Create some spheres (with void space between them)
-result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
-result2 = cq.Workplane("XY").moveTo(10, 0).box(10.0, 10.0, 5.0)
-sphere = cq.Workplane().moveTo(100, 0).sphere(5)
+# Create some boxes (with void space between them)
+box1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
+box2 = cq.Workplane("XY").moveTo(20, 0).box(10.0, 10.0, 5.0)
 
 assembly = cq.Assembly()
-assembly.add(result1)
-assembly.add(result2)
-
-sphere_assembly = cq.Assembly()
-sphere_assembly.add(sphere)
+assembly.add(box1)
+assembly.add(box2)
 
 model = CadToDagmc()
-model.add_stp_file(filename="cubes.stp", material_tags=["mat1", "mat2"])
-model.add_stp_file(filename="sphere.stp", material_tags=["mat3"])
+model.add_cadquery_object(assembly, material_tags=["mat1", "mat2"])
 
 model.export_dagmc_h5m_file(
     max_mesh_size=1,

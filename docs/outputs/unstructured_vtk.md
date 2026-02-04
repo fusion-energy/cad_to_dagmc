@@ -113,6 +113,7 @@ model.export_unstructured_mesh_file(
 
 ### `export_unstructured_mesh_file()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 model.export_unstructured_mesh_file(
     filename="umesh.vtk",     # Output file path

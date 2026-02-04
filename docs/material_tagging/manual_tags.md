@@ -111,6 +111,7 @@ model.export_dagmc_h5m_file()
 
 If you're unsure how many volumes are in your geometry:
 
+<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 
@@ -159,6 +160,7 @@ model.export_dagmc_h5m_file(
 :::{warning}
 The number of material tags must exactly match the number of volumes:
 
+<!--pytest-codeblocks:skip-->
 ```python
 # This will raise an error - 2 volumes but only 1 tag
 model.add_cadquery_object(assembly, material_tags=["mat1"])

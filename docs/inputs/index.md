@@ -17,6 +17,7 @@ All input methods follow the same pattern:
 2. Add geometry using `add_cadquery_object()` or `add_stp_file()`
 3. Export to desired format
 
+<!--pytest-codeblocks:skip-->
 ```python
 from cad_to_dagmc import CadToDagmc
 
@@ -27,6 +28,7 @@ model.export_dagmc_h5m_file(filename="dagmc.h5m")
 
 For GMSH files, use the standalone function:
 
+<!--pytest-codeblocks:skip-->
 ```python
 from cad_to_dagmc import export_gmsh_file_to_dagmc_h5m_file
 

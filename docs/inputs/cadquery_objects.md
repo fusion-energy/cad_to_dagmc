@@ -96,6 +96,7 @@ See [CadQuery Assemblies](cadquery_assemblies.md) for more assembly features inc
 
 ### `add_cadquery_object()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 model.add_cadquery_object(
     cadquery_object,      # CadQuery Solid, Compound, or Assembly

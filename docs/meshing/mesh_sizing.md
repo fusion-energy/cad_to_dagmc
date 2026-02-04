@@ -164,6 +164,7 @@ model.export_gmsh_mesh_file(
 :::{tip}
 **Checking tags**: After adding geometry, check `model.material_tags` to see available tag names:
 
+<!--pytest-codeblocks:skip-->
 ```python
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_names")

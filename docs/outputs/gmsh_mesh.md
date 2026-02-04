@@ -65,6 +65,7 @@ model.export_gmsh_mesh_file(
 
 ### `export_gmsh_mesh_file()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 model.export_gmsh_mesh_file(
     filename="mesh.msh",      # Output file path

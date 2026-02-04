@@ -152,6 +152,7 @@ model.run()
 
 ### `export_gmsh_file_to_dagmc_h5m_file()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
     gmsh_filename,                        # Path to GMSH .msh file
@@ -164,6 +165,7 @@ cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
 
 ### `export_gmsh_object_to_dagmc_h5m_file()`
 
+<!--pytest-codeblocks:skip-->
 ```python
 cad_to_dagmc.export_gmsh_object_to_dagmc_h5m_file(
     filename="dagmc.h5m",                 # Output DAGMC file

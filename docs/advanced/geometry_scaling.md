@@ -122,6 +122,8 @@ Mesh size parameters (`min_mesh_size`, `max_mesh_size`, `set_size`) are applied 
 :::
 
 Example:
+
+<!--pytest-codeblocks:skip-->
 ```python
 # Geometry is 100mm sphere, scaling to cm
 # Want 0.5 cm mesh size (not 5 mm)
