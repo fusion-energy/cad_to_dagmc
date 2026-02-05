@@ -11,6 +11,13 @@ try:
 except ImportError:
     PYMOAB_AVAILABLE = False
 
+# Check if cadquery_direct_mesh_plugin is available
+try:
+    import cadquery_direct_mesh_plugin
+    CADQUERY_DIRECT_MESHER_AVAILABLE = True
+except ImportError:
+    CADQUERY_DIRECT_MESHER_AVAILABLE = False
+
 
 def pytest_addoption(parser):
     """Add command-line option for h5m backend."""
@@ -29,15 +36,21 @@ def h5m_backend(request):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Skip pymoab tests if pymoab is not installed."""
-    if PYMOAB_AVAILABLE:
-        return  # pymoab is available, no need to skip
-
+    """Skip tests if required dependencies are not installed."""
     skip_pymoab = pytest.mark.skip(reason="pymoab not installed")
+    skip_cadquery_mesher = pytest.mark.skip(reason="cadquery_direct_mesh_plugin not installed")
+
     for item in items:
-        # Check if the test is parametrized with pymoab backend
-        # This handles both 'method' and 'h5m_backend' parameter names
+        # Check if the test is parametrized
         if hasattr(item, "callspec") and item.callspec.params:
             params = item.callspec.params
-            if params.get("method") == "pymoab" or params.get("h5m_backend") == "pymoab":
-                item.add_marker(skip_pymoab)
+
+            # Skip pymoab backend tests if pymoab is not installed
+            if not PYMOAB_AVAILABLE:
+                if params.get("method") == "pymoab" or params.get("h5m_backend") == "pymoab":
+                    item.add_marker(skip_pymoab)
+
+            # Skip cadquery meshing backend tests if cadquery_direct_mesh_plugin is not installed
+            if not CADQUERY_DIRECT_MESHER_AVAILABLE:
+                if params.get("meshing_backend") == "cadquery":
+                    item.add_marker(skip_cadquery_mesher)
