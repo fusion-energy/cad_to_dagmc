@@ -1337,7 +1337,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
-        set_size: dict[int, float] | None = None,
+        set_size: dict[int | str, float] | None = None,
         volumes: Iterable[int] | None = None,
     ):
         """
@@ -1458,7 +1458,7 @@ class CadToDagmc:
         method: str = "file",
         scale_factor: float = 1.0,
         imprint: bool = True,
-        set_size: dict[int, float] | None = None,
+        set_size: dict[int | str, float] | None = None,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
