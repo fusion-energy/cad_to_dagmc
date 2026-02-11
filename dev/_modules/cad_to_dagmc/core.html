@@ -1531,6 +1531,7 @@ document.write(`
     <span class="n">max_mesh_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mesh_algorithm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">original_set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets up the mesh sizes for each volume in the mesh.</span>
 
@@ -1573,6 +1574,26 @@ document.write(`
             <span class="k">if</span> <span class="n">volume_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_volumes</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;volume ID of </span><span class="si">{</span><span class="n">volume_id</span><span class="si">}</span><span class="s2"> set in set_sizes but not found in available volumes </span><span class="si">{</span><span class="n">volumes</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Warn if any set_size values fall outside the global min/max range</span>
+        <span class="c1"># Use original_set_size keys (which may be material tag strings) for</span>
+        <span class="c1"># user-friendly warnings, falling back to resolved volume IDs</span>
+        <span class="n">warn_items</span> <span class="o">=</span> <span class="n">original_set_size</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">original_set_size</span> <span class="k">else</span> <span class="n">set_size</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">warn_items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">min_mesh_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="n">min_mesh_size</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;set_size for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> which is below &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;min_mesh_size of </span><span class="si">{</span><span class="n">min_mesh_size</span><span class="si">}</span><span class="s2">. The mesh size will be &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;clamped to </span><span class="si">{</span><span class="n">min_mesh_size</span><span class="si">}</span><span class="s2">. Try reducing min_mesh_size to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;encompass the set_size value.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">max_mesh_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">max_mesh_size</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;set_size for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> which is above &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;max_mesh_size of </span><span class="si">{</span><span class="n">max_mesh_size</span><span class="si">}</span><span class="s2">. The mesh size will be &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;clamped to </span><span class="si">{</span><span class="n">max_mesh_size</span><span class="si">}</span><span class="s2">. Try enlarging max_mesh_size to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;encompass the set_size value.&quot;</span>
                 <span class="p">)</span>
 
         <span class="c1"># Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes</span>
@@ -2217,6 +2238,7 @@ document.write(`
             <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
             <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
             <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+            <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">volumes</span><span class="p">:</span>
@@ -2321,6 +2343,7 @@ document.write(`
             <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
             <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
             <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+            <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
@@ -2597,6 +2620,7 @@ document.write(`
                 <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
                 <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
                 <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+                <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
