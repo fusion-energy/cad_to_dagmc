@@ -1,8 +1,10 @@
+import warnings
+
 import pytest
 import cadquery as cq
 
 from cad_to_dagmc import CadToDagmc
-from cad_to_dagmc.core import resolve_set_size
+from cad_to_dagmc.core import resolve_set_size, set_sizes_for_mesh, init_gmsh, get_volumes
 
 
 # Unit tests for resolve_set_size helper function
@@ -233,3 +235,96 @@ def test_set_size_material_tag_multiple_volumes(tmp_path):
     )
 
     assert h5m_file.is_file()
+
+
+def _make_gmsh_with_two_volumes():
+    """Helper to create a gmsh model with two volumes for warning tests."""
+    sphere1 = cq.Workplane("XY").sphere(5)
+    sphere2 = cq.Workplane("XY").center(15, 0).sphere(5)
+    assembly = cq.Assembly()
+    assembly.add(sphere1, name="sphere1")
+    assembly.add(sphere2, name="sphere2")
+    gmsh_obj = init_gmsh()
+    gmsh_obj, volumes = get_volumes(gmsh_obj, assembly)
+    return gmsh_obj, volumes
+
+
+def test_set_size_above_max_warns():
+    """Test that set_size above max_mesh_size produces a warning"""
+    gmsh_obj, volumes = _make_gmsh_with_two_volumes()
+    vol_id = volumes[0][1]
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            set_sizes_for_mesh(
+                gmsh=gmsh_obj,
+                min_mesh_size=1.0,
+                max_mesh_size=5.0,
+                set_size={vol_id: 10.0},
+            )
+            assert len(w) == 1
+            assert "above max_mesh_size" in str(w[0].message)
+            assert "clamped to 5.0" in str(w[0].message)
+            assert "Try enlarging max_mesh_size" in str(w[0].message)
+    finally:
+        gmsh_obj.finalize()
+
+
+def test_set_size_below_min_warns():
+    """Test that set_size below min_mesh_size produces a warning"""
+    gmsh_obj, volumes = _make_gmsh_with_two_volumes()
+    vol_id = volumes[0][1]
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            set_sizes_for_mesh(
+                gmsh=gmsh_obj,
+                min_mesh_size=5.0,
+                max_mesh_size=10.0,
+                set_size={vol_id: 1.0},
+            )
+            assert len(w) == 1
+            assert "below min_mesh_size" in str(w[0].message)
+            assert "clamped to 5.0" in str(w[0].message)
+            assert "Try reducing min_mesh_size" in str(w[0].message)
+    finally:
+        gmsh_obj.finalize()
+
+
+def test_set_size_within_range_no_warning():
+    """Test that set_size within min/max range produces no warning"""
+    gmsh_obj, volumes = _make_gmsh_with_two_volumes()
+    vol_id = volumes[0][1]
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            set_sizes_for_mesh(
+                gmsh=gmsh_obj,
+                min_mesh_size=1.0,
+                max_mesh_size=10.0,
+                set_size={vol_id: 5.0},
+            )
+            assert len(w) == 0
+    finally:
+        gmsh_obj.finalize()
+
+
+def test_set_size_warning_uses_original_material_tag_key():
+    """Test that warning uses original material tag string when provided"""
+    gmsh_obj, volumes = _make_gmsh_with_two_volumes()
+    vol_id = volumes[0][1]
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            set_sizes_for_mesh(
+                gmsh=gmsh_obj,
+                min_mesh_size=1.0,
+                max_mesh_size=5.0,
+                set_size={vol_id: 10.0},
+                original_set_size={"steel": 10.0},
+            )
+            assert len(w) == 1
+            assert "steel" in str(w[0].message)
+            assert "above max_mesh_size" in str(w[0].message)
+    finally:
+        gmsh_obj.finalize()

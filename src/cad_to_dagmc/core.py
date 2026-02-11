@@ -752,6 +752,7 @@ def set_sizes_for_mesh(
     max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
     set_size: dict[int, float] | None = None,
+    original_set_size: dict[int | str, float] | None = None,
 ):
     """Sets up the mesh sizes for each volume in the mesh.
 
@@ -794,6 +795,26 @@ def set_sizes_for_mesh(
             if volume_id not in available_volumes:
                 raise ValueError(
                     f"volume ID of {volume_id} set in set_sizes but not found in available volumes {volumes}"
+                )
+
+        # Warn if any set_size values fall outside the global min/max range
+        # Use original_set_size keys (which may be material tag strings) for
+        # user-friendly warnings, falling back to resolved volume IDs
+        warn_items = original_set_size.items() if original_set_size else set_size.items()
+        for key, size in warn_items:
+            if min_mesh_size is not None and size < min_mesh_size:
+                warnings.warn(
+                    f"set_size for {key} is {size} which is below "
+                    f"min_mesh_size of {min_mesh_size}. The mesh size will be "
+                    f"clamped to {min_mesh_size}. Try reducing min_mesh_size to "
+                    f"encompass the set_size value."
+                )
+            if max_mesh_size is not None and size > max_mesh_size:
+                warnings.warn(
+                    f"set_size for {key} is {size} which is above "
+                    f"max_mesh_size of {max_mesh_size}. The mesh size will be "
+                    f"clamped to {max_mesh_size}. Try enlarging max_mesh_size to "
+                    f"encompass the set_size value."
                 )
 
         # Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes
@@ -1418,6 +1439,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             set_size=resolved_set_size,
+            original_set_size=set_size,
         )
 
         if volumes:
@@ -1519,6 +1541,7 @@ class CadToDagmc:
             max_mesh_size=max_mesh_size,
             mesh_algorithm=mesh_algorithm,
             set_size=resolved_set_size,
+            original_set_size=set_size,
         )
 
         gmsh.model.mesh.generate(dimensions)
@@ -1792,6 +1815,7 @@ class CadToDagmc:
                 max_mesh_size=max_mesh_size,
                 mesh_algorithm=mesh_algorithm,
                 set_size=resolved_set_size,
+                original_set_size=set_size,
             )
 
             gmsh.model.mesh.generate(2)
