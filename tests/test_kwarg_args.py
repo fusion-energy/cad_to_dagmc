@@ -1,12 +1,9 @@
-import os
 import warnings
-from pathlib import Path
 
 import cadquery as cq
 import pytest
 
 from cad_to_dagmc import CadToDagmc
-from conftest import CADQUERY_DIRECT_MESHER_AVAILABLE
 
 
 class TestKwargsExportDagmcH5mFile:
@@ -20,7 +17,6 @@ class TestKwargsExportDagmcH5mFile:
         box = cq.Workplane("XY").box(10, 10, 10)
         self.my_model.add_cadquery_object(box, material_tags=["steel"])
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_with_tolerance_params(self, tmp_path):
         """Test CadQuery backend with tolerance parameters"""
         output_file = tmp_path / "test_cadquery.h5m"
@@ -50,7 +46,6 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_with_unstructured_volumes_raises_error(self, tmp_path):
         """Test that CadQuery backend with unstructured_volumes raises ValueError"""
         output_file = tmp_path / "test_invalid.h5m"
@@ -73,7 +68,6 @@ class TestKwargsExportDagmcH5mFile:
                 filename=str(output_file), meshing_backend="invalid"
             )
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_warns_about_gmsh_parameters(self, tmp_path):
         """Test that CadQuery backend warns about unused GMSH parameters"""
         output_file = tmp_path / "test_warnings.h5m"
@@ -117,7 +111,6 @@ class TestKwargsExportDagmcH5mFile:
             )
             assert "tolerance" in str(w[0].message)
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_uses_default_tolerances(self, tmp_path):
         """Test that CadQuery backend uses default tolerances when not specified"""
         output_file = tmp_path / "test_defaults.h5m"
@@ -142,7 +135,6 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_with_all_valid_parameters(self, tmp_path):
         """Test CadQuery backend with all valid parameters"""
         output_file = tmp_path / "test_cadquery_all_params.h5m"
@@ -179,7 +171,6 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_multiple_backend_switches(self, tmp_path):
         """Test that the same model can be exported with different backends"""
         output_file_cq = tmp_path / "test_switch_cq.h5m"
@@ -247,7 +238,6 @@ class TestKwargsValidation:
         assert "tolerance" in error_message  # valid param should be in error
         assert "min_mesh_size" in error_message  # valid param should be in error
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_all_valid_cadquery_kwargs_accepted(self, tmp_path):
         """Test that all valid CadQuery kwargs are accepted"""
         output_file = tmp_path / "test_valid_cq_kwargs.h5m"
@@ -344,7 +334,6 @@ class TestKwargsWithMultipleVolumes:
         assert result == str(output_file)
         assert output_file.exists()
 
-    @pytest.mark.skipif(not CADQUERY_DIRECT_MESHER_AVAILABLE, reason="cadquery_direct_mesh_plugin not installed")
     def test_cadquery_backend_with_multiple_volumes(self, tmp_path):
         """Test CadQuery backend works with multiple volumes"""
         output_file = tmp_path / "test_multi_volume_cq.h5m"
