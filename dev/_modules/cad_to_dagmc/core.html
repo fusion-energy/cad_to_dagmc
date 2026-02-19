@@ -1596,10 +1596,8 @@ document.write(`
                     <span class="sa">f</span><span class="s2">&quot;encompass the set_size value.&quot;</span>
                 <span class="p">)</span>
 
-        <span class="c1"># Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes</span>
-        <span class="n">boundary_sizes</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{}</span>
-        <span class="p">)</span>  <span class="c1"># Dictionary to store the mesh size and count for each boundary</span>
+        <span class="c1"># Step 1: Preprocess boundaries to find the smallest size for shared surfaces</span>
+        <span class="n">boundary_sizes</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Dictionary to store the minimum mesh size for each boundary</span>
         <span class="k">for</span> <span class="n">volume_id</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">set_size</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">boundaries</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getBoundary</span><span class="p">(</span>
                 <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="n">volume_id</span><span class="p">)],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
@@ -1609,21 +1607,13 @@ document.write(`
             <span class="k">for</span> <span class="n">boundary</span> <span class="ow">in</span> <span class="n">boundaries</span><span class="p">:</span>
                 <span class="n">boundary_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">boundary</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">boundary</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># (dimension, tag)</span>
                 <span class="k">if</span> <span class="n">boundary_key</span> <span class="ow">in</span> <span class="n">boundary_sizes</span><span class="p">:</span>
-                    <span class="c1"># If the boundary is already processed, add the size to the list</span>
-                    <span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">][</span><span class="s2">&quot;total_size&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">size</span>
-                    <span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># If the boundary is already processed, keep the smaller size</span>
+                    <span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">],</span> <span class="n">size</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Otherwise, initialize the boundary with the current size</span>
-                    <span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total_size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+                    <span class="n">boundary_sizes</span><span class="p">[</span><span class="n">boundary_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">size</span>
 
-        <span class="c1"># Step 2: Calculate the average size for each boundary</span>
-        <span class="n">averaged_boundary_sizes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">boundary</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total_size&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">boundary</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">boundary_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
-
-        <span class="c1"># Step 3: Apply mesh sizes to all boundaries</span>
-        <span class="k">for</span> <span class="n">boundary</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">averaged_boundary_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Step 2: Apply mesh sizes to all boundaries</span>
+        <span class="k">for</span> <span class="n">boundary</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">boundary_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">setSize</span><span class="p">([</span><span class="n">boundary</span><span class="p">],</span> <span class="n">size</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set mesh size </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> for boundary </span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
