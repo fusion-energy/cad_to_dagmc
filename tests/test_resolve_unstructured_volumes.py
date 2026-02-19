@@ -238,8 +238,10 @@ def test_unstructured_volumes_with_nested_geometry(tmp_path):
     the IsSame-based fix correctly identifies the inner sphere's material tag.
     """
     assembly = cq.Assembly()
-    assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
-    assembly.add(cq.Workplane("XY").box(30, 30, 30), name="box")
+    box = cq.Workplane("XY").box(30, 30, 30)
+    sphere = cq.Workplane("XY").sphere(10)
+    assembly.add(sphere, name="sphere")
+    assembly.add(box.cut(sphere), name="box")
 
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags="assembly_names")
@@ -261,8 +263,10 @@ def test_unstructured_volumes_with_nested_geometry(tmp_path):
 def test_unstructured_volumes_nested_geometry_single_inner_volume(tmp_path):
     """Test selecting only the inner sphere from a nested sphere-in-box geometry."""
     assembly = cq.Assembly()
-    assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
-    assembly.add(cq.Workplane("XY").box(30, 30, 30), name="box")
+    box = cq.Workplane("XY").box(30, 30, 30)
+    sphere = cq.Workplane("XY").sphere(10)
+    assembly.add(sphere, name="sphere")
+    assembly.add(box.cut(sphere), name="box")
 
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags="assembly_names")
