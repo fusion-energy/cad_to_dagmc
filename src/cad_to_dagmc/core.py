@@ -817,10 +817,8 @@ def set_sizes_for_mesh(
                     f"encompass the set_size value."
                 )
 
-        # Step 1: Preprocess boundaries to find shared surfaces and decide mesh sizes
-        boundary_sizes = (
-            {}
-        )  # Dictionary to store the mesh size and count for each boundary
+        # Step 1: Preprocess boundaries to find the smallest size for shared surfaces
+        boundary_sizes = {}  # Dictionary to store the minimum mesh size for each boundary
         for volume_id, size in set_size.items():
             boundaries = gmsh.model.getBoundary(
                 [(3, volume_id)], recursive=True
@@ -830,21 +828,13 @@ def set_sizes_for_mesh(
             for boundary in boundaries:
                 boundary_key = (boundary[0], boundary[1])  # (dimension, tag)
                 if boundary_key in boundary_sizes:
-                    # If the boundary is already processed, add the size to the list
-                    boundary_sizes[boundary_key]["total_size"] += size
-                    boundary_sizes[boundary_key]["count"] += 1
+                    # If the boundary is already processed, keep the smaller size
+                    boundary_sizes[boundary_key] = min(boundary_sizes[boundary_key], size)
                 else:
-                    # Otherwise, initialize the boundary with the current size
-                    boundary_sizes[boundary_key] = {"total_size": size, "count": 1}
+                    boundary_sizes[boundary_key] = size
 
-        # Step 2: Calculate the average size for each boundary
-        averaged_boundary_sizes = {
-            boundary: data["total_size"] / data["count"]
-            for boundary, data in boundary_sizes.items()
-        }
-
-        # Step 3: Apply mesh sizes to all boundaries
-        for boundary, size in averaged_boundary_sizes.items():
+        # Step 2: Apply mesh sizes to all boundaries
+        for boundary, size in boundary_sizes.items():
             gmsh.model.mesh.setSize([boundary], size)
             print(f"Set mesh size {size} for boundary {boundary}")
 
