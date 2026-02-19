@@ -922,6 +922,30 @@ def get_ids_from_imprinted_assembly(solid_id_dict):
     return ids
 
 
+def fix_scrambled_ids(assembly, imprinted_assembly, scrambled_ids):
+    """Fix scrambled IDs for solids not modified during imprinting.
+
+    BOPAlgo_MakeConnected.GetOrigins() can incorrectly attribute unmodified
+    (e.g., nested) solids to the wrong original. This uses IsSame() to detect
+    unmodified solids and correct their origin mapping.
+    """
+    orig_solids_and_names = []
+    for obj, name, loc, _ in assembly:
+        for s in obj.moved(loc).Solids():
+            orig_solids_and_names.append((s, name))
+
+    imprinted_solids = imprinted_assembly.Solids()
+    fixed_ids = list(scrambled_ids)
+
+    for i, imp_solid in enumerate(imprinted_solids):
+        for orig_solid, orig_name in orig_solids_and_names:
+            if imp_solid.wrapped.IsSame(orig_solid.wrapped):
+                fixed_ids[i] = orig_name
+                break
+
+    return fixed_ids
+
+
 def check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
@@ -1761,6 +1785,10 @@ class CadToDagmc:
                     imprinted_solids_with_org_id
                 )
 
+                scrambled_ids = fix_scrambled_ids(
+                    assembly, cq_mesh["imprinted_assembly"], scrambled_ids
+                )
+
                 material_tags_in_brep_order = order_material_ids_by_brep_order(
                     original_ids, scrambled_ids, self.material_tags
                 )
@@ -1783,6 +1811,10 @@ class CadToDagmc:
 
                 scrambled_ids = get_ids_from_imprinted_assembly(
                     imprinted_solids_with_org_id
+                )
+
+                scrambled_ids = fix_scrambled_ids(
+                    assembly, imprinted_assembly, scrambled_ids
                 )
 
                 material_tags_in_brep_order = order_material_ids_by_brep_order(

@@ -228,3 +228,54 @@ def test_unstructured_volumes_with_assembly_names(tmp_path):
 
     assert h5m_file.is_file()
     assert vtk_file.is_file()
+
+
+def test_unstructured_volumes_with_nested_geometry(tmp_path):
+    """Test that a sphere fully inside a box resolves material tags correctly.
+
+    When imprinting nested geometry, BOPAlgo_MakeConnected.GetOrigins() can
+    misattribute unmodified inner solids to the outer solid. This test ensures
+    the IsSame-based fix correctly identifies the inner sphere's material tag.
+    """
+    assembly = cq.Assembly()
+    assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
+    assembly.add(cq.Workplane("XY").box(30, 30, 30), name="box")
+
+    model = CadToDagmc()
+    model.add_cadquery_object(assembly, material_tags="assembly_names")
+
+    h5m_file = tmp_path / "dagmc.h5m"
+    vtk_file = tmp_path / "umesh.vtk"
+
+    dag_filename, umesh_filename = model.export_dagmc_h5m_file(
+        filename=str(h5m_file),
+        unstructured_volumes=["sphere", "box"],
+        umesh_filename=str(vtk_file),
+        meshing_backend="gmsh",
+    )
+
+    assert h5m_file.is_file()
+    assert vtk_file.is_file()
+
+
+def test_unstructured_volumes_nested_geometry_single_inner_volume(tmp_path):
+    """Test selecting only the inner sphere from a nested sphere-in-box geometry."""
+    assembly = cq.Assembly()
+    assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
+    assembly.add(cq.Workplane("XY").box(30, 30, 30), name="box")
+
+    model = CadToDagmc()
+    model.add_cadquery_object(assembly, material_tags="assembly_names")
+
+    h5m_file = tmp_path / "dagmc.h5m"
+    vtk_file = tmp_path / "umesh.vtk"
+
+    dag_filename, umesh_filename = model.export_dagmc_h5m_file(
+        filename=str(h5m_file),
+        unstructured_volumes=["sphere"],
+        umesh_filename=str(vtk_file),
+        meshing_backend="gmsh",
+    )
+
+    assert h5m_file.is_file()
+    assert vtk_file.is_file()
