@@ -43,6 +43,9 @@ tests = [
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
 ]
+netgen = [
+    "netgen-mesher",
+]
 docs = [
     "sphinx",
     "myst-parser",

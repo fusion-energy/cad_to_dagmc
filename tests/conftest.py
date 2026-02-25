@@ -18,6 +18,13 @@ try:
 except ImportError:
     CADQUERY_DIRECT_MESHER_AVAILABLE = False
 
+# Check if netgen-mesher is available
+try:
+    import netgen
+    NETGEN_AVAILABLE = True
+except ImportError:
+    NETGEN_AVAILABLE = False
+
 
 def pytest_addoption(parser):
     """Add command-line option for h5m backend."""
@@ -39,6 +46,7 @@ def pytest_collection_modifyitems(config, items):
     """Skip tests if required dependencies are not installed."""
     skip_pymoab = pytest.mark.skip(reason="pymoab not installed")
     skip_cadquery_mesher = pytest.mark.skip(reason="cadquery_direct_mesh_plugin not installed")
+    skip_netgen = pytest.mark.skip(reason="netgen-mesher not installed")
 
     for item in items:
         # Check if the test is parametrized
@@ -54,3 +62,8 @@ def pytest_collection_modifyitems(config, items):
             if not CADQUERY_DIRECT_MESHER_AVAILABLE:
                 if params.get("meshing_backend") == "cadquery":
                     item.add_marker(skip_cadquery_mesher)
+
+            # Skip netgen meshing backend tests if netgen-mesher is not installed
+            if not NETGEN_AVAILABLE:
+                if params.get("meshing_backend") == "netgen":
+                    item.add_marker(skip_netgen)

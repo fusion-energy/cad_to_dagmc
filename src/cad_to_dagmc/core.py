@@ -1570,9 +1570,10 @@ class CadToDagmc:
             **kwargs: Backend-specific parameters:
 
                 Backend selection:
-                - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'.
-                  If not provided, backend is auto-selected based on other arguments.
-                  Defaults to 'cadquery' if no backend-specific arguments are given.
+                - meshing_backend (str, optional): explicitly specify 'gmsh', 'cadquery',
+                  or 'netgen'. If not provided, backend is auto-selected based on other
+                  arguments. Defaults to 'cadquery' if no backend-specific arguments
+                  are given.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
                   Defaults to 'h5py'.
 
@@ -1593,6 +1594,19 @@ class CadToDagmc:
                 - tolerance (float): meshing tolerance (default: 0.1)
                 - angular_tolerance (float): angular tolerance (default: 0.1)
 
+                For Netgen backend:
+                - tolerance (float): BRepMesh chordal deflection (default: 0.1)
+                - angular_tolerance (float): BRepMesh angular deflection (default: 0.1)
+                - tet_volumes (list[str | int]): which volumes to tet-mesh (material
+                  tags or solid IDs). If None, surface-only mesh.
+                - target_edge_length (float): target tet edge length. Required when
+                  tet_volumes is specified.
+                - grading (float): netgen mesh grading 0-1, lower = more uniform
+                  (default: 0.05)
+                - optsteps3d (int): netgen optimization passes (default: 5)
+                - optimize3d (str): netgen optimization strategy (default: "cmdDmstmstm")
+                - elsizeweight (float): size vs shape weight, 0 = pure shape (default: 0.0)
+
         Returns:
             str: the filename(s) for the files created.
 
@@ -1611,7 +1625,19 @@ class CadToDagmc:
             "method",
             "unstructured_volumes",
         }
-        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend", "h5m_backend"}
+        netgen_keys = {
+            "tolerance",
+            "angular_tolerance",
+            "target_edge_length",
+            "tet_volumes",
+            "grading",
+            "optsteps3d",
+            "optimize3d",
+            "elsizeweight",
+        }
+        # Keys unique to netgen (not shared with cadquery)
+        netgen_only_keys = netgen_keys - cadquery_keys
+        all_acceptable_keys = cadquery_keys | gmsh_keys | netgen_keys | {"meshing_backend", "h5m_backend"}
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -1631,7 +1657,10 @@ class CadToDagmc:
             # Auto-select meshing_backend based on kwargs
             has_cadquery = any(key in kwargs for key in cadquery_keys)
             has_gmsh = any(key in kwargs for key in gmsh_keys)
-            if has_cadquery and not has_gmsh:
+            has_netgen = any(key in kwargs for key in netgen_only_keys)
+            if has_netgen:
+                meshing_backend = "netgen"
+            elif has_cadquery and not has_gmsh:
                 meshing_backend = "cadquery"
             elif has_gmsh and not has_cadquery:
                 meshing_backend = "gmsh"
@@ -1650,10 +1679,10 @@ class CadToDagmc:
                 meshing_backend = "cadquery"  # default
 
         # Validate meshing backend
-        if meshing_backend not in ["gmsh", "cadquery"]:
+        if meshing_backend not in ["gmsh", "cadquery", "netgen"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
-                'Available options are "gmsh" or "cadquery"'
+                'Available options are "gmsh", "cadquery", or "netgen"'
             )
 
         print(f"Using meshing backend: {meshing_backend}")
@@ -1814,9 +1843,83 @@ class CadToDagmc:
                 dims_and_vol_ids=volumes
             )
 
+        elif meshing_backend == "netgen":
+            from cad_to_dagmc.netgen_mesher import (
+                surface_mesh_with_brepmesh,
+                tet_mesh_solid,
+                replace_surface_mesh_for_tet_volumes,
+                resolve_tet_volumes,
+            )
+
+            tolerance = kwargs.get("tolerance", 0.1)
+            angular_tolerance = kwargs.get("angular_tolerance", 0.1)
+            tet_volumes_param = kwargs.get("tet_volumes")
+            target_edge_length = kwargs.get("target_edge_length")
+            grading = kwargs.get("grading", 0.05)
+            optsteps3d = kwargs.get("optsteps3d", 5)
+            optimize3d = kwargs.get("optimize3d", "cmdDmstmstm")
+            elsizeweight = kwargs.get("elsizeweight", 0.0)
+
+            if tet_volumes_param and target_edge_length is None:
+                raise ValueError(
+                    "target_edge_length is required when tet_volumes is specified"
+                )
+
+            # Step 1-2: Imprint + BRepMesh surface mesh
+            (
+                vertices,
+                triangles_by_solid_by_face,
+                material_tags_in_brep_order,
+                face_to_occ,
+                solid_shapes,
+                solid_faces_map,
+            ) = surface_mesh_with_brepmesh(
+                assembly=assembly,
+                tolerance=tolerance,
+                angular_tolerance=angular_tolerance,
+                material_tags=self.material_tags,
+                scale_factor=scale_factor,
+                imprint=imprint,
+            )
+
+            check_material_tags(material_tags_in_brep_order, self.parts)
+
+            # Step 3-4: Tet-mesh selected volumes and replace surface tris
+            if tet_volumes_param:
+                tet_solid_ids = resolve_tet_volumes(
+                    tet_volumes_param, material_tags_in_brep_order
+                )
+
+                tet_data = {}
+                for solid_id in tet_solid_ids:
+                    solid_shape = solid_shapes.get(solid_id)
+                    if solid_shape is None:
+                        warnings.warn(
+                            f"Solid ID {solid_id} not found for tet meshing, skipping"
+                        )
+                        continue
+                    tet_v, tet_t, surf_tris, surf_fi = tet_mesh_solid(
+                        solid_shape,
+                        target_edge_length=target_edge_length,
+                        grading=grading,
+                        optsteps3d=optsteps3d,
+                        optimize3d=optimize3d,
+                        elsizeweight=elsizeweight,
+                    )
+                    tet_data[solid_id] = (tet_v, tet_t, surf_tris, surf_fi)
+
+                vertices, triangles_by_solid_by_face = replace_surface_mesh_for_tet_volumes(
+                    vertices=vertices,
+                    triangles_by_solid_by_face=triangles_by_solid_by_face,
+                    solid_faces_map=solid_faces_map,
+                    tet_data=tet_data,
+                    face_to_occ=face_to_occ,
+                )
+
         else:
             raise ValueError(
-                f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"'
+                f'meshing_backend {meshing_backend} not supported. '
+                'Available options are "cadquery", "gmsh", or "netgen"'
             )
 
         dagmc_filename = vertices_to_h5m(
