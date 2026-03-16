@@ -753,6 +753,7 @@ def set_sizes_for_mesh(
     mesh_algorithm: int = 1,
     set_size: dict[int, float] | None = None,
     original_set_size: dict[int | str, float] | None = None,
+    threads: int = 0,
 ):
     """Sets up the mesh sizes for each volume in the mesh.
 
@@ -766,6 +767,9 @@ def set_sizes_for_mesh(
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
         set_size: a dictionary of volume ids (int) and target mesh sizes
             (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
+        threads: the number of threads for Gmsh to use. Passed into
+            gmsh.option.setNumber("General.NumThreads", threads). 0 uses
+            all available cores (default), 1 uses a single thread.
 
     Returns:
         The resulting gmsh object and volumes
@@ -783,7 +787,7 @@ def set_sizes_for_mesh(
         gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
-    gmsh.option.setNumber("General.NumThreads", 0)  # Use all available cores
+    gmsh.option.setNumber("General.NumThreads", threads)
 
     if set_size:
         volumes = gmsh.model.getEntities(3)
@@ -1364,6 +1368,7 @@ class CadToDagmc:
         imprint: bool = True,
         set_size: dict[int | str, float] | None = None,
         volumes: Iterable[int] | None = None,
+        threads: int = 0,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with
@@ -1401,6 +1406,8 @@ class CadToDagmc:
                 all volume IDs that have that tag.
             volumes: a list of volume ids (int) to include in the mesh. If left
                 as default (None) then all volumes will be included.
+            threads: the number of threads for Gmsh to use. 0 uses all
+                available cores (default), 1 uses a single thread.
 
 
         Returns:
@@ -1444,6 +1451,7 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=resolved_set_size,
             original_set_size=set_size,
+            threads=threads,
         )
 
         if volumes:
@@ -1485,6 +1493,7 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: bool = True,
         set_size: dict[int | str, float] | None = None,
+        threads: int = 0,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -1514,6 +1523,8 @@ class CadToDagmc:
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag.
+            threads: the number of threads for Gmsh to use. 0 uses all
+                available cores (default), 1 uses a single thread.
         """
 
         assembly = cq.Assembly()
@@ -1546,6 +1557,7 @@ class CadToDagmc:
             mesh_algorithm=mesh_algorithm,
             set_size=resolved_set_size,
             original_set_size=set_size,
+            threads=threads,
         )
 
         gmsh.model.mesh.generate(dimensions)
@@ -1602,6 +1614,8 @@ class CadToDagmc:
                   tag names (str) for unstructured mesh. Material tags are resolved to
                   all volume IDs that have that tag. Can mix ints and strings.
                 - umesh_filename (str): filename for unstructured mesh (default: 'umesh.vtk')
+                - threads (int): number of threads for Gmsh to use. 0 uses all
+                  available cores (default), 1 uses a single thread.
 
                 For CadQuery backend:
                 - tolerance (float): meshing tolerance (default: 0.1)
@@ -1624,6 +1638,7 @@ class CadToDagmc:
             "umesh_filename",
             "method",
             "unstructured_volumes",
+            "threads",
         }
         all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend", "h5m_backend"}
 
@@ -1682,6 +1697,7 @@ class CadToDagmc:
         set_size = None
         unstructured_volumes = None
         umesh_filename = "umesh.vtk"
+        threads = 0
 
         # Extract backend-specific parameters with defaults
         if meshing_backend == "cadquery":
@@ -1705,6 +1721,7 @@ class CadToDagmc:
                 "set_size",
                 "umesh_filename",
                 "method",
+                "threads",
             ]
             unused_params = [param for param in gmsh_params if param in kwargs]
             if unused_params:
@@ -1722,6 +1739,7 @@ class CadToDagmc:
             set_size = kwargs.get("set_size")
             unstructured_volumes = kwargs.get("unstructured_volumes")
             umesh_filename = kwargs.get("umesh_filename", "umesh.vtk")
+            threads = kwargs.get("threads", 0)
 
             # Warn about unused CadQuery parameters
             cq_params = ["tolerance", "angular_tolerance"]
@@ -1820,6 +1838,7 @@ class CadToDagmc:
                 mesh_algorithm=mesh_algorithm,
                 set_size=resolved_set_size,
                 original_set_size=set_size,
+                threads=threads,
             )
 
             gmsh.model.mesh.generate(2)
