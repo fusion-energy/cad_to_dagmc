@@ -1519,6 +1519,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">mesh_algorithm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">original_set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets up the mesh sizes for each volume in the mesh.</span>
 
@@ -1532,6 +1533,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            gmsh.option.setNumber(&quot;Mesh.Algorithm&quot;, mesh_algorithm)</span>
 <span class="sd">        set_size: a dictionary of volume ids (int) and target mesh sizes</span>
 <span class="sd">            (floats) to set for each volume, passed to gmsh.model.mesh.setSize.</span>
+<span class="sd">        threads: the number of threads for Gmsh to use. Passed into</span>
+<span class="sd">            gmsh.option.setNumber(&quot;General.NumThreads&quot;, threads). 0 uses</span>
+<span class="sd">            all available cores (default), 1 uses a single thread.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The resulting gmsh object and volumes</span>
@@ -1549,7 +1553,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MeshSizeMax&quot;</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="p">)</span>
 
     <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="n">mesh_algorithm</span><span class="p">)</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.NumThreads&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Use all available cores</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.NumThreads&quot;</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
         <span class="n">volumes</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntities</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -2150,6 +2154,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exports an unstructured mesh file in VTK format for use with</span>
@@ -2187,6 +2192,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                all volume IDs that have that tag.</span>
 <span class="sd">            volumes: a list of volume ids (int) to include in the mesh. If left</span>
 <span class="sd">                as default (None) then all volumes will be included.</span>
+<span class="sd">            threads: the number of threads for Gmsh to use. 0 uses all</span>
+<span class="sd">                available cores (default), 1 uses a single thread.</span>
 
 
 <span class="sd">        Returns:</span>
@@ -2230,6 +2237,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
             <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
             <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+            <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">volumes</span><span class="p">:</span>
@@ -2274,6 +2282,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a GMesh msh file of the geometry in either 2D surface mesh or</span>
 <span class="sd">        3D volume mesh.</span>
@@ -2303,6 +2312,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag.</span>
+<span class="sd">            threads: the number of threads for Gmsh to use. 0 uses all</span>
+<span class="sd">                available cores (default), 1 uses a single thread.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
@@ -2335,6 +2346,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
             <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
             <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+            <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
@@ -2394,6 +2406,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                  tag names (str) for unstructured mesh. Material tags are resolved to</span>
 <span class="sd">                  all volume IDs that have that tag. Can mix ints and strings.</span>
 <span class="sd">                - umesh_filename (str): filename for unstructured mesh (default: &#39;umesh.vtk&#39;)</span>
+<span class="sd">                - threads (int): number of threads for Gmsh to use. 0 uses all</span>
+<span class="sd">                  available cores (default), 1 uses a single thread.</span>
 
 <span class="sd">                For CadQuery backend:</span>
 <span class="sd">                - tolerance (float): meshing tolerance (default: 0.1)</span>
@@ -2416,6 +2430,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span>
             <span class="s2">&quot;method&quot;</span><span class="p">,</span>
             <span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">cadquery_keys</span> <span class="o">|</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;meshing_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;h5m_backend&quot;</span><span class="p">}</span>
 
@@ -2474,6 +2489,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">set_size</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">umesh_filename</span> <span class="o">=</span> <span class="s2">&quot;umesh.vtk&quot;</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Extract backend-specific parameters with defaults</span>
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
@@ -2497,6 +2513,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;set_size&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;method&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">gmsh_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unused_params</span><span class="p">:</span>
@@ -2514,6 +2531,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">set_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;set_size&quot;</span><span class="p">)</span>
             <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">)</span>
             <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span> <span class="s2">&quot;umesh.vtk&quot;</span><span class="p">)</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># Warn about unused CadQuery parameters</span>
             <span class="n">cq_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="s2">&quot;angular_tolerance&quot;</span><span class="p">]</span>
@@ -2612,6 +2630,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
                 <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
                 <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+                <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
