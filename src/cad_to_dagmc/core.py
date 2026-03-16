@@ -1298,7 +1298,14 @@ class CadToDagmc:
                 material_tags = []
                 for child in _get_all_leaf_children(cadquery_object):
                     if child.material is not None and child.material.name is not None:
-                        material_tags.append(str(child.material.name))
+                        # count solids in this child to repeat the tag appropriately                       
+                        child_shape = child.toCompound() if hasattr(child, 'toCompound') else child.obj    
+                        if child_shape is not None:                                                        
+                            child_solids = child_shape.Solids() if hasattr(child_shape, 'Solids') else []  
+                        else:                                                                              
+                            child_solids = []                                                              
+                        for _ in child_solids:                                                             
+                            material_tags.append(str(child.material.name)) 
                     else:
                         raise ValueError(
                             f"Not all parts in the assembly have materials assigned.\n"
@@ -1310,8 +1317,15 @@ class CadToDagmc:
             elif material_tags == "assembly_names":
                 material_tags = []
                 for child in _get_all_leaf_children(cadquery_object):
+                    # count solids in this child to repeat the tag appropriately                           
+                    child_shape = child.toCompound() if hasattr(child, 'toCompound') else child.obj        
+                    if child_shape is not None:                                                            
+                        child_solids = child_shape.Solids() if hasattr(child_shape, 'Solids') else []      
+                    else:                                                                                  
+                        child_solids = []  
                     # parts always have a name as cq will auto assign one
-                    material_tags.append(child.name)
+                    for _ in child_solids:                                                                 
+                        material_tags.append(child.name)                 
                 print("material_tags found from assembly names:", material_tags)
 
             cadquery_compound = cadquery_object.toCompound()
