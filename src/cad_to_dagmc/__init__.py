@@ -11,6 +11,7 @@ except PackageNotFoundError:
 
     __version__ = get_version(root="..", relative_to=__file__)
 
-__all__ = ["__version__"]
+__all__ = ["__version__", "PyMoabNotFoundError"]
 
 from .core import *
+from .core import PyMoabNotFoundError

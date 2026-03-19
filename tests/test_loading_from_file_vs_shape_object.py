@@ -1,5 +1,3 @@
-# TODO test brep_part_finder
-
 from cad_to_dagmc import order_material_ids_by_brep_order
 
 # def get_ids_from_assembly(assembly):

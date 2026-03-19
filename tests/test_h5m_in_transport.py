@@ -22,6 +22,7 @@ def transport_particles_on_h5m_geometry(
     material_tags: list,
     nuclides: list = None,
     cross_sections_xml: str = None,
+    vtk_filename: str = None,
 ):
     """A function for testing the geometry file with particle transport in
     DAGMC OpenMC. Requires openmc and either the cross_sections_xml to be
@@ -102,9 +103,15 @@ def transport_particles_on_h5m_geometry(
     # adds a tally to record the heat deposited in entire geometry
     cell_tally = openmc.Tally(name="flux")
     cell_tally.scores = ["flux"]
-
-    # groups the two tallies
     tallies = openmc.Tallies([cell_tally])
+
+    if vtk_filename:
+        umesh_tally = openmc.Tally(name="unstructured_mesh_tally")
+        umesh = openmc.UnstructuredMesh(vtk_filename, library="moab")
+        mesh_filter = openmc.MeshFilter(umesh)
+        umesh_tally.filters = [mesh_filter]
+        umesh_tally.scores = ["flux"]
+        tallies.append(umesh_tally)
 
     # builds the openmc model
     my_model = openmc.Model(
@@ -122,8 +129,9 @@ def transport_particles_on_h5m_geometry(
     return my_flux_cell_tally.mean.flatten()[0]
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_transport_result_h5m_with_2_sep_volumes():
+def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     h5m_filename = "test_two_sep_volumes.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -135,7 +143,9 @@ def test_transport_result_h5m_with_2_sep_volumes():
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename, meshing_backend=meshing_backend
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -144,8 +154,9 @@ def test_transport_result_h5m_with_2_sep_volumes():
     )
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_transport_result_h5m_with_1_curved_volumes():
+def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
     h5m_filename = "one_cylinder.h5m"
     volumes = 1
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -154,7 +165,9 @@ def test_transport_result_h5m_with_1_curved_volumes():
 
     my_model = CadToDagmc()
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
-    my_model.export_dagmc_h5m_file(filename=h5m_filename)
+    my_model.export_dagmc_h5m_file(
+        filename=h5m_filename, meshing_backend=meshing_backend
+    )
 
     transport_particles_on_h5m_geometry(
         h5m_filename=h5m_filename,
@@ -163,8 +176,9 @@ def test_transport_result_h5m_with_1_curved_volumes():
     )
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_transport_result_h5m_with_2_joined_curved_volumes():
+def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     h5m_filename = "two_connected_cylinders.h5m"
     volumes = 2
     material_tags = [f"material_{n}" for n in range(1, volumes + 1)]
@@ -176,7 +190,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes():
     my_model.add_cadquery_object(workplane1, material_tags=[material_tags[0]])
     my_model.add_cadquery_object(workplane2, material_tags=[material_tags[1]])
     my_model.export_dagmc_h5m_file(
-        filename=h5m_filename,
+        filename=h5m_filename, meshing_backend=meshing_backend
     )
 
     transport_particles_on_h5m_geometry(
@@ -186,15 +200,16 @@ def test_transport_result_h5m_with_2_joined_curved_volumes():
     )
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_h5m_with_single_volume_list():
+def test_h5m_with_single_volume_list(meshing_backend):
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
 
     h5m_file = "tests/single_cube.h5m"
 
     my_model = CadToDagmc()
     my_model.add_stp_file(filename="tests/single_cube.stp", material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
 
     h5m_files = [
         "tests/single_cube.h5m",
@@ -208,8 +223,9 @@ def test_h5m_with_single_volume_list():
         )
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_h5m_with_multi_volume_not_touching():
+def test_h5m_with_multi_volume_not_touching(meshing_backend):
 
     h5m_file = "tests/two_disconnected_cubes.h5m"
 
@@ -217,7 +233,7 @@ def test_h5m_with_multi_volume_not_touching():
     my_model.add_stp_file(
         filename="tests/two_disconnected_cubes.stp", material_tags=["mat1", "mat2"]
     )
-    my_model.export_dagmc_h5m_file(filename=h5m_file)
+    my_model.export_dagmc_h5m_file(filename=h5m_file, meshing_backend=meshing_backend)
 
     transport_particles_on_h5m_geometry(
         h5m_filename="tests/two_disconnected_cubes.h5m",
@@ -226,8 +242,9 @@ def test_h5m_with_multi_volume_not_touching():
     )
 
 
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
-def test_h5m_with_multi_volume_touching():
+def test_h5m_with_multi_volume_touching(meshing_backend):
     stp_files = [
         "tests/multi_volume_cylinders.stp",
         "tests/two_connected_cubes.stp",
@@ -248,10 +265,55 @@ def test_h5m_with_multi_volume_touching():
             material_tags=mat_tags,
         )
 
-        my_model.export_dagmc_h5m_file(filename=h5m_file)
+        my_model.export_dagmc_h5m_file(
+            filename=h5m_file, meshing_backend=meshing_backend
+        )
 
         transport_particles_on_h5m_geometry(
             h5m_filename=h5m_file,
             material_tags=mat_tags,
             nuclides=["H1"] * len(mat_tags),
         )
+
+
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_umesh_with_volumes(meshing_backend):
+    box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
+    inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)
+    middle_sphere = cq.Workplane("XY").sphere(6.1).cut(box_cutter).cut(inner_sphere)
+    outer_sphere = (
+        cq.Workplane("XY")
+        .sphere(10)
+        .cut(box_cutter)
+        .cut(inner_sphere)
+        .cut(middle_sphere)
+    )
+
+    assembly = cq.Assembly()
+    assembly.add(inner_sphere, name="inner_sphere")
+    assembly.add(middle_sphere, name="middle_sphere")
+    assembly.add(outer_sphere, name="outer_sphere")
+
+    model = CadToDagmc()
+    mat_tags = ["mat1", "mat2", "mat3"]
+    model.add_cadquery_object(assembly, material_tags=mat_tags)
+
+    h5m_file = model.export_dagmc_h5m_file(
+        filename="dagmc.h5m",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        meshing_backend=meshing_backend,
+    )
+
+    vtk_file = model.export_unstructured_mesh_file(
+        filename="umesh_vol_1.vtk",
+        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        volumes=[1],  # only mesh volume 2 out of the three volumes
+    )
+
+    transport_particles_on_h5m_geometry(
+        h5m_filename=h5m_file,
+        material_tags=mat_tags,
+        nuclides=["H1"] * len(mat_tags),
+        vtk_filename=vtk_file,
+    )

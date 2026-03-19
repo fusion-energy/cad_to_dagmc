@@ -138,3 +138,4 @@ dmypy.json
 src/_version.py
 *.msh
 *.step
+_build/
