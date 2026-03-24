@@ -29,6 +29,31 @@ class PyMoabNotFoundError(ImportError):
         super().__init__(message)
 
 
+def write_vtk(filename, vertices, tetrahedra):
+    """Write a tetrahedral mesh to an ASCII VTK legacy file.
+
+    Args:
+        filename: Output file path.
+        vertices: List of [x, y, z] coordinates.
+        tetrahedra: List of [v0, v1, v2, v3] vertex indices.
+    """
+    with open(filename, "w") as f:
+        f.write("# vtk DataFile Version 2.0\n")
+        f.write("Unstructured mesh\n")
+        f.write("ASCII\n")
+        f.write("DATASET UNSTRUCTURED_GRID\n")
+        f.write(f"POINTS {len(vertices)} double\n")
+        for v in vertices:
+            f.write(f"{v[0]} {v[1]} {v[2]}\n")
+        n_tets = len(tetrahedra)
+        f.write(f"CELLS {n_tets} {n_tets * 5}\n")
+        for t in tetrahedra:
+            f.write(f"4 {t[0]} {t[1]} {t[2]} {t[3]}\n")
+        f.write(f"CELL_TYPES {n_tets}\n")
+        for _ in range(n_tets):
+            f.write("10\n")
+
+
 def define_moab_core_and_tags():
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
