@@ -11,12 +11,6 @@ try:
 except ImportError:
     PYMOAB_AVAILABLE = False
 
-# Check if cad-to-dagmc-mesher is available
-try:
-    import cad_to_dagmc_mesher
-    CAD_TO_DAGMC_MESHER_AVAILABLE = True
-except ImportError:
-    CAD_TO_DAGMC_MESHER_AVAILABLE = False
 
 
 def pytest_addoption(parser):
@@ -49,7 +43,3 @@ def pytest_collection_modifyitems(config, items):
                 if params.get("method") == "pymoab" or params.get("h5m_backend") == "pymoab":
                     item.add_marker(skip_pymoab)
 
-            # Skip cad-to-dagmc-mesher backend tests if not installed
-            if not CAD_TO_DAGMC_MESHER_AVAILABLE:
-                if params.get("meshing_backend") == "cad-to-dagmc-mesher":
-                    item.add_marker(skip_mesher)

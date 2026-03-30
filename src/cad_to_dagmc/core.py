@@ -1918,13 +1918,7 @@ def _mesh_with_cad_to_dagmc_mesher(
     tet_volumes, target_edge_length, imprint,
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output."""
-    try:
-        from cad_to_dagmc_mesher.cad import mesh_assembly
-    except ImportError:
-        raise ImportError(
-            "cad-to-dagmc-mesher backend requires the cad-to-dagmc-mesher package. "
-            "Install with: pip install cad-to-dagmc-mesher[cad]"
-        )
+    from cad_to_dagmc_mesher.cad import mesh_assembly
 
     result = mesh_assembly(
         assembly,

@@ -48,7 +48,6 @@ jobs:
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
           python -m pip install .[tests]
-          python -m pip install cad-to-dagmc-mesher[cad]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"
 
