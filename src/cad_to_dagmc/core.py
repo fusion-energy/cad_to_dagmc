@@ -1640,7 +1640,8 @@ class CadToDagmc:
             "unstructured_volumes",
             "threads",
         }
-        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend", "h5m_backend"}
+        cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length"}
+        all_acceptable_keys = cadquery_keys | gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -1679,10 +1680,10 @@ class CadToDagmc:
                 meshing_backend = "cadquery"  # default
 
         # Validate meshing backend
-        if meshing_backend not in ["gmsh", "cadquery"]:
+        if meshing_backend not in ["gmsh", "cadquery", "cad-to-dagmc-mesher"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
-                'Available options are "gmsh" or "cadquery"'
+                'Available options are "gmsh", "cadquery", or "cad-to-dagmc-mesher"'
             )
 
         print(f"Using meshing backend: {meshing_backend}")
@@ -1749,6 +1750,10 @@ class CadToDagmc:
                     f"The following parameters are ignored when using GMSH backend: "
                     f"{', '.join(unused_params)}"
                 )
+
+        elif meshing_backend == "cad-to-dagmc-mesher":
+            tolerance = kwargs.get("tolerance", 0.01)
+            angular_tolerance = kwargs.get("angular_tolerance", 0.2)
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -1847,9 +1852,26 @@ class CadToDagmc:
                 dims_and_vol_ids=volumes
             )
 
+        elif meshing_backend == "cad-to-dagmc-mesher":
+            tet_volumes_arg = kwargs.get("tet_volumes", kwargs.get("unstructured_volumes"))
+            target_edge_length = kwargs.get("target_edge_length")
+
+            vertices, triangles_by_solid_by_face, material_tags_in_brep_order = (
+                _mesh_with_cad_to_dagmc_mesher(
+                    assembly=assembly,
+                    material_tags=self.material_tags,
+                    tolerance=tolerance,
+                    angular_tolerance=angular_tolerance,
+                    tet_volumes=tet_volumes_arg,
+                    target_edge_length=target_edge_length,
+                    imprint=imprint,
+                )
+            )
+
         else:
             raise ValueError(
-                f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"'
+                f'meshing_backend {meshing_backend} not supported. '
+                'Available options are "cadquery", "gmsh", or "cad-to-dagmc-mesher"'
             )
 
         dagmc_filename = vertices_to_h5m(
@@ -1889,6 +1911,31 @@ class CadToDagmc:
             return dagmc_filename, umesh_filename
         else:
             return dagmc_filename
+
+
+def _mesh_with_cad_to_dagmc_mesher(
+    assembly, material_tags, tolerance, angular_tolerance,
+    tet_volumes, target_edge_length, imprint,
+):
+    """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output."""
+    try:
+        from cad_to_dagmc_mesher.cad import mesh_assembly
+    except ImportError:
+        raise ImportError(
+            "cad-to-dagmc-mesher backend requires the cad-to-dagmc-mesher package. "
+            "Install with: pip install cad-to-dagmc-mesher[cad]"
+        )
+
+    result = mesh_assembly(
+        assembly,
+        material_tags,
+        tolerance=tolerance,
+        angular_tolerance=angular_tolerance,
+        tet_volumes=tet_volumes,
+        target_edge_length=target_edge_length,
+        imprint=imprint,
+    )
+    return result["vertices"], result["triangles_by_solid_by_face"], result["material_tags"]
 
 
 def _get_all_leaf_children(assembly):

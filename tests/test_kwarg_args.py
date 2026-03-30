@@ -46,6 +46,20 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
+    def test_cad_to_dagmc_mesher_backend_with_tolerance_params(self, tmp_path):
+        """Test cad-to-dagmc-mesher backend with tolerance parameters"""
+        output_file = tmp_path / "test_mesher.h5m"
+
+        result = self.my_model.export_dagmc_h5m_file(
+            filename=str(output_file),
+            meshing_backend="cad-to-dagmc-mesher",
+            tolerance=0.05,
+            angular_tolerance=0.2,
+        )
+
+        assert result == str(output_file)
+        assert output_file.exists()
+
     def test_cadquery_backend_with_unstructured_volumes_raises_error(self, tmp_path):
         """Test that CadQuery backend with unstructured_volumes raises ValueError"""
         output_file = tmp_path / "test_invalid.h5m"
