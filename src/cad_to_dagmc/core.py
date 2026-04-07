@@ -787,6 +787,7 @@ def set_sizes_for_mesh(
         gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+    gmsh.option.setNumber("Mesh.RandomFactor", 1e-7)
     gmsh.option.setNumber("General.NumThreads", threads)
 
     if set_size:
