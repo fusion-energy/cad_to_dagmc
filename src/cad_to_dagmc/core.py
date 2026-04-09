@@ -581,6 +581,25 @@ def _vertices_to_h5m_h5py(
             tag_grp.attrs.create("default", -1, dtype=tag_grp["type"])
             tag_grp.attrs.create("global", -1, dtype=tag_grp["type"])
 
+        # FACETING_TOLERANCE tag — stored on the root meshset via the
+        # "global" dataset so DAGMC's GeomQueryTool reads a valid value.
+        # Without this, DAGMC reads uninitialised memory and particle
+        # tracking fails with lost particles at curved surface boundaries.
+        ft_grp = tstt_tags.create_group("FACETING_TOLERANCE")
+        ft_type = np.dtype("f8")
+        ft_grp["type"] = ft_type
+        ft_grp.attrs.create("class", 2, dtype=np.int32)
+        # Compute a representative faceting tolerance from the mesh extent.
+        _diag = np.linalg.norm(vertices_arr.max(axis=0) - vertices_arr.min(axis=0))
+        _facet_tol = max(_diag * 1e-3, 1e-3)
+        # MOAB's mhdf reader expects "default" and "global" as HDF5
+        # datasets (not attributes).  Store them both ways for compat.
+        ft_grp.create_dataset("default", data=np.array([_facet_tol], dtype=ft_type))
+        ft_grp.create_dataset("global", data=np.array([_facet_tol], dtype=ft_type))
+        # Also store as sparse tag data on root meshset (handle 0).
+        ft_grp.create_dataset("id_list", data=np.array([0], dtype=np.uint64))
+        ft_grp.create_dataset("values", data=np.array([_facet_tol], dtype=ft_type))
+
         # === SETS structure ===
         sets_group = tstt.create_group("sets")
 
