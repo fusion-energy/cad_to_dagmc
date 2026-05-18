@@ -1339,6 +1339,25 @@ window.runMermaid = runMermaid;</script>
             <span class="n">tag_grp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tag_grp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
             <span class="n">tag_grp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tag_grp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
 
+        <span class="c1"># FACETING_TOLERANCE tag — stored on the root meshset via the</span>
+        <span class="c1"># &quot;global&quot; dataset so DAGMC&#39;s GeomQueryTool reads a valid value.</span>
+        <span class="c1"># Without this, DAGMC reads uninitialised memory and particle</span>
+        <span class="c1"># tracking fails with lost particles at curved surface boundaries.</span>
+        <span class="n">ft_grp</span> <span class="o">=</span> <span class="n">tstt_tags</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s2">&quot;FACETING_TOLERANCE&quot;</span><span class="p">)</span>
+        <span class="n">ft_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">)</span>
+        <span class="n">ft_grp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ft_type</span>
+        <span class="n">ft_grp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="c1"># Compute a representative faceting tolerance from the mesh extent.</span>
+        <span class="n">_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vertices_arr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">vertices_arr</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">_facet_tol</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_diag</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+        <span class="c1"># MOAB&#39;s mhdf reader expects &quot;default&quot; and &quot;global&quot; as HDF5</span>
+        <span class="c1"># datasets (not attributes).  Store them both ways for compat.</span>
+        <span class="n">ft_grp</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_facet_tol</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ft_type</span><span class="p">))</span>
+        <span class="n">ft_grp</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_facet_tol</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ft_type</span><span class="p">))</span>
+        <span class="c1"># Also store as sparse tag data on root meshset (handle 0).</span>
+        <span class="n">ft_grp</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;id_list&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">))</span>
+        <span class="n">ft_grp</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;values&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_facet_tol</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ft_type</span><span class="p">))</span>
+
         <span class="c1"># === SETS structure ===</span>
         <span class="n">sets_group</span> <span class="o">=</span> <span class="n">tstt</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s2">&quot;sets&quot;</span><span class="p">)</span>
 
@@ -2432,7 +2451,8 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">,</span>
             <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">cadquery_keys</span> <span class="o">|</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;meshing_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;h5m_backend&quot;</span><span class="p">}</span>
+        <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="s2">&quot;angular_tolerance&quot;</span><span class="p">,</span> <span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;target_edge_length&quot;</span><span class="p">}</span>
+        <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">cadquery_keys</span> <span class="o">|</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;meshing_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;h5m_backend&quot;</span><span class="p">}</span>
 
         <span class="c1"># Check for invalid kwargs</span>
         <span class="n">invalid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">all_acceptable_keys</span>
@@ -2471,10 +2491,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cadquery&quot;</span>  <span class="c1"># default</span>
 
         <span class="c1"># Validate meshing backend</span>
-        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">,</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;meshing_backend &quot;</span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1">&quot; not supported. &#39;</span>
-                <span class="s1">&#39;Available options are &quot;gmsh&quot; or &quot;cadquery&quot;&#39;</span>
+                <span class="s1">&#39;Available options are &quot;gmsh&quot;, &quot;cadquery&quot;, or &quot;cad-to-dagmc-mesher&quot;&#39;</span>
             <span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using meshing backend: </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2541,6 +2561,10 @@ window.runMermaid = runMermaid;</script>
                     <span class="sa">f</span><span class="s2">&quot;The following parameters are ignored when using GMSH backend: &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unused_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
+            <span class="n">tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">angular_tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;angular_tolerance&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
@@ -2639,9 +2663,26 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">volumes</span>
             <span class="p">)</span>
 
+        <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
+            <span class="n">tet_volumes_arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">))</span>
+            <span class="n">target_edge_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_edge_length&quot;</span><span class="p">)</span>
+
+            <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
+                    <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                    <span class="n">material_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">,</span>
+                    <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                    <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+                    <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes_arg</span><span class="p">,</span>
+                    <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+                    <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;meshing_backend </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1"> not supported. Available options are &quot;cadquery&quot; or &quot;gmsh&quot;&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;meshing_backend </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1"> not supported. &#39;</span>
+                <span class="s1">&#39;Available options are &quot;cadquery&quot;, &quot;gmsh&quot;, or &quot;cad-to-dagmc-mesher&quot;&#39;</span>
             <span class="p">)</span>
 
         <span class="n">dagmc_filename</span> <span class="o">=</span> <span class="n">vertices_to_h5m</span><span class="p">(</span>
@@ -2683,6 +2724,25 @@ window.runMermaid = runMermaid;</script>
             <span class="k">return</span> <span class="n">dagmc_filename</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
+    <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_assembly</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
+        <span class="n">assembly</span><span class="p">,</span>
+        <span class="n">material_tags</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+        <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+        <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
+        <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;material_tags&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_leaf_children</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
