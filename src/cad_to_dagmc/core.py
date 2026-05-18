@@ -770,7 +770,7 @@ def set_sizes_for_mesh(
     min_mesh_size: float | None = None,
     max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
-    set_size: dict[int, float] | None = None,
+    set_size: dict[int | str, float] | None = None,
     original_set_size: dict[int | str, float] | None = None,
     threads: int = 0,
 ):
