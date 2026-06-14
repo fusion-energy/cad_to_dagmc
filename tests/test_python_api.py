@@ -19,17 +19,19 @@ except ImportError:
     PYMOAB_AVAILABLE = False
 
 
-def get_volumes_and_materials_from_h5m(filename: str) -> dict:
+def get_volumes_and_materials_from_h5m(filename: str, prefix: str = "mat:") -> dict:
     """Reads in a DAGMC h5m file and finds the volume ids with their associated
-    material tags.
+    group tags for a given group-name prefix.
 
     Uses h5py to read the file directly, which works whether or not pymoab is installed.
 
     Arguments:
         filename: the filename of the DAGMC h5m file
+        prefix: the group-name prefix to match. Defaults to "mat:" (material
+            groups); pass "component:" to read the component identity groups.
 
     Returns:
-        A dictionary of volume ids and material tags
+        A dictionary of volume ids and group tags
     """
 
     def _read_sparse_tag(tag_group):
@@ -108,7 +110,7 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
         for handle, category in cat_lookup.items():
             if category == "Group":
                 name = name_lookup.get(handle, "")
-                if name.startswith("mat:"):
+                if name.startswith(prefix):
                     groups[handle] = name
             elif category == "Volume":
                 global_id = global_id_lookup.get(handle, 0)

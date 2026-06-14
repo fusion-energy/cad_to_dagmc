@@ -94,6 +94,7 @@ def vertices_to_h5m(
     h5m_filename: str = "dagmc.h5m",
     implicit_complement_material_tag: str | None = None,
     method: str = "h5py",
+    component_tags: list[str | None] | None = None,
 ):
     """Converts vertices and triangle sets into a tagged h5m file compatible
     with DAGMC enabled neutronics simulations
@@ -105,6 +106,11 @@ def vertices_to_h5m(
         h5m_filename: Output filename for the h5m file
         implicit_complement_material_tag: Optional material tag for implicit complement
         method: Backend to use for writing h5m file ('pymoab' or 'h5py')
+        component_tags: Optional list of component identity tags, one per solid (in
+            the same order as material_tags). Each non-None entry is written as an
+            additional "component:<tag>" group alongside the material group, letting
+            components that share a material be distinguished downstream. None
+            entries (and None for the whole argument) write no component group.
     """
     if method == "pymoab":
         return _vertices_to_h5m_pymoab(
@@ -113,6 +119,7 @@ def vertices_to_h5m(
             material_tags=material_tags,
             h5m_filename=h5m_filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
+            component_tags=component_tags,
         )
     elif method == "h5py":
         return _vertices_to_h5m_h5py(
@@ -121,6 +128,7 @@ def vertices_to_h5m(
             material_tags=material_tags,
             h5m_filename=h5m_filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
+            component_tags=component_tags,
         )
     else:
         raise ValueError(f"method must be 'pymoab' or 'h5py', not '{method}'")
@@ -132,6 +140,7 @@ def _vertices_to_h5m_pymoab(
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
     implicit_complement_material_tag: str | None = None,
+    component_tags: list[str | None] | None = None,
 ):
     """PyMOAB backend for vertices_to_h5m."""
     try:
@@ -143,7 +152,11 @@ def _vertices_to_h5m_pymoab(
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
         raise ValueError(msg)
 
-    # limited attribute checking to see if user passed in a list of CadQuery vectors
+    # Default to no component groups, keeping one entry per solid for zipping below
+    if component_tags is None:
+        component_tags = [None] * len(triangles_by_solid_by_face)
+
+    # Limited attribute checking to see if user passed in a list of CadQuery vectors
     if (
         hasattr(vertices[0], "x")
         and hasattr(vertices[0], "y")
@@ -176,8 +189,8 @@ def _vertices_to_h5m_pymoab(
         volume_sets_by_solid_id[solid_id] = volume_set
 
     added_surfaces_ids = {}
-    for material_tag, (solid_id, triangles_on_each_face) in zip(
-        material_tags, triangles_by_solid_by_face.items()
+    for material_tag, component_tag, (solid_id, triangles_on_each_face) in zip(
+        material_tags, component_tags, triangles_by_solid_by_face.items()
     ):
         volume_set = volume_sets_by_solid_id[solid_id]
 
@@ -244,6 +257,17 @@ def _vertices_to_h5m_pymoab(
 
         moab_core.add_entity(group_set, volume_set)
 
+        # Write an independent component identity group alongside the material
+        # group so that components sharing a material can still be distinguished
+        if component_tag is not None:
+            component_group_set = moab_core.create_meshset()
+            moab_core.tag_set_data(tags["category"], component_group_set, "Group")
+            moab_core.tag_set_data(
+                tags["name"], component_group_set, f"component:{component_tag}"
+            )
+            moab_core.tag_set_data(tags["global_id"], component_group_set, solid_id)
+            moab_core.add_entity(component_group_set, volume_set)
+
     if implicit_complement_material_tag:
         group_set = moab_core.create_meshset()
         moab_core.tag_set_data(tags["category"], group_set, "Group")
@@ -282,6 +306,7 @@ def _vertices_to_h5m_h5py(
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
     implicit_complement_material_tag: str | None = None,
+    component_tags: list[str | None] | None = None,
 ):
     """H5PY backend for vertices_to_h5m.
 
@@ -294,6 +319,14 @@ def _vertices_to_h5m_h5py(
     if len(material_tags) != len(triangles_by_solid_by_face):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
         raise ValueError(msg)
+
+    # Default to no component groups, keeping one entry per solid so the
+    # component tag can be looked up by solid_id below
+    if component_tags is None:
+        component_tags = [None] * len(triangles_by_solid_by_face)
+    component_tag_by_solid = dict(
+        zip(list(triangles_by_solid_by_face.keys()), component_tags)
+    )
 
     # Convert CadQuery vectors to floats if needed
     if (
@@ -428,6 +461,14 @@ def _vertices_to_h5m_h5py(
             group_set_ids[solid_id] = current_set_id
             current_set_id += 1
 
+        # Then assign IDs to component identity groups (one per solid that has a
+        # component tag).
+        component_group_set_ids = {}  # solid_id -> set_id
+        for solid_id in solid_ids:
+            if component_tag_by_solid.get(solid_id) is not None:
+                component_group_set_ids[solid_id] = current_set_id
+                current_set_id += 1
+
         # Implicit complement group (if requested)
         implicit_complement_set_id = None
         if implicit_complement_material_tag:
@@ -462,6 +503,12 @@ def _vertices_to_h5m_h5py(
         for solid_id in solid_ids:
             category_set_ids.append(group_set_ids[solid_id])
             categories.append("Group")
+
+        # Component identity groups (also category Group, no geom_dimension)
+        for solid_id in solid_ids:
+            if solid_id in component_group_set_ids:
+                category_set_ids.append(component_group_set_ids[solid_id])
+                categories.append("Group")
 
         # Surfaces
         for face_id in sorted(all_faces.keys()):
@@ -548,6 +595,11 @@ def _vertices_to_h5m_h5py(
         for solid_id in solid_ids:
             gid_ids.append(group_set_ids[solid_id])
             gid_values.append(solid_id)
+        # Component groups also get the solid_id
+        for solid_id in solid_ids:
+            if solid_id in component_group_set_ids:
+                gid_ids.append(component_group_set_ids[solid_id])
+                gid_values.append(solid_id)
 
         gid_group = tstt_tags.create_group("GLOBAL_ID")
         gid_group["type"] = np.dtype("i4")
@@ -563,6 +615,11 @@ def _vertices_to_h5m_h5py(
         for solid_id, mat_tag in zip(solid_ids, material_tags):
             name_ids.append(group_set_ids[solid_id])
             name_values.append(f"mat:{mat_tag}")
+        # Component identity groups get a "component:" prefixed name
+        for solid_id in solid_ids:
+            if solid_id in component_group_set_ids:
+                name_ids.append(component_group_set_ids[solid_id])
+                name_values.append(f"component:{component_tag_by_solid[solid_id]}")
         if implicit_complement_material_tag:
             name_ids.append(implicit_complement_set_id)
             name_values.append(f"mat:{implicit_complement_material_tag}_comp")
@@ -673,6 +730,13 @@ def _vertices_to_h5m_h5py(
             contents_end = len(contents) - 1
             list_rows.append([contents_end, children_end, parents_end, 2])
 
+        # Component identity group sets (each contains its volume handle).
+        for solid_id in solid_ids:
+            if solid_id in component_group_set_ids:
+                contents.append(volume_set_ids[solid_id])
+                contents_end = len(contents) - 1
+                list_rows.append([contents_end, children_end, parents_end, 2])
+
         # Implicit complement group
         if implicit_complement_material_tag:
             # Add the last volume to the implicit complement group
@@ -714,6 +778,11 @@ def _vertices_to_h5m_h5py(
         # Group global IDs
         for solid_id in solid_ids:
             set_global_ids.append(solid_id)
+
+        # Component group global IDs
+        for solid_id in solid_ids:
+            if solid_id in component_group_set_ids:
+                set_global_ids.append(solid_id)
 
         # Implicit complement
         if implicit_complement_material_tag:
@@ -953,6 +1022,40 @@ def check_material_tags(material_tags, iterable_solids):
                 msg = (
                     f"Material tag {material_tag} is too long. DAGMC will truncate this material tag "
                     f"to 28 characters. The resulting tag in the h5m file will be {material_tag[:28]}"
+                )
+                warnings.warn(msg)
+
+
+def check_component_tags(component_tags, iterable_solids):
+    """Validates component_tags the same way check_material_tags validates
+    material tags. component_tags is optional, so a falsy value is accepted and
+    skipped."""
+    if component_tags:
+        if isinstance(component_tags, str):
+            msg = (
+                "component_tags='assembly_names' can only be used when adding a \n"
+                "CadQuery assembly. For other CadQuery objects pass component_tags \n"
+                "as a list of strings, one per volume."
+            )
+            raise ValueError(msg)
+        if len(component_tags) != len(iterable_solids):
+            msg = (
+                "When setting component_tags the number of component_tags \n"
+                "should be equal to the number of volumes in the CAD \n"
+                f"geometry {len(iterable_solids)} volumes found in model \n"
+                f"and {len(component_tags)} component_tags found"
+            )
+            raise ValueError(msg)
+
+        for component_tag in component_tags:
+            if not isinstance(component_tag, str):
+                msg = "component_tags should be an iterable of strings."
+                raise ValueError(msg)
+            # NAME tag, so the usable tag length before truncation is 22
+            if len(component_tag) > 22:
+                msg = (
+                    f"Component tag {component_tag} is too long. The component group "
+                    f"name will be truncated to component:{component_tag[:22]} in the h5m file"
                 )
                 warnings.warn(msg)
 
@@ -1219,6 +1322,7 @@ class CadToDagmc:
     def __init__(self):
         self.parts = []
         self.material_tags = []
+        self.component_tags = []
 
     def add_stp_file(
         self,
@@ -1287,6 +1391,7 @@ class CadToDagmc:
         ),
         material_tags: list[str] | str,
         scale_factor: float = 1.0,
+        component_tags: list[str] | str | None = None,
     ) -> int:
         """Loads the parts from CadQuery object into the model.
 
@@ -1302,6 +1407,15 @@ class CadToDagmc:
                 used to increase the size or decrease the size of the geometry.
                 Useful when converting the geometry to cm for use in neutronics
                 simulations.
+            component_tags (Optional list[str] | str): per-volume identity tags
+                written to the h5m file as "component:<tag>" groups, independent
+                of the material groups. This lets components that share a
+                material still be distinguished downstream (e.g. an OpenMC
+                CellFilter) without duplicating materials. Can be a list of
+                strings (one per volume, in the same order as the volumes) or
+                the special string "assembly_names" to derive the tags from the
+                CadQuery assembly part names. Defaults to None (no component
+                groups are written).
 
         Returns:
             int: number of volumes in the stp file.
@@ -1313,6 +1427,11 @@ class CadToDagmc:
         ]:
             raise ValueError(
                 f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
+            )
+
+        if isinstance(component_tags, str) and component_tags != "assembly_names":
+            raise ValueError(
+                f"If component_tags is a string it must be 'assembly_names' but got {component_tags}"
             )
 
         if isinstance(cadquery_object, cq.assembly.Assembly):
@@ -1340,16 +1459,32 @@ class CadToDagmc:
             elif material_tags == "assembly_names":
                 material_tags = []
                 for child in _get_all_leaf_children(cadquery_object):
-                    # count solids in this child to repeat the tag appropriately                           
+                    # count solids in this child to repeat the tag appropriately
                     child_shape = child.toCompound() if hasattr(child, 'toCompound') else child.obj        
                     if child_shape is not None:                                                            
                         child_solids = child_shape.Solids() if hasattr(child_shape, 'Solids') else []      
                     else:                                                                                  
                         child_solids = []  
                     # parts always have a name as cq will auto assign one
-                    for _ in child_solids:                                                                 
-                        material_tags.append(child.name)                 
+                    for _ in child_solids:
+                        material_tags.append(child.name)
                 print("material_tags found from assembly names:", material_tags)
+
+            # mirror of the material_tags "assembly_names" handling above, but for
+            # the independent per-volume component identity groups
+            if component_tags == "assembly_names":
+                component_tags = []
+                for child in _get_all_leaf_children(cadquery_object):
+                    # count solids in this child to repeat the name appropriately
+                    child_shape = child.toCompound() if hasattr(child, "toCompound") else child.obj
+                    if child_shape is not None:
+                        child_solids = child_shape.Solids() if hasattr(child_shape, "Solids") else []
+                    else:
+                        child_solids = []
+                    # parts always have a name as cq will auto assign one
+                    for _ in child_solids:
+                        component_tags.append(child.name)
+                print("component_tags found from assembly names:", component_tags)
 
             cadquery_compound = cadquery_object.toCompound()
         else:
@@ -1370,8 +1505,18 @@ class CadToDagmc:
             ]
 
         check_material_tags(material_tags, scaled_iterable_solids)
+        check_component_tags(component_tags, scaled_iterable_solids)
         if material_tags:
             self.material_tags = self.material_tags + material_tags
+        # keep component_tags aligned one-to-one with parts, padding with None for
+        # any solids that were added without a component identity so that the list
+        # stays in sync with self.parts and self.material_tags
+        if component_tags:
+            self.component_tags = self.component_tags + list(component_tags)
+        else:
+            self.component_tags = self.component_tags + [None] * len(
+                scaled_iterable_solids
+            )
         self.parts = self.parts + scaled_iterable_solids
 
         return len(scaled_iterable_solids)
@@ -1718,6 +1863,9 @@ class CadToDagmc:
         unstructured_volumes = None
         umesh_filename = "umesh.vtk"
         threads = 0
+        # component identity tags reordered to match the meshed (brep) volume
+        # order; stays None for backends that do not support component groups
+        component_tags_in_brep_order = None
 
         # Extract backend-specific parameters with defaults
         if meshing_backend == "cadquery":
@@ -1810,8 +1958,15 @@ class CadToDagmc:
                 material_tags_in_brep_order = order_material_ids_by_brep_order(
                     original_ids, scrambled_ids, self.material_tags
                 )
+                # order_material_ids_by_brep_order is a generic reorder despite its
+                # name; component_tags share self.parts ordering with material_tags
+                # so the same permutation puts them into brep order too
+                component_tags_in_brep_order = order_material_ids_by_brep_order(
+                    original_ids, scrambled_ids, self.component_tags
+                )
             else:
                 material_tags_in_brep_order = self.material_tags
+                component_tags_in_brep_order = self.component_tags
 
             check_material_tags(material_tags_in_brep_order, self.parts)
 
@@ -1834,9 +1989,16 @@ class CadToDagmc:
                 material_tags_in_brep_order = order_material_ids_by_brep_order(
                     original_ids, scrambled_ids, self.material_tags
                 )
+                # order_material_ids_by_brep_order is a generic reorder despite its
+                # name; component_tags share self.parts ordering with material_tags
+                # so the same permutation puts them into brep order too
+                component_tags_in_brep_order = order_material_ids_by_brep_order(
+                    original_ids, scrambled_ids, self.component_tags
+                )
 
             else:
                 material_tags_in_brep_order = self.material_tags
+                component_tags_in_brep_order = self.component_tags
                 imprinted_assembly = assembly
 
             check_material_tags(material_tags_in_brep_order, self.parts)
@@ -1897,6 +2059,7 @@ class CadToDagmc:
             vertices=vertices,
             triangles_by_solid_by_face=triangles_by_solid_by_face,
             material_tags=material_tags_in_brep_order,
+            component_tags=component_tags_in_brep_order,
             h5m_filename=filename,
             implicit_complement_material_tag=implicit_complement_material_tag,
             method=h5m_backend,
