@@ -1049,7 +1049,7 @@ def check_component_tags(component_tags, iterable_solids):
 
         for component_tag in component_tags:
             if not isinstance(component_tag, str):
-                msg = f"component_tags should be an iterable of strings."
+                msg = "component_tags should be an iterable of strings."
                 raise ValueError(msg)
             # NAME tag, so the usable tag length before truncation is 22
             if len(component_tag) > 22:
