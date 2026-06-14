@@ -37,7 +37,7 @@ write_to = "src/_version.py"
 
 [project.optional-dependencies]
 tests = [
-    "pytest",
+    "pytest<9.1",
     "pytest-codeblocks",
     "vtk",
     "assembly-mesh-plugin",
