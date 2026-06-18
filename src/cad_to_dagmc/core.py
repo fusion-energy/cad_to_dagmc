@@ -1796,12 +1796,13 @@ class CadToDagmc:
 
         # The gmsh backend opens a gmsh session (gmsh is a global singleton).
         # Wrap the whole meshing and export in try/finally so the session is
-        # always finalized for the gmsh backend - on every return path and even
-        # if meshing raises part way through. Without this, repeated calls
-        # accumulate gmsh models in the session (see issue #187). The
-        # isInitialized() guard keeps the finally safe if an error occurs before
-        # init_gmsh() runs, and scoping to the gmsh backend avoids finalizing a
-        # session the caller may own when using a non-gmsh backend.
+        # always finalized - on every return path and even if meshing raises
+        # part way through. Without this, repeated calls accumulate gmsh models
+        # in the session (see issue #187). gmsh_session_started is only set once
+        # init_gmsh() has run, so the finally never touches the (function-local)
+        # gmsh name before it is bound and never finalizes a session the caller
+        # may own when using a non-gmsh backend.
+        gmsh_session_started = False
         try:
             # Use the CadQuery direct mesh plugin
             if meshing_backend == "cadquery":
@@ -1860,6 +1861,7 @@ class CadToDagmc:
 
                 # Start generating the mesh
                 gmsh = init_gmsh()
+                gmsh_session_started = True
 
                 gmsh, volumes = get_volumes(
                     gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
@@ -1948,7 +1950,7 @@ class CadToDagmc:
 
             return dagmc_filename
         finally:
-            if meshing_backend == "gmsh" and gmsh.isInitialized():
+            if gmsh_session_started and gmsh.isInitialized():
                 gmsh.finalize()
 
 

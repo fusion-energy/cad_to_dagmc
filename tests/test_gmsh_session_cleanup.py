@@ -74,6 +74,30 @@ def test_gmsh_export_finalizes_on_meshing_error(tmp_path, monkeypatch):
     assert not gmsh.isInitialized()
 
 
+def test_gmsh_export_propagates_error_raised_before_session_starts(
+    tmp_path, monkeypatch
+):
+    """If the gmsh path fails before init_gmsh() runs (e.g. imprinting fails),
+    the original error must propagate. The finally must not mask it with an
+    UnboundLocalError from touching the function-local gmsh name before it is
+    bound."""
+    model = _sphere_model(5.0)
+
+    def boom():
+        raise RuntimeError("failure before gmsh session starts")
+
+    # init_gmsh() is the first statement in the gmsh path that binds the local
+    # gmsh name; failing here leaves it unbound when the finally runs.
+    monkeypatch.setattr("cad_to_dagmc.core.init_gmsh", boom)
+
+    with pytest.raises(RuntimeError, match="failure before gmsh session starts"):
+        model.export_dagmc_h5m_file(
+            filename=str(tmp_path / "geom.h5m"),
+            min_mesh_size=2.0,
+            max_mesh_size=10.0,
+        )
+
+
 def test_init_gmsh_clears_leaked_session():
     """init_gmsh must start from a clean session even if gmsh was already
     initialized with stale models (self-healing against leaked sessions)."""
