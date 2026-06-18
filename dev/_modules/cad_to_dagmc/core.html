@@ -2244,56 +2244,65 @@ window.runMermaid = runMermaid;</script>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
-        <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+        <span class="c1"># gmsh is a global singleton; finalize the session on every exit path</span>
+        <span class="c1"># (including a mid-mesh exception) so repeated calls don&#39;t accumulate</span>
+        <span class="c1"># models. gmsh_session_started is only set once init_gmsh() has bound</span>
+        <span class="c1"># the local gmsh name, keeping the finally safe if init_gmsh() itself</span>
+        <span class="c1"># raises. See issue #187.</span>
+        <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+            <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes_in_model</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
-            <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
-        <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
-            <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
-                <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes_in_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+            <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes_in_model</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
+                <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
             <span class="p">)</span>
 
-        <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
-            <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
-            <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
-            <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
-            <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
-            <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
-            <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
-            <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
+            <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
+                <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
+                    <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes_in_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+                <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">volumes</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">volume_id</span> <span class="ow">in</span> <span class="n">volumes_in_model</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">volume_id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volumes</span><span class="p">:</span>
-                    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">remove</span><span class="p">([</span><span class="n">volume_id</span><span class="p">],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.SaveAll&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
-            <span class="c1"># Clear the mesh</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span>
-                <span class="s2">&quot;Mesh.SaveElementTagType&quot;</span><span class="p">,</span> <span class="mi">3</span>
-            <span class="p">)</span>  <span class="c1"># Save only volume elements</span>
+            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
+                <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
+                <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
+                <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
+                <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
+                <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+                <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+                <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">volumes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">volume_id</span> <span class="ow">in</span> <span class="n">volumes_in_model</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">volume_id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volumes</span><span class="p">:</span>
+                        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">remove</span><span class="p">([</span><span class="n">volume_id</span><span class="p">],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.SaveAll&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+                <span class="c1"># Clear the mesh</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span>
+                    <span class="s2">&quot;Mesh.SaveElementTagType&quot;</span><span class="p">,</span> <span class="mi">3</span>
+                <span class="p">)</span>  <span class="c1"># Save only volume elements</span>
 
-        <span class="c1"># makes the folder if it does not exist</span>
-        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-        <span class="c1"># gmsh.write only accepts strings</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="c1"># makes the folder if it does not exist</span>
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+            <span class="c1"># gmsh.write only accepts strings</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">filename</span></div>
+            <span class="k">return</span> <span class="n">filename</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gmsh_session_started</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="CadToDagmc.export_gmsh_mesh_file">
@@ -2353,44 +2362,53 @@ window.runMermaid = runMermaid;</script>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
-        <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+        <span class="c1"># gmsh is a global singleton; finalize the session on every exit path</span>
+        <span class="c1"># (including a mid-mesh exception) so repeated calls don&#39;t accumulate</span>
+        <span class="c1"># models. gmsh_session_started is only set once init_gmsh() has bound</span>
+        <span class="c1"># the local gmsh name, keeping the finally safe if init_gmsh() itself</span>
+        <span class="c1"># raises. See issue #187.</span>
+        <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+            <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
-            <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
-        <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
-            <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
-                <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+            <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
+                <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
             <span class="p">)</span>
 
-        <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
-            <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
-            <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
-            <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
-            <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
-            <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
-            <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
-            <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
+            <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
+                <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
+                    <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+                <span class="p">)</span>
 
-        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
+                <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
+                <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
+                <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
+                <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
+                <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+                <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+                <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="c1"># makes the folder if it does not exist</span>
-        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
 
-        <span class="c1"># gmsh.write only accepts strings</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="c1"># makes the folder if it does not exist</span>
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;written GMSH mesh file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># gmsh.write only accepts strings</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-        <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;written GMSH mesh file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gmsh_session_started</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="CadToDagmc.export_dagmc_h5m_file">
@@ -2588,12 +2606,13 @@ window.runMermaid = runMermaid;</script>
 
         <span class="c1"># The gmsh backend opens a gmsh session (gmsh is a global singleton).</span>
         <span class="c1"># Wrap the whole meshing and export in try/finally so the session is</span>
-        <span class="c1"># always finalized for the gmsh backend - on every return path and even</span>
-        <span class="c1"># if meshing raises part way through. Without this, repeated calls</span>
-        <span class="c1"># accumulate gmsh models in the session (see issue #187). The</span>
-        <span class="c1"># isInitialized() guard keeps the finally safe if an error occurs before</span>
-        <span class="c1"># init_gmsh() runs, and scoping to the gmsh backend avoids finalizing a</span>
-        <span class="c1"># session the caller may own when using a non-gmsh backend.</span>
+        <span class="c1"># always finalized - on every return path and even if meshing raises</span>
+        <span class="c1"># part way through. Without this, repeated calls accumulate gmsh models</span>
+        <span class="c1"># in the session (see issue #187). gmsh_session_started is only set once</span>
+        <span class="c1"># init_gmsh() has run, so the finally never touches the (function-local)</span>
+        <span class="c1"># gmsh name before it is bound and never finalizes a session the caller</span>
+        <span class="c1"># may own when using a non-gmsh backend.</span>
+        <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Use the CadQuery direct mesh plugin</span>
             <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
@@ -2652,6 +2671,7 @@ window.runMermaid = runMermaid;</script>
 
                 <span class="c1"># Start generating the mesh</span>
                 <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+                <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
                     <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
@@ -2740,7 +2760,7 @@ window.runMermaid = runMermaid;</script>
 
             <span class="k">return</span> <span class="n">dagmc_filename</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">gmsh_session_started</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
                 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 </div>
 
