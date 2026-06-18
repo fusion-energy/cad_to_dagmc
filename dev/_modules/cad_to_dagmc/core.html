@@ -1522,6 +1522,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="init_gmsh">
 <a class="viewcode-back" href="../../api.html#cad_to_dagmc.init_gmsh">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">init_gmsh</span><span class="p">():</span>
+    <span class="c1"># gmsh is a global singleton. If a previous session was left initialized</span>
+    <span class="c1"># (for example by an export that errored part way through, or an earlier</span>
+    <span class="c1"># call that did not finalize) then adding a new model here would leave the</span>
+    <span class="c1"># stale models from that session alive, leaking memory and growing the</span>
+    <span class="c1"># session on every call (see issue #187). Finalize any pre-existing</span>
+    <span class="c1"># session first so we always start from a clean, single-model state.</span>
+    <span class="k">if</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
+        <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
     <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
     <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.Terminal&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;made_with_cad_to_dagmc_package_</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2578,150 +2586,162 @@ window.runMermaid = runMermaid;</script>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Number of volumes </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">original_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not equal to number of material tags </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="c1"># Use the CadQuery direct mesh plugin</span>
-        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>
-            <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin</span>
-            <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
-                <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-                <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
-                <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-                <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Fix the material tag order for imprinted assemblies</span>
-            <span class="k">if</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;imprinted_assembly&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span>
-                    <span class="s2">&quot;imprinted_solids_with_orginal_ids&quot;</span>
-                <span class="p">]</span>
-
-                <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
-                    <span class="n">imprinted_solids_with_org_id</span>
-                <span class="p">)</span>
-
-                <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="n">order_material_ids_by_brep_order</span><span class="p">(</span>
-                    <span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-
-            <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
-
-            <span class="c1"># Extract the mesh information to allow export to h5m from the direct-mesh result</span>
-            <span class="n">vertices</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">]</span>
-            <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;solid_face_triangle_vertex_map&quot;</span><span class="p">]</span>
-        <span class="c1"># Use gmsh</span>
-        <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span><span class="p">:</span>
-            <span class="c1"># If assembly is not to be imprinted, pass through the assembly as-is</span>
-            <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imprinting assembly for mesh generation&quot;</span><span class="p">)</span>
-                <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
-                <span class="p">)</span>
-
-                <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
-                    <span class="n">imprinted_solids_with_org_id</span>
-                <span class="p">)</span>
-
-                <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="n">order_material_ids_by_brep_order</span><span class="p">(</span>
-                    <span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-                <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
-
-            <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
-
-            <span class="c1"># Start generating the mesh</span>
-            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
-
-            <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
-                <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
-            <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
-                <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
-                    <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span>
-                <span class="p">)</span>
-
-            <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
-                <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
-                <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
-                <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
-                <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
-                <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
-                <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
-                <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-            <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
-                <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">volumes</span>
-            <span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
-            <span class="n">tet_volumes_arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">))</span>
-            <span class="n">target_edge_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_edge_length&quot;</span><span class="p">)</span>
-
-            <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
-                    <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-                    <span class="n">material_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">,</span>
+        <span class="c1"># The gmsh backend opens a gmsh session (gmsh is a global singleton).</span>
+        <span class="c1"># Wrap the whole meshing and export in try/finally so the session is</span>
+        <span class="c1"># always finalized for the gmsh backend - on every return path and even</span>
+        <span class="c1"># if meshing raises part way through. Without this, repeated calls</span>
+        <span class="c1"># accumulate gmsh models in the session (see issue #187). The</span>
+        <span class="c1"># isInitialized() guard keeps the finally safe if an error occurs before</span>
+        <span class="c1"># init_gmsh() runs, and scoping to the gmsh backend avoids finalizing a</span>
+        <span class="c1"># session the caller may own when using a non-gmsh backend.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Use the CadQuery direct mesh plugin</span>
+            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>
+                <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin</span>
+                <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
+                    <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
                     <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
                     <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-                    <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes_arg</span><span class="p">,</span>
-                    <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
-                    <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                    <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
                 <span class="p">)</span>
+
+                <span class="c1"># Fix the material tag order for imprinted assemblies</span>
+                <span class="k">if</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;imprinted_assembly&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span>
+                        <span class="s2">&quot;imprinted_solids_with_orginal_ids&quot;</span>
+                    <span class="p">]</span>
+
+                    <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
+                        <span class="n">imprinted_solids_with_org_id</span>
+                    <span class="p">)</span>
+
+                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="n">order_material_ids_by_brep_order</span><span class="p">(</span>
+                        <span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+
+                <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+
+                <span class="c1"># Extract the mesh information to allow export to h5m from the direct-mesh result</span>
+                <span class="n">vertices</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">]</span>
+                <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;solid_face_triangle_vertex_map&quot;</span><span class="p">]</span>
+            <span class="c1"># Use gmsh</span>
+            <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span><span class="p">:</span>
+                <span class="c1"># If assembly is not to be imprinted, pass through the assembly as-is</span>
+                <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imprinting assembly for mesh generation&quot;</span><span class="p">)</span>
+                    <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+                    <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
+                        <span class="n">imprinted_solids_with_org_id</span>
+                    <span class="p">)</span>
+
+                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="n">order_material_ids_by_brep_order</span><span class="p">(</span>
+                        <span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+                    <span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
+                    <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
+
+                <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+
+                <span class="c1"># Start generating the mesh</span>
+                <span class="n">gmsh</span> <span class="o">=</span> <span class="n">init_gmsh</span><span class="p">()</span>
+
+                <span class="n">gmsh</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="n">get_volumes</span><span class="p">(</span>
+                    <span class="n">gmsh</span><span class="p">,</span> <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Resolve any material tag strings in set_size to volume IDs</span>
+                <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">set_size</span><span class="p">:</span>
+                    <span class="n">resolved_set_size</span> <span class="o">=</span> <span class="n">resolve_set_size</span><span class="p">(</span>
+                        <span class="n">set_size</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span>
+                    <span class="p">)</span>
+
+                <span class="n">gmsh</span> <span class="o">=</span> <span class="n">set_sizes_for_mesh</span><span class="p">(</span>
+                    <span class="n">gmsh</span><span class="o">=</span><span class="n">gmsh</span><span class="p">,</span>
+                    <span class="n">min_mesh_size</span><span class="o">=</span><span class="n">min_mesh_size</span><span class="p">,</span>
+                    <span class="n">max_mesh_size</span><span class="o">=</span><span class="n">max_mesh_size</span><span class="p">,</span>
+                    <span class="n">mesh_algorithm</span><span class="o">=</span><span class="n">mesh_algorithm</span><span class="p">,</span>
+                    <span class="n">set_size</span><span class="o">=</span><span class="n">resolved_set_size</span><span class="p">,</span>
+                    <span class="n">original_set_size</span><span class="o">=</span><span class="n">set_size</span><span class="p">,</span>
+                    <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
+                    <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">volumes</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
+                <span class="n">tet_volumes_arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">))</span>
+                <span class="n">target_edge_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_edge_length&quot;</span><span class="p">)</span>
+
+                <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
+                        <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                        <span class="n">material_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">,</span>
+                        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                        <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+                        <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes_arg</span><span class="p">,</span>
+                        <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+                        <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;meshing_backend </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1"> not supported. &#39;</span>
+                    <span class="s1">&#39;Available options are &quot;cadquery&quot;, &quot;gmsh&quot;, or &quot;cad-to-dagmc-mesher&quot;&#39;</span>
+                <span class="p">)</span>
+
+            <span class="n">dagmc_filename</span> <span class="o">=</span> <span class="n">vertices_to_h5m</span><span class="p">(</span>
+                <span class="n">vertices</span><span class="o">=</span><span class="n">vertices</span><span class="p">,</span>
+                <span class="n">triangles_by_solid_by_face</span><span class="o">=</span><span class="n">triangles_by_solid_by_face</span><span class="p">,</span>
+                <span class="n">material_tags</span><span class="o">=</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span>
+                <span class="n">h5m_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="n">implicit_complement_material_tag</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">h5m_backend</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;meshing_backend </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1"> not supported. &#39;</span>
-                <span class="s1">&#39;Available options are &quot;cadquery&quot;, &quot;gmsh&quot;, or &quot;cad-to-dagmc-mesher&quot;&#39;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span> <span class="ow">and</span> <span class="n">unstructured_volumes</span><span class="p">:</span>
+                <span class="c1"># Resolve any material tag strings to volume IDs</span>
+                <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">resolve_unstructured_volumes</span><span class="p">(</span>
+                    <span class="n">unstructured_volumes</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span>
+                <span class="p">)</span>
+                <span class="c1"># remove all the unused occ volumes, this prevents them being meshed</span>
+                <span class="k">for</span> <span class="n">volume_dim</span><span class="p">,</span> <span class="n">volume_id</span> <span class="ow">in</span> <span class="n">volumes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">volume_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unstructured_volumes</span><span class="p">:</span>
+                        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
+                            <span class="p">[(</span><span class="n">volume_dim</span><span class="p">,</span> <span class="n">volume_id</span><span class="p">)],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.SaveAll&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
 
-        <span class="n">dagmc_filename</span> <span class="o">=</span> <span class="n">vertices_to_h5m</span><span class="p">(</span>
-            <span class="n">vertices</span><span class="o">=</span><span class="n">vertices</span><span class="p">,</span>
-            <span class="n">triangles_by_solid_by_face</span><span class="o">=</span><span class="n">triangles_by_solid_by_face</span><span class="p">,</span>
-            <span class="n">material_tags</span><span class="o">=</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span>
-            <span class="n">h5m_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-            <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="n">implicit_complement_material_tag</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="n">h5m_backend</span><span class="p">,</span>
-        <span class="p">)</span>
+                <span class="c1"># removes all the 2D groups so that 2D faces are not included in the vtk file</span>
+                <span class="n">all_2d_groups</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalGroups</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">all_2d_groups</span><span class="p">:</span>
+                    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">removePhysicalGroups</span><span class="p">([</span><span class="n">entry</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">unstructured_volumes</span><span class="p">:</span>
-            <span class="c1"># Resolve any material tag strings to volume IDs</span>
-            <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">resolve_unstructured_volumes</span><span class="p">(</span>
-                <span class="n">unstructured_volumes</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span>
-            <span class="p">)</span>
-            <span class="c1"># remove all the unused occ volumes, this prevents them being meshed</span>
-            <span class="k">for</span> <span class="n">volume_dim</span><span class="p">,</span> <span class="n">volume_id</span> <span class="ow">in</span> <span class="n">volumes</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">volume_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unstructured_volumes</span><span class="p">:</span>
-                    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">remove</span><span class="p">([(</span><span class="n">volume_dim</span><span class="p">,</span> <span class="n">volume_id</span><span class="p">)],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.SaveAll&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span>
+                    <span class="s2">&quot;Mesh.SaveElementTagType&quot;</span><span class="p">,</span> <span class="mi">3</span>
+                <span class="p">)</span>  <span class="c1"># Save only volume elements</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">umesh_filename</span><span class="p">)</span>
 
-            <span class="c1"># removes all the 2D groups so that 2D faces are not included in the vtk file</span>
-            <span class="n">all_2d_groups</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalGroups</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">all_2d_groups</span><span class="p">:</span>
-                <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">removePhysicalGroups</span><span class="p">([</span><span class="n">entry</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span>
 
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span>
-                <span class="s2">&quot;Mesh.SaveElementTagType&quot;</span><span class="p">,</span> <span class="mi">3</span>
-            <span class="p">)</span>  <span class="c1"># Save only volume elements</span>
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">umesh_filename</span><span class="p">)</span>
-
-            <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
-
-            <span class="k">return</span> <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">dagmc_filename</span></div>
+            <span class="k">return</span> <span class="n">dagmc_filename</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 </div>
 
 
