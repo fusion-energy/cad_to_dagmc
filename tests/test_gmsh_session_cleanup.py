@@ -74,6 +74,40 @@ def test_gmsh_export_finalizes_on_meshing_error(tmp_path, monkeypatch):
     assert not gmsh.isInitialized()
 
 
+def test_export_gmsh_mesh_file_finalizes_on_meshing_error(tmp_path, monkeypatch):
+    """export_gmsh_mesh_file must finalize the gmsh session even if meshing
+    raises part way through."""
+    model = _sphere_model(5.0)
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("simulated meshing failure")
+
+    monkeypatch.setattr("gmsh.model.mesh.generate", boom)
+
+    with pytest.raises(RuntimeError, match="simulated meshing failure"):
+        model.export_gmsh_mesh_file(filename=str(tmp_path / "mesh.msh"))
+
+    assert not gmsh.isInitialized()
+
+
+def test_export_unstructured_mesh_file_finalizes_on_meshing_error(
+    tmp_path, monkeypatch
+):
+    """export_unstructured_mesh_file must finalize the gmsh session even if
+    meshing raises part way through."""
+    model = _sphere_model(5.0)
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("simulated meshing failure")
+
+    monkeypatch.setattr("gmsh.model.mesh.generate", boom)
+
+    with pytest.raises(RuntimeError, match="simulated meshing failure"):
+        model.export_unstructured_mesh_file(filename=str(tmp_path / "umesh.vtk"))
+
+    assert not gmsh.isInitialized()
+
+
 def test_gmsh_export_propagates_error_raised_before_session_starts(
     tmp_path, monkeypatch
 ):
