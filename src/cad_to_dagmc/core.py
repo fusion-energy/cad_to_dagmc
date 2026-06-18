@@ -1458,56 +1458,65 @@ class CadToDagmc:
         else:
             imprinted_assembly = assembly
 
-        gmsh = init_gmsh()
+        # gmsh is a global singleton; finalize the session on every exit path
+        # (including a mid-mesh exception) so repeated calls don't accumulate
+        # models. gmsh_session_started is only set once init_gmsh() has bound
+        # the local gmsh name, keeping the finally safe if init_gmsh() itself
+        # raises. See issue #187.
+        gmsh_session_started = False
+        try:
+            gmsh = init_gmsh()
+            gmsh_session_started = True
 
-        gmsh, volumes_in_model = get_volumes(
-            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-        )
-
-        # Resolve any material tag strings in set_size to volume IDs
-        resolved_set_size = None
-        if set_size:
-            resolved_set_size = resolve_set_size(
-                set_size, volumes_in_model, self.material_tags
+            gmsh, volumes_in_model = get_volumes(
+                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
             )
 
-        gmsh = set_sizes_for_mesh(
-            gmsh=gmsh,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            mesh_algorithm=mesh_algorithm,
-            set_size=resolved_set_size,
-            original_set_size=set_size,
-            threads=threads,
-        )
+            # Resolve any material tag strings in set_size to volume IDs
+            resolved_set_size = None
+            if set_size:
+                resolved_set_size = resolve_set_size(
+                    set_size, volumes_in_model, self.material_tags
+                )
 
-        if volumes:
-            for volume_id in volumes_in_model:
-                if volume_id[1] not in volumes:
-                    gmsh.model.occ.remove([volume_id], recursive=True)
-            gmsh.option.setNumber("Mesh.SaveAll", 1)
-            gmsh.model.occ.synchronize()
-            # Clear the mesh
-            gmsh.model.mesh.clear()
-            gmsh.option.setNumber(
-                "Mesh.SaveElementTagType", 3
-            )  # Save only volume elements
+            gmsh = set_sizes_for_mesh(
+                gmsh=gmsh,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
+                mesh_algorithm=mesh_algorithm,
+                set_size=resolved_set_size,
+                original_set_size=set_size,
+                threads=threads,
+            )
 
-        gmsh.model.mesh.generate(3)
+            if volumes:
+                for volume_id in volumes_in_model:
+                    if volume_id[1] not in volumes:
+                        gmsh.model.occ.remove([volume_id], recursive=True)
+                gmsh.option.setNumber("Mesh.SaveAll", 1)
+                gmsh.model.occ.synchronize()
+                # Clear the mesh
+                gmsh.model.mesh.clear()
+                gmsh.option.setNumber(
+                    "Mesh.SaveElementTagType", 3
+                )  # Save only volume elements
 
-        # makes the folder if it does not exist
-        if Path(filename).parent:
-            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            gmsh.model.mesh.generate(3)
 
-        # gmsh.write only accepts strings
-        if isinstance(filename, Path):
-            gmsh.write(str(filename))
-        else:
-            gmsh.write(filename)
+            # makes the folder if it does not exist
+            if Path(filename).parent:
+                Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
-        gmsh.finalize()
+            # gmsh.write only accepts strings
+            if isinstance(filename, Path):
+                gmsh.write(str(filename))
+            else:
+                gmsh.write(filename)
 
-        return filename
+            return filename
+        finally:
+            if gmsh_session_started and gmsh.isInitialized():
+                gmsh.finalize()
 
     def export_gmsh_mesh_file(
         self,
@@ -1564,44 +1573,53 @@ class CadToDagmc:
         else:
             imprinted_assembly = assembly
 
-        gmsh = init_gmsh()
+        # gmsh is a global singleton; finalize the session on every exit path
+        # (including a mid-mesh exception) so repeated calls don't accumulate
+        # models. gmsh_session_started is only set once init_gmsh() has bound
+        # the local gmsh name, keeping the finally safe if init_gmsh() itself
+        # raises. See issue #187.
+        gmsh_session_started = False
+        try:
+            gmsh = init_gmsh()
+            gmsh_session_started = True
 
-        gmsh, volumes = get_volumes(
-            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-        )
-
-        # Resolve any material tag strings in set_size to volume IDs
-        resolved_set_size = None
-        if set_size:
-            resolved_set_size = resolve_set_size(
-                set_size, volumes, self.material_tags
+            gmsh, volumes = get_volumes(
+                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
             )
 
-        gmsh = set_sizes_for_mesh(
-            gmsh=gmsh,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            mesh_algorithm=mesh_algorithm,
-            set_size=resolved_set_size,
-            original_set_size=set_size,
-            threads=threads,
-        )
+            # Resolve any material tag strings in set_size to volume IDs
+            resolved_set_size = None
+            if set_size:
+                resolved_set_size = resolve_set_size(
+                    set_size, volumes, self.material_tags
+                )
 
-        gmsh.model.mesh.generate(dimensions)
+            gmsh = set_sizes_for_mesh(
+                gmsh=gmsh,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
+                mesh_algorithm=mesh_algorithm,
+                set_size=resolved_set_size,
+                original_set_size=set_size,
+                threads=threads,
+            )
 
-        # makes the folder if it does not exist
-        if Path(filename).parent:
-            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            gmsh.model.mesh.generate(dimensions)
 
-        # gmsh.write only accepts strings
-        if isinstance(filename, Path):
-            gmsh.write(str(filename))
-        else:
-            gmsh.write(filename)
+            # makes the folder if it does not exist
+            if Path(filename).parent:
+                Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
-        print(f"written GMSH mesh file {filename}")
+            # gmsh.write only accepts strings
+            if isinstance(filename, Path):
+                gmsh.write(str(filename))
+            else:
+                gmsh.write(filename)
 
-        gmsh.finalize()
+            print(f"written GMSH mesh file {filename}")
+        finally:
+            if gmsh_session_started and gmsh.isInitialized():
+                gmsh.finalize()
 
     def export_dagmc_h5m_file(
         self,
@@ -1796,12 +1814,13 @@ class CadToDagmc:
 
         # The gmsh backend opens a gmsh session (gmsh is a global singleton).
         # Wrap the whole meshing and export in try/finally so the session is
-        # always finalized for the gmsh backend - on every return path and even
-        # if meshing raises part way through. Without this, repeated calls
-        # accumulate gmsh models in the session (see issue #187). The
-        # isInitialized() guard keeps the finally safe if an error occurs before
-        # init_gmsh() runs, and scoping to the gmsh backend avoids finalizing a
-        # session the caller may own when using a non-gmsh backend.
+        # always finalized - on every return path and even if meshing raises
+        # part way through. Without this, repeated calls accumulate gmsh models
+        # in the session (see issue #187). gmsh_session_started is only set once
+        # init_gmsh() has run, so the finally never touches the (function-local)
+        # gmsh name before it is bound and never finalizes a session the caller
+        # may own when using a non-gmsh backend.
+        gmsh_session_started = False
         try:
             # Use the CadQuery direct mesh plugin
             if meshing_backend == "cadquery":
@@ -1860,6 +1879,7 @@ class CadToDagmc:
 
                 # Start generating the mesh
                 gmsh = init_gmsh()
+                gmsh_session_started = True
 
                 gmsh, volumes = get_volumes(
                     gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
@@ -1948,7 +1968,7 @@ class CadToDagmc:
 
             return dagmc_filename
         finally:
-            if meshing_backend == "gmsh" and gmsh.isInitialized():
+            if gmsh_session_started and gmsh.isInitialized():
                 gmsh.finalize()
 
 
