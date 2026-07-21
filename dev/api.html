@@ -529,11 +529,16 @@ simulations.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file">
-<span class="sig-name descname"><span class="pre">export_unstructured_mesh_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umesh.vtk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.export_unstructured_mesh_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">export_unstructured_mesh_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umesh.vtk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshing_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gmsh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_edge_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tet_volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angular_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.export_unstructured_mesh_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file" title="Link to this definition">#</a></dt>
 <dd><p>Exports an unstructured mesh file in VTK format for use with
 openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
 library. Example useage openmc.UnstructuredMesh(filename=”umesh.vtk”,
 library=”moab”).</p>
+<p>The mesh can be produced either with gmsh (the default) or with the
+cad-to-dagmc-mesher backend. The gmsh backend uses the min/max mesh
+size and set_size arguments, while the cad-to-dagmc-mesher backend
+uses target_edge_length (and optionally tet_volumes) to control the
+tetrahedra.</p>
 <section id="parameters">
 <h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
 <blockquote>
@@ -555,18 +560,31 @@ ensure when installing the package with Conda but harder when
 installing from PyPI.</p>
 </dd>
 <dt>scale_factor: a scaling factor to apply to the geometry that can be</dt><dd><p>used to enlarge or shrink the geometry. Useful when converting
-Useful when converting the geometry to cm for use in neutronics</p>
+the geometry to cm for use in neutronics.</p>
 </dd>
 <dt>imprint: whether to imprint the geometry or not. Defaults to True as this is</dt><dd><p>normally needed to ensure the geometry is meshed correctly. However if
 you know your geometry does not need imprinting you can set this to False
 and this can save time.</p>
 </dd>
 <dt>set_size: a dictionary mapping volume IDs (int) or material tag names</dt><dd><p>(str) to target mesh sizes (floats). Material tags are resolved to
-all volume IDs that have that tag.</p>
+all volume IDs that have that tag. Only used by the gmsh backend.</p>
 </dd>
-<dt>volumes: a list of volume ids (int) to include in the mesh. If left</dt><dd><p>as default (None) then all volumes will be included.</p>
+<dt>volumes: a list of volume ids (int) to include in the mesh. If left</dt><dd><p>as default (None) then all volumes will be included. Only used by
+the gmsh backend.</p>
 </dd>
 <dt>threads: the number of threads for Gmsh to use. 0 uses all</dt><dd><p>available cores (default), 1 uses a single thread.</p>
+</dd>
+<dt>meshing_backend: the backend used to generate the tetrahedra, either</dt><dd><p>“gmsh” (default) or “cad-to-dagmc-mesher”.</p>
+</dd>
+<dt>target_edge_length: the target tetrahedron edge length used by the</dt><dd><p>cad-to-dagmc-mesher backend. Required when meshing_backend is
+“cad-to-dagmc-mesher”.</p>
+</dd>
+<dt>tet_volumes: an iterable of material tag names identifying which</dt><dd><p>volumes to fill with tetrahedra when using the
+cad-to-dagmc-mesher backend. Defaults to all volumes.</p>
+</dd>
+<dt>tolerance: linear deflection tolerance for the surface mesh, used by</dt><dd><p>the cad-to-dagmc-mesher backend.</p>
+</dd>
+<dt>angular_tolerance: angular deflection tolerance for the surface mesh,</dt><dd><p>used by the cad-to-dagmc-mesher backend.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -575,7 +593,7 @@ all volume IDs that have that tag.</p>
 <h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h3>
 <dl class="simple">
 <dt>:</dt><dd><dl class="simple">
-<dt>gmsh<span class="classifier">gmsh</span></dt><dd><p>The gmsh object after finalizing the mesh.</p>
+<dt>filename<span class="classifier">str</span></dt><dd><p>The filename of the written unstructured mesh file.</p>
 </dd>
 </dl>
 </dd>
@@ -594,6 +612,11 @@ all volume IDs that have that tag.</p>
 <li><p><strong>set_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>volumes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>meshing_backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>target_edge_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tet_volumes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>angular_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -652,10 +675,11 @@ for the implicit complement (void space).</p></li>
 <li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – whether to imprint the geometry or not.</p></li>
 <li><p><strong>**kwargs</strong> – <p>Backend-specific parameters:</p>
 <p>Backend selection:
-- meshing_backend (str, optional): explicitly specify ‘gmsh’ or ‘cadquery’.</p>
+- meshing_backend (str, optional): explicitly specify ‘gmsh’,</p>
 <blockquote>
-<div><p>If not provided, backend is auto-selected based on other arguments.
-Defaults to ‘cadquery’ if no backend-specific arguments are given.</p>
+<div><p>’cadquery’ or ‘cad-to-dagmc-mesher’. If not provided, backend is
+auto-selected based on other arguments. Defaults to ‘cadquery’ if
+no backend-specific arguments are given.</p>
 </div></blockquote>
 <ul>
 <li><p>h5m_backend (str, optional): ‘pymoab’ or ‘h5py’ for writing h5m files.
@@ -682,6 +706,21 @@ available cores (default), 1 uses a single thread.</p></li>
 <p>For CadQuery backend:
 - tolerance (float): meshing tolerance (default: 0.1)
 - angular_tolerance (float): angular tolerance (default: 0.1)</p>
+<p>For cad-to-dagmc-mesher backend:
+- tolerance (float): surface meshing tolerance (default: 0.01)
+- angular_tolerance (float): surface angular tolerance (default: 0.2)
+- tet_volumes (Iterable[str]): material tag names of the volumes to</p>
+<blockquote>
+<div><p>fill with tetrahedra for an unstructured volume mesh.</p>
+</div></blockquote>
+<ul>
+<li><p>target_edge_length (float): target tetrahedron edge length. Both
+tet_volumes and target_edge_length must be given together to write
+a volume mesh; when they are, the return value is a
+(dagmc_filename, umesh_filename) tuple.</p></li>
+<li><p>umesh_filename (str): filename for the unstructured volume mesh
+(default: ‘umesh.vtk’).</p></li>
+</ul>
 </p></li>
 </ul>
 </dd>

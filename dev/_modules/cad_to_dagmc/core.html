@@ -758,6 +758,79 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">write_vtk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">tetrahedra</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a tetrahedral mesh to an ASCII VTK legacy file.</span>
+
+<span class="sd">    The output is a pure tetrahedron UNSTRUCTURED_GRID in the same legacy</span>
+<span class="sd">    format that gmsh writes today, so it can be read back with</span>
+<span class="sd">    openmc.UnstructuredMesh(filename, library=&quot;moab&quot;). The MOAB reader does</span>
+<span class="sd">    not require the GLOBAL_ID POINT_DATA/CELL_DATA blocks that MOAB itself</span>
+<span class="sd">    writes when it exports a mesh, so they are intentionally omitted. This</span>
+<span class="sd">    was confirmed with a round trip transport test (see</span>
+<span class="sd">    tests/test_write_vtk.py::test_write_vtk_openmc_moab_round_trip): a mesh</span>
+<span class="sd">    written without GLOBAL_ID loads in MOAB and tallies identically to one</span>
+<span class="sd">    written with it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: Output file path.</span>
+<span class="sd">        vertices: Sequence of [x, y, z] coordinates (list or numpy array).</span>
+<span class="sd">        tetrahedra: Sequence of [v0, v1, v2, v3] zero-based vertex indices</span>
+<span class="sd">            (list or numpy array).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_tets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tetrahedra</span><span class="p">)</span>
+    <span class="c1"># Stream the point/cell blocks with writelines() over generators. This</span>
+    <span class="c1"># keeps memory bounded (nothing bigger than one line is materialised at a</span>
+    <span class="c1"># time, matching the old per-line writes) while letting the C-level</span>
+    <span class="c1"># writelines do the looping, which matters for the large meshes the mesher</span>
+    <span class="c1"># can produce.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# vtk DataFile Version 2.0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unstructured mesh</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ASCII</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;DATASET UNSTRUCTURED_GRID</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;POINTS </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> double</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CELLS </span><span class="si">{</span><span class="n">n_tets</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">n_tets</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">5</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;4 </span><span class="si">{</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tetrahedra</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CELL_TYPES </span><span class="si">{</span><span class="n">n_tets</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s2">&quot;10</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tets</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">combine_tet_meshes</span><span class="p">(</span><span class="n">tet_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine per-solid tetrahedral meshes into a single mesh.</span>
+
+<span class="sd">    ``cad_to_dagmc_mesher.cad.mesh_assembly`` returns a ``tet_data`` dict</span>
+<span class="sd">    mapping ``solid_id`` to ``{&quot;vertices&quot;: (n, 3) array, &quot;tetrahedra&quot;:</span>
+<span class="sd">    (m, 4) array, ...}`` where each solid&#39;s tetrahedra index into that</span>
+<span class="sd">    solid&#39;s own vertex list. To write a single unstructured grid the vertex</span>
+<span class="sd">    arrays are concatenated and each solid&#39;s tetrahedra are offset by the</span>
+<span class="sd">    running vertex count so they index into the combined vertex array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tet_data: Mapping of solid_id -&gt; dict with &quot;vertices&quot; and</span>
+<span class="sd">            &quot;tetrahedra&quot; entries, as returned by mesh_assembly.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (vertices, tetrahedra): a single (N, 3) float array of vertex</span>
+<span class="sd">        coordinates and a single (M, 4) int array of zero-based tetrahedron</span>
+<span class="sd">        vertex indices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_vertices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_tetrahedra</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">solid_id</span> <span class="ow">in</span> <span class="n">tet_data</span><span class="p">:</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tet_data</span><span class="p">[</span><span class="n">solid_id</span><span class="p">][</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">tets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tet_data</span><span class="p">[</span><span class="n">solid_id</span><span class="p">][</span><span class="s2">&quot;tetrahedra&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">all_vertices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">verts</span><span class="p">)</span>
+        <span class="n">all_tetrahedra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tets</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_vertices</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">all_vertices</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">all_tetrahedra</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Imprint a CadQuery assembly into a connected compound.</span>
 
@@ -2188,12 +2261,23 @@ window.runMermaid = runMermaid;</script>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">meshing_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+        <span class="n">target_edge_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tet_volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exports an unstructured mesh file in VTK format for use with</span>
 <span class="sd">        openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh</span>
 <span class="sd">        library. Example useage openmc.UnstructuredMesh(filename=&quot;umesh.vtk&quot;,</span>
 <span class="sd">        library=&quot;moab&quot;).</span>
+
+<span class="sd">        The mesh can be produced either with gmsh (the default) or with the</span>
+<span class="sd">        cad-to-dagmc-mesher backend. The gmsh backend uses the min/max mesh</span>
+<span class="sd">        size and set_size arguments, while the cad-to-dagmc-mesher backend</span>
+<span class="sd">        uses target_edge_length (and optionally tet_volumes) to control the</span>
+<span class="sd">        tetrahedra.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">        -----------</span>
@@ -2215,30 +2299,60 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                installing from PyPI.</span>
 <span class="sd">            scale_factor: a scaling factor to apply to the geometry that can be</span>
 <span class="sd">                used to enlarge or shrink the geometry. Useful when converting</span>
-<span class="sd">                Useful when converting the geometry to cm for use in neutronics</span>
+<span class="sd">                the geometry to cm for use in neutronics.</span>
 <span class="sd">            imprint: whether to imprint the geometry or not. Defaults to True as this is</span>
 <span class="sd">                normally needed to ensure the geometry is meshed correctly. However if</span>
 <span class="sd">                you know your geometry does not need imprinting you can set this to False</span>
 <span class="sd">                and this can save time.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
-<span class="sd">                all volume IDs that have that tag.</span>
+<span class="sd">                all volume IDs that have that tag. Only used by the gmsh backend.</span>
 <span class="sd">            volumes: a list of volume ids (int) to include in the mesh. If left</span>
-<span class="sd">                as default (None) then all volumes will be included.</span>
+<span class="sd">                as default (None) then all volumes will be included. Only used by</span>
+<span class="sd">                the gmsh backend.</span>
 <span class="sd">            threads: the number of threads for Gmsh to use. 0 uses all</span>
 <span class="sd">                available cores (default), 1 uses a single thread.</span>
+<span class="sd">            meshing_backend: the backend used to generate the tetrahedra, either</span>
+<span class="sd">                &quot;gmsh&quot; (default) or &quot;cad-to-dagmc-mesher&quot;.</span>
+<span class="sd">            target_edge_length: the target tetrahedron edge length used by the</span>
+<span class="sd">                cad-to-dagmc-mesher backend. Required when meshing_backend is</span>
+<span class="sd">                &quot;cad-to-dagmc-mesher&quot;.</span>
+<span class="sd">            tet_volumes: an iterable of material tag names identifying which</span>
+<span class="sd">                volumes to fill with tetrahedra when using the</span>
+<span class="sd">                cad-to-dagmc-mesher backend. Defaults to all volumes.</span>
+<span class="sd">            tolerance: linear deflection tolerance for the surface mesh, used by</span>
+<span class="sd">                the cad-to-dagmc-mesher backend.</span>
+<span class="sd">            angular_tolerance: angular deflection tolerance for the surface mesh,</span>
+<span class="sd">                used by the cad-to-dagmc-mesher backend.</span>
 
 
 <span class="sd">        Returns:</span>
 <span class="sd">        --------</span>
-<span class="sd">            gmsh : gmsh</span>
-<span class="sd">                The gmsh object after finalizing the mesh.</span>
+<span class="sd">            filename : str</span>
+<span class="sd">                The filename of the written unstructured mesh file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># gmesh writes out a vtk file that is accepted by openmc.UnstructuredMesh</span>
         <span class="c1"># The library argument must be set to &quot;moab&quot;</span>
         <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.vtk&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unstructured mesh filename must have a .vtk extension&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;meshing_backend &quot;</span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1">&quot; not supported. &#39;</span>
+                <span class="s1">&#39;Available options are &quot;gmsh&quot; or &quot;cad-to-dagmc-mesher&quot;&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_unstructured_mesh_file_with_mesher</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+                <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
+                <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+                <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
@@ -2310,6 +2424,63 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">gmsh_session_started</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
                 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_unstructured_mesh_file_with_mesher</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">target_edge_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tet_volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.</span>
+
+<span class="sd">        Meshes the assembly with cad-to-dagmc-mesher, combines the per-solid</span>
+<span class="sd">        tetrahedra into a single mesh, and writes it as a legacy VTK file</span>
+<span class="sd">        readable by openmc.UnstructuredMesh(filename, library=&quot;moab&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">target_edge_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;target_edge_length is required when meshing_backend is &quot;</span>
+                <span class="s1">&#39;&quot;cad-to-dagmc-mesher&quot;&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+
+        <span class="c1"># Default to tetrahedralising every volume. tet_volumes is matched</span>
+        <span class="c1"># against material tags by the mesher, so pass the material tags.</span>
+        <span class="k">if</span> <span class="n">tet_volumes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tet_volumes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tet_volumes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tet_volumes</span><span class="p">)</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tet_data</span> <span class="o">=</span> <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
+            <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+            <span class="n">material_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+            <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
+            <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tet_data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;cad-to-dagmc-mesher produced no tetrahedra. Check that &quot;</span>
+                <span class="s2">&quot;tet_volumes contains valid material tags and that &quot;</span>
+                <span class="s2">&quot;target_edge_length is set.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">tet_vertices</span><span class="p">,</span> <span class="n">tetrahedra</span> <span class="o">=</span> <span class="n">combine_tet_meshes</span><span class="p">(</span><span class="n">tet_data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">write_vtk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tet_vertices</span><span class="p">,</span> <span class="n">tetrahedra</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;written unstructured mesh file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filename</span>
 
 <div class="viewcode-block" id="CadToDagmc.export_gmsh_mesh_file">
 <a class="viewcode-back" href="../../api.html#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file">[docs]</a>
@@ -2439,9 +2610,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
 <span class="sd">                Backend selection:</span>
-<span class="sd">                - meshing_backend (str, optional): explicitly specify &#39;gmsh&#39; or &#39;cadquery&#39;.</span>
-<span class="sd">                  If not provided, backend is auto-selected based on other arguments.</span>
-<span class="sd">                  Defaults to &#39;cadquery&#39; if no backend-specific arguments are given.</span>
+<span class="sd">                - meshing_backend (str, optional): explicitly specify &#39;gmsh&#39;,</span>
+<span class="sd">                  &#39;cadquery&#39; or &#39;cad-to-dagmc-mesher&#39;. If not provided, backend is</span>
+<span class="sd">                  auto-selected based on other arguments. Defaults to &#39;cadquery&#39; if</span>
+<span class="sd">                  no backend-specific arguments are given.</span>
 <span class="sd">                - h5m_backend (str, optional): &#39;pymoab&#39; or &#39;h5py&#39; for writing h5m files.</span>
 <span class="sd">                  Defaults to &#39;h5py&#39;.</span>
 
@@ -2463,6 +2635,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                For CadQuery backend:</span>
 <span class="sd">                - tolerance (float): meshing tolerance (default: 0.1)</span>
 <span class="sd">                - angular_tolerance (float): angular tolerance (default: 0.1)</span>
+
+<span class="sd">                For cad-to-dagmc-mesher backend:</span>
+<span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01)</span>
+<span class="sd">                - angular_tolerance (float): surface angular tolerance (default: 0.2)</span>
+<span class="sd">                - tet_volumes (Iterable[str]): material tag names of the volumes to</span>
+<span class="sd">                  fill with tetrahedra for an unstructured volume mesh.</span>
+<span class="sd">                - target_edge_length (float): target tetrahedron edge length. Both</span>
+<span class="sd">                  tet_volumes and target_edge_length must be given together to write</span>
+<span class="sd">                  a volume mesh; when they are, the return value is a</span>
+<span class="sd">                  (dagmc_filename, umesh_filename) tuple.</span>
+<span class="sd">                - umesh_filename (str): filename for the unstructured volume mesh</span>
+<span class="sd">                  (default: &#39;umesh.vtk&#39;).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the filename(s) for the files created.</span>
@@ -2542,6 +2726,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">umesh_filename</span> <span class="o">=</span> <span class="s2">&quot;umesh.vtk&quot;</span>
         <span class="n">threads</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tet_data</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Extract backend-specific parameters with defaults</span>
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
@@ -2709,10 +2894,34 @@ window.runMermaid = runMermaid;</script>
             <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">:</span>
                 <span class="n">tet_volumes_arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">))</span>
                 <span class="n">target_edge_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_edge_length&quot;</span><span class="p">)</span>
+                <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span> <span class="n">umesh_filename</span><span class="p">)</span>
 
-                <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="c1"># A volume (tet) mesh needs BOTH tet_volumes and</span>
+                <span class="c1"># target_edge_length. Passing only one (or asking for a</span>
+                <span class="c1"># umesh_filename without them) is a user error: fail fast with a</span>
+                <span class="c1"># clear message rather than silently writing no .vtk and</span>
+                <span class="c1"># returning a bare string instead of the (h5m, vtk) tuple.</span>
+                <span class="n">wants_umesh</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">bool</span><span class="p">(</span><span class="n">tet_volumes_arg</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="n">target_edge_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="s2">&quot;umesh_filename&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">wants_umesh</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tet_volumes_arg</span> <span class="ow">and</span> <span class="n">target_edge_length</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Writing an unstructured volume mesh with the &quot;</span>
+                        <span class="s2">&quot;cad-to-dagmc-mesher backend requires BOTH tet_volumes &quot;</span>
+                        <span class="s2">&quot;(material tag names) and target_edge_length. Got &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;tet_volumes=</span><span class="si">{</span><span class="n">tet_volumes_arg</span><span class="si">!r}</span><span class="s2">, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;target_edge_length=</span><span class="si">{</span><span class="n">target_edge_length</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># scale_factor is applied to the geometry before meshing so the</span>
+                <span class="c1"># h5m and .vtk match the gmsh/cadquery backends (which scale).</span>
+                <span class="n">mesher_assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+
+                <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="n">tet_data</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
-                        <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                        <span class="n">assembly</span><span class="o">=</span><span class="n">mesher_assembly</span><span class="p">,</span>
                         <span class="n">material_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">,</span>
                         <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
                         <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
@@ -2764,6 +2973,28 @@ window.runMermaid = runMermaid;</script>
 
                 <span class="k">return</span> <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span>
 
+            <span class="c1"># The cad-to-dagmc-mesher backend produces the tetrahedra itself</span>
+            <span class="c1"># (when tet_volumes + target_edge_length are given). Combine the</span>
+            <span class="c1"># per-solid tet meshes and write a .vtk unstructured volume mesh</span>
+            <span class="c1"># without going through gmsh. Keying on the user&#39;s request (both</span>
+            <span class="c1"># tet args, guaranteed present together by the check above) rather</span>
+            <span class="c1"># than on tet_data means a mesher that unexpectedly yields no tets</span>
+            <span class="c1"># raises here instead of silently returning a bare string.</span>
+            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span> <span class="ow">and</span> <span class="n">tet_volumes_arg</span> <span class="ow">and</span> <span class="n">target_edge_length</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">tet_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;cad-to-dagmc-mesher produced no tetrahedra despite &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;tet_volumes=</span><span class="si">{</span><span class="n">tet_volumes_arg</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;target_edge_length=</span><span class="si">{</span><span class="n">target_edge_length</span><span class="si">!r}</span><span class="s2">. Check that &quot;</span>
+                        <span class="s2">&quot;tet_volumes contains valid material tags.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">tet_vertices</span><span class="p">,</span> <span class="n">tetrahedra</span> <span class="o">=</span> <span class="n">combine_tet_meshes</span><span class="p">(</span><span class="n">tet_data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">umesh_filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                    <span class="n">Path</span><span class="p">(</span><span class="n">umesh_filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">write_vtk</span><span class="p">(</span><span class="n">umesh_filename</span><span class="p">,</span> <span class="n">tet_vertices</span><span class="p">,</span> <span class="n">tetrahedra</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;written unstructured mesh file </span><span class="si">{</span><span class="n">umesh_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span>
+
             <span class="k">return</span> <span class="n">dagmc_filename</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">gmsh_session_started</span> <span class="ow">and</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">():</span>
@@ -2772,11 +3003,31 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_assembly</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a CadQuery assembly from parts, optionally scaling each part.</span>
+
+<span class="sd">    Shape.scale returns a new shape (it does not mutate in place), so the</span>
+<span class="sd">    original parts in self.parts are left untouched and repeated exports stay</span>
+<span class="sd">    consistent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="n">part</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">assembly</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
     <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
     <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.</span>
+
+<span class="sd">    Returns ``(vertices, triangles_by_solid_by_face, material_tags,</span>
+<span class="sd">    tet_data)`` where ``tet_data`` is the per-solid tetrahedral mesh dict</span>
+<span class="sd">    (``{solid_id: {&quot;vertices&quot;: ..., &quot;tetrahedra&quot;: ..., ...}}``) or ``None``</span>
+<span class="sd">    when no solids were volume-meshed. Volume meshing only happens when both</span>
+<span class="sd">    ``tet_volumes`` and ``target_edge_length`` are supplied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_assembly</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
@@ -2788,7 +3039,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;material_tags&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;material_tags&quot;</span><span class="p">],</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_data&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_leaf_children</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
