@@ -49,7 +49,7 @@ model.export_unstructured_mesh_file(
 
 ## Surface and Volume Mesh in One Call
 
-`export_dagmc_h5m_file` can write the DAGMC h5m file and the unstructured volume mesh vtk file from a single meshing call. Provide both `tet_volumes` and `target_edge_length` and the export returns a `(dagmc_filename, umesh_filename)` tuple:
+`export_dagmc_h5m_file` can write the DAGMC h5m file and the unstructured volume mesh vtk file from a single meshing call. The two meshes are conformal: for tet-meshed volumes the surface is remeshed to near-equilateral triangles at `target_edge_length`, that surface is used as the DAGMC tracking surface, and the volume mesher fills it with tetrahedra while preserving the boundary vertices and triangles exactly. Provide both `tet_volumes` and `target_edge_length` and the export returns a `(dagmc_filename, umesh_filename)` tuple:
 
 <!--pytest-codeblocks:skip-->
 ```python

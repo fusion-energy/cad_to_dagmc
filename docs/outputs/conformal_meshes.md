@@ -198,7 +198,7 @@ dagmc_filename = model.export_dagmc_h5m_file(filename="dagmc.h5m")
 
 ## cad-to-dagmc-mesher Alternative
 
-The [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md) can also produce the h5m surface mesh and the vtk volume mesh from a single meshing call, without GMSH. Provide `tet_volumes` (material tag names) and `target_edge_length`:
+The [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md) can also produce conformal meshes, without GMSH. It writes the h5m surface mesh and the vtk volume mesh from a single meshing call: for each volume listed in `tet_volumes` the surface is remeshed to near-equilateral triangles at `target_edge_length`, that surface becomes both the DAGMC tracking surface and the tetrahedra boundary, and the volume mesher preserves the boundary vertices and triangles exactly. Provide `tet_volumes` (material tag names) and `target_edge_length`:
 
 <!--pytest-codeblocks:skip-->
 ```python
