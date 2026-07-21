@@ -102,6 +102,38 @@ def combine_tet_meshes(tet_data):
     return np.vstack(all_vertices), np.vstack(all_tetrahedra)
 
 
+def imprint_assembly(assembly):
+    """Imprint a CadQuery assembly into a connected compound.
+
+    Uses the BOPAlgo_Builder based imprint with glue="partial" when the
+    installed cadquery supports it (CadQuery/cadquery#2069, faster and
+    lower RAM than the older BOPAlgo_MakeConnected based imprint, with the
+    same result for touching, non-overlapping solids). Older cadquery
+    versions fall back to the original single-argument imprint.
+
+    Returns:
+        (imprinted_shape, imprinted_solids_with_original_ids)
+    """
+    import inspect
+
+    # Imprinting needs at least two solids to do anything. Skipping it for a
+    # single solid is not just an optimization: the BOPAlgo_Builder based
+    # imprint returns a Null shape when given fewer than two arguments.
+    id_map = {}
+    for obj, name, loc, _ in assembly:
+        for solid in obj.moved(loc).Solids():
+            id_map[solid] = name
+    if len(id_map) < 2:
+        solids = list(id_map)
+        compound = cq.occ_impl.shapes.Compound.makeCompound(solids)
+        return compound, {s: (id_map[s],) for s in solids}
+
+    imprint = cq.occ_impl.assembly.imprint
+    if "glue" in inspect.signature(imprint).parameters:
+        return imprint(assembly, glue="partial")
+    return imprint(assembly)
+
+
 def define_moab_core_and_tags():
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
@@ -1569,7 +1601,7 @@ class CadToDagmc:
 
         if imprint:
             print("Imprinting assembly for unstructured mesh generation")
-            imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+            imprinted_assembly, _ = imprint_assembly(assembly)
         else:
             imprinted_assembly = assembly
 
@@ -1741,7 +1773,7 @@ class CadToDagmc:
 
         if imprint:
             print("Imprinting assembly for mesh generation")
-            imprinted_assembly, _ = cq.occ_impl.assembly.imprint(assembly)
+            imprinted_assembly, _ = imprint_assembly(assembly)
         else:
             imprinted_assembly = assembly
 
@@ -2046,7 +2078,7 @@ class CadToDagmc:
                 if imprint:
                     print("Imprinting assembly for mesh generation")
                     imprinted_assembly, imprinted_solids_with_org_id = (
-                        cq.occ_impl.assembly.imprint(assembly)
+                        imprint_assembly(assembly)
                     )
 
                     scrambled_ids = get_ids_from_imprinted_assembly(
