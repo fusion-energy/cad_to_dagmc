@@ -606,6 +606,25 @@ def _vertices_to_h5m_h5py(
             tag_grp.attrs.create("default", -1, dtype=tag_grp["type"])
             tag_grp.attrs.create("global", -1, dtype=tag_grp["type"])
 
+        # FACETING_TOLERANCE tag — stored on the root meshset via the
+        # "global" dataset so DAGMC's GeomQueryTool reads a valid value.
+        # Without this, DAGMC reads uninitialised memory and particle
+        # tracking fails with lost particles at curved surface boundaries.
+        ft_grp = tstt_tags.create_group("FACETING_TOLERANCE")
+        ft_type = np.dtype("f8")
+        ft_grp["type"] = ft_type
+        ft_grp.attrs.create("class", 2, dtype=np.int32)
+        # Compute a representative faceting tolerance from the mesh extent.
+        _diag = np.linalg.norm(vertices_arr.max(axis=0) - vertices_arr.min(axis=0))
+        _facet_tol = max(_diag * 1e-3, 1e-3)
+        # MOAB's mhdf reader expects "default" and "global" as HDF5
+        # datasets (not attributes).  Store them both ways for compat.
+        ft_grp.create_dataset("default", data=np.array([_facet_tol], dtype=ft_type))
+        ft_grp.create_dataset("global", data=np.array([_facet_tol], dtype=ft_type))
+        # Also store as sparse tag data on root meshset (handle 0).
+        ft_grp.create_dataset("id_list", data=np.array([0], dtype=np.uint64))
+        ft_grp.create_dataset("values", data=np.array([_facet_tol], dtype=ft_type))
+
         # === SETS structure ===
         sets_group = tstt.create_group("sets")
 
@@ -765,6 +784,14 @@ def get_volumes(gmsh, assembly, method="file", scale_factor=1.0):
 
 
 def init_gmsh():
+    # gmsh is a global singleton. If a previous session was left initialized
+    # (for example by an export that errored part way through, or an earlier
+    # call that did not finalize) then adding a new model here would leave the
+    # stale models from that session alive, leaking memory and growing the
+    # session on every call (see issue #187). Finalize any pre-existing
+    # session first so we always start from a clean, single-model state.
+    if gmsh.isInitialized():
+        gmsh.finalize()
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add(f"made_with_cad_to_dagmc_package_{__version__}")
@@ -776,7 +803,7 @@ def set_sizes_for_mesh(
     min_mesh_size: float | None = None,
     max_mesh_size: float | None = None,
     mesh_algorithm: int = 1,
-    set_size: dict[int, float] | None = None,
+    set_size: dict[int | str, float] | None = None,
     original_set_size: dict[int | str, float] | None = None,
     threads: int = 0,
 ):
@@ -1456,56 +1483,65 @@ class CadToDagmc:
         else:
             imprinted_assembly = assembly
 
-        gmsh = init_gmsh()
+        # gmsh is a global singleton; finalize the session on every exit path
+        # (including a mid-mesh exception) so repeated calls don't accumulate
+        # models. gmsh_session_started is only set once init_gmsh() has bound
+        # the local gmsh name, keeping the finally safe if init_gmsh() itself
+        # raises. See issue #187.
+        gmsh_session_started = False
+        try:
+            gmsh = init_gmsh()
+            gmsh_session_started = True
 
-        gmsh, volumes_in_model = get_volumes(
-            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-        )
-
-        # Resolve any material tag strings in set_size to volume IDs
-        resolved_set_size = None
-        if set_size:
-            resolved_set_size = resolve_set_size(
-                set_size, volumes_in_model, self.material_tags
+            gmsh, volumes_in_model = get_volumes(
+                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
             )
 
-        gmsh = set_sizes_for_mesh(
-            gmsh=gmsh,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            mesh_algorithm=mesh_algorithm,
-            set_size=resolved_set_size,
-            original_set_size=set_size,
-            threads=threads,
-        )
+            # Resolve any material tag strings in set_size to volume IDs
+            resolved_set_size = None
+            if set_size:
+                resolved_set_size = resolve_set_size(
+                    set_size, volumes_in_model, self.material_tags
+                )
 
-        if volumes:
-            for volume_id in volumes_in_model:
-                if volume_id[1] not in volumes:
-                    gmsh.model.occ.remove([volume_id], recursive=True)
-            gmsh.option.setNumber("Mesh.SaveAll", 1)
-            gmsh.model.occ.synchronize()
-            # Clear the mesh
-            gmsh.model.mesh.clear()
-            gmsh.option.setNumber(
-                "Mesh.SaveElementTagType", 3
-            )  # Save only volume elements
+            gmsh = set_sizes_for_mesh(
+                gmsh=gmsh,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
+                mesh_algorithm=mesh_algorithm,
+                set_size=resolved_set_size,
+                original_set_size=set_size,
+                threads=threads,
+            )
 
-        gmsh.model.mesh.generate(3)
+            if volumes:
+                for volume_id in volumes_in_model:
+                    if volume_id[1] not in volumes:
+                        gmsh.model.occ.remove([volume_id], recursive=True)
+                gmsh.option.setNumber("Mesh.SaveAll", 1)
+                gmsh.model.occ.synchronize()
+                # Clear the mesh
+                gmsh.model.mesh.clear()
+                gmsh.option.setNumber(
+                    "Mesh.SaveElementTagType", 3
+                )  # Save only volume elements
 
-        # makes the folder if it does not exist
-        if Path(filename).parent:
-            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            gmsh.model.mesh.generate(3)
 
-        # gmsh.write only accepts strings
-        if isinstance(filename, Path):
-            gmsh.write(str(filename))
-        else:
-            gmsh.write(filename)
+            # makes the folder if it does not exist
+            if Path(filename).parent:
+                Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
-        gmsh.finalize()
+            # gmsh.write only accepts strings
+            if isinstance(filename, Path):
+                gmsh.write(str(filename))
+            else:
+                gmsh.write(filename)
 
-        return filename
+            return filename
+        finally:
+            if gmsh_session_started and gmsh.isInitialized():
+                gmsh.finalize()
 
     def export_gmsh_mesh_file(
         self,
@@ -1562,44 +1598,53 @@ class CadToDagmc:
         else:
             imprinted_assembly = assembly
 
-        gmsh = init_gmsh()
+        # gmsh is a global singleton; finalize the session on every exit path
+        # (including a mid-mesh exception) so repeated calls don't accumulate
+        # models. gmsh_session_started is only set once init_gmsh() has bound
+        # the local gmsh name, keeping the finally safe if init_gmsh() itself
+        # raises. See issue #187.
+        gmsh_session_started = False
+        try:
+            gmsh = init_gmsh()
+            gmsh_session_started = True
 
-        gmsh, volumes = get_volumes(
-            gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-        )
-
-        # Resolve any material tag strings in set_size to volume IDs
-        resolved_set_size = None
-        if set_size:
-            resolved_set_size = resolve_set_size(
-                set_size, volumes, self.material_tags
+            gmsh, volumes = get_volumes(
+                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
             )
 
-        gmsh = set_sizes_for_mesh(
-            gmsh=gmsh,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            mesh_algorithm=mesh_algorithm,
-            set_size=resolved_set_size,
-            original_set_size=set_size,
-            threads=threads,
-        )
+            # Resolve any material tag strings in set_size to volume IDs
+            resolved_set_size = None
+            if set_size:
+                resolved_set_size = resolve_set_size(
+                    set_size, volumes, self.material_tags
+                )
 
-        gmsh.model.mesh.generate(dimensions)
+            gmsh = set_sizes_for_mesh(
+                gmsh=gmsh,
+                min_mesh_size=min_mesh_size,
+                max_mesh_size=max_mesh_size,
+                mesh_algorithm=mesh_algorithm,
+                set_size=resolved_set_size,
+                original_set_size=set_size,
+                threads=threads,
+            )
 
-        # makes the folder if it does not exist
-        if Path(filename).parent:
-            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            gmsh.model.mesh.generate(dimensions)
 
-        # gmsh.write only accepts strings
-        if isinstance(filename, Path):
-            gmsh.write(str(filename))
-        else:
-            gmsh.write(filename)
+            # makes the folder if it does not exist
+            if Path(filename).parent:
+                Path(filename).parent.mkdir(parents=True, exist_ok=True)
 
-        print(f"written GMSH mesh file {filename}")
+            # gmsh.write only accepts strings
+            if isinstance(filename, Path):
+                gmsh.write(str(filename))
+            else:
+                gmsh.write(filename)
 
-        gmsh.finalize()
+            print(f"written GMSH mesh file {filename}")
+        finally:
+            if gmsh_session_started and gmsh.isInitialized():
+                gmsh.finalize()
 
     def export_dagmc_h5m_file(
         self,
@@ -1665,7 +1710,8 @@ class CadToDagmc:
             "unstructured_volumes",
             "threads",
         }
-        all_acceptable_keys = cadquery_keys | gmsh_keys | {"meshing_backend", "h5m_backend"}
+        cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length"}
+        all_acceptable_keys = cadquery_keys | gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -1704,10 +1750,10 @@ class CadToDagmc:
                 meshing_backend = "cadquery"  # default
 
         # Validate meshing backend
-        if meshing_backend not in ["gmsh", "cadquery"]:
+        if meshing_backend not in ["gmsh", "cadquery", "cad-to-dagmc-mesher"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
-                'Available options are "gmsh" or "cadquery"'
+                'Available options are "gmsh", "cadquery", or "cad-to-dagmc-mesher"'
             )
 
         print(f"Using meshing backend: {meshing_backend}")
@@ -1775,6 +1821,10 @@ class CadToDagmc:
                     f"{', '.join(unused_params)}"
                 )
 
+        elif meshing_backend == "cad-to-dagmc-mesher":
+            tolerance = kwargs.get("tolerance", 0.01)
+            angular_tolerance = kwargs.get("angular_tolerance", 0.2)
+
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
@@ -1787,133 +1837,183 @@ class CadToDagmc:
             msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
-        # Use the CadQuery direct mesh plugin
-        if meshing_backend == "cadquery":
-            import cadquery_direct_mesh_plugin
-            # Mesh the assembly using CadQuery's direct-mesh plugin
-            cq_mesh = assembly.toMesh(
-                imprint=imprint,
-                tolerance=tolerance,
-                angular_tolerance=angular_tolerance,
-                scale_factor=scale_factor,
-            )
-
-            # Fix the material tag order for imprinted assemblies
-            if cq_mesh["imprinted_assembly"] is not None:
-                imprinted_solids_with_org_id = cq_mesh[
-                    "imprinted_solids_with_orginal_ids"
-                ]
-
-                scrambled_ids = get_ids_from_imprinted_assembly(
-                    imprinted_solids_with_org_id
+        # The gmsh backend opens a gmsh session (gmsh is a global singleton).
+        # Wrap the whole meshing and export in try/finally so the session is
+        # always finalized - on every return path and even if meshing raises
+        # part way through. Without this, repeated calls accumulate gmsh models
+        # in the session (see issue #187). gmsh_session_started is only set once
+        # init_gmsh() has run, so the finally never touches the (function-local)
+        # gmsh name before it is bound and never finalizes a session the caller
+        # may own when using a non-gmsh backend.
+        gmsh_session_started = False
+        try:
+            # Use the CadQuery direct mesh plugin
+            if meshing_backend == "cadquery":
+                import cadquery_direct_mesh_plugin
+                # Mesh the assembly using CadQuery's direct-mesh plugin
+                cq_mesh = assembly.toMesh(
+                    imprint=imprint,
+                    tolerance=tolerance,
+                    angular_tolerance=angular_tolerance,
+                    scale_factor=scale_factor,
                 )
 
-                material_tags_in_brep_order = order_material_ids_by_brep_order(
-                    original_ids, scrambled_ids, self.material_tags
+                # Fix the material tag order for imprinted assemblies
+                if cq_mesh["imprinted_assembly"] is not None:
+                    imprinted_solids_with_org_id = cq_mesh[
+                        "imprinted_solids_with_orginal_ids"
+                    ]
+
+                    scrambled_ids = get_ids_from_imprinted_assembly(
+                        imprinted_solids_with_org_id
+                    )
+
+                    material_tags_in_brep_order = order_material_ids_by_brep_order(
+                        original_ids, scrambled_ids, self.material_tags
+                    )
+                else:
+                    material_tags_in_brep_order = self.material_tags
+
+                check_material_tags(material_tags_in_brep_order, self.parts)
+
+                # Extract the mesh information to allow export to h5m from the direct-mesh result
+                vertices = cq_mesh["vertices"]
+                triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
+            # Use gmsh
+            elif meshing_backend == "gmsh":
+                # If assembly is not to be imprinted, pass through the assembly as-is
+                if imprint:
+                    print("Imprinting assembly for mesh generation")
+                    imprinted_assembly, imprinted_solids_with_org_id = (
+                        cq.occ_impl.assembly.imprint(assembly)
+                    )
+
+                    scrambled_ids = get_ids_from_imprinted_assembly(
+                        imprinted_solids_with_org_id
+                    )
+
+                    material_tags_in_brep_order = order_material_ids_by_brep_order(
+                        original_ids, scrambled_ids, self.material_tags
+                    )
+
+                else:
+                    material_tags_in_brep_order = self.material_tags
+                    imprinted_assembly = assembly
+
+                check_material_tags(material_tags_in_brep_order, self.parts)
+
+                # Start generating the mesh
+                gmsh = init_gmsh()
+                gmsh_session_started = True
+
+                gmsh, volumes = get_volumes(
+                    gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
                 )
+
+                # Resolve any material tag strings in set_size to volume IDs
+                resolved_set_size = None
+                if set_size:
+                    resolved_set_size = resolve_set_size(
+                        set_size, volumes, material_tags_in_brep_order
+                    )
+
+                gmsh = set_sizes_for_mesh(
+                    gmsh=gmsh,
+                    min_mesh_size=min_mesh_size,
+                    max_mesh_size=max_mesh_size,
+                    mesh_algorithm=mesh_algorithm,
+                    set_size=resolved_set_size,
+                    original_set_size=set_size,
+                    threads=threads,
+                )
+
+                gmsh.model.mesh.generate(2)
+
+                vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+                    dims_and_vol_ids=volumes
+                )
+
+            elif meshing_backend == "cad-to-dagmc-mesher":
+                tet_volumes_arg = kwargs.get("tet_volumes", kwargs.get("unstructured_volumes"))
+                target_edge_length = kwargs.get("target_edge_length")
+
+                vertices, triangles_by_solid_by_face, material_tags_in_brep_order = (
+                    _mesh_with_cad_to_dagmc_mesher(
+                        assembly=assembly,
+                        material_tags=self.material_tags,
+                        tolerance=tolerance,
+                        angular_tolerance=angular_tolerance,
+                        tet_volumes=tet_volumes_arg,
+                        target_edge_length=target_edge_length,
+                        imprint=imprint,
+                    )
+                )
+
             else:
-                material_tags_in_brep_order = self.material_tags
-
-            check_material_tags(material_tags_in_brep_order, self.parts)
-
-            # Extract the mesh information to allow export to h5m from the direct-mesh result
-            vertices = cq_mesh["vertices"]
-            triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
-        # Use gmsh
-        elif meshing_backend == "gmsh":
-            # If assembly is not to be imprinted, pass through the assembly as-is
-            if imprint:
-                print("Imprinting assembly for mesh generation")
-                imprinted_assembly, imprinted_solids_with_org_id = (
-                    cq.occ_impl.assembly.imprint(assembly)
+                raise ValueError(
+                    f'meshing_backend {meshing_backend} not supported. '
+                    'Available options are "cadquery", "gmsh", or "cad-to-dagmc-mesher"'
                 )
 
-                scrambled_ids = get_ids_from_imprinted_assembly(
-                    imprinted_solids_with_org_id
+            dagmc_filename = vertices_to_h5m(
+                vertices=vertices,
+                triangles_by_solid_by_face=triangles_by_solid_by_face,
+                material_tags=material_tags_in_brep_order,
+                h5m_filename=filename,
+                implicit_complement_material_tag=implicit_complement_material_tag,
+                method=h5m_backend,
+            )
+
+            if meshing_backend == "gmsh" and unstructured_volumes:
+                # Resolve any material tag strings to volume IDs
+                unstructured_volumes = resolve_unstructured_volumes(
+                    unstructured_volumes, volumes, material_tags_in_brep_order
                 )
+                # remove all the unused occ volumes, this prevents them being meshed
+                for volume_dim, volume_id in volumes:
+                    if volume_id not in unstructured_volumes:
+                        gmsh.model.occ.remove(
+                            [(volume_dim, volume_id)], recursive=True
+                        )
+                gmsh.option.setNumber("Mesh.SaveAll", 1)
+                gmsh.model.occ.synchronize()
 
-                material_tags_in_brep_order = order_material_ids_by_brep_order(
-                    original_ids, scrambled_ids, self.material_tags
-                )
+                # removes all the 2D groups so that 2D faces are not included in the vtk file
+                all_2d_groups = gmsh.model.getPhysicalGroups(2)
+                for entry in all_2d_groups:
+                    gmsh.model.removePhysicalGroups([entry])
 
-            else:
-                material_tags_in_brep_order = self.material_tags
-                imprinted_assembly = assembly
+                gmsh.model.mesh.generate(3)
+                gmsh.option.setNumber(
+                    "Mesh.SaveElementTagType", 3
+                )  # Save only volume elements
+                gmsh.write(umesh_filename)
 
-            check_material_tags(material_tags_in_brep_order, self.parts)
+                return dagmc_filename, umesh_filename
 
-            # Start generating the mesh
-            gmsh = init_gmsh()
-
-            gmsh, volumes = get_volumes(
-                gmsh, imprinted_assembly, method=method, scale_factor=scale_factor
-            )
-
-            # Resolve any material tag strings in set_size to volume IDs
-            resolved_set_size = None
-            if set_size:
-                resolved_set_size = resolve_set_size(
-                    set_size, volumes, material_tags_in_brep_order
-                )
-
-            gmsh = set_sizes_for_mesh(
-                gmsh=gmsh,
-                min_mesh_size=min_mesh_size,
-                max_mesh_size=max_mesh_size,
-                mesh_algorithm=mesh_algorithm,
-                set_size=resolved_set_size,
-                original_set_size=set_size,
-                threads=threads,
-            )
-
-            gmsh.model.mesh.generate(2)
-
-            vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-                dims_and_vol_ids=volumes
-            )
-
-        else:
-            raise ValueError(
-                f'meshing_backend {meshing_backend} not supported. Available options are "cadquery" or "gmsh"'
-            )
-
-        dagmc_filename = vertices_to_h5m(
-            vertices=vertices,
-            triangles_by_solid_by_face=triangles_by_solid_by_face,
-            material_tags=material_tags_in_brep_order,
-            h5m_filename=filename,
-            implicit_complement_material_tag=implicit_complement_material_tag,
-            method=h5m_backend,
-        )
-
-        if unstructured_volumes:
-            # Resolve any material tag strings to volume IDs
-            unstructured_volumes = resolve_unstructured_volumes(
-                unstructured_volumes, volumes, material_tags_in_brep_order
-            )
-            # remove all the unused occ volumes, this prevents them being meshed
-            for volume_dim, volume_id in volumes:
-                if volume_id not in unstructured_volumes:
-                    gmsh.model.occ.remove([(volume_dim, volume_id)], recursive=True)
-            gmsh.option.setNumber("Mesh.SaveAll", 1)
-            gmsh.model.occ.synchronize()
-
-            # removes all the 2D groups so that 2D faces are not included in the vtk file
-            all_2d_groups = gmsh.model.getPhysicalGroups(2)
-            for entry in all_2d_groups:
-                gmsh.model.removePhysicalGroups([entry])
-
-            gmsh.model.mesh.generate(3)
-            gmsh.option.setNumber(
-                "Mesh.SaveElementTagType", 3
-            )  # Save only volume elements
-            gmsh.write(umesh_filename)
-
-            gmsh.finalize()
-
-            return dagmc_filename, umesh_filename
-        else:
             return dagmc_filename
+        finally:
+            if gmsh_session_started and gmsh.isInitialized():
+                gmsh.finalize()
+
+
+def _mesh_with_cad_to_dagmc_mesher(
+    assembly, material_tags, tolerance, angular_tolerance,
+    tet_volumes, target_edge_length, imprint,
+):
+    """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output."""
+    from cad_to_dagmc_mesher.cad import mesh_assembly
+
+    result = mesh_assembly(
+        assembly,
+        material_tags,
+        tolerance=tolerance,
+        angular_tolerance=angular_tolerance,
+        tet_volumes=tet_volumes,
+        target_edge_length=target_edge_length,
+        imprint=imprint,
+    )
+    return result["vertices"], result["triangles_by_solid_by_face"], result["material_tags"]
 
 
 def _get_all_leaf_children(assembly):

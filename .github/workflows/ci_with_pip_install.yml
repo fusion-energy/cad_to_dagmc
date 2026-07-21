@@ -49,6 +49,7 @@ jobs:
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
+          python -c "import cad_to_dagmc_mesher"
 
       - name: Run tests with h5py backend only (validates package works without pymoab)
         shell: bash

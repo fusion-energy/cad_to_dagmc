@@ -15,7 +15,7 @@ Tests that check that:
 """
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_h5m_with_single_volume_list(meshing_backend):
     """Simple geometry, a single 4 sided shape"""
 
@@ -38,7 +38,7 @@ def test_h5m_with_single_volume_list(meshing_backend):
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat2"}
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_h5m_with_single_volume_2(meshing_backend):
     """Simple geometry, a single 4 sided shape"""
 
@@ -51,7 +51,7 @@ def test_h5m_with_single_volume_2(meshing_backend):
     assert get_volumes_and_materials_from_h5m(h5m_file) == {1: "mat:mat1"}
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_h5m_with_multi_volume_not_touching(meshing_backend):
     stp_files = [
         "tests/two_disconnected_cubes.stp",
@@ -76,7 +76,7 @@ def test_h5m_with_multi_volume_not_touching(meshing_backend):
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_h5m_with_multi_volume_touching(meshing_backend):
     stp_files = [
         "tests/multi_volume_cylinders.stp",
@@ -112,7 +112,7 @@ def test_h5m_with_multi_volume_touching(meshing_backend):
         assert get_volumes_and_materials_from_h5m(h5m_file) == tags_dict
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_cq_compound(meshing_backend):
     # make other shapes from the CadQuery examples
     spline_points = [
@@ -152,12 +152,10 @@ def test_cq_compound(meshing_backend):
         cadquery_object=compound_of_workplanes,
         material_tags=["mat1", "mat2"],
     )
-    my_model.export_dagmc_h5m_file(
-        filename="compound_dagmc.h5m",
-        max_mesh_size=0.2,
-        min_mesh_size=0.1,
-        meshing_backend=meshing_backend,
-    )
+    kwargs = {"filename": "compound_dagmc.h5m", "meshing_backend": meshing_backend}
+    if meshing_backend == "gmsh":
+        kwargs.update(max_mesh_size=0.2, min_mesh_size=0.1)
+    my_model.export_dagmc_h5m_file(**kwargs)
 
     assert Path("compound_dagmc.h5m").is_file()
     assert get_volumes_and_materials_from_h5m("compound_dagmc.h5m") == {

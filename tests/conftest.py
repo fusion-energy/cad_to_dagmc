@@ -12,6 +12,7 @@ except ImportError:
     PYMOAB_AVAILABLE = False
 
 
+
 def pytest_addoption(parser):
     """Add command-line option for h5m backend."""
     parser.addoption(
@@ -31,6 +32,7 @@ def h5m_backend(request):
 def pytest_collection_modifyitems(config, items):
     """Skip tests if required dependencies are not installed."""
     skip_pymoab = pytest.mark.skip(reason="pymoab not installed")
+    skip_mesher = pytest.mark.skip(reason="cad-to-dagmc-mesher not installed")
     for item in items:
         # Check if the test is parametrized
         if hasattr(item, "callspec") and item.callspec.params:
@@ -40,3 +42,4 @@ def pytest_collection_modifyitems(config, items):
             if not PYMOAB_AVAILABLE:
                 if params.get("method") == "pymoab" or params.get("h5m_backend") == "pymoab":
                     item.add_marker(skip_pymoab)
+
