@@ -39,7 +39,6 @@ write_to = "src/_version.py"
 tests = [
     "pytest",
     "pytest-codeblocks",
-    "vtk",
     "assembly-mesh-plugin",
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
