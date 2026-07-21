@@ -70,9 +70,21 @@ model.export_unstructured_mesh_file(
 )
 ```
 
+The volume mesh can also be produced with the
+[cad-to-dagmc-mesher backend](meshing/cad_to_dagmc_mesher_backend.md) instead of GMSH.
+Passing `target_edge_length` selects it automatically:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_unstructured_mesh_file(
+    filename="umesh.vtk",
+    target_edge_length=2.0,
+)
+```
+
 :::{note}
-Volume mesh export requires the GMSH meshing backend, which is used by default.
-The CadQuery backend only supports surface meshes.
+Volume mesh export requires the GMSH meshing backend (used by default) or the
+cad-to-dagmc-mesher backend. The CadQuery backend only supports surface meshes.
 :::
 
 ## Creating Conformal Surface and Volume Meshes

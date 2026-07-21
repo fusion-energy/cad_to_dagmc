@@ -25,6 +25,7 @@ flowchart LR
         direction TB
         GMSH_E["  GMSH  "]
         CQ_E["  CadQuery  "]
+        MESHER_E["  cad-to-dagmc-mesher  "]
     end
 
     subgraph h5m_backend [" "]
@@ -42,12 +43,13 @@ flowchart LR
 
     CQ & STEP & GMSH_IN --> TAG
 
-    TAG --> GMSH_E & CQ_E
+    TAG --> GMSH_E & CQ_E & MESHER_E
 
-    GMSH_E & CQ_E --> H5PY & MOAB
+    GMSH_E & CQ_E & MESHER_E --> H5PY & MOAB
     H5PY & MOAB --> H5M
 
     GMSH_E --> VTK & MSH
+    MESHER_E --> VTK
 
     style inputs fill:none,stroke:none
     style tagging fill:none,stroke:none
@@ -63,6 +65,7 @@ flowchart LR
 
     style GMSH_E fill:#f3e8ff,stroke:#9333ea,stroke-width:1.5px,color:#581c87
     style CQ_E fill:#f3e8ff,stroke:#9333ea,stroke-width:1.5px,color:#581c87
+    style MESHER_E fill:#f3e8ff,stroke:#9333ea,stroke-width:1.5px,color:#581c87
 
     style H5PY fill:#fce7f3,stroke:#db2777,stroke-width:1.5px,color:#831843
     style MOAB fill:#fce7f3,stroke:#db2777,stroke-width:1.5px,color:#831843
@@ -86,8 +89,8 @@ flowchart LR
 |---|---|
 | **Multiple Input Formats** | **Flexible Material Tagging** |
 | - CadQuery objects<br>- STEP files<br>- GMSH mesh files | - Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups |
-| **Two Meshing Backends** | **Multiple Output Formats** |
-| - GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
+| **Three Meshing Backends** | **Multiple Output Formats** |
+| - GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)<br>- cad-to-dagmc-mesher (surface and volume meshing) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
 | **Two H5M Backends** | **Advanced Options** |
 | - h5py (default, no MOAB needed)<br>- pymoab (official MOAB) | - Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing |
 
@@ -140,6 +143,7 @@ outputs/conformal_meshes
 meshing/index
 meshing/gmsh_backend
 meshing/cadquery_backend
+meshing/cad_to_dagmc_mesher_backend
 meshing/mesh_sizing
 ```
 

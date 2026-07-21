@@ -73,6 +73,49 @@ class TestKwargsExportDagmcH5mFile:
                 unstructured_volumes=[1],
             )
 
+    def test_cadquery_backend_with_tet_volumes_raises_error(self, tmp_path):
+        """The CadQuery backend cannot volume mesh, so an explicit cadquery
+        backend combined with tet_volumes must fail fast."""
+        with pytest.raises(
+            ValueError, match="CadQuery backend cannot be used for volume meshing"
+        ):
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "test_invalid_tet.h5m"),
+                meshing_backend="cadquery",
+                tet_volumes=["steel"],
+            )
+
+    def test_mesher_backend_auto_selected_from_tet_volumes(self, tmp_path):
+        """tet_volumes selects the cad-to-dagmc-mesher backend when no
+        meshing_backend is given. The mesher branch then fails fast because
+        target_edge_length is missing, which proves the backend was selected
+        (the cadquery default would have silently ignored tet_volumes)."""
+        with pytest.raises(ValueError, match="requires BOTH tet_volumes"):
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "auto_mesher.h5m"),
+                tet_volumes=["steel"],
+            )
+
+    def test_mesher_backend_auto_selected_from_target_edge_length(self, tmp_path):
+        """target_edge_length selects the cad-to-dagmc-mesher backend when no
+        meshing_backend is given."""
+        with pytest.raises(ValueError, match="requires BOTH tet_volumes"):
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "auto_mesher.h5m"),
+                target_edge_length=1.0,
+            )
+
+    def test_mesher_and_gmsh_args_are_ambiguous(self, tmp_path):
+        """Mixing mesher-specific and gmsh-specific arguments without an
+        explicit meshing_backend raises rather than guessing."""
+        with pytest.raises(ValueError, match="Ambiguous backend"):
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "ambiguous.h5m"),
+                tet_volumes=["steel"],
+                target_edge_length=1.0,
+                min_mesh_size=0.5,
+            )
+
     def test_invalid_meshing_backend_raises_error(self, tmp_path):
         """Test that invalid meshing backend raises ValueError"""
         output_file = tmp_path / "test_invalid_backend.h5m"
