@@ -588,6 +588,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -2261,7 +2262,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">meshing_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+        <span class="n">meshing_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">target_edge_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tet_volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
@@ -2273,11 +2274,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        library. Example useage openmc.UnstructuredMesh(filename=&quot;umesh.vtk&quot;,</span>
 <span class="sd">        library=&quot;moab&quot;).</span>
 
-<span class="sd">        The mesh can be produced either with gmsh (the default) or with the</span>
+<span class="sd">        The mesh can be produced either with gmsh or with the</span>
 <span class="sd">        cad-to-dagmc-mesher backend. The gmsh backend uses the min/max mesh</span>
 <span class="sd">        size and set_size arguments, while the cad-to-dagmc-mesher backend</span>
 <span class="sd">        uses target_edge_length (and optionally tet_volumes) to control the</span>
-<span class="sd">        tetrahedra.</span>
+<span class="sd">        tetrahedra. gmsh is used unless meshing_backend or one of the</span>
+<span class="sd">        cad-to-dagmc-mesher specific arguments is provided.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">        -----------</span>
@@ -2313,7 +2315,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            threads: the number of threads for Gmsh to use. 0 uses all</span>
 <span class="sd">                available cores (default), 1 uses a single thread.</span>
 <span class="sd">            meshing_backend: the backend used to generate the tetrahedra, either</span>
-<span class="sd">                &quot;gmsh&quot; (default) or &quot;cad-to-dagmc-mesher&quot;.</span>
+<span class="sd">                &quot;gmsh&quot; or &quot;cad-to-dagmc-mesher&quot;. If not set, the backend is</span>
+<span class="sd">                auto-selected: &quot;cad-to-dagmc-mesher&quot; when target_edge_length or</span>
+<span class="sd">                tet_volumes is provided, otherwise &quot;gmsh&quot;.</span>
 <span class="sd">            target_edge_length: the target tetrahedron edge length used by the</span>
 <span class="sd">                cad-to-dagmc-mesher backend. Required when meshing_backend is</span>
 <span class="sd">                &quot;cad-to-dagmc-mesher&quot;.</span>
@@ -2336,6 +2340,15 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># The library argument must be set to &quot;moab&quot;</span>
         <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.vtk&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unstructured mesh filename must have a .vtk extension&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Auto-select the backend: the tet arguments are specific to</span>
+            <span class="c1"># cad-to-dagmc-mesher, everything else defaults to gmsh.</span>
+            <span class="k">if</span> <span class="n">target_edge_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">tet_volumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using meshing backend: </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -2612,8 +2625,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                Backend selection:</span>
 <span class="sd">                - meshing_backend (str, optional): explicitly specify &#39;gmsh&#39;,</span>
 <span class="sd">                  &#39;cadquery&#39; or &#39;cad-to-dagmc-mesher&#39;. If not provided, backend is</span>
-<span class="sd">                  auto-selected based on other arguments. Defaults to &#39;cadquery&#39; if</span>
-<span class="sd">                  no backend-specific arguments are given.</span>
+<span class="sd">                  auto-selected based on other arguments: tet_volumes or</span>
+<span class="sd">                  target_edge_length select &#39;cad-to-dagmc-mesher&#39;, gmsh-specific</span>
+<span class="sd">                  arguments select &#39;gmsh&#39;. Defaults to &#39;cadquery&#39; if no</span>
+<span class="sd">                  backend-specific arguments are given.</span>
 <span class="sd">                - h5m_backend (str, optional): &#39;pymoab&#39; or &#39;h5py&#39; for writing h5m files.</span>
 <span class="sd">                  Defaults to &#39;h5py&#39;.</span>
 
@@ -2685,10 +2700,32 @@ window.runMermaid = runMermaid;</script>
         <span class="n">h5m_backend</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;h5m_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;h5py&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Auto-select meshing_backend based on kwargs</span>
+            <span class="c1"># Auto-select meshing_backend based on kwargs. Keys shared between</span>
+            <span class="c1"># backends cannot drive the selection on their own: tolerance and</span>
+            <span class="c1"># angular_tolerance are used by both the cadquery and the</span>
+            <span class="c1"># cad-to-dagmc-mesher backends, umesh_filename is used by both the</span>
+            <span class="c1"># gmsh and the cad-to-dagmc-mesher backends.</span>
+            <span class="n">mesher_only_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;target_edge_length&quot;</span><span class="p">}</span>
+            <span class="n">gmsh_only_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">}</span>
             <span class="n">has_cadquery</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span><span class="p">)</span>
             <span class="n">has_gmsh</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">gmsh_keys</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_gmsh</span><span class="p">:</span>
+            <span class="n">has_mesher</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mesher_only_keys</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_mesher</span><span class="p">:</span>
+                <span class="n">provided_gmsh</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">provided_gmsh</span><span class="p">:</span>
+                    <span class="n">provided_mesher</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mesher_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                    <span class="p">]</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Ambiguous backend: both cad-to-dagmc-mesher and GMSH-specific arguments provided.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;cad-to-dagmc-mesher-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">mesher_only_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;GMSH-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Provided cad-to-dagmc-mesher arguments: </span><span class="si">{</span><span class="n">provided_mesher</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Provided GMSH arguments: </span><span class="si">{</span><span class="n">provided_gmsh</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Please provide only one backend&#39;s arguments.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span>
+            <span class="k">elif</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_gmsh</span><span class="p">:</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cadquery&quot;</span>
             <span class="k">elif</span> <span class="n">has_gmsh</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_cadquery</span><span class="p">:</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span>
@@ -2736,13 +2773,14 @@ window.runMermaid = runMermaid;</script>
 
             <span class="c1"># Check for invalid parameters</span>
             <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">unstructured_volumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">unstructured_volumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;CadQuery backend cannot be used for volume meshing. &quot;</span>
-                    <span class="s2">&quot;unstructured_volumes must be None when using &#39;cadquery&#39; backend.&quot;</span>
+                    <span class="s2">&quot;unstructured_volumes and tet_volumes must be None when &quot;</span>
+                    <span class="s2">&quot;using &#39;cadquery&#39; backend.&quot;</span>
                 <span class="p">)</span>
 
-            <span class="c1"># Warn about unused GMSH parameters</span>
+            <span class="c1"># Warn about unused GMSH and cad-to-dagmc-mesher parameters</span>
             <span class="n">gmsh_params</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="s2">&quot;min_mesh_size&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;max_mesh_size&quot;</span><span class="p">,</span>
@@ -2751,6 +2789,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;method&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target_edge_length&quot;</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">gmsh_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unused_params</span><span class="p">:</span>
@@ -2770,9 +2809,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">,</span> <span class="s2">&quot;umesh.vtk&quot;</span><span class="p">)</span>
             <span class="n">threads</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-            <span class="c1"># Warn about unused CadQuery parameters</span>
-            <span class="n">cq_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="s2">&quot;angular_tolerance&quot;</span><span class="p">]</span>
-            <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">cq_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
+            <span class="c1"># Warn about unused CadQuery and cad-to-dagmc-mesher parameters</span>
+            <span class="n">non_gmsh_params</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;tolerance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;angular_tolerance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target_edge_length&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">non_gmsh_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unused_params</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;The following parameters are ignored when using GMSH backend: &quot;</span>

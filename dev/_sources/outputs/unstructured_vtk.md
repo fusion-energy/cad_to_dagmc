@@ -3,7 +3,7 @@
 Creates tetrahedral volume meshes for use with OpenMC's `UnstructuredMesh` tally.
 
 :::{note}
-Volume mesh output **requires the GMSH backend**. The CadQuery meshing backend cannot create volume meshes.
+Volume mesh output requires the **GMSH** or **cad-to-dagmc-mesher** backend. The CadQuery meshing backend cannot create volume meshes.
 :::
 
 ## Basic Export
@@ -22,6 +22,29 @@ model.export_unstructured_mesh_file(
     filename="umesh.vtk",
     min_mesh_size=1.0,
     max_mesh_size=5.0,
+)
+```
+
+## Using the cad-to-dagmc-mesher Backend
+
+The [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md) writes the vtk file without GMSH. The tetrahedra size is controlled with a single `target_edge_length` argument, which also selects the backend automatically:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_unstructured_mesh_file(
+    filename="umesh.vtk",
+    target_edge_length=2.0,
+)
+```
+
+Optionally restrict which volumes are filled with tetrahedra using their material tag names:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_unstructured_mesh_file(
+    filename="umesh.vtk",
+    target_edge_length=2.0,
+    tet_volumes=["tungsten"],
 )
 ```
 
@@ -117,14 +140,17 @@ model.export_unstructured_mesh_file(
 ```python
 model.export_unstructured_mesh_file(
     filename="umesh.vtk",     # Output file path
-    min_mesh_size=1.0,        # Minimum element size
-    max_mesh_size=10.0,       # Maximum element size
+    min_mesh_size=1.0,        # Minimum element size (gmsh backend)
+    max_mesh_size=10.0,       # Maximum element size (gmsh backend)
     mesh_algorithm=1,         # GMSH algorithm (1-10)
-    set_size=None,            # Per-volume sizes
-    volumes=None,             # Specific volumes to include
+    set_size=None,            # Per-volume sizes (gmsh backend)
+    volumes=None,             # Specific volumes to include (gmsh backend)
     scale_factor=1.0,         # Geometry scaling
     imprint=True,             # Imprint shared surfaces
-    method="file",            # CAD transfer method
+    method="file",            # CAD transfer method (gmsh backend)
+    meshing_backend=None,     # "gmsh", "cad-to-dagmc-mesher" or auto-select
+    target_edge_length=None,  # Tet edge length (cad-to-dagmc-mesher backend)
+    tet_volumes=None,         # Volumes to fill with tets (cad-to-dagmc-mesher backend)
 )
 ```
 
@@ -133,14 +159,19 @@ model.export_unstructured_mesh_file(
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `filename` | str | "umesh.vtk" | Output VTK file path |
-| `min_mesh_size` | float | None | Minimum mesh element size |
-| `max_mesh_size` | float | None | Maximum mesh element size |
+| `min_mesh_size` | float | None | Minimum mesh element size (gmsh) |
+| `max_mesh_size` | float | None | Maximum mesh element size (gmsh) |
 | `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
-| `set_size` | dict | None | Per-volume mesh sizes |
-| `volumes` | list | None | Specific volumes to mesh |
+| `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
+| `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | bool | True | Imprint shared surfaces |
-| `method` | str | "file" | CAD transfer method |
+| `method` | str | "file" | CAD transfer method (gmsh) |
+| `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
+| `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |
+| `tet_volumes` | list[str] | None | Material tags of volumes to fill with tets (cad-to-dagmc-mesher) |
+| `tolerance` | float | 0.01 | Surface mesh linear tolerance (cad-to-dagmc-mesher) |
+| `angular_tolerance` | float | 0.2 | Surface mesh angular tolerance (cad-to-dagmc-mesher) |
 
 ## Using in OpenMC
 
@@ -216,3 +247,4 @@ model.run()
 - [Conformal Meshes](conformal_meshes.md) - When you need matching surface and volume meshes
 - [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md) - Control mesh density
 - [GMSH Backend](../meshing/gmsh_backend.md) - Meshing options
+- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md) - Volume meshes without GMSH

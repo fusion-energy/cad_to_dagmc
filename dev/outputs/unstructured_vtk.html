@@ -237,6 +237,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -419,6 +420,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export">Basic Export</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-cad-to-dagmc-mesher-backend">Using the cad-to-dagmc-mesher Backend</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-geometry-example">Complex Geometry Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-specific-volumes">Selecting Specific Volumes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -444,7 +446,7 @@
 <p>Creates tetrahedral volume meshes for use with OpenMC’s <code class="docutils literal notranslate"><span class="pre">UnstructuredMesh</span></code> tally.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Volume mesh output <strong>requires the GMSH backend</strong>. The CadQuery meshing backend cannot create volume meshes.</p>
+<p>Volume mesh output requires the <strong>GMSH</strong> or <strong>cad-to-dagmc-mesher</strong> backend. The CadQuery meshing backend cannot create volume meshes.</p>
 </div>
 <section id="basic-export">
 <h2>Basic Export<a class="headerlink" href="#basic-export" title="Link to this heading">#</a></h2>
@@ -461,6 +463,26 @@
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-cad-to-dagmc-mesher-backend">
+<h2>Using the cad-to-dagmc-mesher Backend<a class="headerlink" href="#using-the-cad-to-dagmc-mesher-backend" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> writes the vtk file without GMSH. The tetrahedra size is controlled with a single <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> argument, which also selects the backend automatically:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Optionally restrict which volumes are filled with tetrahedra using their material tag names:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -552,14 +574,17 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>     <span class="c1"># Output file path</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Minimum element size</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>       <span class="c1"># Maximum element size</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Minimum element size (gmsh backend)</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>       <span class="c1"># Maximum element size (gmsh backend)</span>
     <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>         <span class="c1"># GMSH algorithm (1-10)</span>
-    <span class="n">set_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>            <span class="c1"># Per-volume sizes</span>
-    <span class="n">volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>             <span class="c1"># Specific volumes to include</span>
+    <span class="n">set_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>            <span class="c1"># Per-volume sizes (gmsh backend)</span>
+    <span class="n">volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>             <span class="c1"># Specific volumes to include (gmsh backend)</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
     <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Imprint shared surfaces</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>            <span class="c1"># CAD transfer method</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>            <span class="c1"># CAD transfer method (gmsh backend)</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>     <span class="c1"># &quot;gmsh&quot;, &quot;cad-to-dagmc-mesher&quot; or auto-select</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Tet edge length (cad-to-dagmc-mesher backend)</span>
+    <span class="n">tet_volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>         <span class="c1"># Volumes to fill with tets (cad-to-dagmc-mesher backend)</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -581,12 +606,12 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
-<td><p>Minimum mesh element size</p></td>
+<td><p>Minimum mesh element size (gmsh)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
-<td><p>Maximum mesh element size</p></td>
+<td><p>Maximum mesh element size (gmsh)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code></p></td>
 <td><p>int</p></td>
@@ -596,12 +621,12 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code></p></td>
 <td><p>dict</p></td>
 <td><p>None</p></td>
-<td><p>Per-volume mesh sizes</p></td>
+<td><p>Per-volume mesh sizes (gmsh)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">volumes</span></code></p></td>
 <td><p>list</p></td>
 <td><p>None</p></td>
-<td><p>Specific volumes to mesh</p></td>
+<td><p>Specific volumes to mesh (gmsh)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
 <td><p>float</p></td>
@@ -616,7 +641,32 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>str</p></td>
 <td><p>“file”</p></td>
-<td><p>CAD transfer method</p></td>
+<td><p>CAD transfer method (gmsh)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code></p></td>
+<td><p>str</p></td>
+<td><p>None</p></td>
+<td><p>“gmsh” or “cad-to-dagmc-mesher”; auto-selected when not set</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
+<td><p>float</p></td>
+<td><p>None</p></td>
+<td><p>Tetrahedron edge length (cad-to-dagmc-mesher)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>None</p></td>
+<td><p>Material tags of volumes to fill with tets (cad-to-dagmc-mesher)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.01</p></td>
+<td><p>Surface mesh linear tolerance (cad-to-dagmc-mesher)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.2</p></td>
+<td><p>Surface mesh angular tolerance (cad-to-dagmc-mesher)</p></td>
 </tr>
 </tbody>
 </table>
@@ -697,6 +747,7 @@
 <li><p><a class="reference internal" href="conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a> - When you need matching surface and volume meshes</p></li>
 <li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Control mesh density</p></li>
 <li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Meshing options</p></li>
+<li><p><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher Backend</span></a> - Volume meshes without GMSH</p></li>
 </ul>
 </section>
 </section>
@@ -749,6 +800,7 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export">Basic Export</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-cad-to-dagmc-mesher-backend">Using the cad-to-dagmc-mesher Backend</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-geometry-example">Complex Geometry Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-specific-volumes">Selecting Specific Volumes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">

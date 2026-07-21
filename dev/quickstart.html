@@ -237,6 +237,7 @@
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -501,10 +502,20 @@
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>The volume mesh can also be produced with the
+<a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> instead of GMSH.
+Passing <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> selects it automatically:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Volume mesh export requires the GMSH meshing backend, which is used by default.
-The CadQuery backend only supports surface meshes.</p>
+<p>Volume mesh export requires the GMSH meshing backend (used by default) or the
+cad-to-dagmc-mesher backend. The CadQuery backend only supports surface meshes.</p>
 </div>
 </section>
 <section id="creating-conformal-surface-and-volume-meshes">

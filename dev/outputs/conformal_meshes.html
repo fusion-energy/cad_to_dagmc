@@ -237,6 +237,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cadquery_backend.html">CadQuery Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -429,6 +430,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-notes">API Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cad-to-dagmc-mesher-alternative">cad-to-dagmc-mesher Alternative</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -637,6 +639,19 @@
 </pre></div>
 </div>
 </section>
+<section id="cad-to-dagmc-mesher-alternative">
+<h2>cad-to-dagmc-mesher Alternative<a class="headerlink" href="#cad-to-dagmc-mesher-alternative" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> can also produce conformal meshes, without GMSH. It writes the h5m surface mesh and the vtk volume mesh from a single meshing call: for each volume listed in <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> the surface is remeshed to near-equilateral triangles at <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> and that surface becomes both the DAGMC tracking surface and the tetrahedra boundary, so the two meshes share the same surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Provide <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> (material tag names) and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steel&quot;</span><span class="p">],</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -705,6 +720,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-notes">API Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cad-to-dagmc-mesher-alternative">cad-to-dagmc-mesher Alternative</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>
