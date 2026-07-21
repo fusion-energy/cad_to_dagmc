@@ -1539,8 +1539,7 @@ class CadToDagmc:
                 installing from PyPI.
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
-                Useful when converting the geometry to cm for use in neutronics.
-                Only used by the gmsh backend.
+                the geometry to cm for use in neutronics.
             imprint: whether to imprint the geometry or not. Defaults to True as this is
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
