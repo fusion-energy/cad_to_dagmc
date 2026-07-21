@@ -44,7 +44,7 @@ jobs:
           source "${HOME}/miniforge/etc/profile.d/conda.sh"
           conda create -n ci-env python=3.11
           conda activate ci-env
-          conda install -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh vtk
+          conda install -c conda-forge "openmc=0.15.0=dagmc*nompi*" trimesh networkx cadquery gmsh python-gmsh
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
 

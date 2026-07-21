@@ -29,6 +29,79 @@ class PyMoabNotFoundError(ImportError):
         super().__init__(message)
 
 
+def write_vtk(filename, vertices, tetrahedra):
+    """Write a tetrahedral mesh to an ASCII VTK legacy file.
+
+    The output is a pure tetrahedron UNSTRUCTURED_GRID in the same legacy
+    format that gmsh writes today, so it can be read back with
+    openmc.UnstructuredMesh(filename, library="moab"). The MOAB reader does
+    not require the GLOBAL_ID POINT_DATA/CELL_DATA blocks that MOAB itself
+    writes when it exports a mesh, so they are intentionally omitted. This
+    was confirmed with a round trip transport test (see
+    tests/test_write_vtk.py::test_write_vtk_openmc_moab_round_trip): a mesh
+    written without GLOBAL_ID loads in MOAB and tallies identically to one
+    written with it.
+
+    Args:
+        filename: Output file path.
+        vertices: Sequence of [x, y, z] coordinates (list or numpy array).
+        tetrahedra: Sequence of [v0, v1, v2, v3] zero-based vertex indices
+            (list or numpy array).
+    """
+    n_tets = len(tetrahedra)
+    # Stream the point/cell blocks with writelines() over generators. This
+    # keeps memory bounded (nothing bigger than one line is materialised at a
+    # time, matching the old per-line writes) while letting the C-level
+    # writelines do the looping, which matters for the large meshes the mesher
+    # can produce.
+    with open(filename, "w") as f:
+        f.write("# vtk DataFile Version 2.0\n")
+        f.write("Unstructured mesh\n")
+        f.write("ASCII\n")
+        f.write("DATASET UNSTRUCTURED_GRID\n")
+        f.write(f"POINTS {len(vertices)} double\n")
+        f.writelines(f"{v[0]} {v[1]} {v[2]}\n" for v in vertices)
+        f.write(f"CELLS {n_tets} {n_tets * 5}\n")
+        f.writelines(f"4 {t[0]} {t[1]} {t[2]} {t[3]}\n" for t in tetrahedra)
+        f.write(f"CELL_TYPES {n_tets}\n")
+        f.writelines("10\n" for _ in range(n_tets))
+
+
+def combine_tet_meshes(tet_data):
+    """Combine per-solid tetrahedral meshes into a single mesh.
+
+    ``cad_to_dagmc_mesher.cad.mesh_assembly`` returns a ``tet_data`` dict
+    mapping ``solid_id`` to ``{"vertices": (n, 3) array, "tetrahedra":
+    (m, 4) array, ...}`` where each solid's tetrahedra index into that
+    solid's own vertex list. To write a single unstructured grid the vertex
+    arrays are concatenated and each solid's tetrahedra are offset by the
+    running vertex count so they index into the combined vertex array.
+
+    Args:
+        tet_data: Mapping of solid_id -> dict with "vertices" and
+            "tetrahedra" entries, as returned by mesh_assembly.
+
+    Returns:
+        (vertices, tetrahedra): a single (N, 3) float array of vertex
+        coordinates and a single (M, 4) int array of zero-based tetrahedron
+        vertex indices.
+    """
+    all_vertices = []
+    all_tetrahedra = []
+    offset = 0
+    for solid_id in tet_data:
+        verts = np.asarray(tet_data[solid_id]["vertices"], dtype=float).reshape(-1, 3)
+        tets = np.asarray(tet_data[solid_id]["tetrahedra"], dtype=np.int64).reshape(-1, 4)
+        all_vertices.append(verts)
+        all_tetrahedra.append(tets + offset)
+        offset += len(verts)
+
+    if not all_vertices:
+        return np.empty((0, 3), dtype=float), np.empty((0, 4), dtype=np.int64)
+
+    return np.vstack(all_vertices), np.vstack(all_tetrahedra)
+
+
 def imprint_assembly(assembly):
     """Imprint a CadQuery assembly into a connected compound.
 
@@ -1428,12 +1501,23 @@ class CadToDagmc:
         set_size: dict[int | str, float] | None = None,
         volumes: Iterable[int] | None = None,
         threads: int = 0,
+        meshing_backend: str = "gmsh",
+        target_edge_length: float | None = None,
+        tet_volumes: Iterable[str] | None = None,
+        tolerance: float = 0.01,
+        angular_tolerance: float = 0.2,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with
         openmc.UnstructuredMesh. Compatible with the MOAB unstructured mesh
         library. Example useage openmc.UnstructuredMesh(filename="umesh.vtk",
         library="moab").
+
+        The mesh can be produced either with gmsh (the default) or with the
+        cad-to-dagmc-mesher backend. The gmsh backend uses the min/max mesh
+        size and set_size arguments, while the cad-to-dagmc-mesher backend
+        uses target_edge_length (and optionally tet_volumes) to control the
+        tetrahedra.
 
         Parameters:
         -----------
@@ -1455,30 +1539,60 @@ class CadToDagmc:
                 installing from PyPI.
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
-                Useful when converting the geometry to cm for use in neutronics
+                the geometry to cm for use in neutronics.
             imprint: whether to imprint the geometry or not. Defaults to True as this is
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
                 and this can save time.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
-                all volume IDs that have that tag.
+                all volume IDs that have that tag. Only used by the gmsh backend.
             volumes: a list of volume ids (int) to include in the mesh. If left
-                as default (None) then all volumes will be included.
+                as default (None) then all volumes will be included. Only used by
+                the gmsh backend.
             threads: the number of threads for Gmsh to use. 0 uses all
                 available cores (default), 1 uses a single thread.
+            meshing_backend: the backend used to generate the tetrahedra, either
+                "gmsh" (default) or "cad-to-dagmc-mesher".
+            target_edge_length: the target tetrahedron edge length used by the
+                cad-to-dagmc-mesher backend. Required when meshing_backend is
+                "cad-to-dagmc-mesher".
+            tet_volumes: an iterable of material tag names identifying which
+                volumes to fill with tetrahedra when using the
+                cad-to-dagmc-mesher backend. Defaults to all volumes.
+            tolerance: linear deflection tolerance for the surface mesh, used by
+                the cad-to-dagmc-mesher backend.
+            angular_tolerance: angular deflection tolerance for the surface mesh,
+                used by the cad-to-dagmc-mesher backend.
 
 
         Returns:
         --------
-            gmsh : gmsh
-                The gmsh object after finalizing the mesh.
+            filename : str
+                The filename of the written unstructured mesh file.
         """
 
         # gmesh writes out a vtk file that is accepted by openmc.UnstructuredMesh
         # The library argument must be set to "moab"
         if Path(filename).suffix != ".vtk":
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
+
+        if meshing_backend not in ("gmsh", "cad-to-dagmc-mesher"):
+            raise ValueError(
+                f'meshing_backend "{meshing_backend}" not supported. '
+                'Available options are "gmsh" or "cad-to-dagmc-mesher"'
+            )
+
+        if meshing_backend == "cad-to-dagmc-mesher":
+            return self._export_unstructured_mesh_file_with_mesher(
+                filename=filename,
+                target_edge_length=target_edge_length,
+                tet_volumes=tet_volumes,
+                tolerance=tolerance,
+                angular_tolerance=angular_tolerance,
+                imprint=imprint,
+                scale_factor=scale_factor,
+            )
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -1549,6 +1663,63 @@ class CadToDagmc:
         finally:
             if gmsh_session_started and gmsh.isInitialized():
                 gmsh.finalize()
+
+    def _export_unstructured_mesh_file_with_mesher(
+        self,
+        filename: str,
+        target_edge_length: float | None,
+        tet_volumes: Iterable[str] | None,
+        tolerance: float,
+        angular_tolerance: float,
+        imprint: bool,
+        scale_factor: float = 1.0,
+    ) -> str:
+        """Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.
+
+        Meshes the assembly with cad-to-dagmc-mesher, combines the per-solid
+        tetrahedra into a single mesh, and writes it as a legacy VTK file
+        readable by openmc.UnstructuredMesh(filename, library="moab").
+        """
+        if target_edge_length is None:
+            raise ValueError(
+                "target_edge_length is required when meshing_backend is "
+                '"cad-to-dagmc-mesher"'
+            )
+
+        assembly = _build_assembly(self.parts, scale_factor)
+
+        # Default to tetrahedralising every volume. tet_volumes is matched
+        # against material tags by the mesher, so pass the material tags.
+        if tet_volumes is None:
+            tet_volumes = list(self.material_tags)
+        else:
+            tet_volumes = list(tet_volumes)
+
+        _, _, _, tet_data = _mesh_with_cad_to_dagmc_mesher(
+            assembly=assembly,
+            material_tags=self.material_tags,
+            tolerance=tolerance,
+            angular_tolerance=angular_tolerance,
+            tet_volumes=tet_volumes,
+            target_edge_length=target_edge_length,
+            imprint=imprint,
+        )
+
+        if not tet_data:
+            raise ValueError(
+                "cad-to-dagmc-mesher produced no tetrahedra. Check that "
+                "tet_volumes contains valid material tags and that "
+                "target_edge_length is set."
+            )
+
+        tet_vertices, tetrahedra = combine_tet_meshes(tet_data)
+
+        if Path(filename).parent:
+            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+
+        write_vtk(filename, tet_vertices, tetrahedra)
+        print(f"written unstructured mesh file {filename}")
+        return filename
 
     def export_gmsh_mesh_file(
         self,
@@ -1673,9 +1844,10 @@ class CadToDagmc:
             **kwargs: Backend-specific parameters:
 
                 Backend selection:
-                - meshing_backend (str, optional): explicitly specify 'gmsh' or 'cadquery'.
-                  If not provided, backend is auto-selected based on other arguments.
-                  Defaults to 'cadquery' if no backend-specific arguments are given.
+                - meshing_backend (str, optional): explicitly specify 'gmsh',
+                  'cadquery' or 'cad-to-dagmc-mesher'. If not provided, backend is
+                  auto-selected based on other arguments. Defaults to 'cadquery' if
+                  no backend-specific arguments are given.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
                   Defaults to 'h5py'.
 
@@ -1697,6 +1869,18 @@ class CadToDagmc:
                 For CadQuery backend:
                 - tolerance (float): meshing tolerance (default: 0.1)
                 - angular_tolerance (float): angular tolerance (default: 0.1)
+
+                For cad-to-dagmc-mesher backend:
+                - tolerance (float): surface meshing tolerance (default: 0.01)
+                - angular_tolerance (float): surface angular tolerance (default: 0.2)
+                - tet_volumes (Iterable[str]): material tag names of the volumes to
+                  fill with tetrahedra for an unstructured volume mesh.
+                - target_edge_length (float): target tetrahedron edge length. Both
+                  tet_volumes and target_edge_length must be given together to write
+                  a volume mesh; when they are, the return value is a
+                  (dagmc_filename, umesh_filename) tuple.
+                - umesh_filename (str): filename for the unstructured volume mesh
+                  (default: 'umesh.vtk').
 
         Returns:
             str: the filename(s) for the files created.
@@ -1776,6 +1960,7 @@ class CadToDagmc:
         unstructured_volumes = None
         umesh_filename = "umesh.vtk"
         threads = 0
+        tet_data = None
 
         # Extract backend-specific parameters with defaults
         if meshing_backend == "cadquery":
@@ -1943,10 +2128,34 @@ class CadToDagmc:
             elif meshing_backend == "cad-to-dagmc-mesher":
                 tet_volumes_arg = kwargs.get("tet_volumes", kwargs.get("unstructured_volumes"))
                 target_edge_length = kwargs.get("target_edge_length")
+                umesh_filename = kwargs.get("umesh_filename", umesh_filename)
 
-                vertices, triangles_by_solid_by_face, material_tags_in_brep_order = (
+                # A volume (tet) mesh needs BOTH tet_volumes and
+                # target_edge_length. Passing only one (or asking for a
+                # umesh_filename without them) is a user error: fail fast with a
+                # clear message rather than silently writing no .vtk and
+                # returning a bare string instead of the (h5m, vtk) tuple.
+                wants_umesh = (
+                    bool(tet_volumes_arg)
+                    or target_edge_length is not None
+                    or "umesh_filename" in kwargs
+                )
+                if wants_umesh and not (tet_volumes_arg and target_edge_length):
+                    raise ValueError(
+                        "Writing an unstructured volume mesh with the "
+                        "cad-to-dagmc-mesher backend requires BOTH tet_volumes "
+                        "(material tag names) and target_edge_length. Got "
+                        f"tet_volumes={tet_volumes_arg!r}, "
+                        f"target_edge_length={target_edge_length!r}."
+                    )
+
+                # scale_factor is applied to the geometry before meshing so the
+                # h5m and .vtk match the gmsh/cadquery backends (which scale).
+                mesher_assembly = _build_assembly(self.parts, scale_factor)
+
+                vertices, triangles_by_solid_by_face, material_tags_in_brep_order, tet_data = (
                     _mesh_with_cad_to_dagmc_mesher(
-                        assembly=assembly,
+                        assembly=mesher_assembly,
                         material_tags=self.material_tags,
                         tolerance=tolerance,
                         angular_tolerance=angular_tolerance,
@@ -1998,17 +2207,59 @@ class CadToDagmc:
 
                 return dagmc_filename, umesh_filename
 
+            # The cad-to-dagmc-mesher backend produces the tetrahedra itself
+            # (when tet_volumes + target_edge_length are given). Combine the
+            # per-solid tet meshes and write a .vtk unstructured volume mesh
+            # without going through gmsh. Keying on the user's request (both
+            # tet args, guaranteed present together by the check above) rather
+            # than on tet_data means a mesher that unexpectedly yields no tets
+            # raises here instead of silently returning a bare string.
+            if meshing_backend == "cad-to-dagmc-mesher" and tet_volumes_arg and target_edge_length:
+                if not tet_data:
+                    raise ValueError(
+                        "cad-to-dagmc-mesher produced no tetrahedra despite "
+                        f"tet_volumes={tet_volumes_arg!r} and "
+                        f"target_edge_length={target_edge_length!r}. Check that "
+                        "tet_volumes contains valid material tags."
+                    )
+                tet_vertices, tetrahedra = combine_tet_meshes(tet_data)
+                if Path(umesh_filename).parent:
+                    Path(umesh_filename).parent.mkdir(parents=True, exist_ok=True)
+                write_vtk(umesh_filename, tet_vertices, tetrahedra)
+                print(f"written unstructured mesh file {umesh_filename}")
+                return dagmc_filename, umesh_filename
+
             return dagmc_filename
         finally:
             if gmsh_session_started and gmsh.isInitialized():
                 gmsh.finalize()
 
 
+def _build_assembly(parts, scale_factor: float = 1.0):
+    """Build a CadQuery assembly from parts, optionally scaling each part.
+
+    Shape.scale returns a new shape (it does not mutate in place), so the
+    original parts in self.parts are left untouched and repeated exports stay
+    consistent.
+    """
+    assembly = cq.Assembly()
+    for part in parts:
+        assembly.add(part.scale(scale_factor) if scale_factor != 1.0 else part)
+    return assembly
+
+
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
     tet_volumes, target_edge_length, imprint,
 ):
-    """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output."""
+    """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.
+
+    Returns ``(vertices, triangles_by_solid_by_face, material_tags,
+    tet_data)`` where ``tet_data`` is the per-solid tetrahedral mesh dict
+    (``{solid_id: {"vertices": ..., "tetrahedra": ..., ...}}``) or ``None``
+    when no solids were volume-meshed. Volume meshing only happens when both
+    ``tet_volumes`` and ``target_edge_length`` are supplied.
+    """
     from cad_to_dagmc_mesher.cad import mesh_assembly
 
     result = mesh_assembly(
@@ -2020,7 +2271,12 @@ def _mesh_with_cad_to_dagmc_mesher(
         target_edge_length=target_edge_length,
         imprint=imprint,
     )
-    return result["vertices"], result["triangles_by_solid_by_face"], result["material_tags"]
+    return (
+        result["vertices"],
+        result["triangles_by_solid_by_face"],
+        result["material_tags"],
+        result.get("tet_data"),
+    )
 
 
 def _get_all_leaf_children(assembly):
