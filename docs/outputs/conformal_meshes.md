@@ -196,6 +196,20 @@ Without `unstructured_volumes`, it returns just the filename:
 dagmc_filename = model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```
 
+## cad-to-dagmc-mesher Alternative
+
+The [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md) can also produce conformal meshes, without GMSH. It writes the h5m surface mesh and the vtk volume mesh from a single meshing call: for each volume listed in `tet_volumes` the surface is remeshed to near-equilateral triangles at `target_edge_length` and that surface becomes both the DAGMC tracking surface and the tetrahedra boundary, so the two meshes share the same surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Provide `tet_volumes` (material tag names) and `target_edge_length`:
+
+<!--pytest-codeblocks:skip-->
+```python
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    tet_volumes=["steel"],
+    target_edge_length=2.0,
+    umesh_filename="umesh.vtk",
+)
+```
+
 ## See Also
 
 - [DAGMC H5M](dagmc_h5m.md) - Surface mesh output details

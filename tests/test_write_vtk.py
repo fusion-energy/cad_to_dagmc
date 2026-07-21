@@ -191,6 +191,16 @@ def test_export_unstructured_mesh_file_mesher_requires_target_edge_length():
         )
 
 
+def test_export_unstructured_mesh_file_auto_selects_mesher():
+    """Passing a mesher-specific tet argument without meshing_backend selects
+    the cad-to-dagmc-mesher backend automatically. The mesher branch then
+    fails fast on the missing target_edge_length, which proves the backend
+    was selected (the gmsh backend would not raise this error)."""
+    model = CadToDagmc()
+    with pytest.raises(ValueError, match="target_edge_length"):
+        model.export_unstructured_mesh_file("x.vtk", tet_volumes=["mat1"])
+
+
 def test_export_dagmc_h5m_file_mesher_requires_both_tet_args():
     """tet_volumes without target_edge_length must fail fast, not silently skip
     writing the .vtk and change the return type to a bare string."""

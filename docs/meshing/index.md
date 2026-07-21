@@ -1,41 +1,45 @@
 # Meshing Backends
 
-cad_to_dagmc supports two meshing backends for creating surface meshes.
+cad_to_dagmc supports three meshing backends for creating surface and volume meshes.
 
 ## Available Backends
 
 | Backend | Description | Best For |
 |---------|-------------|----------|
-| [GMSH](gmsh_backend.md) | Full-featured meshing library | Complex models, volume meshes |
+| [GMSH](gmsh_backend.md) | Full-featured meshing library | Complex models, fine mesh control |
 | [CadQuery](cadquery_backend.md) | Built-in CadQuery tessellation | Simple models, flat surfaces |
+| [cad-to-dagmc-mesher](cad_to_dagmc_mesher_backend.md) | Purpose-built surface and tetrahedral mesher | Surface and volume meshes without GMSH |
 
 ## Quick Comparison
 
-| Feature | GMSH Backend | CadQuery Backend |
-|---------|--------------|------------------|
-| Surface mesh (h5m) | Yes | Yes |
-| Volume mesh (vtk) | Yes | **No** |
-| Mesh size control | Full (min/max/per-volume) | Limited (tolerance only) |
-| Mesh algorithms | 10 algorithms | 1 (built-in) |
-| Parallel meshing | Yes | Partial |
-| Dependencies | Requires GMSH | Built into CadQuery |
-| Flat surface efficiency | Standard | Better (fewer triangles) |
+| Feature | GMSH | CadQuery | cad-to-dagmc-mesher |
+|---------|------|----------|---------------------|
+| Surface mesh (h5m) | Yes | Yes | Yes |
+| Volume mesh (vtk) | Yes | **No** | Yes |
+| Mesh size control | Full (min/max/per-volume) | Limited (tolerance only) | Tolerances + `target_edge_length` |
+| Mesh algorithms | 10 algorithms | 1 (built-in) | 1 (built-in) |
+| Parallel meshing | Yes | Partial | Yes (DAG scheduler) |
+| Dependencies | Requires GMSH | Built into CadQuery | Installed with cad_to_dagmc |
+| Flat surface efficiency | Standard | Better (fewer triangles) | Better (fewer triangles) |
 
 ## Choosing a Backend
 
-**Use GMSH backend (default) when:**
-- You need volume meshes for unstructured mesh tallies
+**Use GMSH backend when:**
 - You need precise control over mesh density
 - You want per-volume mesh sizing with `set_size`
 - You need parallel meshing for large models
 - You need specific mesh algorithms
 
-**Use CadQuery backend when:**
+**Use CadQuery backend (default for h5m export) when:**
 - You only need surface meshes
 - You want simpler configuration
 - Your geometry has many flat surfaces (fewer triangles)
-- You want to minimize dependencies
 - Your geometry is straightforward
+
+**Use cad-to-dagmc-mesher backend when:**
+- You need volume meshes for unstructured mesh tallies without GMSH
+- You want the surface (h5m) and volume (vtk) meshes from a single meshing call
+- You want simple configuration (tolerances plus one tetrahedron edge length)
 
 ## Basic Usage
 
@@ -49,7 +53,7 @@ assembly.add(cq.Workplane("XY").sphere(10))
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1"])
 
-# GMSH backend (default)
+# GMSH backend
 model.export_dagmc_h5m_file(
     filename="dagmc_gmsh.h5m",
     meshing_backend="gmsh",
@@ -63,6 +67,14 @@ model.export_dagmc_h5m_file(
     meshing_backend="cadquery",
     tolerance=0.1,
     angular_tolerance=0.1,
+)
+
+# cad-to-dagmc-mesher backend
+model.export_dagmc_h5m_file(
+    filename="dagmc_mesher.h5m",
+    meshing_backend="cad-to-dagmc-mesher",
+    tolerance=0.01,
+    angular_tolerance=0.2,
 )
 ```
 

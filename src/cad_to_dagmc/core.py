@@ -1501,7 +1501,7 @@ class CadToDagmc:
         set_size: dict[int | str, float] | None = None,
         volumes: Iterable[int] | None = None,
         threads: int = 0,
-        meshing_backend: str = "gmsh",
+        meshing_backend: str | None = None,
         target_edge_length: float | None = None,
         tet_volumes: Iterable[str] | None = None,
         tolerance: float = 0.01,
@@ -1513,11 +1513,12 @@ class CadToDagmc:
         library. Example useage openmc.UnstructuredMesh(filename="umesh.vtk",
         library="moab").
 
-        The mesh can be produced either with gmsh (the default) or with the
+        The mesh can be produced either with gmsh or with the
         cad-to-dagmc-mesher backend. The gmsh backend uses the min/max mesh
         size and set_size arguments, while the cad-to-dagmc-mesher backend
         uses target_edge_length (and optionally tet_volumes) to control the
-        tetrahedra.
+        tetrahedra. gmsh is used unless meshing_backend or one of the
+        cad-to-dagmc-mesher specific arguments is provided.
 
         Parameters:
         -----------
@@ -1553,7 +1554,9 @@ class CadToDagmc:
             threads: the number of threads for Gmsh to use. 0 uses all
                 available cores (default), 1 uses a single thread.
             meshing_backend: the backend used to generate the tetrahedra, either
-                "gmsh" (default) or "cad-to-dagmc-mesher".
+                "gmsh" or "cad-to-dagmc-mesher". If not set, the backend is
+                auto-selected: "cad-to-dagmc-mesher" when target_edge_length or
+                tet_volumes is provided, otherwise "gmsh".
             target_edge_length: the target tetrahedron edge length used by the
                 cad-to-dagmc-mesher backend. Required when meshing_backend is
                 "cad-to-dagmc-mesher".
@@ -1576,6 +1579,15 @@ class CadToDagmc:
         # The library argument must be set to "moab"
         if Path(filename).suffix != ".vtk":
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
+
+        if meshing_backend is None:
+            # Auto-select the backend: the tet arguments are specific to
+            # cad-to-dagmc-mesher, everything else defaults to gmsh.
+            if target_edge_length is not None or tet_volumes is not None:
+                meshing_backend = "cad-to-dagmc-mesher"
+            else:
+                meshing_backend = "gmsh"
+        print(f"Using meshing backend: {meshing_backend}")
 
         if meshing_backend not in ("gmsh", "cad-to-dagmc-mesher"):
             raise ValueError(
@@ -1846,8 +1858,10 @@ class CadToDagmc:
                 Backend selection:
                 - meshing_backend (str, optional): explicitly specify 'gmsh',
                   'cadquery' or 'cad-to-dagmc-mesher'. If not provided, backend is
-                  auto-selected based on other arguments. Defaults to 'cadquery' if
-                  no backend-specific arguments are given.
+                  auto-selected based on other arguments: tet_volumes or
+                  target_edge_length select 'cad-to-dagmc-mesher', gmsh-specific
+                  arguments select 'gmsh'. Defaults to 'cadquery' if no
+                  backend-specific arguments are given.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
                   Defaults to 'h5py'.
 
@@ -1919,10 +1933,32 @@ class CadToDagmc:
         h5m_backend = kwargs.pop("h5m_backend", "h5py")
 
         if meshing_backend is None:
-            # Auto-select meshing_backend based on kwargs
+            # Auto-select meshing_backend based on kwargs. Keys shared between
+            # backends cannot drive the selection on their own: tolerance and
+            # angular_tolerance are used by both the cadquery and the
+            # cad-to-dagmc-mesher backends, umesh_filename is used by both the
+            # gmsh and the cad-to-dagmc-mesher backends.
+            mesher_only_keys = {"tet_volumes", "target_edge_length"}
+            gmsh_only_keys = gmsh_keys - {"umesh_filename"}
             has_cadquery = any(key in kwargs for key in cadquery_keys)
             has_gmsh = any(key in kwargs for key in gmsh_keys)
-            if has_cadquery and not has_gmsh:
+            has_mesher = any(key in kwargs for key in mesher_only_keys)
+            if has_mesher:
+                provided_gmsh = [key for key in sorted(gmsh_only_keys) if key in kwargs]
+                if provided_gmsh:
+                    provided_mesher = [
+                        key for key in sorted(mesher_only_keys) if key in kwargs
+                    ]
+                    raise ValueError(
+                        "Ambiguous backend: both cad-to-dagmc-mesher and GMSH-specific arguments provided.\n"
+                        f"cad-to-dagmc-mesher-specific arguments: {sorted(mesher_only_keys)}\n"
+                        f"GMSH-specific arguments: {sorted(gmsh_only_keys)}\n"
+                        f"Provided cad-to-dagmc-mesher arguments: {provided_mesher}\n"
+                        f"Provided GMSH arguments: {provided_gmsh}\n"
+                        "Please provide only one backend's arguments."
+                    )
+                meshing_backend = "cad-to-dagmc-mesher"
+            elif has_cadquery and not has_gmsh:
                 meshing_backend = "cadquery"
             elif has_gmsh and not has_cadquery:
                 meshing_backend = "gmsh"
@@ -1970,13 +2006,14 @@ class CadToDagmc:
 
             # Check for invalid parameters
             unstructured_volumes = kwargs.get("unstructured_volumes")
-            if unstructured_volumes is not None:
+            if unstructured_volumes is not None or kwargs.get("tet_volumes") is not None:
                 raise ValueError(
                     "CadQuery backend cannot be used for volume meshing. "
-                    "unstructured_volumes must be None when using 'cadquery' backend."
+                    "unstructured_volumes and tet_volumes must be None when "
+                    "using 'cadquery' backend."
                 )
 
-            # Warn about unused GMSH parameters
+            # Warn about unused GMSH and cad-to-dagmc-mesher parameters
             gmsh_params = [
                 "min_mesh_size",
                 "max_mesh_size",
@@ -1985,6 +2022,7 @@ class CadToDagmc:
                 "umesh_filename",
                 "method",
                 "threads",
+                "target_edge_length",
             ]
             unused_params = [param for param in gmsh_params if param in kwargs]
             if unused_params:
@@ -2004,9 +2042,14 @@ class CadToDagmc:
             umesh_filename = kwargs.get("umesh_filename", "umesh.vtk")
             threads = kwargs.get("threads", 0)
 
-            # Warn about unused CadQuery parameters
-            cq_params = ["tolerance", "angular_tolerance"]
-            unused_params = [param for param in cq_params if param in kwargs]
+            # Warn about unused CadQuery and cad-to-dagmc-mesher parameters
+            non_gmsh_params = [
+                "tolerance",
+                "angular_tolerance",
+                "tet_volumes",
+                "target_edge_length",
+            ]
+            unused_params = [param for param in non_gmsh_params if param in kwargs]
             if unused_params:
                 warnings.warn(
                     f"The following parameters are ignored when using GMSH backend: "
