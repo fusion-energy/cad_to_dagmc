@@ -727,6 +727,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for cad_to_dagmc.core</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -757,6 +758,29 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CadToDagmcMesherNotFoundError</span><span class="p">(</span><span class="ne">ImportError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when cad-to-dagmc-mesher is not installed but its backend is requested.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;cad-to-dagmc-mesher is not installed. It is not available on &quot;</span>
+                <span class="s2">&quot;conda-forge so it cannot be included as a dependency of the &quot;</span>
+                <span class="s2">&quot;cad-to-dagmc conda package.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Install it with pip, which works alongside a conda installation:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  pip install cad-to-dagmc-mesher</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Alternatively, use a meshing backend that is always available:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  export_dagmc_h5m_file(..., meshing_backend=&#39;cadquery&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  export_dagmc_h5m_file(..., meshing_backend=&#39;gmsh&#39;)&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cad_to_dagmc_mesher_is_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True when the cad-to-dagmc-mesher package can be imported.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;cad_to_dagmc_mesher&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">write_vtk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">tetrahedra</span><span class="p">):</span>
@@ -2700,11 +2724,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">h5m_backend</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;h5m_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;h5py&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Auto-select meshing_backend based on kwargs. Keys shared between</span>
-            <span class="c1"># backends cannot drive the selection on their own: tolerance and</span>
-            <span class="c1"># angular_tolerance are used by both the cadquery and the</span>
-            <span class="c1"># cad-to-dagmc-mesher backends, umesh_filename is used by both the</span>
-            <span class="c1"># gmsh and the cad-to-dagmc-mesher backends.</span>
+            <span class="c1"># Auto-select meshing_backend based on kwargs. tolerance and</span>
+            <span class="c1"># angular_tolerance are accepted by both the cadquery and the</span>
+            <span class="c1"># cad-to-dagmc-mesher backends, and when only those are given the</span>
+            <span class="c1"># cad-to-dagmc-mesher backend is preferred.</span>
+            <span class="c1"># Note that umesh_filename is also accepted by both the gmsh and</span>
+            <span class="c1"># the cad-to-dagmc-mesher backends but is not treated as shared</span>
+            <span class="c1"># here: it is part of gmsh_keys, so it selects gmsh on its own and</span>
+            <span class="c1"># combining it with tolerance reports an ambiguity. Only</span>
+            <span class="c1"># gmsh_only_keys excludes it, and only in the has_mesher branch.</span>
             <span class="n">mesher_only_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;target_edge_length&quot;</span><span class="p">}</span>
             <span class="n">gmsh_only_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">}</span>
             <span class="n">has_cadquery</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span><span class="p">)</span>
@@ -2725,10 +2753,6 @@ window.runMermaid = runMermaid;</script>
                         <span class="s2">&quot;Please provide only one backend&#39;s arguments.&quot;</span>
                     <span class="p">)</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span>
-            <span class="k">elif</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_gmsh</span><span class="p">:</span>
-                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cadquery&quot;</span>
-            <span class="k">elif</span> <span class="n">has_gmsh</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_cadquery</span><span class="p">:</span>
-                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span>
             <span class="k">elif</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="n">has_gmsh</span><span class="p">:</span>
                 <span class="n">provided_cadquery</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
                 <span class="n">provided_gmsh</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">gmsh_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
@@ -2740,6 +2764,35 @@ window.runMermaid = runMermaid;</script>
                     <span class="sa">f</span><span class="s2">&quot;Provided GMSH arguments: </span><span class="si">{</span><span class="n">provided_gmsh</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="s2">&quot;Please provide only one backend&#39;s arguments.&quot;</span>
                 <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">has_cadquery</span><span class="p">:</span>
+                <span class="c1"># cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so</span>
+                <span class="c1"># reaching here means only keys that both backends accept were</span>
+                <span class="c1"># given and the choice is genuinely ambiguous. Prefer the</span>
+                <span class="c1"># mesher and make the decision visible.</span>
+                <span class="n">provided_shared</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cadquery_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_cad_to_dagmc_mesher_is_available</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The arguments </span><span class="si">{</span><span class="n">provided_shared</span><span class="si">}</span><span class="s2"> are accepted by both the &quot;</span>
+                        <span class="s2">&quot;cadquery and the cad-to-dagmc-mesher meshing backends, so &quot;</span>
+                        <span class="s2">&quot;the cad-to-dagmc-mesher backend would be selected, but &quot;</span>
+                        <span class="s2">&quot;cad-to-dagmc-mesher is not installed. It is not available &quot;</span>
+                        <span class="s2">&quot;on conda-forge so it has to be installed separately.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Either install it:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;  pip install cad-to-dagmc-mesher</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;or ask for the cadquery backend explicitly:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;  export_dagmc_h5m_file(..., meshing_backend=&#39;cadquery&#39;, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">provided_shared</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">=...)&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The arguments </span><span class="si">{</span><span class="n">provided_shared</span><span class="si">}</span><span class="s2"> are accepted by both the &quot;</span>
+                    <span class="s2">&quot;cadquery and the cad-to-dagmc-mesher meshing backends. The &quot;</span>
+                    <span class="s2">&quot;cad-to-dagmc-mesher backend has been selected. Pass &quot;</span>
+                    <span class="s2">&quot;meshing_backend=&#39;cadquery&#39; or &quot;</span>
+                    <span class="s2">&quot;meshing_backend=&#39;cad-to-dagmc-mesher&#39; to choose explicitly.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span>
+            <span class="k">elif</span> <span class="n">has_gmsh</span><span class="p">:</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;gmsh&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cadquery&quot;</span>  <span class="c1"># default</span>
 
@@ -3072,7 +3125,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    when no solids were volume-meshed. Volume meshing only happens when both</span>
 <span class="sd">    ``tet_volumes`` and ``target_edge_length`` are supplied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_assembly</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_assembly</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
         <span class="n">assembly</span><span class="p">,</span>
