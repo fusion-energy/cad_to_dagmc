@@ -21,6 +21,14 @@ except ImportError:
 
 
 
+def pytest_configure(config):
+    """Register the markers used to declare optional dependencies."""
+    config.addinivalue_line(
+        "markers",
+        "requires_mesher: test needs cad-to-dagmc-mesher to be installed",
+    )
+
+
 def pytest_addoption(parser):
     """Add command-line option for h5m backend."""
     parser.addoption(
@@ -42,6 +50,11 @@ def pytest_collection_modifyitems(config, items):
     skip_pymoab = pytest.mark.skip(reason="pymoab not installed")
     skip_mesher = pytest.mark.skip(reason="cad-to-dagmc-mesher not installed")
     for item in items:
+        # Skip tests that ask for the mesher directly rather than through a
+        # meshing_backend parameter
+        if not MESHER_AVAILABLE and item.get_closest_marker("requires_mesher"):
+            item.add_marker(skip_mesher)
+
         # Check if the test is parametrized
         if hasattr(item, "callspec") and item.callspec.params:
             params = item.callspec.params
