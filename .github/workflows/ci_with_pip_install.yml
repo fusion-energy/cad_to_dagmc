@@ -43,8 +43,6 @@ jobs:
       - name: Install package and openmc (without pymoab)
         shell: bash
         run: |
-          # install the latest cadquery master branch as it has PR https://github.com/CadQuery/cadquery/pull/1923 merged in
-          python -m pip install git+https://github.com/CadQuery/cadquery
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
           python -m pip install .[tests]
