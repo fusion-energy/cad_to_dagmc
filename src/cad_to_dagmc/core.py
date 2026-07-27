@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Iterable
+import importlib.util
 import cadquery as cq
 import gmsh
 import numpy as np
@@ -27,6 +28,29 @@ class PyMoabNotFoundError(ImportError):
                 "  export_dagmc_h5m_file(..., h5m_backend='h5py')"
             )
         super().__init__(message)
+
+
+class CadToDagmcMesherNotFoundError(ImportError):
+    """Raised when cad-to-dagmc-mesher is not installed but its backend is requested."""
+
+    def __init__(self, message=None):
+        if message is None:
+            message = (
+                "cad-to-dagmc-mesher is not installed. It is not available on "
+                "conda-forge so it cannot be included as a dependency of the "
+                "cad-to-dagmc conda package.\n\n"
+                "Install it with pip, which works alongside a conda installation:\n"
+                "  pip install cad-to-dagmc-mesher\n\n"
+                "Alternatively, use a meshing backend that is always available:\n"
+                "  export_dagmc_h5m_file(..., meshing_backend='cadquery')\n"
+                "  export_dagmc_h5m_file(..., meshing_backend='gmsh')"
+            )
+        super().__init__(message)
+
+
+def _cad_to_dagmc_mesher_is_available() -> bool:
+    """Return True when the cad-to-dagmc-mesher package can be imported."""
+    return importlib.util.find_spec("cad_to_dagmc_mesher") is not None
 
 
 def write_vtk(filename, vertices, tetrahedra):
@@ -1933,11 +1957,12 @@ class CadToDagmc:
         h5m_backend = kwargs.pop("h5m_backend", "h5py")
 
         if meshing_backend is None:
-            # Auto-select meshing_backend based on kwargs. Keys shared between
-            # backends cannot drive the selection on their own: tolerance and
-            # angular_tolerance are used by both the cadquery and the
-            # cad-to-dagmc-mesher backends, umesh_filename is used by both the
-            # gmsh and the cad-to-dagmc-mesher backends.
+            # Auto-select meshing_backend based on kwargs. tolerance and
+            # angular_tolerance are accepted by both the cadquery and the
+            # cad-to-dagmc-mesher backends, and when only those are given the
+            # cad-to-dagmc-mesher backend is preferred. umesh_filename is
+            # shared between the gmsh and cad-to-dagmc-mesher backends and so
+            # never selects a backend on its own.
             mesher_only_keys = {"tet_volumes", "target_edge_length"}
             gmsh_only_keys = gmsh_keys - {"umesh_filename"}
             has_cadquery = any(key in kwargs for key in cadquery_keys)
@@ -1958,10 +1983,6 @@ class CadToDagmc:
                         "Please provide only one backend's arguments."
                     )
                 meshing_backend = "cad-to-dagmc-mesher"
-            elif has_cadquery and not has_gmsh:
-                meshing_backend = "cadquery"
-            elif has_gmsh and not has_cadquery:
-                meshing_backend = "gmsh"
             elif has_cadquery and has_gmsh:
                 provided_cadquery = [key for key in cadquery_keys if key in kwargs]
                 provided_gmsh = [key for key in gmsh_keys if key in kwargs]
@@ -1973,6 +1994,35 @@ class CadToDagmc:
                     f"Provided GMSH arguments: {provided_gmsh}\n"
                     "Please provide only one backend's arguments."
                 )
+            elif has_cadquery:
+                # cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so
+                # reaching here means only keys that both backends accept were
+                # given and the choice is genuinely ambiguous. Prefer the
+                # mesher and make the decision visible.
+                provided_shared = [key for key in sorted(cadquery_keys) if key in kwargs]
+                if not _cad_to_dagmc_mesher_is_available():
+                    raise CadToDagmcMesherNotFoundError(
+                        f"The arguments {provided_shared} are accepted by both the "
+                        "cadquery and the cad-to-dagmc-mesher meshing backends, so "
+                        "the cad-to-dagmc-mesher backend would be selected, but "
+                        "cad-to-dagmc-mesher is not installed. It is not available "
+                        "on conda-forge so it has to be installed separately.\n\n"
+                        "Either install it:\n"
+                        "  pip install cad-to-dagmc-mesher\n\n"
+                        "or ask for the cadquery backend explicitly:\n"
+                        f"  export_dagmc_h5m_file(..., meshing_backend='cadquery', "
+                        f"{provided_shared[0]}=...)"
+                    )
+                warnings.warn(
+                    f"The arguments {provided_shared} are accepted by both the "
+                    "cadquery and the cad-to-dagmc-mesher meshing backends. The "
+                    "cad-to-dagmc-mesher backend has been selected. Pass "
+                    "meshing_backend='cadquery' or "
+                    "meshing_backend='cad-to-dagmc-mesher' to choose explicitly."
+                )
+                meshing_backend = "cad-to-dagmc-mesher"
+            elif has_gmsh:
+                meshing_backend = "gmsh"
             else:
                 meshing_backend = "cadquery"  # default
 
@@ -2303,7 +2353,10 @@ def _mesh_with_cad_to_dagmc_mesher(
     when no solids were volume-meshed. Volume meshing only happens when both
     ``tet_volumes`` and ``target_edge_length`` are supplied.
     """
-    from cad_to_dagmc_mesher.cad import mesh_assembly
+    try:
+        from cad_to_dagmc_mesher.cad import mesh_assembly
+    except ImportError as e:
+        raise CadToDagmcMesherNotFoundError() from e
 
     result = mesh_assembly(
         assembly,
