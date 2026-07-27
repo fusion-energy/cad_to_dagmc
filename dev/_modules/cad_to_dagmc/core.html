@@ -2728,11 +2728,13 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># angular_tolerance are accepted by both the cadquery and the</span>
             <span class="c1"># cad-to-dagmc-mesher backends, and when only those are given the</span>
             <span class="c1"># cad-to-dagmc-mesher backend is preferred.</span>
-            <span class="c1"># Note that umesh_filename is also accepted by both the gmsh and</span>
-            <span class="c1"># the cad-to-dagmc-mesher backends but is not treated as shared</span>
-            <span class="c1"># here: it is part of gmsh_keys, so it selects gmsh on its own and</span>
-            <span class="c1"># combining it with tolerance reports an ambiguity. Only</span>
-            <span class="c1"># gmsh_only_keys excludes it, and only in the has_mesher branch.</span>
+            <span class="c1"># umesh_filename is accepted by both the gmsh and the</span>
+            <span class="c1"># cad-to-dagmc-mesher backends, so it is not gmsh specific, but it</span>
+            <span class="c1"># is still part of gmsh_keys because it selects gmsh when nothing</span>
+            <span class="c1"># else narrows the choice. Combining it with tolerance stays</span>
+            <span class="c1"># ambiguous: the mesher only honours umesh_filename when</span>
+            <span class="c1"># tet_volumes and target_edge_length are supplied too, so no single</span>
+            <span class="c1"># backend accepts that combination as given.</span>
             <span class="n">mesher_only_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;target_edge_length&quot;</span><span class="p">}</span>
             <span class="n">gmsh_only_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;umesh_filename&quot;</span><span class="p">}</span>
             <span class="n">has_cadquery</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span><span class="p">)</span>
@@ -2754,16 +2756,30 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">)</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">&quot;cad-to-dagmc-mesher&quot;</span>
             <span class="k">elif</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="n">has_gmsh</span><span class="p">:</span>
-                <span class="n">provided_cadquery</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
-                <span class="n">provided_gmsh</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">gmsh_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Ambiguous backend: both CadQuery and GMSH-specific arguments provided.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;CadQuery-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cadquery_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;GMSH-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Provided CadQuery arguments: </span><span class="si">{</span><span class="n">provided_cadquery</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Provided GMSH arguments: </span><span class="si">{</span><span class="n">provided_gmsh</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;Please provide only one backend&#39;s arguments.&quot;</span>
+                <span class="n">provided_cadquery</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cadquery_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
+                <span class="n">provided_gmsh_only</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                <span class="p">]</span>
+                <span class="n">provided_gmsh_shared</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_keys</span> <span class="o">-</span> <span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                <span class="p">]</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Ambiguous backend: the arguments provided are not all accepted &quot;</span>
+                    <span class="s2">&quot;by any single meshing backend.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Accepted by cadquery and cad-to-dagmc-mesher: </span><span class="si">{</span><span class="n">provided_cadquery</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
+                <span class="k">if</span> <span class="n">provided_gmsh_only</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Accepted by gmsh only: </span><span class="si">{</span><span class="n">provided_gmsh_only</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">provided_gmsh_shared</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+                        <span class="s2">&quot;Accepted by gmsh and cad-to-dagmc-mesher: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">provided_gmsh_shared</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Note that cad-to-dagmc-mesher only writes an unstructured &quot;</span>
+                        <span class="s2">&quot;volume mesh when tet_volumes and target_edge_length are &quot;</span>
+                        <span class="s2">&quot;also given.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s2">&quot;Please set meshing_backend explicitly.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">has_cadquery</span><span class="p">:</span>
                 <span class="c1"># cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so</span>
                 <span class="c1"># reaching here means only keys that both backends accept were</span>
