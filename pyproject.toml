@@ -24,9 +24,9 @@ dependencies = [
     "numpy",
     "gmsh",
     "h5py",
-    "cadquery_direct_mesh_plugin>=0.1.0",
-    "cad-to-dagmc-mesher>=0.1.7"
-# TODO once on pypi include moab here and remove from CI
+    "cadquery_direct_mesh_plugin>=0.2.0",
+    "cad-to-dagmc-mesher>=0.1.8"
+# TODO if moab become available on pypi include moab here and remove from CI
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 ]
 dynamic = ["version"]
