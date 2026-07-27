@@ -1961,11 +1961,13 @@ class CadToDagmc:
             # angular_tolerance are accepted by both the cadquery and the
             # cad-to-dagmc-mesher backends, and when only those are given the
             # cad-to-dagmc-mesher backend is preferred.
-            # Note that umesh_filename is also accepted by both the gmsh and
-            # the cad-to-dagmc-mesher backends but is not treated as shared
-            # here: it is part of gmsh_keys, so it selects gmsh on its own and
-            # combining it with tolerance reports an ambiguity. Only
-            # gmsh_only_keys excludes it, and only in the has_mesher branch.
+            # umesh_filename is accepted by both the gmsh and the
+            # cad-to-dagmc-mesher backends, so it is not gmsh specific, but it
+            # is still part of gmsh_keys because it selects gmsh when nothing
+            # else narrows the choice. Combining it with tolerance stays
+            # ambiguous: the mesher only honours umesh_filename when
+            # tet_volumes and target_edge_length are supplied too, so no single
+            # backend accepts that combination as given.
             mesher_only_keys = {"tet_volumes", "target_edge_length"}
             gmsh_only_keys = gmsh_keys - {"umesh_filename"}
             has_cadquery = any(key in kwargs for key in cadquery_keys)
@@ -1987,16 +1989,30 @@ class CadToDagmc:
                     )
                 meshing_backend = "cad-to-dagmc-mesher"
             elif has_cadquery and has_gmsh:
-                provided_cadquery = [key for key in cadquery_keys if key in kwargs]
-                provided_gmsh = [key for key in gmsh_keys if key in kwargs]
-                raise ValueError(
-                    "Ambiguous backend: both CadQuery and GMSH-specific arguments provided.\n"
-                    f"CadQuery-specific arguments: {sorted(cadquery_keys)}\n"
-                    f"GMSH-specific arguments: {sorted(gmsh_keys)}\n"
-                    f"Provided CadQuery arguments: {provided_cadquery}\n"
-                    f"Provided GMSH arguments: {provided_gmsh}\n"
-                    "Please provide only one backend's arguments."
+                provided_cadquery = [key for key in sorted(cadquery_keys) if key in kwargs]
+                provided_gmsh_only = [
+                    key for key in sorted(gmsh_only_keys) if key in kwargs
+                ]
+                provided_gmsh_shared = [
+                    key for key in sorted(gmsh_keys - gmsh_only_keys) if key in kwargs
+                ]
+                message = (
+                    "Ambiguous backend: the arguments provided are not all accepted "
+                    "by any single meshing backend.\n"
+                    f"Accepted by cadquery and cad-to-dagmc-mesher: {provided_cadquery}\n"
                 )
+                if provided_gmsh_only:
+                    message += f"Accepted by gmsh only: {provided_gmsh_only}\n"
+                if provided_gmsh_shared:
+                    message += (
+                        "Accepted by gmsh and cad-to-dagmc-mesher: "
+                        f"{provided_gmsh_shared}\n"
+                        "Note that cad-to-dagmc-mesher only writes an unstructured "
+                        "volume mesh when tet_volumes and target_edge_length are "
+                        "also given.\n"
+                    )
+                message += "Please set meshing_backend explicitly."
+                raise ValueError(message)
             elif has_cadquery:
                 # cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so
                 # reaching here means only keys that both backends accept were

@@ -184,6 +184,50 @@ class TestKwargsExportDagmcH5mFile:
                 min_mesh_size=0.5,
             )
 
+    def test_ambiguity_message_does_not_call_umesh_filename_gmsh_specific(
+        self, tmp_path
+    ):
+        """umesh_filename is accepted by gmsh and cad-to-dagmc-mesher, so the
+        ambiguity error must not describe it as gmsh specific, and it should
+        say why the mesher cannot simply be used instead."""
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "umesh_ambiguous.h5m"),
+                tolerance=0.05,
+                umesh_filename=str(tmp_path / "umesh_ambiguous.vtk"),
+            )
+
+        message = str(excinfo.value)
+        assert "Accepted by gmsh and cad-to-dagmc-mesher: ['umesh_filename']" in message
+        assert "Accepted by gmsh only" not in message
+        assert "tet_volumes and target_edge_length" in message
+        assert "meshing_backend" in message
+
+    def test_ambiguity_message_separates_gmsh_only_arguments(self, tmp_path):
+        """Genuinely gmsh specific arguments are reported as such."""
+        with pytest.raises(ValueError) as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "gmsh_ambiguous.h5m"),
+                tolerance=0.05,
+                min_mesh_size=0.5,
+            )
+
+        message = str(excinfo.value)
+        assert "Accepted by gmsh only: ['min_mesh_size']" in message
+        assert "Accepted by cadquery and cad-to-dagmc-mesher: ['tolerance']" in message
+
+    def test_umesh_filename_alone_still_selects_gmsh(self, tmp_path):
+        """umesh_filename on its own remains a gmsh request."""
+        output_file = tmp_path / "umesh_only.h5m"
+
+        result = self.my_model.export_dagmc_h5m_file(
+            filename=str(output_file),
+            umesh_filename=str(tmp_path / "umesh_only.vtk"),
+        )
+
+        assert result == str(output_file)
+        assert output_file.exists()
+
     def test_gmsh_only_args_still_select_gmsh(self, tmp_path):
         """gmsh-specific arguments alone still select the gmsh backend."""
         output_file = tmp_path / "auto_gmsh.h5m"
