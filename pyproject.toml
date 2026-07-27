@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery>=2.6.0",
+    "cadquery>=2.8.0",
     "numpy",
     "gmsh",
     "h5py",
