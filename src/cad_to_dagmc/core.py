@@ -1960,9 +1960,12 @@ class CadToDagmc:
             # Auto-select meshing_backend based on kwargs. tolerance and
             # angular_tolerance are accepted by both the cadquery and the
             # cad-to-dagmc-mesher backends, and when only those are given the
-            # cad-to-dagmc-mesher backend is preferred. umesh_filename is
-            # shared between the gmsh and cad-to-dagmc-mesher backends and so
-            # never selects a backend on its own.
+            # cad-to-dagmc-mesher backend is preferred.
+            # Note that umesh_filename is also accepted by both the gmsh and
+            # the cad-to-dagmc-mesher backends but is not treated as shared
+            # here: it is part of gmsh_keys, so it selects gmsh on its own and
+            # combining it with tolerance reports an ambiguity. Only
+            # gmsh_only_keys excludes it, and only in the has_mesher branch.
             mesher_only_keys = {"tet_volumes", "target_edge_length"}
             gmsh_only_keys = gmsh_keys - {"umesh_filename"}
             has_cadquery = any(key in kwargs for key in cadquery_keys)
