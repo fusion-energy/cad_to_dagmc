@@ -30,11 +30,37 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel build twine
 
-    - name: Build and publish
+    - name: Build
+      run: |
+        python -m build
+        twine check dist/*
+
+    - name: Install system dependencies for the smoke tests
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y libgl1 libglx-mesa0 libglu1-mesa-dev libosmesa6 libxcursor-dev libxft2 libxinerama-dev
+
+    # twine check only validates packaging metadata. It happily passes a
+    # distribution whose modules are corrupt, which is how the unimportable
+    # 0.12.1 and 0.12.2 releases reached PyPI. Installing each distribution
+    # into a clean environment and importing it fails the job before upload.
+    - name: Smoke test the wheel
+      run: |
+        python -m venv /tmp/smoke-wheel
+        /tmp/smoke-wheel/bin/python -m pip install --quiet dist/*.whl
+        /tmp/smoke-wheel/bin/python -c "import cad_to_dagmc; print('wheel imports', cad_to_dagmc.__version__)"
+
+    # The sdist is checked separately because conda-forge builds from it
+    # rather than from the wheel.
+    - name: Smoke test the sdist
+      run: |
+        python -m venv /tmp/smoke-sdist
+        /tmp/smoke-sdist/bin/python -m pip install --quiet dist/*.tar.gz
+        /tmp/smoke-sdist/bin/python -c "import cad_to_dagmc; print('sdist imports', cad_to_dagmc.__version__)"
+
+    - name: Publish
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        python -m build
-        twine check dist/*
         twine upload dist/*
