@@ -158,6 +158,94 @@ def imprint_assembly(assembly):
     return imprint(assembly)
 
 
+def share_coincident_face_ids(triangles_by_solid_by_face):
+    """Give the face two touching solids share a single id in both of them.
+
+    Imprinting leaves one face between two touching solids, but
+    cadquery_direct_mesh_plugin numbers faces per solid, so depending on the
+    installed version each solid can contribute its own id for that one face.
+    Writing both produces two coincident one sided DAGMC surfaces instead of
+    one surface carrying a sense for each volume, which does not transport
+    correctly: particles crossing the interface are not handed to the
+    neighbouring volume, and the flux tallied there comes out low with nothing
+    reported.
+
+    The plugin welds vertices across the whole assembly, so both copies of the
+    interface index the same vertices and differ only in winding. Keying on the
+    triangle set with each triangle sorted is therefore orientation insensitive
+    and identifies the copies. Only the ids are rewritten. Each solid keeps its
+    own winding under the shared id, which is what vertices_to_h5m expects: it
+    writes the surface once from the first solid that refers to it and reads
+    the second solid off the shared id to build GEOM_SENSE_2.
+
+    Ids are handed out from 1 in order of first appearance rather than the
+    plugin's original ids being kept. Merging without renumbering would leave
+    the ids of the dropped copies unused, so the highest surface id would stay
+    as high as the unmerged count. Those ids become DAGMC surface ids, and a
+    DAGMC universe embedded in CSG shares an id space with the CSG surfaces, so
+    an inflated range collides with them ("Surface ID 21 exists in both
+    Universe 3 and the CSG geometry"). Renumbering also matches what gmsh and
+    cad-to-dagmc-mesher produce.
+
+    This reproduces what the plugin does when it shares imprinted face ids
+    itself (jmwright/cadquery-direct-mesh-plugin#10), including the numbering.
+    It is idempotent, so it is a no-op against a plugin that already shares
+    them. Once that pull request is released AND the
+    cadquery_direct_mesh_plugin floor in pyproject.toml is raised to that
+    release, this function and its call can be removed. Removing it before the
+    floor is raised would reintroduce the bug for anyone on an older plugin.
+
+    Args:
+        triangles_by_solid_by_face: Dict mapping solid_id -> face_id -> list of
+            triangles, each triangle a list of vertex indices.
+
+    Returns:
+        The same mapping with coincident faces sharing one face id, and ids
+        renumbered contiguously from 1.
+
+    Raises:
+        ValueError: if a face is shared by more than two solids, or if one
+            solid carries the same face twice. Neither is representable as
+            DAGMC geometry, and vertices_to_h5m would silently write a wrong
+            sense rather than fail.
+    """
+
+    def canonical(triangles):
+        return frozenset(tuple(sorted(int(vertex) for vertex in triangle))
+                         for triangle in triangles)
+
+    id_by_key = {}
+    solid_ids_by_key = {}
+    remapped = {}
+    for solid_id, faces in triangles_by_solid_by_face.items():
+        shared_faces = {}
+        for triangles in faces.values():
+            key = canonical(triangles)
+            solid_ids_by_key.setdefault(key, []).append(solid_id)
+            if key not in id_by_key:
+                id_by_key[key] = len(id_by_key) + 1
+            shared_faces[id_by_key[key]] = triangles
+        remapped[solid_id] = shared_faces
+
+    for key, solid_ids in solid_ids_by_key.items():
+        if len(solid_ids) != len(set(solid_ids)):
+            msg = (
+                f"Solid {solid_ids[0]} has the same face twice, so it cannot be "
+                "written as DAGMC geometry. This points at a degenerate or zero "
+                "thickness feature in the CAD."
+            )
+            raise ValueError(msg)
+        if len(solid_ids) > 2:
+            msg = (
+                f"The face with id {id_by_key[key]} is shared by solids "
+                f"{sorted(solid_ids)}. A DAGMC surface separates at most two "
+                "volumes, so this points at overlapping solids in the CAD."
+            )
+            raise ValueError(msg)
+
+    return remapped
+
+
 def define_moab_core_and_tags():
     """Creates a MOAB Core instance which can be built up by adding sets of
     triangles to the instance
@@ -2183,6 +2271,10 @@ class CadToDagmc:
                 # Extract the mesh information to allow export to h5m from the direct-mesh result
                 vertices = cq_mesh["vertices"]
                 triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
+                if imprint:
+                    triangles_by_solid_by_face = share_coincident_face_ids(
+                        triangles_by_solid_by_face
+                    )
             # Use gmsh
             elif meshing_backend == "gmsh":
                 # If assembly is not to be imprinted, pass through the assembly as-is
