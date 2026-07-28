@@ -1884,8 +1884,9 @@ class CadToDagmc:
                   'cadquery' or 'cad-to-dagmc-mesher'. If not provided, backend is
                   auto-selected based on other arguments: tet_volumes or
                   target_edge_length select 'cad-to-dagmc-mesher', gmsh-specific
-                  arguments select 'gmsh'. Defaults to 'cadquery' if no
-                  backend-specific arguments are given.
+                  arguments select 'gmsh'. Defaults to 'cad-to-dagmc-mesher' if
+                  no backend-specific arguments are given, falling back to
+                  'cadquery' when cad-to-dagmc-mesher is not installed.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
                   Defaults to 'h5py'.
 
@@ -2042,8 +2043,28 @@ class CadToDagmc:
                 meshing_backend = "cad-to-dagmc-mesher"
             elif has_gmsh:
                 meshing_backend = "gmsh"
+            elif _cad_to_dagmc_mesher_is_available():
+                meshing_backend = "cad-to-dagmc-mesher"  # default
             else:
-                meshing_backend = "cadquery"  # default
+                # cad-to-dagmc-mesher is a dependency of the pip package but is
+                # not on conda-forge, so a conda installation can be without it.
+                # A call that names no backend at all has expressed no
+                # preference, so fall back to cadquery, which is always present,
+                # rather than failing. Warn so the substitution is visible and
+                # so the remedy is to hand, since pip installing the mesher
+                # works alongside a conda installation.
+                warnings.warn(
+                    "No meshing backend was given so the cad-to-dagmc-mesher "
+                    "backend would be used, but cad-to-dagmc-mesher is not "
+                    "installed. Falling back to the cadquery backend. "
+                    "cad-to-dagmc-mesher is not available on conda-forge, "
+                    "install it with pip, which works alongside a conda "
+                    "installation:\n"
+                    "  pip install cad-to-dagmc-mesher\n\n"
+                    "Pass meshing_backend='cadquery' to select the cadquery "
+                    "backend explicitly and silence this warning."
+                )
+                meshing_backend = "cadquery"
 
         # Validate meshing backend
         if meshing_backend not in ["gmsh", "cadquery", "cad-to-dagmc-mesher"]:

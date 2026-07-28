@@ -274,22 +274,28 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_no_backend_args_without_mesher_installed_still_works(
-        self, tmp_path, monkeypatch
+    def test_no_backend_args_without_mesher_installed_falls_back_to_cadquery(
+        self, tmp_path, monkeypatch, capsys
     ):
-        """A plain export must not be affected by the mesher being absent."""
+        """A plain export must not be affected by the mesher being absent.
+
+        cad-to-dagmc-mesher is not on conda-forge, so a call that names no
+        backend has to keep working without it rather than raising.
+        """
         monkeypatch.setattr(
             "cad_to_dagmc.core._cad_to_dagmc_mesher_is_available", lambda: False
         )
         output_file = tmp_path / "default_no_mesher.h5m"
 
-        result = self.my_model.export_dagmc_h5m_file(filename=str(output_file))
+        with pytest.warns(UserWarning, match="Falling back to the cadquery backend"):
+            result = self.my_model.export_dagmc_h5m_file(filename=str(output_file))
 
         assert result == str(output_file)
         assert output_file.exists()
+        assert "Using meshing backend: cadquery" in capsys.readouterr().out
 
-    def test_no_backend_args_still_default_to_cadquery(self, tmp_path):
-        """With no backend selecting arguments the cadquery default stands."""
+    def test_no_backend_args_default_to_cad_to_dagmc_mesher(self, tmp_path, capsys):
+        """With no backend selecting arguments the mesher is chosen."""
         output_file = tmp_path / "auto_default.h5m"
 
         with warnings.catch_warnings(record=True) as w:
@@ -299,6 +305,9 @@ class TestKwargsExportDagmcH5mFile:
 
         assert result == str(output_file)
         assert output_file.exists()
+        assert "Using meshing backend: cad-to-dagmc-mesher" in capsys.readouterr().out
+        # Naming no backend expresses no preference, so there is nothing to
+        # disambiguate and nothing to warn about.
         assert not [
             warning
             for warning in w

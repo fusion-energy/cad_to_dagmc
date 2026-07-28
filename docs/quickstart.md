@@ -83,8 +83,8 @@ model.export_unstructured_mesh_file(
 ```
 
 :::{note}
-Volume mesh export requires the GMSH meshing backend (used by default) or the
-cad-to-dagmc-mesher backend. The CadQuery backend only supports surface meshes.
+Volume mesh export requires the GMSH meshing backend or the cad-to-dagmc-mesher
+backend. The CadQuery backend only supports surface meshes.
 :::
 
 ## Creating Conformal Surface and Volume Meshes

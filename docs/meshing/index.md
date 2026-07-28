@@ -30,16 +30,20 @@ cad_to_dagmc supports three meshing backends for creating surface and volume mes
 - You need parallel meshing for large models
 - You need specific mesh algorithms
 
-**Use CadQuery backend (default for h5m export) when:**
+**Use CadQuery backend when:**
 - You only need surface meshes
 - You want simpler configuration
 - Your geometry has many flat surfaces (fewer triangles)
 - Your geometry is straightforward
 
-**Use cad-to-dagmc-mesher backend when:**
+**Use cad-to-dagmc-mesher backend (the default) when:**
 - You need volume meshes for unstructured mesh tallies without GMSH
 - You want the surface (h5m) and volume (vtk) meshes from a single meshing call
 - You want simple configuration (tolerances plus one tetrahedron edge length)
+
+A call that gives no backend and no backend-specific arguments uses
+cad-to-dagmc-mesher. It is installed with the pip package but is not on
+conda-forge, so a conda installation without it falls back to CadQuery.
 
 ## Basic Usage
 
