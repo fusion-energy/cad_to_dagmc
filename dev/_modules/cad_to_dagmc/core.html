@@ -888,6 +888,94 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">share_coincident_face_ids</span><span class="p">(</span><span class="n">triangles_by_solid_by_face</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Give the face two touching solids share a single id in both of them.</span>
+
+<span class="sd">    Imprinting leaves one face between two touching solids, but</span>
+<span class="sd">    cadquery_direct_mesh_plugin numbers faces per solid, so depending on the</span>
+<span class="sd">    installed version each solid can contribute its own id for that one face.</span>
+<span class="sd">    Writing both produces two coincident one sided DAGMC surfaces instead of</span>
+<span class="sd">    one surface carrying a sense for each volume, which does not transport</span>
+<span class="sd">    correctly: particles crossing the interface are not handed to the</span>
+<span class="sd">    neighbouring volume, and the flux tallied there comes out low with nothing</span>
+<span class="sd">    reported.</span>
+
+<span class="sd">    The plugin welds vertices across the whole assembly, so both copies of the</span>
+<span class="sd">    interface index the same vertices and differ only in winding. Keying on the</span>
+<span class="sd">    triangle set with each triangle sorted is therefore orientation insensitive</span>
+<span class="sd">    and identifies the copies. Only the ids are rewritten. Each solid keeps its</span>
+<span class="sd">    own winding under the shared id, which is what vertices_to_h5m expects: it</span>
+<span class="sd">    writes the surface once from the first solid that refers to it and reads</span>
+<span class="sd">    the second solid off the shared id to build GEOM_SENSE_2.</span>
+
+<span class="sd">    Ids are handed out from 1 in order of first appearance rather than the</span>
+<span class="sd">    plugin&#39;s original ids being kept. Merging without renumbering would leave</span>
+<span class="sd">    the ids of the dropped copies unused, so the highest surface id would stay</span>
+<span class="sd">    as high as the unmerged count. Those ids become DAGMC surface ids, and a</span>
+<span class="sd">    DAGMC universe embedded in CSG shares an id space with the CSG surfaces, so</span>
+<span class="sd">    an inflated range collides with them (&quot;Surface ID 21 exists in both</span>
+<span class="sd">    Universe 3 and the CSG geometry&quot;). Renumbering also matches what gmsh and</span>
+<span class="sd">    cad-to-dagmc-mesher produce.</span>
+
+<span class="sd">    This reproduces what the plugin does when it shares imprinted face ids</span>
+<span class="sd">    itself (jmwright/cadquery-direct-mesh-plugin#10), including the numbering.</span>
+<span class="sd">    It is idempotent, so it is a no-op against a plugin that already shares</span>
+<span class="sd">    them. Once that pull request is released AND the</span>
+<span class="sd">    cadquery_direct_mesh_plugin floor in pyproject.toml is raised to that</span>
+<span class="sd">    release, this function and its call can be removed. Removing it before the</span>
+<span class="sd">    floor is raised would reintroduce the bug for anyone on an older plugin.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        triangles_by_solid_by_face: Dict mapping solid_id -&gt; face_id -&gt; list of</span>
+<span class="sd">            triangles, each triangle a list of vertex indices.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The same mapping with coincident faces sharing one face id, and ids</span>
+<span class="sd">        renumbered contiguously from 1.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if a face is shared by more than two solids, or if one</span>
+<span class="sd">            solid carries the same face twice. Neither is representable as</span>
+<span class="sd">            DAGMC geometry, and vertices_to_h5m would silently write a wrong</span>
+<span class="sd">            sense rather than fail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">canonical</span><span class="p">(</span><span class="n">triangles</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">triangle</span><span class="p">))</span>
+                         <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">triangles</span><span class="p">)</span>
+
+    <span class="n">id_by_key</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">solid_ids_by_key</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">remapped</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">solid_id</span><span class="p">,</span> <span class="n">faces</span> <span class="ow">in</span> <span class="n">triangles_by_solid_by_face</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">shared_faces</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">triangles</span> <span class="ow">in</span> <span class="n">faces</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">canonical</span><span class="p">(</span><span class="n">triangles</span><span class="p">)</span>
+            <span class="n">solid_ids_by_key</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solid_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">id_by_key</span><span class="p">:</span>
+                <span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_by_key</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">shared_faces</span><span class="p">[</span><span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">triangles</span>
+        <span class="n">remapped</span><span class="p">[</span><span class="n">solid_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_faces</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">solid_ids</span> <span class="ow">in</span> <span class="n">solid_ids_by_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Solid </span><span class="si">{</span><span class="n">solid_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> has the same face twice, so it cannot be &quot;</span>
+                <span class="s2">&quot;written as DAGMC geometry. This points at a degenerate or zero &quot;</span>
+                <span class="s2">&quot;thickness feature in the CAD.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The face with id </span><span class="si">{</span><span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2"> is shared by solids &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span><span class="si">}</span><span class="s2">. A DAGMC surface separates at most two &quot;</span>
+                <span class="s2">&quot;volumes, so this points at overlapping solids in the CAD.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">remapped</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">define_moab_core_and_tags</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a MOAB Core instance which can be built up by adding sets of</span>
 <span class="sd">    triangles to the instance</span>
@@ -2971,6 +3059,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="c1"># Extract the mesh information to allow export to h5m from the direct-mesh result</span>
                 <span class="n">vertices</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">]</span>
                 <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;solid_face_triangle_vertex_map&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
+                    <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">share_coincident_face_ids</span><span class="p">(</span>
+                        <span class="n">triangles_by_solid_by_face</span>
+                    <span class="p">)</span>
             <span class="c1"># Use gmsh</span>
             <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;gmsh&quot;</span><span class="p">:</span>
                 <span class="c1"># If assembly is not to be imprinted, pass through the assembly as-is</span>
