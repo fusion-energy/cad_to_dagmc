@@ -684,8 +684,9 @@ for the implicit complement (void space).</p></li>
 <div><p>’cadquery’ or ‘cad-to-dagmc-mesher’. If not provided, backend is
 auto-selected based on other arguments: tet_volumes or
 target_edge_length select ‘cad-to-dagmc-mesher’, gmsh-specific
-arguments select ‘gmsh’. Defaults to ‘cadquery’ if no
-backend-specific arguments are given.</p>
+arguments select ‘gmsh’. Defaults to ‘cad-to-dagmc-mesher’ if
+no backend-specific arguments are given, falling back to
+‘cadquery’ when cad-to-dagmc-mesher is not installed.</p>
 </div></blockquote>
 <ul>
 <li><p>h5m_backend (str, optional): ‘pymoab’ or ‘h5py’ for writing h5m files.

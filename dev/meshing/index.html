@@ -523,19 +523,22 @@
 <li><p>You need parallel meshing for large models</p></li>
 <li><p>You need specific mesh algorithms</p></li>
 </ul>
-<p><strong>Use CadQuery backend (default for h5m export) when:</strong></p>
+<p><strong>Use CadQuery backend when:</strong></p>
 <ul class="simple">
 <li><p>You only need surface meshes</p></li>
 <li><p>You want simpler configuration</p></li>
 <li><p>Your geometry has many flat surfaces (fewer triangles)</p></li>
 <li><p>Your geometry is straightforward</p></li>
 </ul>
-<p><strong>Use cad-to-dagmc-mesher backend when:</strong></p>
+<p><strong>Use cad-to-dagmc-mesher backend (the default) when:</strong></p>
 <ul class="simple">
 <li><p>You need volume meshes for unstructured mesh tallies without GMSH</p></li>
 <li><p>You want the surface (h5m) and volume (vtk) meshes from a single meshing call</p></li>
 <li><p>You want simple configuration (tolerances plus one tetrahedron edge length)</p></li>
 </ul>
+<p>A call that gives no backend and no backend-specific arguments uses
+cad-to-dagmc-mesher. It is installed with the pip package but is not on
+conda-forge, so a conda installation without it falls back to CadQuery.</p>
 </section>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>

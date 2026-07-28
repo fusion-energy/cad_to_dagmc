@@ -1,6 +1,6 @@
 # GMSH Backend
 
-The GMSH backend (default) provides full control over mesh parameters and supports both surface and volume meshing.
+The GMSH backend provides full control over mesh parameters and supports both surface and volume meshing.
 
 ## Basic Usage
 
