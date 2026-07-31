@@ -725,7 +725,8 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for cad_to_dagmc.core</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
@@ -733,6 +734,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">importers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.importers.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">importStep</span> <span class="k">as</span> <span class="n">importStepAssembly</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.OSD</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSD_ThreadPool</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
@@ -856,7 +859,76 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">all_vertices</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">all_tetrahedra</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the imprint argument into a flag and a thread limit.</span>
+
+<span class="sd">    The imprint argument of the export methods accepts either a bool or an</span>
+<span class="sd">    int. True imprints with however many threads the OpenCASCADE thread pool</span>
+<span class="sd">    is set to (all cores unless the caller has already limited it), False</span>
+<span class="sd">    skips imprinting, and a positive int imprints with that many threads.</span>
+<span class="sd">    Imprinting runs in parallel and its peak RAM scales with the number of</span>
+<span class="sd">    threads, so a large model that runs out of memory can often be imprinted</span>
+<span class="sd">    by lowering the thread count.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        imprint: the imprint argument as given by the user.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (do_imprint, threads) where threads is None when the thread count is</span>
+<span class="sd">        to be left as the caller set it.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if an int less than 1 is given.</span>
+<span class="sd">        TypeError: if something other than a bool or an int is given.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># bool is a subclass of int so it has to be tested for first. It also</span>
+    <span class="c1"># means an int cannot express &quot;do not imprint&quot;: imprint=0 would be</span>
+    <span class="c1"># indistinguishable from imprint=False, so 0 is rejected rather than</span>
+    <span class="c1"># guessed at.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">imprint</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">imprint</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;imprint=</span><span class="si">{</span><span class="n">imprint</span><span class="si">}</span><span class="s2"> is not a valid number of threads. Use &quot;</span>
+                <span class="s2">&quot;imprint=False to skip imprinting, imprint=True to imprint &quot;</span>
+                <span class="s2">&quot;with all available cores, or a positive int to imprint with &quot;</span>
+                <span class="s2">&quot;that many threads.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">imprint</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;imprint must be a bool or an int, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Use &quot;</span>
+        <span class="s2">&quot;imprint=True or imprint=False to turn imprinting on or off, or a &quot;</span>
+        <span class="s2">&quot;positive int to imprint with that many threads.&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Limit the threads OpenCASCADE uses, restoring the limit afterwards.</span>
+
+<span class="sd">    cadquery&#39;s setThreads sets the size of the OpenCASCADE thread pool that</span>
+<span class="sd">    the boolean operations behind imprinting run on. The pool is process wide,</span>
+<span class="sd">    so the previous size is put back on the way out and the cadquery</span>
+<span class="sd">    operations that follow are left running on as many threads as before.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        threads: the number of threads to allow, or None to leave the pool</span>
+<span class="sd">            alone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span>
+        <span class="k">return</span>
+
+    <span class="n">previous</span> <span class="o">=</span> <span class="n">OSD_ThreadPool</span><span class="o">.</span><span class="n">DefaultPool_s</span><span class="p">()</span><span class="o">.</span><span class="n">NbThreads</span><span class="p">()</span>
+    <span class="n">setThreads</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">setThreads</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Imprint a CadQuery assembly into a connected compound.</span>
 
 <span class="sd">    Uses the BOPAlgo_Builder based imprint with glue=&quot;partial&quot; when the</span>
@@ -864,6 +936,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    lower RAM than the older BOPAlgo_MakeConnected based imprint, with the</span>
 <span class="sd">    same result for touching, non-overlapping solids). Older cadquery</span>
 <span class="sd">    versions fall back to the original single-argument imprint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        assembly: the cadquery assembly to imprint.</span>
+<span class="sd">        threads: the number of threads to imprint with. Fewer threads lowers</span>
+<span class="sd">            the peak RAM of the imprint at the cost of speed. Defaults to None</span>
+<span class="sd">            which leaves the thread count as it is.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (imprinted_shape, imprinted_solids_with_original_ids)</span>
@@ -882,10 +960,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">compound</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">Compound</span><span class="o">.</span><span class="n">makeCompound</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">compound</span><span class="p">,</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">(</span><span class="n">id_map</span><span class="p">[</span><span class="n">s</span><span class="p">],)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">solids</span><span class="p">}</span>
 
-    <span class="n">imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
-    <span class="k">if</span> <span class="s2">&quot;glue&quot;</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="s2">&quot;partial&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">):</span>
+        <span class="n">imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
+        <span class="k">if</span> <span class="s2">&quot;glue&quot;</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="s2">&quot;partial&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">share_coincident_face_ids</span><span class="p">(</span><span class="n">triangles_by_solid_by_face</span><span class="p">):</span>
@@ -2370,7 +2449,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mesh_algorithm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2417,7 +2496,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            imprint: whether to imprint the geometry or not. Defaults to True as this is</span>
 <span class="sd">                normally needed to ensure the geometry is meshed correctly. However if</span>
 <span class="sd">                you know your geometry does not need imprinting you can set this to False</span>
-<span class="sd">                and this can save time.</span>
+<span class="sd">                and this can save time. A positive int can be passed instead of True to</span>
+<span class="sd">                imprint with that many threads, for example imprint=1 imprints on a</span>
+<span class="sd">                single thread. Imprinting runs in parallel and its peak RAM scales with</span>
+<span class="sd">                the number of threads, so fewer threads lowers the peak RAM of large</span>
+<span class="sd">                models at the cost of speed. The thread count is restored afterwards so</span>
+<span class="sd">                the cadquery operations that follow are unaffected.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag. Only used by the gmsh backend.</span>
@@ -2453,6 +2537,8 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.vtk&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unstructured mesh filename must have a .vtk extension&quot;</span><span class="p">)</span>
 
+        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Auto-select the backend: the tet arguments are specific to</span>
             <span class="c1"># cad-to-dagmc-mesher, everything else defaults to gmsh.</span>
@@ -2476,6 +2562,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
                 <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
                 <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
                 <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -2485,7 +2572,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imprinting assembly for unstructured mesh generation&quot;</span><span class="p">)</span>
-            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
@@ -2558,6 +2645,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.</span>
@@ -2589,6 +2677,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
             <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
             <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+            <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tet_data</span><span class="p">:</span>
@@ -2618,7 +2707,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">dimensions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2646,7 +2735,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            imprint: whether to imprint the geometry or not. Defaults to True as this is</span>
 <span class="sd">                normally needed to ensure the geometry is meshed correctly. However if</span>
 <span class="sd">                you know your geometry does not need imprinting you can set this to False</span>
-<span class="sd">                and this can save time.</span>
+<span class="sd">                and this can save time. A positive int can be passed instead of True to</span>
+<span class="sd">                imprint with that many threads, for example imprint=1 imprints on a</span>
+<span class="sd">                single thread. Imprinting runs in parallel and its peak RAM scales with</span>
+<span class="sd">                the number of threads, so fewer threads lowers the peak RAM of large</span>
+<span class="sd">                models at the cost of speed. The thread count is restored afterwards so</span>
+<span class="sd">                the cadquery operations that follow are unaffected.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag.</span>
@@ -2654,13 +2748,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                available cores (default), 1 uses a single thread.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
+
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
             <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imprinting assembly for mesh generation&quot;</span><span class="p">)</span>
-            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
@@ -2720,7 +2816,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
         <span class="n">implicit_complement_material_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a DAGMC h5m file of the geometry</span>
@@ -2730,7 +2826,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            implicit_complement_material_tag: the name of the material tag to use</span>
 <span class="sd">                for the implicit complement (void space).</span>
 <span class="sd">            scale_factor: a scaling factor to apply to the geometry.</span>
-<span class="sd">            imprint: whether to imprint the geometry or not.</span>
+<span class="sd">            imprint: whether to imprint the geometry or not. A positive int can be</span>
+<span class="sd">                passed instead of True to imprint with that many threads, for example</span>
+<span class="sd">                imprint=1 imprints on a single thread. Imprinting runs in parallel and</span>
+<span class="sd">                its peak RAM scales with the number of threads, so fewer threads lowers</span>
+<span class="sd">                the peak RAM of large models at the cost of speed. The thread count is</span>
+<span class="sd">                restored afterwards so the cadquery operations that follow are</span>
+<span class="sd">                unaffected.</span>
 
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
@@ -2782,6 +2884,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If invalid parameter combinations are used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
 
         <span class="c1"># Define all acceptable kwargs</span>
         <span class="n">cadquery_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="s2">&quot;angular_tolerance&quot;</span><span class="p">}</span>
@@ -3030,13 +3134,16 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Use the CadQuery direct mesh plugin</span>
             <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
                 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>
-                <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin</span>
-                <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
-                    <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-                    <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
-                    <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-                    <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
-                <span class="p">)</span>
+                <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin. The</span>
+                <span class="c1"># plugin imprints internally so the thread limit has to cover</span>
+                <span class="c1"># the whole call rather than just the imprint.</span>
+                <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
+                    <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
+                        <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                        <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+                        <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
+                    <span class="p">)</span>
 
                 <span class="c1"># Fix the material tag order for imprinted assemblies</span>
                 <span class="k">if</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">&quot;imprinted_assembly&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3069,7 +3176,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imprinting assembly for mesh generation&quot;</span><span class="p">)</span>
                     <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+                        <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
                     <span class="p">)</span>
 
                     <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
@@ -3154,6 +3261,7 @@ window.runMermaid = runMermaid;</script>
                         <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes_arg</span><span class="p">,</span>
                         <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
                         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+                        <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
@@ -3244,7 +3352,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
     <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
-    <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.</span>
 
@@ -3259,15 +3367,18 @@ window.runMermaid = runMermaid;</script>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
-        <span class="n">assembly</span><span class="p">,</span>
-        <span class="n">material_tags</span><span class="p">,</span>
-        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
-        <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-        <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
-        <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="c1"># The mesher imprints internally so the thread limit has to cover the</span>
+    <span class="c1"># whole call rather than just the imprint.</span>
+    <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
+            <span class="n">assembly</span><span class="p">,</span>
+            <span class="n">material_tags</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
+            <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
+            <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
+            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span>

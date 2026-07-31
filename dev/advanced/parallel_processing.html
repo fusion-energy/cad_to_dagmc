@@ -420,6 +420,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-limit-threads">When to Limit Threads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-imprinting-threads">Limiting Imprinting Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cadquery-threads">Limiting CadQuery Threads</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-configure-before-import">Alternative: Configure Before Import</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-environment-variable">Alternative: Environment Variable</a></li>
@@ -452,9 +453,21 @@
 <li><p><strong>Debugging</strong>: Single-threaded execution can make errors easier to diagnose</p></li>
 </ul>
 </section>
+<section id="limiting-imprinting-threads">
+<h2>Limiting Imprinting Threads<a class="headerlink" href="#limiting-imprinting-threads" title="Link to this heading">#</a></h2>
+<p>Imprinting is usually the most memory hungry parallel step. The export methods take the thread count directly on the <code class="docutils literal notranslate"><span class="pre">imprint</span></code> argument, so there is no need to change any global setting:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># imprint on a single thread, the lowest peak RAM</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The previous thread count is restored once the imprint is done. See <a class="reference internal" href="imprinting.html"><span class="std std-doc">Imprinting</span></a> for details.</p>
+</section>
 <section id="limiting-cadquery-threads">
 <h2>Limiting CadQuery Threads<a class="headerlink" href="#limiting-cadquery-threads" title="Link to this heading">#</a></h2>
-<p>CadQuery provides a <code class="docutils literal notranslate"><span class="pre">setThreads</span></code> function:</p>
+<p>To limit every CadQuery operation rather than just the imprint, CadQuery provides a <code class="docutils literal notranslate"><span class="pre">setThreads</span></code> function:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
 
@@ -529,23 +542,27 @@ python<span class="w"> </span>my_script.py
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>CadQuery</p></td>
+<tr class="row-even"><td><p>Imprinting</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">imprint=&lt;int&gt;</span></code> export argument</p></td>
+<td><p>For the duration of the imprint only</p></td>
+</tr>
+<tr class="row-odd"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">setThreads()</span></code></p></td>
 <td><p>Any time before operations</p></td>
 </tr>
-<tr class="row-odd"><td><p>CadQuery</p></td>
+<tr class="row-even"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OSD_ThreadPool.DefaultPool_s()</span></code></p></td>
 <td><p>Before importing CadQuery</p></td>
 </tr>
-<tr class="row-even"><td><p>CadQuery</p></td>
+<tr class="row-odd"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> env var</p></td>
 <td><p>Before Python starts</p></td>
 </tr>
-<tr class="row-odd"><td><p>GMSH</p></td>
+<tr class="row-even"><td><p>GMSH</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">General.NumThreads</span></code></p></td>
 <td><p>After GMSH initialization</p></td>
 </tr>
-<tr class="row-even"><td><p>GMSH</p></td>
+<tr class="row-odd"><td><p>GMSH</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mesh.MaxNumThreads*D</span></code></p></td>
 <td><p>After GMSH initialization</p></td>
 </tr>
@@ -650,6 +667,7 @@ python<span class="w"> </span>my_script.py
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-limit-threads">When to Limit Threads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-imprinting-threads">Limiting Imprinting Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cadquery-threads">Limiting CadQuery Threads</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-configure-before-import">Alternative: Configure Before Import</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-environment-variable">Alternative: Environment Variable</a></li>

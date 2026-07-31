@@ -566,7 +566,12 @@ the geometry to cm for use in neutronics.</p>
 </dd>
 <dt>imprint: whether to imprint the geometry or not. Defaults to True as this is</dt><dd><p>normally needed to ensure the geometry is meshed correctly. However if
 you know your geometry does not need imprinting you can set this to False
-and this can save time.</p>
+and this can save time. A positive int can be passed instead of True to
+imprint with that many threads, for example imprint=1 imprints on a
+single thread. Imprinting runs in parallel and its peak RAM scales with
+the number of threads, so fewer threads lowers the peak RAM of large
+models at the cost of speed. The thread count is restored afterwards so
+the cadquery operations that follow are unaffected.</p>
 </dd>
 <dt>set_size: a dictionary mapping volume IDs (int) or material tag names</dt><dd><p>(str) to target mesh sizes (floats). Material tags are resolved to
 all volume IDs that have that tag. Only used by the gmsh backend.</p>
@@ -612,7 +617,7 @@ cad-to-dagmc-mesher backend. Defaults to all volumes.</p>
 <li><p><strong>mesh_algorithm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
 <li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>scale_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
-<li><p><strong>imprint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>imprint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
 <li><p><strong>set_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>volumes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
@@ -651,10 +656,15 @@ installing from PyPI.</p></li>
 <li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry that can be
 used to enlarge or shrink the geometry. Useful when converting
 Useful when converting the geometry to cm for use in neutronics</p></li>
-<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – whether to imprint the geometry or not. Defaults to True as this is
+<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – whether to imprint the geometry or not. Defaults to True as this is
 normally needed to ensure the geometry is meshed correctly. However if
 you know your geometry does not need imprinting you can set this to False
-and this can save time.</p></li>
+and this can save time. A positive int can be passed instead of True to
+imprint with that many threads, for example imprint=1 imprints on a
+single thread. Imprinting runs in parallel and its peak RAM scales with
+the number of threads, so fewer threads lowers the peak RAM of large
+models at the cost of speed. The thread count is restored afterwards so
+the cadquery operations that follow are unaffected.</p></li>
 <li><p><strong>set_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – a dictionary mapping volume IDs (int) or material tag names
 (str) to target mesh sizes (floats). Material tags are resolved to
 all volume IDs that have that tag.</p></li>
@@ -676,7 +686,13 @@ available cores (default), 1 uses a single thread.</p></li>
 <li><p><strong>implicit_complement_material_tag</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – the name of the material tag to use
 for the implicit complement (void space).</p></li>
 <li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry.</p></li>
-<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – whether to imprint the geometry or not.</p></li>
+<li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – whether to imprint the geometry or not. A positive int can be
+passed instead of True to imprint with that many threads, for example
+imprint=1 imprints on a single thread. Imprinting runs in parallel and
+its peak RAM scales with the number of threads, so fewer threads lowers
+the peak RAM of large models at the cost of speed. The thread count is
+restored afterwards so the cadquery operations that follow are
+unaffected.</p></li>
 <li><p><strong>**kwargs</strong> – <p>Backend-specific parameters:</p>
 <p>Backend selection:
 - meshing_backend (str, optional): explicitly specify ‘gmsh’,</p>

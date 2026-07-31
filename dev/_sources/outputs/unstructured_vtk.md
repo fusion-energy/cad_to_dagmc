@@ -165,7 +165,7 @@ model.export_unstructured_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | bool | True | Imprint shared surfaces |
+| `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `method` | str | "file" | CAD transfer method (gmsh) |
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
 | `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |
