@@ -36,6 +36,22 @@ model.export_dagmc_h5m_file(
 )
 ```
 
+## Limiting the Threads Used by Imprinting
+
+Imprinting runs in parallel and its peak RAM scales with the number of threads. Large models can run out of memory when imprinting on all cores, so a positive int can be passed instead of `True` to imprint with that many threads:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint=1,  # imprint on a single thread, the lowest peak RAM
+)
+```
+
+`imprint=1` uses the least memory and is the slowest, `imprint=True` uses all available cores and is the fastest. Values in between trade the two off, for example `imprint=4`.
+
+The thread count is restored once the imprint is done, so the cadquery operations that follow are not limited. Note that `imprint=0` is not accepted: `0` cannot be told apart from `False` in Python, so use `imprint=False` to turn imprinting off.
+
 ## When to Disable Imprinting
 
 **Safe to disable when:**
@@ -51,6 +67,8 @@ model.export_dagmc_h5m_file(
 ## Performance Considerations
 
 Imprinting can be computationally expensive for complex geometries with many touching volumes. Disabling it may speed up mesh generation, but only do so if you're certain volumes don't share surfaces.
+
+Peak RAM is usually the limit rather than time. If imprinting runs out of memory, lower the thread count with `imprint=1` before reaching for `imprint=False`, which changes the resulting geometry.
 
 ## Imprinting and Material Tag Order
 

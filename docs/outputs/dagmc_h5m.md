@@ -87,7 +87,7 @@ model.export_dagmc_h5m_file(
 |-----------|------|---------|-------------|
 | `filename` | str | "dagmc.h5m" | Output file path |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | bool | True | Imprint shared surfaces |
+| `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
 
 **Backend Selection:**

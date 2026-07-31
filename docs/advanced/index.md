@@ -34,6 +34,7 @@ model.export_dagmc_h5m_file(
 |--------|-------------|
 | `scale_factor` | CAD in different units than simulation |
 | `imprint=False` | Single volume or non-touching geometry |
+| `imprint=1` | Imprinting runs out of RAM on a large model |
 | `implicit_complement_material_tag` | Need to track particles in void |
 | `h5m_backend="pymoab"` | Compatibility with older DAGMC tools |
 | `method="inMemory"` | Large geometry with matching OCC versions |

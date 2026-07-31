@@ -8,9 +8,23 @@ Both CadQuery and GMSH use parallel processing for operations like imprinting an
 - **Memory constraints**: Each thread requires memory; fewer threads = lower peak memory
 - **Debugging**: Single-threaded execution can make errors easier to diagnose
 
+## Limiting Imprinting Threads
+
+Imprinting is usually the most memory hungry parallel step. The export methods take the thread count directly on the `imprint` argument, so there is no need to change any global setting:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint=1,  # imprint on a single thread, the lowest peak RAM
+)
+```
+
+The previous thread count is restored once the imprint is done. See [Imprinting](imprinting.md) for details.
+
 ## Limiting CadQuery Threads
 
-CadQuery provides a `setThreads` function:
+To limit every CadQuery operation rather than just the imprint, CadQuery provides a `setThreads` function:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -83,6 +97,7 @@ gmsh.option.setNumber("Mesh.MaxNumThreads3D", 4)
 
 | Component | Method | When Applied |
 |-----------|--------|--------------|
+| Imprinting | `imprint=<int>` export argument | For the duration of the imprint only |
 | CadQuery | `setThreads()` | Any time before operations |
 | CadQuery | `OSD_ThreadPool.DefaultPool_s()` | Before importing CadQuery |
 | CadQuery | `OMP_NUM_THREADS` env var | Before Python starts |
