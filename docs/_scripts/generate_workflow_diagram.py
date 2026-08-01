@@ -22,9 +22,9 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUTPUT_DIR = Path(__file__).resolve().parents[1] / "_static"
 
-XLIM = (0.0, 26.0)
+XLIM = (0.0, 26.4)
 YLIM = (0.0, 14.0)
-FIGSIZE = (13.0, 7.0)
+FIGSIZE = (13.2, 7.0)
 
 # Column centres and half widths, one entry per stage.
 COLUMNS = {
@@ -248,23 +248,52 @@ def build_figure(theme_name):
         "Unstructured mesh",
         [("umesh.vtk, tetrahedra", False), ("export_unstructured_mesh_file()", True)],
     )
+    # The producing call for this box is named on the bracket below, which
+    # covers both files it can write.
     h5m_left, _ = draw_box(
-        ax,
-        theme,
-        "output",
-        8.5,
-        1.9,
-        "DAGMC geometry",
-        [("dagmc.h5m, triangles", False), ("export_dagmc_h5m_file()", True)],
+        ax, theme, "output", 8.5, 1.5, "DAGMC geometry", [("dagmc.h5m, triangles", False)]
     )
     msh_left, _ = draw_box(
         ax,
         theme,
         "output",
-        5.5,
-        1.9,
+        5.2,
+        1.8,
         "GMSH mesh",
         [("mesh.msh, 2D or 3D", False), ("export_gmsh_mesh_file()", True)],
+    )
+
+    # export_dagmc_h5m_file can write the h5m and a conformal vtk in one call,
+    # so bracket the two output files it produces together. The bracket is left
+    # open on the side the arrows come in from.
+    _, output_edge, output_text = theme["output"]
+    ax.plot(
+        [20.55, 26.05, 26.05, 20.55],
+        [12.45, 12.45, 6.55, 6.55],
+        color=output_edge,
+        linewidth=1.6,
+        linestyle=(0, (5, 4)),
+        solid_joinstyle="round",
+        zorder=1,
+    )
+    ax.text(
+        23.3,
+        7.35,
+        "export_dagmc_h5m_file()",
+        ha="center",
+        va="center",
+        fontsize=MONO_SIZE,
+        family="monospace",
+        color=output_text,
+    )
+    ax.text(
+        23.3,
+        6.95,
+        "can write both as a conformal pair",
+        ha="center",
+        va="center",
+        fontsize=SUB_SIZE,
+        color=output_text,
     )
 
     # Inputs feed the material tags.
@@ -287,7 +316,7 @@ def build_figure(theme_name):
     draw_arrow(ax, theme, (gmsh_right, 9.5), (vtk_left, 11.0))
 
     # Only gmsh writes its own native mesh format.
-    draw_arrow(ax, theme, (gmsh_right, 8.35), (msh_left, 5.7))
+    draw_arrow(ax, theme, (gmsh_right, 8.35), (msh_left, 5.4))
 
     # An already meshed input skips the meshing stage, shown as its own row.
     ax.plot(

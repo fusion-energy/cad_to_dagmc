@@ -12,14 +12,20 @@ writer, while the unstructured mesh vtk and GMSH msh files are written by the
 meshing backend itself. A GMSH mesh is already meshed, so it converts straight
 to a DAGMC h5m file.
 
+`export_dagmc_h5m_file()` can write the DAGMC h5m file on its own, or write it
+together with a conformal unstructured mesh vtk file from a single meshing call.
+Pass `unstructured_volumes` on the gmsh backend, or `tet_volumes` and
+`target_edge_length` on the cad-to-dagmc-mesher backend, and it returns both
+filenames. See [Conformal Meshes](outputs/conformal_meshes.md).
+
 ```{image} _static/workflow_light.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. A single export_dagmc_h5m_file call can write the DAGMC h5m file and the unstructured mesh vtk file together as a conformal pair. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
 :class: only-light
 :width: 100%
 ```
 
 ```{image} _static/workflow_dark.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. A single export_dagmc_h5m_file call can write the DAGMC h5m file and the unstructured mesh vtk file together as a conformal pair. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
 :class: only-dark
 :width: 100%
 ```
