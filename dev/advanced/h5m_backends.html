@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -488,13 +488,14 @@
 </section>
 <section id="installing-pymoab">
 <h2>Installing pymoab<a class="headerlink" href="#installing-pymoab" title="Link to this heading">#</a></h2>
-<p>pymoab/MOAB must be installed separately (not available on PyPI):</p>
-<p><strong>Option 1: Conda (easiest)</strong></p>
+<p>pymoab/MOAB is not on PyPI itself, so it is not a dependency of the pip package and has
+to be installed separately. Both of the first two options below are one liners:</p>
+<p><strong>Option 1: Conda</strong></p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>moab
 </pre></div>
 </div>
-<p><strong>Option 2: Extra index</strong></p>
+<p><strong>Option 2: pip, from an extra index</strong></p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://shimwell.github.io/wheels<span class="w"> </span>moab
 </pre></div>

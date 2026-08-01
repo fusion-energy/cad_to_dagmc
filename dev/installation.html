@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -420,7 +420,9 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-pip">Install using pip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-mamba">Install using Mamba</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-conda">Install using Conda</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-packages">Optional packages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-pymoab">Optional: Installing pymoab</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-openmc">Optional: Installing OpenMC</a></li>
 </ul>
@@ -436,17 +438,22 @@
                   
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<p>cad_to_dagmc can be installed using pip or Conda/Mamba.</p>
+<p>cad_to_dagmc is on both <a class="reference external" href="https://pypi.org/project/cad_to_dagmc/">PyPI</a> and
+<a class="reference external" href="https://anaconda.org/conda-forge/cad_to_dagmc">conda-forge</a>, so it can be installed
+with pip or with Conda/Mamba. Both are supported, pip is the more popular route.</p>
+<p>The two routes differ in which optional packages come along with them, see
+<a class="reference internal" href="#optional-packages">Optional packages</a> below.</p>
 <section id="install-using-pip">
 <h2>Install using pip<a class="headerlink" href="#install-using-pip" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>cad_to_dagmc
 </pre></div>
 </div>
-<!-- 
-## Install using Mamba
-
-Mamba is faster than Conda and recommended for installing this package.
-
+<p>This also installs <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a>,
+the default meshing backend.</p>
+</section>
+<section id="install-using-mamba">
+<h2>Install using Mamba<a class="headerlink" href="#install-using-mamba" title="Link to this heading">#</a></h2>
+<p>Mamba resolves environments faster than Conda.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new environment</span>
 mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cad_to_dagmc_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span>-y
@@ -472,13 +479,45 @@ conda<span class="w"> </span>activate<span class="w"> </span>cad_to_dagmc_env
 conda<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cad_to_dagmc
 </pre></div>
 </div>
-<p>–&gt;</p>
+</section>
+<section id="optional-packages">
+<h2>Optional packages<a class="headerlink" href="#optional-packages" title="Link to this heading">#</a></h2>
+<p>Two packages are optional, and which one is easy to add depends on how you installed
+cad_to_dagmc.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Package</p></th>
+<th class="head"><p>Needed for</p></th>
+<th class="head"><p>With pip</p></th>
+<th class="head"><p>With Conda/Mamba</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher</span></a></p></td>
+<td><p>the default meshing backend</p></td>
+<td><p>installed as a dependency</p></td>
+<td><p>not on conda-forge, add with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>pymoab</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--extra-index-url</span> <span class="pre">https://shimwell.github.io/wheels</span> <span class="pre">moab</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">moab</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The pip installation uses the <strong>h5py backend</strong> by default, which does not require MOAB/pymoab.
-As pymoab is not currently available on PyPi it can’t be included in the PyPi distributed pip cad_to_dagmc pip package.
-If you want to use pymoab backend and you installed via pip you’ll need to install MOAB separately.
-The Conda/Mamba installed version of cad-to-dagmc includes pymoab.</p>
+<p>The h5py h5m backend is the default and does not need MOAB, so pymoab is only worth
+installing if you specifically want <code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code>. pymoab is not on PyPI
+itself, which is why it is not a dependency of the pip package, but the extra index
+above serves wheels for it so pip installing it is still a one liner.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>cad-to-dagmc-mesher is not on conda-forge. Without it, a call that names no meshing
+backend falls back to the cadquery backend and warns. pip installing it works alongside
+a Conda/Mamba installation.</p>
 </div>
 </section>
 <section id="optional-installing-pymoab">
@@ -568,7 +607,9 @@ for building from source.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-pip">Install using pip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-mamba">Install using Mamba</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-conda">Install using Conda</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-packages">Optional packages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-pymoab">Optional: Installing pymoab</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-openmc">Optional: Installing OpenMC</a></li>
 </ul>

@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -556,15 +556,10 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>You can also use material tag names:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;fuel_mesh.vtk&quot;</span><span class="p">,</span>
-    <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fuel&quot;</span><span class="p">],</span>  <span class="c1"># All volumes with &quot;fuel&quot; material tag</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">volumes</span></code> accepts volume IDs only. To select volumes by material tag name use the
+cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> argument, shown above.</p>
 </div>
 </section>
 <section id="api-reference">

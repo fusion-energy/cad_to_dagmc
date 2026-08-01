@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -440,7 +440,7 @@
                   
   <section id="cad-to-dagmc-mesher-backend">
 <h1>cad-to-dagmc-mesher Backend<a class="headerlink" href="#cad-to-dagmc-mesher-backend" title="Link to this heading">#</a></h1>
-<p>The <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a> backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically as a dependency of cad_to_dagmc.</p>
+<p>The <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a> backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code> to use it. See <a class="reference internal" href="../installation.html#optional-packages"><span class="std std-ref">Installation</span></a>.</p>
 <section id="surface-mesh-h5m">
 <h2>Surface Mesh (h5m)<a class="headerlink" href="#surface-mesh-h5m" title="Link to this heading">#</a></h2>
 <!--pytest-codeblocks:skip-->

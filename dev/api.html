@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -447,6 +447,7 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.PyMoabNotFoundError"><code class="docutils literal notranslate"><span class="pre">PyMoabNotFoundError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmcMesherNotFoundError"><code class="docutils literal notranslate"><span class="pre">CadToDagmcMesherNotFoundError</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -913,6 +914,13 @@ all available cores (default), 1 uses a single thread.</p></li>
 <p>Raised when pymoab is not installed but the pymoab backend is requested.</p>
 </dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmcMesherNotFoundError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cad_to_dagmc.</span></span><span class="sig-name descname"><span class="pre">CadToDagmcMesherNotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmcMesherNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmcMesherNotFoundError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImportError</span></code></a></p>
+<p>Raised when cad-to-dagmc-mesher is not installed but its backend is requested.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -983,6 +991,7 @@ all available cores (default), 1 uses a single thread.</p></li>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.PyMoabNotFoundError"><code class="docutils literal notranslate"><span class="pre">PyMoabNotFoundError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmcMesherNotFoundError"><code class="docutils literal notranslate"><span class="pre">CadToDagmcMesherNotFoundError</span></code></a></li>
 </ul>
 </li>
 </ul>

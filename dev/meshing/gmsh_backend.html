@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -459,7 +459,7 @@
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>  <span class="c1"># Default</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">,</span>
 <span class="p">)</span>
@@ -576,7 +576,7 @@
 <span class="c1"># In-memory method - faster for large geometries</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;inMemory&quot;</span><span class="p">,</span>  <span class="c1"># Direct transfer</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;in memory&quot;</span><span class="p">,</span>  <span class="c1"># Direct transfer</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -592,7 +592,7 @@
 <td><p>More compatible, works with pip install</p></td>
 <td><p>Slower (file I/O)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;inMemory&quot;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;in</span> <span class="pre">memory&quot;</span></code></p></td>
 <td><p>Faster for large geometries</p></td>
 <td><p>Requires matching OCC versions</p></td>
 </tr>
@@ -629,7 +629,9 @@
 </section>
 <section id="volume-meshing">
 <h2>Volume Meshing<a class="headerlink" href="#volume-meshing" title="Link to this heading">#</a></h2>
-<p>Only GMSH backend supports volume meshes:</p>
+<p>The GMSH backend writes tetrahedral volume meshes. The
+<a class="reference internal" href="cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> does too, the
+CadQuery backend does not:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 

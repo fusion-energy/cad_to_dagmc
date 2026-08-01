@@ -120,17 +120,10 @@ model.export_unstructured_mesh_file(
 )
 ```
 
-You can also use material tag names:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_unstructured_mesh_file(
-    filename="fuel_mesh.vtk",
-    volumes=["fuel"],  # All volumes with "fuel" material tag
-    min_mesh_size=0.5,
-    max_mesh_size=2.0,
-)
-```
+:::{note}
+`volumes` accepts volume IDs only. To select volumes by material tag name use the
+cad-to-dagmc-mesher backend and its `tet_volumes` argument, shown above.
+:::
 
 ## API Reference
 

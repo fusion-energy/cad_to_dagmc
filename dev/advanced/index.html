@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -478,7 +478,7 @@
     <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                          <span class="c1"># Handle shared surfaces</span>
     <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">&quot;air&quot;</span><span class="p">,</span> <span class="c1"># Tag for void space</span>
     <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>                    <span class="c1"># H5M writing backend</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>                         <span class="c1"># CAD transfer method</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>                         <span class="c1"># CAD transfer method, gmsh backend only</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -507,7 +507,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
 <td><p>Compatibility with older DAGMC tools</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method=&quot;inMemory&quot;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method=&quot;in</span> <span class="pre">memory&quot;</span></code></p></td>
 <td><p>Large geometry with matching OCC versions</p></td>
 </tr>
 </tbody>

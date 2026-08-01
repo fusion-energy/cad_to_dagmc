@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=116144d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -494,9 +494,17 @@
 </section>
 <section id="with-meshing-backends">
 <h2>With Meshing Backends<a class="headerlink" href="#with-meshing-backends" title="Link to this heading">#</a></h2>
-<p>Choose between GMSH (default) and CadQuery meshing:</p>
+<p>Choose between the cad-to-dagmc-mesher (default), GMSH and CadQuery meshing:</p>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># GMSH backend (default) - full control over mesh parameters</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cad-to-dagmc-mesher backend (default) - surface and volume meshing</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># GMSH backend - full control over mesh parameters</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
@@ -565,7 +573,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code></p></td>
 <td><p>str</p></td>
 <td><p>auto</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;gmsh&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;cadquery&quot;</span></code>. Auto-selected based on other arguments provided. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;cadquery&quot;</span></code> if no backend-specific args given.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;cad-to-dagmc-mesher&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;gmsh&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;cadquery&quot;</span></code>. Auto-selected from the other arguments provided. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;cad-to-dagmc-mesher&quot;</span></code> when no backend-specific arguments are given, falling back to <code class="docutils literal notranslate"><span class="pre">&quot;cadquery&quot;</span></code> if cad-to-dagmc-mesher is not installed.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend</span></code></p></td>
 <td><p>str</p></td>
@@ -648,6 +656,46 @@
 </tbody>
 </table>
 </div>
+<p><strong>cad-to-dagmc-mesher Backend Parameters:</strong></p>
+<p>These parameters only apply when using <code class="docutils literal notranslate"><span class="pre">meshing_backend=&quot;cad-to-dagmc-mesher&quot;</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.01</p></td>
+<td><p>Linear tolerance for the surface mesh</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.2</p></td>
+<td><p>Angular tolerance for the surface mesh</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
+<td><p>Iterable[str]</p></td>
+<td><p>None</p></td>
+<td><p>Material tag names of the volumes to fill with tetrahedra</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
+<td><p>float</p></td>
+<td><p>None</p></td>
+<td><p>Target tetrahedron edge length</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code></p></td>
+<td><p>str</p></td>
+<td><p>“umesh.vtk”</p></td>
+<td><p>Output filename for unstructured volume mesh</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> must be given together to write a volume mesh.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Do not mix GMSH and CadQuery backend parameters in the same call. If you provide parameters from both backends without explicitly setting <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code>, an error will be raised.</p>
@@ -655,7 +703,9 @@
 <p><strong>Returns:</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">str</span></code> - Path to the created h5m file</p></li>
-<li><p>Or <code class="docutils literal notranslate"><span class="pre">tuple[str,</span> <span class="pre">str]</span></code> - (h5m_path, vtk_path) if <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> is set</p></li>
+<li><p>Or <code class="docutils literal notranslate"><span class="pre">tuple[str,</span> <span class="pre">str]</span></code> - (h5m_path, vtk_path) when a volume mesh is also written, which is
+when <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> is set on the GMSH backend, or when <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> are set on the cad-to-dagmc-mesher backend</p></li>
 </ul>
 </section>
 </section>
