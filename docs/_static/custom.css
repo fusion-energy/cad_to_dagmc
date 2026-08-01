@@ -25,9 +25,12 @@ div.highlight pre {
     margin: 0;
 }
 
-/* Inline code */
+/* Inline code. The background has to come from the theme variable rather than a
+   fixed colour: the theme keeps its own inline code text colour per mode (a dark
+   magenta in light mode, a pale pink in dark mode), so pinning a light background
+   here leaves pale pink on near white and the text cannot be read in dark mode. */
 code.literal {
-    background: #f1f5f9;
+    background: var(--pst-color-surface);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
@@ -46,13 +49,16 @@ table {
     border-left: 4px solid;
 }
 
+/* Same again for the admonition backgrounds, which otherwise stay near white in
+   dark mode while the body text stays light. The notch colours are saturated
+   mid tones that read against either background, so those stay fixed. */
 .admonition.note {
-    background: #eff6ff;
+    background: var(--pst-color-info-bg);
     border-left-color: #3b82f6;
 }
 
 .admonition.warning {
-    background: #fefce8;
+    background: var(--pst-color-warning-bg);
     border-left-color: #eab308;
 }
 
