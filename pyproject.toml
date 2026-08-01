@@ -49,7 +49,6 @@ docs = [
     "sphinx-book-theme",
     "sphinx-autodoc-typehints",
     "sphinx-design",
-    "sphinxcontrib-mermaid",
     "sphinxcadquery",
     "pyvista[jupyter]",
     "panel",
