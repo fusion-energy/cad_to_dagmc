@@ -728,6 +728,7 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
@@ -926,6 +927,46 @@ window.runMermaid = runMermaid;</script>
         <span class="k">yield</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="n">setThreads</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">imprint_thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Limit the threads used by imprinting and by nothing else.</span>
+
+<span class="sd">    The gmsh backend imprints through imprint_assembly, so there the imprint</span>
+<span class="sd">    can simply be wrapped in thread_limit. The cadquery plugin and</span>
+<span class="sd">    cad-to-dagmc-mesher instead imprint part way through their own meshing</span>
+<span class="sd">    call, so wrapping that call would limit the meshing too, and the meshing</span>
+<span class="sd">    is not what runs out of memory.</span>
+
+<span class="sd">    Both of them reach the imprint through cq.occ_impl.assembly.imprint and</span>
+<span class="sd">    look it up when they call it, so swapping in a wrapper that shrinks the</span>
+<span class="sd">    pool around the real imprint keeps the limit on the imprint and off the</span>
+<span class="sd">    meshing either side of it. The original function is put back on the way</span>
+<span class="sd">    out, including when meshing raises part way through.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        threads: the number of threads to imprint with, or None to leave the</span>
+<span class="sd">            pool alone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span>
+        <span class="k">return</span>
+
+    <span class="n">real_imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
+
+    <span class="c1"># functools.wraps keeps the signature intact: imprint_assembly and</span>
+    <span class="c1"># cad-to-dagmc-mesher both inspect it for the glue argument.</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">real_imprint</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">limited_imprint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">real_imprint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span> <span class="o">=</span> <span class="n">limited_imprint</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span> <span class="o">=</span> <span class="n">real_imprint</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -2500,8 +2541,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                imprint with that many threads, for example imprint=1 imprints on a</span>
 <span class="sd">                single thread. Imprinting runs in parallel and its peak RAM scales with</span>
 <span class="sd">                the number of threads, so fewer threads lowers the peak RAM of large</span>
-<span class="sd">                models at the cost of speed. The thread count is restored afterwards so</span>
-<span class="sd">                the cadquery operations that follow are unaffected.</span>
+<span class="sd">                models at the cost of speed. Only the imprint is limited, the meshing</span>
+<span class="sd">                that follows it keeps all its threads whichever backend is used, and</span>
+<span class="sd">                the thread count is restored afterwards so the cadquery operations</span>
+<span class="sd">                that follow are unaffected.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag. Only used by the gmsh backend.</span>
@@ -2830,9 +2873,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                passed instead of True to imprint with that many threads, for example</span>
 <span class="sd">                imprint=1 imprints on a single thread. Imprinting runs in parallel and</span>
 <span class="sd">                its peak RAM scales with the number of threads, so fewer threads lowers</span>
-<span class="sd">                the peak RAM of large models at the cost of speed. The thread count is</span>
-<span class="sd">                restored afterwards so the cadquery operations that follow are</span>
-<span class="sd">                unaffected.</span>
+<span class="sd">                the peak RAM of large models at the cost of speed. Only the imprint is</span>
+<span class="sd">                limited, the meshing that follows it keeps all its threads whichever</span>
+<span class="sd">                backend is used, and the thread count is restored afterwards so the</span>
+<span class="sd">                cadquery operations that follow are unaffected.</span>
 
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
@@ -3135,9 +3179,9 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
                 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>
                 <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin. The</span>
-                <span class="c1"># plugin imprints internally so the thread limit has to cover</span>
-                <span class="c1"># the whole call rather than just the imprint.</span>
-                <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
+                <span class="c1"># plugin imprints internally, so the limit is put on the</span>
+                <span class="c1"># imprint itself and the tessellation keeps all its threads.</span>
+                <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
                     <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
                         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
                         <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
@@ -3367,9 +3411,9 @@ window.runMermaid = runMermaid;</script>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="c1"># The mesher imprints internally so the thread limit has to cover the</span>
-    <span class="c1"># whole call rather than just the imprint.</span>
-    <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
+    <span class="c1"># The mesher imprints internally, so the limit is put on the imprint</span>
+    <span class="c1"># itself and the meshing keeps all its threads.</span>
+    <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
             <span class="n">assembly</span><span class="p">,</span>
             <span class="n">material_tags</span><span class="p">,</span>

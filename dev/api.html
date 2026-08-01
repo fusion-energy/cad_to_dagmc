@@ -570,8 +570,10 @@ and this can save time. A positive int can be passed instead of True to
 imprint with that many threads, for example imprint=1 imprints on a
 single thread. Imprinting runs in parallel and its peak RAM scales with
 the number of threads, so fewer threads lowers the peak RAM of large
-models at the cost of speed. The thread count is restored afterwards so
-the cadquery operations that follow are unaffected.</p>
+models at the cost of speed. Only the imprint is limited, the meshing
+that follows it keeps all its threads whichever backend is used, and
+the thread count is restored afterwards so the cadquery operations
+that follow are unaffected.</p>
 </dd>
 <dt>set_size: a dictionary mapping volume IDs (int) or material tag names</dt><dd><p>(str) to target mesh sizes (floats). Material tags are resolved to
 all volume IDs that have that tag. Only used by the gmsh backend.</p>
@@ -690,9 +692,10 @@ for the implicit complement (void space).</p></li>
 passed instead of True to imprint with that many threads, for example
 imprint=1 imprints on a single thread. Imprinting runs in parallel and
 its peak RAM scales with the number of threads, so fewer threads lowers
-the peak RAM of large models at the cost of speed. The thread count is
-restored afterwards so the cadquery operations that follow are
-unaffected.</p></li>
+the peak RAM of large models at the cost of speed. Only the imprint is
+limited, the meshing that follows it keeps all its threads whichever
+backend is used, and the thread count is restored afterwards so the
+cadquery operations that follow are unaffected.</p></li>
 <li><p><strong>**kwargs</strong> – <p>Backend-specific parameters:</p>
 <p>Backend selection:
 - meshing_backend (str, optional): explicitly specify ‘gmsh’,</p>

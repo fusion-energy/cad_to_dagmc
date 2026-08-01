@@ -20,7 +20,7 @@ model.export_dagmc_h5m_file(
 )
 ```
 
-The previous thread count is restored once the imprint is done. See [Imprinting](imprinting.md) for details.
+Only the imprint is limited, the meshing keeps all its threads on every backend, and the previous thread count is restored once the imprint is done. See [Imprinting](imprinting.md) for details.
 
 ## Limiting CadQuery Threads
 
