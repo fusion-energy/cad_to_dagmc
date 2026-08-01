@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterable
+import functools
 import importlib.util
 import cadquery as cq
 import gmsh
@@ -196,6 +197,46 @@ def thread_limit(threads: int | None):
         yield
     finally:
         setThreads(previous)
+
+
+@contextmanager
+def imprint_thread_limit(threads: int | None):
+    """Limit the threads used by imprinting and by nothing else.
+
+    The gmsh backend imprints through imprint_assembly, so there the imprint
+    can simply be wrapped in thread_limit. The cadquery plugin and
+    cad-to-dagmc-mesher instead imprint part way through their own meshing
+    call, so wrapping that call would limit the meshing too, and the meshing
+    is not what runs out of memory.
+
+    Both of them reach the imprint through cq.occ_impl.assembly.imprint and
+    look it up when they call it, so swapping in a wrapper that shrinks the
+    pool around the real imprint keeps the limit on the imprint and off the
+    meshing either side of it. The original function is put back on the way
+    out, including when meshing raises part way through.
+
+    Args:
+        threads: the number of threads to imprint with, or None to leave the
+            pool alone.
+    """
+    if threads is None:
+        yield
+        return
+
+    real_imprint = cq.occ_impl.assembly.imprint
+
+    # functools.wraps keeps the signature intact: imprint_assembly and
+    # cad-to-dagmc-mesher both inspect it for the glue argument.
+    @functools.wraps(real_imprint)
+    def limited_imprint(*args, **kwargs):
+        with thread_limit(threads):
+            return real_imprint(*args, **kwargs)
+
+    cq.occ_impl.assembly.imprint = limited_imprint
+    try:
+        yield
+    finally:
+        cq.occ_impl.assembly.imprint = real_imprint
 
 
 def imprint_assembly(assembly, threads: int | None = None):
@@ -1739,8 +1780,10 @@ class CadToDagmc:
                 imprint with that many threads, for example imprint=1 imprints on a
                 single thread. Imprinting runs in parallel and its peak RAM scales with
                 the number of threads, so fewer threads lowers the peak RAM of large
-                models at the cost of speed. The thread count is restored afterwards so
-                the cadquery operations that follow are unaffected.
+                models at the cost of speed. Only the imprint is limited, the meshing
+                that follows it keeps all its threads whichever backend is used, and
+                the thread count is restored afterwards so the cadquery operations
+                that follow are unaffected.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag. Only used by the gmsh backend.
@@ -2063,9 +2106,10 @@ class CadToDagmc:
                 passed instead of True to imprint with that many threads, for example
                 imprint=1 imprints on a single thread. Imprinting runs in parallel and
                 its peak RAM scales with the number of threads, so fewer threads lowers
-                the peak RAM of large models at the cost of speed. The thread count is
-                restored afterwards so the cadquery operations that follow are
-                unaffected.
+                the peak RAM of large models at the cost of speed. Only the imprint is
+                limited, the meshing that follows it keeps all its threads whichever
+                backend is used, and the thread count is restored afterwards so the
+                cadquery operations that follow are unaffected.
 
             **kwargs: Backend-specific parameters:
 
@@ -2368,9 +2412,9 @@ class CadToDagmc:
             if meshing_backend == "cadquery":
                 import cadquery_direct_mesh_plugin
                 # Mesh the assembly using CadQuery's direct-mesh plugin. The
-                # plugin imprints internally so the thread limit has to cover
-                # the whole call rather than just the imprint.
-                with thread_limit(imprint_threads):
+                # plugin imprints internally, so the limit is put on the
+                # imprint itself and the tessellation keeps all its threads.
+                with imprint_thread_limit(imprint_threads):
                     cq_mesh = assembly.toMesh(
                         imprint=imprint,
                         tolerance=tolerance,
@@ -2598,9 +2642,9 @@ def _mesh_with_cad_to_dagmc_mesher(
     except ImportError as e:
         raise CadToDagmcMesherNotFoundError() from e
 
-    # The mesher imprints internally so the thread limit has to cover the
-    # whole call rather than just the imprint.
-    with thread_limit(imprint_threads):
+    # The mesher imprints internally, so the limit is put on the imprint
+    # itself and the meshing keeps all its threads.
+    with imprint_thread_limit(imprint_threads):
         result = mesh_assembly(
             assembly,
             material_tags,

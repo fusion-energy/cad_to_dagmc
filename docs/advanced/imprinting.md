@@ -50,7 +50,7 @@ model.export_dagmc_h5m_file(
 
 `imprint=1` uses the least memory and is the slowest, `imprint=True` uses all available cores and is the fastest. Values in between trade the two off, for example `imprint=4`.
 
-The thread count is restored once the imprint is done, so the cadquery operations that follow are not limited. Note that `imprint=0` is not accepted: `0` cannot be told apart from `False` in Python, so use `imprint=False` to turn imprinting off.
+Only the imprint is limited. The meshing that follows it keeps all its threads on every backend, and the thread count is restored once the imprint is done so the cadquery operations that follow are not limited either. Note that `imprint=0` is not accepted: `0` cannot be told apart from `False` in Python, so use `imprint=False` to turn imprinting off.
 
 ## When to Disable Imprinting
 
