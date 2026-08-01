@@ -24,7 +24,7 @@ model.export_dagmc_h5m_file(
     imprint=True,                          # Handle shared surfaces
     implicit_complement_material_tag="air", # Tag for void space
     h5m_backend="h5py",                    # H5M writing backend
-    method="file",                         # CAD transfer method
+    method="file",                         # CAD transfer method, gmsh backend only
 )
 ```
 
@@ -37,4 +37,4 @@ model.export_dagmc_h5m_file(
 | `imprint=1` | Imprinting runs out of RAM on a large model |
 | `implicit_complement_material_tag` | Need to track particles in void |
 | `h5m_backend="pymoab"` | Compatibility with older DAGMC tools |
-| `method="inMemory"` | Large geometry with matching OCC versions |
+| `method="in memory"` | Large geometry with matching OCC versions |

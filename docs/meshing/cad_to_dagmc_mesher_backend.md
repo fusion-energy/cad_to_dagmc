@@ -1,6 +1,6 @@
 # cad-to-dagmc-mesher Backend
 
-The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically as a dependency of cad_to_dagmc.
+The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs `pip install cad-to-dagmc-mesher` to use it. See [Installation](../installation.md#optional-packages).
 
 ## Surface Mesh (h5m)
 

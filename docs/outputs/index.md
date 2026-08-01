@@ -1,6 +1,7 @@
 # Output Formats
 
-cad_to_dagmc can create three types of output files for neutronics simulations.
+cad_to_dagmc can create three types of output file for neutronics simulations, and can
+write a conformal surface and volume mesh pair in a single call.
 
 ## Output Types
 
