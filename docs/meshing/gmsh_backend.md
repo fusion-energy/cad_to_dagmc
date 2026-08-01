@@ -20,7 +20,7 @@ model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1", "mat2
 
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    meshing_backend="gmsh",  # Default
+    meshing_backend="gmsh",
     min_mesh_size=0.5,
     max_mesh_size=1.0e6,
 )
@@ -116,14 +116,14 @@ model.export_dagmc_h5m_file(
 # In-memory method - faster for large geometries
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    method="inMemory",  # Direct transfer
+    method="in memory",  # Direct transfer
 )
 ```
 
 | Method | Pros | Cons |
 |--------|------|------|
 | `"file"` | More compatible, works with pip install | Slower (file I/O) |
-| `"inMemory"` | Faster for large geometries | Requires matching OCC versions |
+| `"in memory"` | Faster for large geometries | Requires matching OCC versions |
 
 ## Advanced GMSH Options
 
@@ -155,7 +155,9 @@ gmsh.finalize()
 
 ## Volume Meshing
 
-Only GMSH backend supports volume meshes:
+The GMSH backend writes tetrahedral volume meshes. The
+[cad-to-dagmc-mesher backend](cad_to_dagmc_mesher_backend.md) does too, the
+CadQuery backend does not:
 
 ```python
 import cadquery as cq

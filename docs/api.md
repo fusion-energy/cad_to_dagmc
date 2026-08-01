@@ -49,3 +49,8 @@
 .. autoexception:: cad_to_dagmc.PyMoabNotFoundError
    :show-inheritance:
 ```
+
+```{eval-rst}
+.. autoexception:: cad_to_dagmc.CadToDagmcMesherNotFoundError
+   :show-inheritance:
+```

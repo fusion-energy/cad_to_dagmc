@@ -1,20 +1,15 @@
 /* Custom styles for cad_to_dagmc documentation */
 
-/* Mermaid diagram styling */
-.mermaid {
-    text-align: center;
-    margin: 1em auto;
-    padding: 0.5em;
-    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-    border-radius: 12px;
-    max-width: 100%;
-    overflow-x: auto;
+/* Light and dark variants of an image, for example the workflow diagram.
+   The theme sets data-theme on the html element when the mode is switched. */
+html[data-theme="light"] .only-dark,
+html[data-theme="dark"] .only-light {
+    display: none !important;
 }
 
-.mermaid svg {
-    max-width: 100%;
-    max-height: 280px;
-    height: auto;
+.only-light,
+.only-dark {
+    margin: 1em auto 2em auto;
 }
 
 /* Code block styling */
