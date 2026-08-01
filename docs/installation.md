@@ -54,11 +54,13 @@ cad_to_dagmc.
 | Package | Needed for | With pip | With Conda/Mamba |
 |---------|------------|----------|------------------|
 | [cad-to-dagmc-mesher](meshing/cad_to_dagmc_mesher_backend.md) | the default meshing backend | installed as a dependency | not on conda-forge, add with `pip install cad-to-dagmc-mesher` |
-| pymoab | `h5m_backend="pymoab"` | not on PyPI, see below | `conda install -c conda-forge moab` |
+| pymoab | `h5m_backend="pymoab"` | `pip install --extra-index-url https://shimwell.github.io/wheels moab` | `conda install -c conda-forge moab` |
 
 :::{note}
 The h5py h5m backend is the default and does not need MOAB, so pymoab is only worth
-installing if you specifically want `h5m_backend="pymoab"`.
+installing if you specifically want `h5m_backend="pymoab"`. pymoab is not on PyPI
+itself, which is why it is not a dependency of the pip package, but the extra index
+above serves wheels for it so pip installing it is still a one liner.
 :::
 
 :::{note}
