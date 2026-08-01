@@ -22,9 +22,9 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUTPUT_DIR = Path(__file__).resolve().parents[1] / "_static"
 
-XLIM = (0.0, 26.4)
+XLIM = (0.0, 28.0)
 YLIM = (0.0, 14.0)
-FIGSIZE = (13.2, 7.0)
+FIGSIZE = (14.0, 7.0)
 
 # Column centres and half widths, one entry per stage.
 COLUMNS = {
@@ -32,7 +32,7 @@ COLUMNS = {
     "tagging": (6.95, 1.95),
     "meshing": (12.25, 2.45),
     "writer": (18.30, 1.40),
-    "output": (23.30, 2.50),
+    "output": (24.60, 3.10),
 }
 
 # Fill, border and text colour for each stage.
@@ -67,7 +67,11 @@ CAPTION_SIZE = 9.5
 
 
 def draw_box(ax, theme, stage, y, height, title, subs=(), dashed=False):
-    """Draws a rounded box centred on its column and returns its x extent."""
+    """Draws a rounded box centred on its column and returns its x extent.
+
+    Every line drawn is recorded on the axes so check_text_fits() can confirm
+    afterwards that none of them overflow the box holding them.
+    """
     fill, edge, text_colour = theme[stage]
     x_centre, half_width = COLUMNS[stage]
 
@@ -94,7 +98,7 @@ def draw_box(ax, theme, stage, y, height, title, subs=(), dashed=False):
     for index, line_height in enumerate(line_heights):
         cursor -= line_height / 2
         if index == 0:
-            ax.text(
+            artist = ax.text(
                 x_centre,
                 cursor,
                 title,
@@ -107,7 +111,7 @@ def draw_box(ax, theme, stage, y, height, title, subs=(), dashed=False):
             )
         else:
             label, mono = subs[index - 1]
-            ax.text(
+            artist = ax.text(
                 x_centre,
                 cursor,
                 label,
@@ -118,9 +122,34 @@ def draw_box(ax, theme, stage, y, height, title, subs=(), dashed=False):
                 family="monospace" if mono else None,
                 zorder=4,
             )
+        ax._boxed_text.append((artist, half_width))
         cursor -= line_height / 2
 
     return x_centre - half_width, x_centre + half_width
+
+
+def check_text_fits(fig, ax, margin=0.12):
+    """Raises if any box label is wider than the box drawn around it.
+
+    Overflowing text is easy to miss when only the generated png is looked at,
+    so the widths are measured once the figure has a renderer and any overflow
+    stops the run rather than being written out.
+    """
+    renderer = fig.canvas.get_renderer()
+    to_data = ax.transData.inverted()
+    overflowing = []
+    for artist, half_width in ax._boxed_text:
+        bbox = artist.get_window_extent(renderer)
+        x0, _ = to_data.transform((bbox.x0, bbox.y0))
+        x1, _ = to_data.transform((bbox.x1, bbox.y1))
+        available = 2 * half_width - 2 * margin
+        if x1 - x0 > available:
+            overflowing.append(
+                f"{artist.get_text()!r} is {x1 - x0:.2f} wide, "
+                f"the box allows {available:.2f}"
+            )
+    if overflowing:
+        raise ValueError("text overflows its box:\n  " + "\n  ".join(overflowing))
 
 
 def draw_arrow(ax, theme, start, end, rad=0.0):
@@ -177,6 +206,7 @@ def build_figure(theme_name):
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.axis("off")
+    ax._boxed_text = []
 
     draw_headers(ax, theme)
 
@@ -243,57 +273,35 @@ def build_figure(theme_name):
         ax,
         theme,
         "output",
-        11.3,
+        11.5,
         1.9,
         "Unstructured mesh",
         [("umesh.vtk, tetrahedra", False), ("export_unstructured_mesh_file()", True)],
     )
-    # The producing call for this box is named on the bracket below, which
-    # covers both files it can write.
+    # One export_dagmc_h5m_file call writes the h5m on its own, or the h5m and a
+    # conformal unstructured mesh vtk together, so both files it can produce are
+    # named in this one box.
     h5m_left, _ = draw_box(
-        ax, theme, "output", 8.5, 1.5, "DAGMC geometry", [("dagmc.h5m, triangles", False)]
+        ax,
+        theme,
+        "output",
+        8.5,
+        2.4,
+        "DAGMC geometry",
+        [
+            ("optionally with conformal Unstructured mesh", False),
+            ("dagmc.h5m, triangles, umesh.vtk tetrahedra", False),
+            ("export_dagmc_h5m_file()", True),
+        ],
     )
     msh_left, _ = draw_box(
         ax,
         theme,
         "output",
-        5.2,
-        1.8,
+        5.0,
+        1.7,
         "GMSH mesh",
         [("mesh.msh, 2D or 3D", False), ("export_gmsh_mesh_file()", True)],
-    )
-
-    # export_dagmc_h5m_file can write the h5m and a conformal vtk in one call,
-    # so bracket the two output files it produces together. The bracket is left
-    # open on the side the arrows come in from.
-    _, output_edge, output_text = theme["output"]
-    ax.plot(
-        [20.55, 26.05, 26.05, 20.55],
-        [12.45, 12.45, 6.55, 6.55],
-        color=output_edge,
-        linewidth=1.6,
-        linestyle=(0, (5, 4)),
-        solid_joinstyle="round",
-        zorder=1,
-    )
-    ax.text(
-        23.3,
-        7.35,
-        "export_dagmc_h5m_file()",
-        ha="center",
-        va="center",
-        fontsize=MONO_SIZE,
-        family="monospace",
-        color=output_text,
-    )
-    ax.text(
-        23.3,
-        6.95,
-        "can write both as a conformal pair",
-        ha="center",
-        va="center",
-        fontsize=SUB_SIZE,
-        color=output_text,
     )
 
     # Inputs feed the material tags.
@@ -316,19 +324,19 @@ def build_figure(theme_name):
     draw_arrow(ax, theme, (gmsh_right, 9.5), (vtk_left, 11.0))
 
     # Only gmsh writes its own native mesh format.
-    draw_arrow(ax, theme, (gmsh_right, 8.35), (msh_left, 5.4))
+    draw_arrow(ax, theme, (gmsh_right, 8.35), (msh_left, 5.0))
 
     # An already meshed input skips the meshing stage, shown as its own row.
     ax.plot(
-        [0.2, 25.8],
-        [3.95, 3.95],
+        [0.2, 27.7],
+        [3.65, 3.65],
         color=theme["divider"],
         linewidth=1.2,
         linestyle=(0, (6, 6)),
     )
     ax.text(
         0.2,
-        3.4,
+        3.15,
         "A GMSH mesh input is already meshed, so it skips the meshing stage",
         ha="left",
         va="center",
@@ -365,7 +373,7 @@ def build_figure(theme_name):
     draw_arrow(ax, theme, (writer2_right, 2.15), (h5m2_left, 2.15))
 
     ax.text(
-        13.0,
+        13.95,
         0.7,
         "export_gmsh_file_to_dagmc_h5m_file()   or   "
         "export_gmsh_object_to_dagmc_h5m_file()",
@@ -376,6 +384,8 @@ def build_figure(theme_name):
         color=theme["muted"],
     )
 
+    fig.canvas.draw()
+    check_text_fits(fig, ax)
     return fig
 
 
