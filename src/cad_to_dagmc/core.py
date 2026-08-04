@@ -1803,9 +1803,15 @@ class CadToDagmc:
                 volumes to fill with tetrahedra when using the
                 cad-to-dagmc-mesher backend. Defaults to all volumes.
             tolerance: linear deflection tolerance for the surface mesh, used by
-                the cad-to-dagmc-mesher backend.
+                the cad-to-dagmc-mesher backend. This is in the units of the
+                SCALED geometry, since scale_factor is applied before meshing,
+                so scale it alongside scale_factor. With scale_factor=100 the
+                0.01 default is a 0.1 mm deflection, which on a large model can
+                produce a very fine mesh and exhaust memory. The same applies to
+                min_mesh_size/max_mesh_size/set_size for the gmsh backend.
             angular_tolerance: angular deflection tolerance for the surface mesh,
-                used by the cad-to-dagmc-mesher backend.
+                used by the cad-to-dagmc-mesher backend. An angle, so unaffected
+                by scale_factor.
 
 
         Returns:
@@ -2101,7 +2107,19 @@ class CadToDagmc:
             filename: the filename to use for the saved DAGMC file.
             implicit_complement_material_tag: the name of the material tag to use
                 for the implicit complement (void space).
-            scale_factor: a scaling factor to apply to the geometry.
+            scale_factor: a scaling factor to apply to the geometry. All the
+                linear mesh sizing arguments (min_mesh_size, max_mesh_size and
+                set_size for gmsh, tolerance and target_edge_length for
+                cad-to-dagmc-mesher, tolerance for cadquery) are in the units of
+                the SCALED geometry, so the same number means the same thing on
+                the output mesh whichever backend is used. For example with
+                scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
+                deflection. Note this means the defaults get finer as
+                scale_factor grows: the cad-to-dagmc-mesher tolerance default of
+                0.01 is a 0.1 mm deflection at scale_factor=100, which on a large
+                model can produce a very fine mesh and exhaust memory, so scale
+                the tolerance along with the geometry. angular_tolerance is an
+                angle and so is unaffected by scaling.
             imprint: whether to imprint the geometry or not. A positive int can be
                 passed instead of True to imprint with that many threads, for example
                 imprint=1 imprints on a single thread. Imprinting runs in parallel and
@@ -2140,11 +2158,16 @@ class CadToDagmc:
                   available cores (default), 1 uses a single thread.
 
                 For CadQuery backend:
-                - tolerance (float): meshing tolerance (default: 0.1)
+                - tolerance (float): meshing tolerance (default: 0.1), in the
+                  units of the scaled geometry (see scale_factor above)
                 - angular_tolerance (float): angular tolerance (default: 0.1)
 
                 For cad-to-dagmc-mesher backend:
-                - tolerance (float): surface meshing tolerance (default: 0.01)
+                - tolerance (float): surface meshing tolerance (default: 0.01),
+                  in the units of the scaled geometry (see scale_factor above).
+                  With scale_factor=100 the 0.01 default is a 0.1 mm deflection,
+                  which on a large model can produce a very fine mesh and
+                  exhaust memory; scale the value with scale_factor.
                 - angular_tolerance (float): surface angular tolerance (default: 0.2)
                 - tet_volumes (Iterable[str]): material tag names of the volumes to
                   fill with tetrahedra for an unstructured volume mesh.
@@ -2330,6 +2353,23 @@ class CadToDagmc:
             tolerance = kwargs.get("tolerance", 0.1)
             angular_tolerance = kwargs.get("angular_tolerance", 0.1)
 
+            if scale_factor != 1.0:
+                # Transitional warning: tolerance used to be in unscaled units
+                # for this backend only. Remove in a future release once the
+                # consistent behaviour has been out for a while.
+                warnings.warn(
+                    f"tolerance ({tolerance}) is in the units of the scaled "
+                    f"geometry, so with scale_factor={scale_factor} it is a "
+                    f"deflection of {tolerance} in the output mesh's units. "
+                    "This matches the gmsh and cad-to-dagmc-mesher backends. "
+                    "Previous versions of cad_to_dagmc interpreted tolerance in "
+                    "the units of the unscaled geometry for the cadquery "
+                    "backend only, so this produces a mesh "
+                    f"{scale_factor}x finer than before for the same tolerance; "
+                    f"pass tolerance={tolerance * scale_factor} to reproduce the "
+                    "old mesh density."
+                )
+
             # Check for invalid parameters
             unstructured_volumes = kwargs.get("unstructured_volumes")
             if unstructured_volumes is not None or kwargs.get("tet_volumes") is not None:
@@ -2411,13 +2451,22 @@ class CadToDagmc:
             # Use the CadQuery direct mesh plugin
             if meshing_backend == "cadquery":
                 import cadquery_direct_mesh_plugin
+                # tolerance is documented as being in the units of the scaled
+                # geometry, matching the gmsh and cad-to-dagmc-mesher backends
+                # (both of which scale the geometry before meshing it). This
+                # backend is the odd one out: the plugin tessellates the
+                # unscaled solids and multiplies the resulting vertices by
+                # scale_factor afterwards, so the tolerance it is given is in
+                # unscaled units. Convert so the same number means the same
+                # deflection on the output mesh whichever backend is used.
+                cq_tolerance = tolerance / scale_factor
                 # Mesh the assembly using CadQuery's direct-mesh plugin. The
                 # plugin imprints internally, so the limit is put on the
                 # imprint itself and the tessellation keeps all its threads.
                 with imprint_thread_limit(imprint_threads):
                     cq_mesh = assembly.toMesh(
                         imprint=imprint,
-                        tolerance=tolerance,
+                        tolerance=cq_tolerance,
                         angular_tolerance=angular_tolerance,
                         scale_factor=scale_factor,
                     )
