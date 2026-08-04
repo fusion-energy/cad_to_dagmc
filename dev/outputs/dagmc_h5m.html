@@ -545,7 +545,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
 <td><p>float</p></td>
 <td><p>1.0</p></td>
-<td><p>Geometry scale factor</p></td>
+<td><p>Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
 <td><p>bool or int</p></td>
@@ -646,7 +646,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.1</p></td>
-<td><p>Linear tolerance for tessellation</p></td>
+<td><p>Linear tolerance for tessellation, in scaled-geometry units</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
@@ -670,7 +670,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.01</p></td>
-<td><p>Linear tolerance for the surface mesh</p></td>
+<td><p>Linear tolerance for the surface mesh, in scaled-geometry units</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
@@ -685,7 +685,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
-<td><p>Target tetrahedron edge length</p></td>
+<td><p>Target tetrahedron edge length, in scaled-geometry units</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code></p></td>
 <td><p>str</p></td>
@@ -694,6 +694,47 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> and the units of linear mesh sizes.</strong> All the linear mesh sizing
+parameters are in the units of the <strong>scaled</strong> geometry, so the same number means
+the same deflection on the output mesh whichever backend you use:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Backend</p></th>
+<th class="head"><p>Linear sizing parameters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gmsh</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">set_size</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cad-to-dagmc-mesher</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cadquery</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A consequence is that the defaults get finer as <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> grows. This matters
+most for the cad-to-dagmc-mesher <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> default of <code class="docutils literal notranslate"><span class="pre">0.01</span></code>: with
+<code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> (metres to centimetres) that is a 0.1 mm deflection, which on a
+large model can generate a huge number of facets and exhaust memory. Scale the
+tolerance with the geometry, for example <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> (5 mm) for a metre-scale
+model exported with <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is an angle and is unaffected by <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before this behaviour was made consistent, the <code class="docutils literal notranslate"><span class="pre">cadquery</span></code> backend interpreted
+<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> in the units of the <em>unscaled</em> geometry, because it tessellates first
+and scales the resulting vertices afterwards. If you used that backend with a
+<code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> other than 1.0, the same <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> value now produces a mesh
+<code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> times finer than it used to; multiply your old tolerance by
+<code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to get the previous mesh density. A warning is raised to flag this.</p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> must be given together to write a volume mesh.</p>
 <div class="admonition warning">

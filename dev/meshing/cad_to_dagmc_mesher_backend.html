@@ -510,7 +510,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.01</p></td>
-<td><p>Linear deflection tolerance for the surface mesh</p></td>
+<td><p>Linear deflection tolerance for the surface mesh, in the units of the scaled geometry</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
@@ -520,7 +520,7 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
-<td><p>Target tetrahedron edge length for the volume mesh</p></td>
+<td><p>Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
 <td><p>Iterable[str]</p></td>
@@ -536,6 +536,21 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> controls the maximum angle between adjacent facet normals</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> controls the size of the tetrahedra in the volume mesh</p></li>
 </ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> are lengths in the units of the <strong>scaled</strong>
+geometry, because this backend applies <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to the geometry before
+meshing it.</p>
+<p>So if you pass <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> to convert a model from metres to centimetres,
+<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is in centimetres. The <code class="docutils literal notranslate"><span class="pre">0.01</span></code> default then means a 0.1 mm deflection,
+which on a large model can produce an enormous number of facets and exhaust
+memory. Scale the tolerance along with the geometry: for a metre-scale model
+exported with <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code>, something like <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> (5 mm) is a more
+reasonable starting point.</p>
+<p>The gmsh and cadquery backends take their linear mesh sizes in scaled-geometry
+units too, so a given number means the same deflection whichever backend you use.
+<code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is an angle and is unaffected by scaling.</p>
+</div>
 </section>
 <section id="backend-auto-selection">
 <h2>Backend Auto-Selection<a class="headerlink" href="#backend-auto-selection" title="Link to this heading">#</a></h2>

@@ -2211,9 +2211,15 @@
 <span class="sd">                volumes to fill with tetrahedra when using the</span>
 <span class="sd">                cad-to-dagmc-mesher backend. Defaults to all volumes.</span>
 <span class="sd">            tolerance: linear deflection tolerance for the surface mesh, used by</span>
-<span class="sd">                the cad-to-dagmc-mesher backend.</span>
+<span class="sd">                the cad-to-dagmc-mesher backend. This is in the units of the</span>
+<span class="sd">                SCALED geometry, since scale_factor is applied before meshing,</span>
+<span class="sd">                so scale it alongside scale_factor. With scale_factor=100 the</span>
+<span class="sd">                0.01 default is a 0.1 mm deflection, which on a large model can</span>
+<span class="sd">                produce a very fine mesh and exhaust memory. The same applies to</span>
+<span class="sd">                min_mesh_size/max_mesh_size/set_size for the gmsh backend.</span>
 <span class="sd">            angular_tolerance: angular deflection tolerance for the surface mesh,</span>
-<span class="sd">                used by the cad-to-dagmc-mesher backend.</span>
+<span class="sd">                used by the cad-to-dagmc-mesher backend. An angle, so unaffected</span>
+<span class="sd">                by scale_factor.</span>
 
 
 <span class="sd">        Returns:</span>
@@ -2515,7 +2521,19 @@
 <span class="sd">            filename: the filename to use for the saved DAGMC file.</span>
 <span class="sd">            implicit_complement_material_tag: the name of the material tag to use</span>
 <span class="sd">                for the implicit complement (void space).</span>
-<span class="sd">            scale_factor: a scaling factor to apply to the geometry.</span>
+<span class="sd">            scale_factor: a scaling factor to apply to the geometry. All the</span>
+<span class="sd">                linear mesh sizing arguments (min_mesh_size, max_mesh_size and</span>
+<span class="sd">                set_size for gmsh, tolerance and target_edge_length for</span>
+<span class="sd">                cad-to-dagmc-mesher, tolerance for cadquery) are in the units of</span>
+<span class="sd">                the SCALED geometry, so the same number means the same thing on</span>
+<span class="sd">                the output mesh whichever backend is used. For example with</span>
+<span class="sd">                scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm</span>
+<span class="sd">                deflection. Note this means the defaults get finer as</span>
+<span class="sd">                scale_factor grows: the cad-to-dagmc-mesher tolerance default of</span>
+<span class="sd">                0.01 is a 0.1 mm deflection at scale_factor=100, which on a large</span>
+<span class="sd">                model can produce a very fine mesh and exhaust memory, so scale</span>
+<span class="sd">                the tolerance along with the geometry. angular_tolerance is an</span>
+<span class="sd">                angle and so is unaffected by scaling.</span>
 <span class="sd">            imprint: whether to imprint the geometry or not. A positive int can be</span>
 <span class="sd">                passed instead of True to imprint with that many threads, for example</span>
 <span class="sd">                imprint=1 imprints on a single thread. Imprinting runs in parallel and</span>
@@ -2554,11 +2572,16 @@
 <span class="sd">                  available cores (default), 1 uses a single thread.</span>
 
 <span class="sd">                For CadQuery backend:</span>
-<span class="sd">                - tolerance (float): meshing tolerance (default: 0.1)</span>
+<span class="sd">                - tolerance (float): meshing tolerance (default: 0.1), in the</span>
+<span class="sd">                  units of the scaled geometry (see scale_factor above)</span>
 <span class="sd">                - angular_tolerance (float): angular tolerance (default: 0.1)</span>
 
 <span class="sd">                For cad-to-dagmc-mesher backend:</span>
-<span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01)</span>
+<span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01),</span>
+<span class="sd">                  in the units of the scaled geometry (see scale_factor above).</span>
+<span class="sd">                  With scale_factor=100 the 0.01 default is a 0.1 mm deflection,</span>
+<span class="sd">                  which on a large model can produce a very fine mesh and</span>
+<span class="sd">                  exhaust memory; scale the value with scale_factor.</span>
 <span class="sd">                - angular_tolerance (float): surface angular tolerance (default: 0.2)</span>
 <span class="sd">                - tet_volumes (Iterable[str]): material tag names of the volumes to</span>
 <span class="sd">                  fill with tetrahedra for an unstructured volume mesh.</span>
@@ -2744,6 +2767,23 @@
             <span class="n">tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
             <span class="n">angular_tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;angular_tolerance&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="c1"># Transitional warning: tolerance used to be in unscaled units</span>
+                <span class="c1"># for this backend only. Remove in a future release once the</span>
+                <span class="c1"># consistent behaviour has been out for a while.</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;tolerance (</span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">) is in the units of the scaled &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;geometry, so with scale_factor=</span><span class="si">{</span><span class="n">scale_factor</span><span class="si">}</span><span class="s2"> it is a &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;deflection of </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2"> in the output mesh&#39;s units. &quot;</span>
+                    <span class="s2">&quot;This matches the gmsh and cad-to-dagmc-mesher backends. &quot;</span>
+                    <span class="s2">&quot;Previous versions of cad_to_dagmc interpreted tolerance in &quot;</span>
+                    <span class="s2">&quot;the units of the unscaled geometry for the cadquery &quot;</span>
+                    <span class="s2">&quot;backend only, so this produces a mesh &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scale_factor</span><span class="si">}</span><span class="s2">x finer than before for the same tolerance; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;pass tolerance=</span><span class="si">{</span><span class="n">tolerance</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">scale_factor</span><span class="si">}</span><span class="s2"> to reproduce the &quot;</span>
+                    <span class="s2">&quot;old mesh density.&quot;</span>
+                <span class="p">)</span>
+
             <span class="c1"># Check for invalid parameters</span>
             <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unstructured_volumes&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">unstructured_volumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_volumes&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2825,13 +2865,22 @@
             <span class="c1"># Use the CadQuery direct mesh plugin</span>
             <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">&quot;cadquery&quot;</span><span class="p">:</span>
                 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>
+                <span class="c1"># tolerance is documented as being in the units of the scaled</span>
+                <span class="c1"># geometry, matching the gmsh and cad-to-dagmc-mesher backends</span>
+                <span class="c1"># (both of which scale the geometry before meshing it). This</span>
+                <span class="c1"># backend is the odd one out: the plugin tessellates the</span>
+                <span class="c1"># unscaled solids and multiplies the resulting vertices by</span>
+                <span class="c1"># scale_factor afterwards, so the tolerance it is given is in</span>
+                <span class="c1"># unscaled units. Convert so the same number means the same</span>
+                <span class="c1"># deflection on the output mesh whichever backend is used.</span>
+                <span class="n">cq_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span> <span class="o">/</span> <span class="n">scale_factor</span>
                 <span class="c1"># Mesh the assembly using CadQuery&#39;s direct-mesh plugin. The</span>
                 <span class="c1"># plugin imprints internally, so the limit is put on the</span>
                 <span class="c1"># imprint itself and the tessellation keeps all its threads.</span>
                 <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
                     <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
                         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-                        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                        <span class="n">tolerance</span><span class="o">=</span><span class="n">cq_tolerance</span><span class="p">,</span>
                         <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
                         <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
                     <span class="p">)</span>

@@ -65,15 +65,32 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.01 | Linear deflection tolerance for the surface mesh |
+| `tolerance` | float | 0.01 | Linear deflection tolerance for the surface mesh, in the units of the scaled geometry |
 | `angular_tolerance` | float | 0.2 | Angular deflection tolerance for the surface mesh |
-| `target_edge_length` | float | None | Target tetrahedron edge length for the volume mesh |
+| `target_edge_length` | float | None | Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
 
 **Tolerance explanation:**
 - `tolerance` controls how far the surface mesh can deviate from the true surface (linear distance)
 - `angular_tolerance` controls the maximum angle between adjacent facet normals
 - `target_edge_length` controls the size of the tetrahedra in the volume mesh
+
+:::{important}
+`tolerance` and `target_edge_length` are lengths in the units of the **scaled**
+geometry, because this backend applies `scale_factor` to the geometry before
+meshing it.
+
+So if you pass `scale_factor=100` to convert a model from metres to centimetres,
+`tolerance` is in centimetres. The `0.01` default then means a 0.1 mm deflection,
+which on a large model can produce an enormous number of facets and exhaust
+memory. Scale the tolerance along with the geometry: for a metre-scale model
+exported with `scale_factor=100`, something like `tolerance=0.5` (5 mm) is a more
+reasonable starting point.
+
+The gmsh and cadquery backends take their linear mesh sizes in scaled-geometry
+units too, so a given number means the same deflection whichever backend you use.
+`angular_tolerance` is an angle and is unaffected by scaling.
+:::
 
 ## Backend Auto-Selection
 

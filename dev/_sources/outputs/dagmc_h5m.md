@@ -94,7 +94,7 @@ model.export_dagmc_h5m_file(
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `filename` | str | "dagmc.h5m" | Output file path |
-| `scale_factor` | float | 1.0 | Geometry scale factor |
+| `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
 | `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
 
@@ -125,7 +125,7 @@ These parameters only apply when using `meshing_backend="cadquery"`:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.1 | Linear tolerance for tessellation |
+| `tolerance` | float | 0.1 | Linear tolerance for tessellation, in scaled-geometry units |
 | `angular_tolerance` | float | 0.1 | Angular tolerance for tessellation |
 
 **cad-to-dagmc-mesher Backend Parameters:**
@@ -134,11 +134,41 @@ These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.01 | Linear tolerance for the surface mesh |
+| `tolerance` | float | 0.01 | Linear tolerance for the surface mesh, in scaled-geometry units |
 | `angular_tolerance` | float | 0.2 | Angular tolerance for the surface mesh |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
-| `target_edge_length` | float | None | Target tetrahedron edge length |
+| `target_edge_length` | float | None | Target tetrahedron edge length, in scaled-geometry units |
 | `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
+
+:::{important}
+**`scale_factor` and the units of linear mesh sizes.** All the linear mesh sizing
+parameters are in the units of the **scaled** geometry, so the same number means
+the same deflection on the output mesh whichever backend you use:
+
+| Backend | Linear sizing parameters |
+|---------|--------------------------|
+| `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
+| `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
+| `cadquery` | `tolerance` |
+
+A consequence is that the defaults get finer as `scale_factor` grows. This matters
+most for the cad-to-dagmc-mesher `tolerance` default of `0.01`: with
+`scale_factor=100` (metres to centimetres) that is a 0.1 mm deflection, which on a
+large model can generate a huge number of facets and exhaust memory. Scale the
+tolerance with the geometry, for example `tolerance=0.5` (5 mm) for a metre-scale
+model exported with `scale_factor=100`.
+
+`angular_tolerance` is an angle and is unaffected by `scale_factor`.
+:::
+
+:::{note}
+Before this behaviour was made consistent, the `cadquery` backend interpreted
+`tolerance` in the units of the *unscaled* geometry, because it tessellates first
+and scales the resulting vertices afterwards. If you used that backend with a
+`scale_factor` other than 1.0, the same `tolerance` value now produces a mesh
+`scale_factor` times finer than it used to; multiply your old tolerance by
+`scale_factor` to get the previous mesh density. A warning is raised to flag this.
+:::
 
 `tet_volumes` and `target_edge_length` must be given together to write a volume mesh.
 
