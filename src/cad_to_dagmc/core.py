@@ -2764,43 +2764,36 @@ def _mesh_with_cad_to_dagmc_mesher(
             [tag_by_name[name] for name in result["material_tags"]],
             result.get("tet_data"),
         )
-    except OverlappingSolidsError:
-        # Imprinting overlapping solids fuses them, so the per-solid names no
-        # longer exist in the imprinted compound and solid_config cannot address
-        # them. The positional material_tags path does not depend on names, so it
-        # still meshes this geometry, and it is what this backend used before, so
-        # falling back keeps overlapping CAD working rather than turning it into a
-        # hard error.
+    except OverlappingSolidsError as e:
+        # Imprinting fused two or more solids together, which means they overlap.
+        # That geometry cannot be written as valid DAGMC: a region inside two
+        # volumes has no single material, and a DAGMC surface separates at most
+        # two volumes. It is better to say so than to mesh it, because the result
+        # is silently wrong rather than obviously broken -- it is watertight, it
+        # transports, and the material in the shared region is whichever volume
+        # DAGMC happens to resolve first.
         #
-        # Such CAD is ambiguous for DAGMC — a region belonging to two volumes has
-        # no well defined material — so the mesher is right to flag it. Saying so
-        # is more useful than either failing or staying silent, but refusing to
-        # mesh is not this function's call to make.
-        warnings.warn(
-            "Imprinting fused overlapping solids, so per-solid meshing is not "
-            "available for this geometry and the whole assembly is meshed "
-            "together. Overlapping CAD is also ambiguous for DAGMC transport, "
-            "where a region shared by two volumes has no well defined material. "
-            "Resolving the overlaps (for example by boolean-subtracting the "
-            "intersecting solids) makes the geometry valid and restores per-solid "
-            "meshing."
+        # The mesher names the solids it could not find, but those are the
+        # synthetic per-solid names from _solid_names, so they are re-expressed
+        # here as the material tags the caller actually supplied.
+        fused = sorted({
+            tag_by_name[name]
+            for name in names
+            if name in str(e) and name in tag_by_name
+        })
+        detail = (
+            f" The solids tagged {fused} could not be told apart after imprinting."
+            if fused else ""
         )
-        with imprint_thread_limit(imprint_threads):
-            result = mesh_assembly(
-                assembly,
-                material_tags,
-                tolerance=tolerance,
-                angular_tolerance=angular_tolerance,
-                tet_volumes=tet_volumes,
-                target_edge_length=target_edge_length,
-                imprint=imprint,
-            )
-        return (
-            result["vertices"],
-            result["triangles_by_solid_by_face"],
-            result["material_tags"],
-            result.get("tet_data"),
-        )
+        raise ValueError(
+            "Overlapping solids in the CAD." + detail + " Overlapping geometry is "
+            "invalid for DAGMC: a region inside two volumes has no single "
+            "material, so transport through it is not well defined. Resolve the "
+            "overlaps before meshing, for example by boolean-subtracting the "
+            "inner solid from the outer one "
+            "(outer = outer.cut(inner)) so the two share a surface instead of a "
+            "volume."
+        ) from e
 
 
 def _get_all_leaf_children(assembly):
