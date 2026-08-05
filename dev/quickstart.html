@@ -444,9 +444,11 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create some geometry with CadQuery</span>
+<span class="c1"># Create some geometry with CadQuery. Solids must not overlap: a region that is</span>
+<span class="c1"># inside two volumes has no single material, so DAGMC cannot transport through it.</span>
+<span class="c1"># Cut the sphere out of the box rather than leaving one sitting inside the other.</span>
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
 
 <span class="c1"># Create an assembly</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
@@ -464,6 +466,18 @@
 </div>
 <p>This creates a <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> file with two volumes tagged with materials
 <code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code> and <code class="docutils literal notranslate"><span class="pre">mat:steel</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>Solids must not overlap.</strong> DAGMC gives every region exactly one material and
+every surface at most two volumes, so a region sitting inside two solids has no
+well defined material and transport through it is not meaningful.</p>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">.cut(sphere)</span></code> above. Without it the sphere would be inside the box, both
+solids would claim the same region, and the resulting file would be quietly wrong:
+watertight, transportable, and using whichever material DAGMC happened to resolve
+first. Overlapping solids are rejected with an error naming the material tags
+involved, rather than meshed.</p>
+<p>Solids that <em>touch</em> are fine and normal — they share a surface, not a volume.</p>
+</div>
 </section>
 <section id="from-a-step-file">
 <h2>From a STEP File<a class="headerlink" href="#from-a-step-file" title="Link to this heading">#</a></h2>

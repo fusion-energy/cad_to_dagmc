@@ -2356,7 +2356,9 @@
                 <span class="s1">&#39;&quot;cad-to-dagmc-mesher&quot;&#39;</span>
             <span class="p">)</span>
 
-        <span class="n">assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+        <span class="n">assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">_solid_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="c1"># Default to tetrahedralising every volume. tet_volumes is matched</span>
         <span class="c1"># against material tags by the mesher, so pass the material tags.</span>
@@ -2990,7 +2992,10 @@
 
                 <span class="c1"># scale_factor is applied to the geometry before meshing so the</span>
                 <span class="c1"># h5m and .vtk match the gmsh/cadquery backends (which scale).</span>
-                <span class="n">mesher_assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+                <span class="n">mesher_assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span>
+                    <span class="n">names</span><span class="o">=</span><span class="n">_solid_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">),</span>
+                <span class="p">)</span>
 
                 <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span><span class="p">,</span> <span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="n">tet_data</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
@@ -3077,17 +3082,39 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_assembly</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_assembly</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a CadQuery assembly from parts, optionally scaling each part.</span>
 
 <span class="sd">    Shape.scale returns a new shape (it does not mutate in place), so the</span>
 <span class="sd">    original parts in self.parts are left untouched and repeated exports stay</span>
 <span class="sd">    consistent.</span>
+
+<span class="sd">    names, when given, labels each child. cad-to-dagmc-mesher&#39;s SolidConfig</span>
+<span class="sd">    addresses solids by assembly child name, so naming them is what lets us ask</span>
+<span class="sd">    for per-solid meshing rather than the positional material_tags API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
-        <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="n">part</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="n">part</span>
+        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scaled</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scaled</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">names</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">assembly</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_solid_names</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unique per-solid names for the mesher&#39;s SolidConfig.</span>
+
+<span class="sd">    Material tags cannot be used directly: several solids commonly share one tag</span>
+<span class="sd">    and SolidConfig needs a distinct name per solid. Suffixing the index keeps</span>
+<span class="sd">    them unique while staying readable, which matters because the mesher prints</span>
+<span class="sd">    these names when it reports what it refined.</span>
+
+<span class="sd">    The name also carries the input index, so the real tags can be reattached</span>
+<span class="sd">    afterwards whatever order the mesher returns solids in.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
@@ -3103,28 +3130,86 @@
 <span class="sd">    ``tet_volumes`` and ``target_edge_length`` are supplied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_assembly</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">OverlappingSolidsError</span><span class="p">,</span>
+            <span class="n">SolidConfig</span><span class="p">,</span>
+            <span class="n">mesh_assembly</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="c1"># The mesher imprints internally, so the limit is put on the imprint</span>
-    <span class="c1"># itself and the meshing keeps all its threads.</span>
-    <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
-            <span class="n">assembly</span><span class="p">,</span>
-            <span class="n">material_tags</span><span class="p">,</span>
+    <span class="c1"># Address solids individually rather than through the positional</span>
+    <span class="c1"># material_tags API. Two reasons:</span>
+    <span class="c1">#</span>
+    <span class="c1">#  - the mesher only refines per solid, and only guards against refinement</span>
+    <span class="c1">#    making things worse, on its solid_config path. The material_tags path</span>
+    <span class="c1">#    refines the whole assembly and returns whatever the last round produced,</span>
+    <span class="c1">#    so on geometry whose fold count grows with refinement it can hand back a</span>
+    <span class="c1">#    mesh worse than the one it started from.</span>
+    <span class="c1">#  - tags are reattached by name here instead of by position, so the mapping</span>
+    <span class="c1">#    survives the mesher returning solids in a different order.</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">_solid_names</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span>
+    <span class="n">tag_by_name</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">))</span>
+    <span class="n">tet_tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tet_volumes</span> <span class="ow">or</span> <span class="p">())</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">SolidConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
             <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-            <span class="n">tet_volumes</span><span class="o">=</span><span class="n">tet_volumes</span><span class="p">,</span>
-            <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
-            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+            <span class="n">target_edge_length</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">target_edge_length</span>
+                <span class="k">if</span> <span class="n">target_edge_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">in</span> <span class="n">tet_tags</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;material_tags&quot;</span><span class="p">],</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_data&quot;</span><span class="p">),</span>
-    <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="p">]</span>
+
+    <span class="c1"># The mesher imprints internally, so the limit is put on the imprint</span>
+    <span class="c1"># itself and the meshing keeps all its threads.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
+                <span class="n">assembly</span><span class="p">,</span>
+                <span class="n">solid_config</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
+                <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;vertices&quot;</span><span class="p">],</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;triangles_by_solid_by_face&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;material_tags&quot;</span><span class="p">]],</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tet_data&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">OverlappingSolidsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Imprinting fused two or more solids together, which means they overlap.</span>
+        <span class="c1"># That geometry cannot be written as valid DAGMC: a region inside two</span>
+        <span class="c1"># volumes has no single material, and a DAGMC surface separates at most</span>
+        <span class="c1"># two volumes. It is better to say so than to mesh it, because the result</span>
+        <span class="c1"># is silently wrong rather than obviously broken -- it is watertight, it</span>
+        <span class="c1"># transports, and the material in the shared region is whichever volume</span>
+        <span class="c1"># DAGMC happens to resolve first.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The mesher names the solids it could not find, but those are the</span>
+        <span class="c1"># synthetic per-solid names from _solid_names, so they are re-expressed</span>
+        <span class="c1"># here as the material tags the caller actually supplied.</span>
+        <span class="n">fused</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span>
+            <span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tag_by_name</span>
+        <span class="p">})</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; The solids tagged </span><span class="si">{</span><span class="n">fused</span><span class="si">}</span><span class="s2"> could not be told apart after imprinting.&quot;</span>
+            <span class="k">if</span> <span class="n">fused</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Overlapping solids in the CAD.&quot;</span> <span class="o">+</span> <span class="n">detail</span> <span class="o">+</span> <span class="s2">&quot; Overlapping geometry is &quot;</span>
+            <span class="s2">&quot;invalid for DAGMC: a region inside two volumes has no single &quot;</span>
+            <span class="s2">&quot;material, so transport through it is not well defined. Resolve the &quot;</span>
+            <span class="s2">&quot;overlaps before meshing, for example by boolean-subtracting the &quot;</span>
+            <span class="s2">&quot;inner solid from the outer one &quot;</span>
+            <span class="s2">&quot;(outer = outer.cut(inner)) so the two share a surface instead of a &quot;</span>
+            <span class="s2">&quot;volume.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_leaf_children</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
