@@ -33,6 +33,20 @@ model.export_dagmc_h5m_file(filename="dagmc.h5m")
 This creates a `dagmc.h5m` file with two volumes tagged with materials
 `mat:tungsten` and `mat:steel`.
 
+:::{important}
+**Solids must not overlap.** DAGMC gives every region exactly one material and
+every surface at most two volumes, so a region sitting inside two solids has no
+well defined material and transport through it is not meaningful.
+
+Note the `.cut(sphere)` above. Without it the sphere would be inside the box, both
+solids would claim the same region, and the resulting file would be quietly wrong:
+watertight, transportable, and using whichever material DAGMC happened to resolve
+first. Overlapping solids are rejected with an error naming the material tags
+involved, rather than meshed.
+
+Solids that *touch* are fine and normal — they share a surface, not a volume.
+:::
+
 ## From a STEP File
 
 <!--pytest-codeblocks:skip-->
