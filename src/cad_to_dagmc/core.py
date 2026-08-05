@@ -2714,7 +2714,11 @@ def _mesh_with_cad_to_dagmc_mesher(
     ``tet_volumes`` and ``target_edge_length`` are supplied.
     """
     try:
-        from cad_to_dagmc_mesher.cad import SolidConfig, mesh_assembly
+        from cad_to_dagmc_mesher.cad import (
+            OverlappingSolidsError,
+            SolidConfig,
+            mesh_assembly,
+        )
     except ImportError as e:
         raise CadToDagmcMesherNotFoundError() from e
 
@@ -2747,18 +2751,56 @@ def _mesh_with_cad_to_dagmc_mesher(
 
     # The mesher imprints internally, so the limit is put on the imprint
     # itself and the meshing keeps all its threads.
-    with imprint_thread_limit(imprint_threads):
-        result = mesh_assembly(
-            assembly,
-            solid_config=configs,
-            imprint=imprint,
+    try:
+        with imprint_thread_limit(imprint_threads):
+            result = mesh_assembly(
+                assembly,
+                solid_config=configs,
+                imprint=imprint,
+            )
+        return (
+            result["vertices"],
+            result["triangles_by_solid_by_face"],
+            [tag_by_name[name] for name in result["material_tags"]],
+            result.get("tet_data"),
         )
-    return (
-        result["vertices"],
-        result["triangles_by_solid_by_face"],
-        [tag_by_name[name] for name in result["material_tags"]],
-        result.get("tet_data"),
-    )
+    except OverlappingSolidsError:
+        # Imprinting overlapping solids fuses them, so the per-solid names no
+        # longer exist in the imprinted compound and solid_config cannot address
+        # them. The positional material_tags path does not depend on names, so it
+        # still meshes this geometry, and it is what this backend used before, so
+        # falling back keeps overlapping CAD working rather than turning it into a
+        # hard error.
+        #
+        # Such CAD is ambiguous for DAGMC — a region belonging to two volumes has
+        # no well defined material — so the mesher is right to flag it. Saying so
+        # is more useful than either failing or staying silent, but refusing to
+        # mesh is not this function's call to make.
+        warnings.warn(
+            "Imprinting fused overlapping solids, so per-solid meshing is not "
+            "available for this geometry and the whole assembly is meshed "
+            "together. Overlapping CAD is also ambiguous for DAGMC transport, "
+            "where a region shared by two volumes has no well defined material. "
+            "Resolving the overlaps (for example by boolean-subtracting the "
+            "intersecting solids) makes the geometry valid and restores per-solid "
+            "meshing."
+        )
+        with imprint_thread_limit(imprint_threads):
+            result = mesh_assembly(
+                assembly,
+                material_tags,
+                tolerance=tolerance,
+                angular_tolerance=angular_tolerance,
+                tet_volumes=tet_volumes,
+                target_edge_length=target_edge_length,
+                imprint=imprint,
+            )
+        return (
+            result["vertices"],
+            result["triangles_by_solid_by_face"],
+            result["material_tags"],
+            result.get("tet_data"),
+        )
 
 
 def _get_all_leaf_children(assembly):
