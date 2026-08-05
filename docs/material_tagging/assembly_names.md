@@ -79,9 +79,12 @@ Parts without explicit names receive auto-generated UUIDs:
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
+sphere = cq.Workplane().sphere(5)
+
 assembly = cq.Assembly()
-assembly.add(cq.Workplane().sphere(5), name="named_part")
-assembly.add(cq.Workplane().box(10, 10, 10))  # No name!
+assembly.add(sphere, name="named_part")
+# cut the sphere out of the box so the two solids do not overlap
+assembly.add(cq.Workplane().box(10, 10, 10).cut(sphere))  # No name!
 
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_names")
