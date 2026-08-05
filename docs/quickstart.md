@@ -10,9 +10,11 @@ Create a simple geometry and convert it to DAGMC format:
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-# Create some geometry with CadQuery
+# Create some geometry with CadQuery. Solids must not overlap: a region that is
+# inside two volumes has no single material, so DAGMC cannot transport through it.
+# Cut the sphere out of the box rather than leaving one sitting inside the other.
 sphere = cq.Workplane("XY").sphere(10)
-box = cq.Workplane("XY").box(30, 30, 30)
+box = cq.Workplane("XY").box(30, 30, 30).cut(sphere)
 
 # Create an assembly
 assembly = cq.Assembly()
