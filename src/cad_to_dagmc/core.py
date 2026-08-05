@@ -1947,7 +1947,9 @@ class CadToDagmc:
                 '"cad-to-dagmc-mesher"'
             )
 
-        assembly = _build_assembly(self.parts, scale_factor)
+        assembly = _build_assembly(
+            self.parts, scale_factor, names=_solid_names(self.material_tags)
+        )
 
         # Default to tetrahedralising every volume. tet_volumes is matched
         # against material tags by the mesher, so pass the material tags.
@@ -2576,7 +2578,10 @@ class CadToDagmc:
 
                 # scale_factor is applied to the geometry before meshing so the
                 # h5m and .vtk match the gmsh/cadquery backends (which scale).
-                mesher_assembly = _build_assembly(self.parts, scale_factor)
+                mesher_assembly = _build_assembly(
+                    self.parts, scale_factor,
+                    names=_solid_names(self.material_tags),
+                )
 
                 vertices, triangles_by_solid_by_face, material_tags_in_brep_order, tet_data = (
                     _mesh_with_cad_to_dagmc_mesher(
@@ -2661,17 +2666,39 @@ class CadToDagmc:
                 gmsh.finalize()
 
 
-def _build_assembly(parts, scale_factor: float = 1.0):
+def _build_assembly(parts, scale_factor: float = 1.0, names=None):
     """Build a CadQuery assembly from parts, optionally scaling each part.
 
     Shape.scale returns a new shape (it does not mutate in place), so the
     original parts in self.parts are left untouched and repeated exports stay
     consistent.
+
+    names, when given, labels each child. cad-to-dagmc-mesher's SolidConfig
+    addresses solids by assembly child name, so naming them is what lets us ask
+    for per-solid meshing rather than the positional material_tags API.
     """
     assembly = cq.Assembly()
-    for part in parts:
-        assembly.add(part.scale(scale_factor) if scale_factor != 1.0 else part)
+    for index, part in enumerate(parts):
+        scaled = part.scale(scale_factor) if scale_factor != 1.0 else part
+        if names is None:
+            assembly.add(scaled)
+        else:
+            assembly.add(scaled, name=names[index])
     return assembly
+
+
+def _solid_names(material_tags) -> list[str]:
+    """Unique per-solid names for the mesher's SolidConfig.
+
+    Material tags cannot be used directly: several solids commonly share one tag
+    and SolidConfig needs a distinct name per solid. Suffixing the index keeps
+    them unique while staying readable, which matters because the mesher prints
+    these names when it reports what it refined.
+
+    The name also carries the input index, so the real tags can be reattached
+    afterwards whatever order the mesher returns solids in.
+    """
+    return [f"{tag}#{i}" for i, tag in enumerate(material_tags)]
 
 
 def _mesh_with_cad_to_dagmc_mesher(
@@ -2687,26 +2714,49 @@ def _mesh_with_cad_to_dagmc_mesher(
     ``tet_volumes`` and ``target_edge_length`` are supplied.
     """
     try:
-        from cad_to_dagmc_mesher.cad import mesh_assembly
+        from cad_to_dagmc_mesher.cad import SolidConfig, mesh_assembly
     except ImportError as e:
         raise CadToDagmcMesherNotFoundError() from e
+
+    # Address solids individually rather than through the positional
+    # material_tags API. Two reasons:
+    #
+    #  - the mesher only refines per solid, and only guards against refinement
+    #    making things worse, on its solid_config path. The material_tags path
+    #    refines the whole assembly and returns whatever the last round produced,
+    #    so on geometry whose fold count grows with refinement it can hand back a
+    #    mesh worse than the one it started from.
+    #  - tags are reattached by name here instead of by position, so the mapping
+    #    survives the mesher returning solids in a different order.
+    names = _solid_names(material_tags)
+    tag_by_name = dict(zip(names, material_tags))
+    tet_tags = set(tet_volumes or ())
+    configs = [
+        SolidConfig(
+            name=name,
+            tolerance=tolerance,
+            angular_tolerance=angular_tolerance,
+            target_edge_length=(
+                target_edge_length
+                if target_edge_length is not None and tag_by_name[name] in tet_tags
+                else None
+            ),
+        )
+        for name in names
+    ]
 
     # The mesher imprints internally, so the limit is put on the imprint
     # itself and the meshing keeps all its threads.
     with imprint_thread_limit(imprint_threads):
         result = mesh_assembly(
             assembly,
-            material_tags,
-            tolerance=tolerance,
-            angular_tolerance=angular_tolerance,
-            tet_volumes=tet_volumes,
-            target_edge_length=target_edge_length,
+            solid_config=configs,
             imprint=imprint,
         )
     return (
         result["vertices"],
         result["triangles_by_solid_by_face"],
-        result["material_tags"],
+        [tag_by_name[name] for name in result["material_tags"]],
         result.get("tet_data"),
     )
 
