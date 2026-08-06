@@ -105,14 +105,27 @@ def combine_tet_meshes(tet_data):
     arrays are concatenated and each solid's tetrahedra are offset by the
     running vertex count so they index into the combined vertex array.
 
+    Solids that were imprinted against each other are meshed from the same
+    surface mesh on the face they share, so each of them carries its own copy
+    of the vertices on that face. Concatenating the arrays leaves those copies
+    as separate points and the result is a mesh that looks like one body but is
+    really several that only touch, which matters to anything solving on it. A
+    finite element solve on such a mesh treats the shared face as an exterior
+    boundary on both sides and nothing crosses it.
+
+    The duplicate coordinates are bit for bit identical, so they are merged
+    here on an exact match. Nothing is merged on proximity, which means solids
+    that do not touch keep their own vertices and stay as separate bodies, as
+    they should.
+
     Args:
         tet_data: Mapping of solid_id -> dict with "vertices" and
             "tetrahedra" entries, as returned by mesh_assembly.
 
     Returns:
         (vertices, tetrahedra): a single (N, 3) float array of vertex
-        coordinates and a single (M, 4) int array of zero-based tetrahedron
-        vertex indices.
+        coordinates with no exact duplicates, and a single (M, 4) int array of
+        zero-based tetrahedron vertex indices.
     """
     all_vertices = []
     all_tetrahedra = []
@@ -127,7 +140,20 @@ def combine_tet_meshes(tet_data):
     if not all_vertices:
         return np.empty((0, 3), dtype=float), np.empty((0, 4), dtype=np.int64)
 
-    return np.vstack(all_vertices), np.vstack(all_tetrahedra)
+    vertices = np.vstack(all_vertices)
+    tetrahedra = np.vstack(all_tetrahedra)
+
+    # first_index maps each kept vertex back to where it first appeared, so the
+    # vertices stay in the order the solids were meshed in rather than being
+    # sorted, and remap turns the old indices into the new ones
+    _, first_index, inverse = np.unique(
+        vertices, axis=0, return_index=True, return_inverse=True
+    )
+    keep = np.sort(first_index)
+    remap = np.empty(len(keep), dtype=np.int64)
+    remap[np.argsort(first_index)] = np.arange(len(keep))
+
+    return vertices[keep], remap[inverse.reshape(-1)][tetrahedra]
 
 
 def resolve_imprint(imprint: bool | int) -> tuple[bool, int | None]:
