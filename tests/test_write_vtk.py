@@ -136,8 +136,14 @@ def test_write_vtk_accepts_numpy_arrays():
         os.unlink(filename)
 
 
-def test_combine_tet_meshes_offsets_indices():
-    """Per-solid tetrahedra must be offset by the running vertex count."""
+def _tet_coordinates(vertices, tetrahedra):
+    """Every tet as a sorted tuple of coordinates, so meshes compare by geometry."""
+    return sorted(tuple(sorted(map(tuple, vertices[tet]))) for tet in tetrahedra)
+
+
+def test_combine_tet_meshes_welds_shared_vertices():
+    """Vertices two solids have in common are merged and the indices remapped."""
+    # the two boxes meet on the x=0 face, so 4 of their 8 corners are in common
     verts_a, tets_a = _box_to_tets(-2, -2, -2, 2, 4, 4)
     verts_b, tets_b = _box_to_tets(0, -2, -2, 2, 4, 4)
 
@@ -149,20 +155,65 @@ def test_combine_tet_meshes_offsets_indices():
 
     vertices, tetrahedra = combine_tet_meshes(tet_data)
 
-    # Vertices are concatenated.
-    assert vertices.shape == (16, 3)
+    # 16 vertices in, the 4 on the shared face kept once, so 12 out
+    assert vertices.shape == (12, 3)
     assert tetrahedra.shape == (12, 4)
+    assert len(np.unique(vertices, axis=0)) == 12
+
+    # the first solid appears first and keeps its own vertices and indices
+    np.testing.assert_array_equal(vertices[:8], verts_a)
+    np.testing.assert_array_equal(tetrahedra[:6], tets_a)
+
+    # the second solid's tets now point at the merged vertices, and every tet
+    # still spans the coordinates it did before the merge
+    assert tetrahedra.max() == 11
+    assert _tet_coordinates(vertices, tetrahedra) == _tet_coordinates(
+        np.vstack([verts_a, verts_b]), np.vstack([tets_a, tets_b + 8])
+    )
+
+
+def test_combine_tet_meshes_leaves_separate_solids_apart():
+    """Solids that do not touch share no vertices, so nothing is merged."""
+    verts_a, tets_a = _box_to_tets(-2, -2, -2, 2, 4, 4)
+    verts_b, tets_b = _box_to_tets(20, -2, -2, 2, 4, 4)
+
+    vertices, tetrahedra = combine_tet_meshes(
+        {
+            1: {"vertices": verts_a, "tetrahedra": tets_a},
+            2: {"vertices": verts_b, "tetrahedra": tets_b},
+        }
+    )
+
+    # nothing is merged on proximity, the two stay as separate bodies
+    assert vertices.shape == (16, 3)
     np.testing.assert_array_equal(vertices[:8], verts_a)
     np.testing.assert_array_equal(vertices[8:], verts_b)
-
-    # Solid 1 tets are unchanged, solid 2 tets are offset by len(verts_a) = 8.
-    np.testing.assert_array_equal(tetrahedra[:6], tets_a)
     np.testing.assert_array_equal(tetrahedra[6:], tets_b + 8)
 
-    # Every index is valid and the two solids reference disjoint vertex ranges.
-    assert tetrahedra.max() == 15
-    assert tetrahedra[:6].max() < 8
-    assert tetrahedra[6:].min() >= 8
+
+def test_combine_tet_meshes_keeps_the_volume():
+    """Merging vertices must not move any geometry."""
+
+    def volume(vertices, tetrahedra):
+        a, b, c, d = (vertices[tetrahedra[:, i]] for i in range(4))
+        return np.abs(np.einsum("ij,ij->i", np.cross(b - a, c - a), d - a) / 6).sum()
+
+    verts_a, tets_a = _box_to_tets(-2, -2, -2, 2, 4, 4)
+    verts_b, tets_b = _box_to_tets(0, -2, -2, 2, 4, 4)
+
+    vertices, tetrahedra = combine_tet_meshes(
+        {
+            1: {"vertices": verts_a, "tetrahedra": tets_a},
+            2: {"vertices": verts_b, "tetrahedra": tets_b},
+        }
+    )
+
+    # two boxes of 2 by 4 by 4
+    assert volume(vertices, tetrahedra) == pytest.approx(64.0)
+    assert not (
+        np.abs(volume(vertices, tetrahedra) - volume(verts_a, tets_a)
+               - volume(verts_b, tets_b)) > 1e-12
+    )
 
 
 def test_combine_tet_meshes_empty():
