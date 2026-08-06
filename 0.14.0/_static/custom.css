@@ -1,0 +1,68 @@
+/* Custom styles for cad_to_dagmc documentation */
+
+/* Light and dark variants of an image, for example the workflow diagram.
+   The theme sets data-theme on the html element when the mode is switched. */
+html[data-theme="light"] .only-dark,
+html[data-theme="dark"] .only-light {
+    display: none !important;
+}
+
+.only-light,
+.only-dark {
+    margin: 1em auto 2em auto;
+}
+
+/* Code block styling */
+div.highlight {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+div.highlight pre {
+    font-size: 0.875em;
+    line-height: 1.6;
+    padding: 1em;
+    margin: 0;
+}
+
+/* Inline code. The background has to come from the theme variable rather than a
+   fixed colour: the theme keeps its own inline code text colour per mode (a dark
+   magenta in light mode, a pale pink in dark mode), so pinning a light background
+   here leaves pale pink on near white and the text cannot be read in dark mode. */
+code.literal {
+    background: var(--pst-color-surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+}
+
+/* Admonition styling */
+.admonition {
+    margin: 1.5em 0;
+    padding: 1em 1.25em;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+/* Same again for the admonition backgrounds, which otherwise stay near white in
+   dark mode while the body text stays light. The notch colours are saturated
+   mid tones that read against either background, so those stay fixed. */
+.admonition.note {
+    background: var(--pst-color-info-bg);
+    border-left-color: #3b82f6;
+}
+
+.admonition.warning {
+    background: var(--pst-color-warning-bg);
+    border-left-color: #eab308;
+}
+
+.admonition-title {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+}
