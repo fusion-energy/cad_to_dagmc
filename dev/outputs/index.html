@@ -515,16 +515,16 @@ write a conformal surface and volume mesh pair in a single call.</p>
 
 <span class="c1"># Create geometry</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 
 <span class="c1"># Initialize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
 <span class="c1"># Export to different formats</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>           <span class="c1"># Surface mesh</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">)</span>    <span class="c1"># Volume mesh</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;mesh.msh&quot;</span><span class="p">)</span>             <span class="c1"># GMSH format</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>           <span class="c1"># Surface mesh</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">)</span>    <span class="c1"># Volume mesh</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">)</span>             <span class="c1"># GMSH format</span>
 </pre></div>
 </div>
 </section>

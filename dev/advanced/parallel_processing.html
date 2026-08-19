@@ -458,7 +458,7 @@
 <p>Imprinting is usually the most memory hungry parallel step. The export methods take the thread count directly on the <code class="docutils literal notranslate"><span class="pre">imprint</span></code> argument, so there is no need to change any global setting:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">imprint</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># imprint on a single thread, the lowest peak RAM</span>
 <span class="p">)</span>
 </pre></div>
@@ -503,7 +503,7 @@ python<span class="w"> </span>my_script.py
 <p>Or in Python:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;4&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"OMP_NUM_THREADS"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"4"</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
@@ -523,10 +523,10 @@ python<span class="w"> </span>my_script.py
 <span class="n">gmsh_obj</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">init_gmsh</span><span class="p">()</span>
 
 <span class="c1"># Limit parallel meshing to 4 threads</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.NumThreads&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MaxNumThreads1D&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MaxNumThreads2D&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MaxNumThreads3D&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"General.NumThreads"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MaxNumThreads1D"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MaxNumThreads2D"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MaxNumThreads3D"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="c1"># ... continue with meshing ...</span>
 </pre></div>
@@ -574,7 +574,7 @@ python<span class="w"> </span>my_script.py
 <h2>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">#</a></h2>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;4&quot;</span>  <span class="c1"># For CadQuery</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"OMP_NUM_THREADS"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"4"</span>  <span class="c1"># For CadQuery</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
@@ -586,16 +586,16 @@ python<span class="w"> </span>my_script.py
 
 <span class="c1"># Create geometry</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
 
 <span class="c1"># Initialize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
 
 <span class="c1"># For advanced GMSH control</span>
 <span class="n">gmsh_obj</span> <span class="o">=</span> <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">init_gmsh</span><span class="p">()</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.NumThreads&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MaxNumThreads2D&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"General.NumThreads"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MaxNumThreads2D"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="c1"># ... continue with export ...</span>
 </pre></div>

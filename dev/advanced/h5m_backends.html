@@ -446,8 +446,8 @@
 <p>The h5py backend writes h5m files using the h5py library directly. This is the default because it doesn’t require MOAB to be installed.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>  <span class="c1"># Default</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>  <span class="c1"># Default</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -469,8 +469,8 @@
 <p>The pymoab backend uses the official MOAB library to write h5m files.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;pymoab&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -510,7 +510,7 @@ to be installed separately. Both of the first two options below are one liners:<
 <h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
 <p>If you request pymoab but it’s not installed:</p>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;pymoab&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">)</span>
 <span class="go">PyMoabNotFoundError: pymoab is not installed. pymoab/MOAB is not available</span>
 <span class="go">on PyPI so it cannot be included as a dependency of cad-to-dagmc.</span>
 
@@ -520,7 +520,7 @@ to be installed separately. Both of the first two options below are one liners:<
 <span class="go">  3. From source: https://bitbucket.org/fathomteam/moab</span>
 
 <span class="go">Alternatively, use the h5py backend (the default) which does not require pymoab:</span>
-<span class="go">  export_dagmc_h5m_file(..., h5m_backend=&#39;h5py&#39;)</span>
+<span class="go">  export_dagmc_h5m_file(..., h5m_backend='h5py')</span>
 </pre></div>
 </div>
 </section>
@@ -538,21 +538,21 @@ to be installed separately. Both of the first two options below are one liners:<
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere2</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
 <span class="c1"># Export using h5py backend</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc_h5py.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_h5py.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created dagmc_h5py.h5m using h5py backend&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Created dagmc_h5py.h5m using h5py backend"</span><span class="p">)</span>
 
 <span class="c1"># Export using pymoab backend (requires MOAB)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc_pymoab.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;pymoab&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_pymoab.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created dagmc_pymoab.h5m using pymoab backend&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Created dagmc_pymoab.h5m using pymoab backend"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

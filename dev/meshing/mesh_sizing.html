@@ -460,25 +460,25 @@
 <span class="n">default_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fine&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"global"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="c1"># Check available material tags</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Material tags:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
-<span class="c1"># Output: Material tags: [&#39;coarse&#39;, &#39;fine&#39;, &#39;global&#39;]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Material tags:"</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
+<span class="c1"># Output: Material tags: ['coarse', 'fine', 'global']</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;different_resolution_meshes.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for this volume</span>
-        <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Fine mesh for this volume</span>
-        <span class="c1"># &quot;global&quot; not specified - uses min/max only</span>
+        <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for this volume</span>
+        <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Fine mesh for this volume</span>
+        <span class="c1"># "global" not specified - uses min/max only</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -491,8 +491,8 @@
 <p>Use material tag names (recommended):</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">&quot;fuel&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># All volumes with &quot;fuel&quot; tag</span>
-    <span class="s2">&quot;coolant&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All volumes with &quot;coolant&quot; tag</span>
+    <span class="s2">"fuel"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># All volumes with "fuel" tag</span>
+    <span class="s2">"coolant"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All volumes with "coolant" tag</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -515,7 +515,7 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
     <span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>           <span class="c1"># Volume 1 specifically</span>
-    <span class="s2">&quot;coolant&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All coolant volumes</span>
+    <span class="s2">"coolant"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All coolant volumes</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -536,29 +536,29 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="c1"># Create geometry with different mesh requirements</span>
-<span class="n">shield_inner</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">shield_outer</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">casing</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">shield_inner</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">shield_outer</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">casing</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_inner</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;shield_inner&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_outer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;shield_outer&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">casing</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;casing&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_inner</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"shield_inner"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_outer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"shield_outer"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">casing</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"casing"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="c1"># Fine mesh on inner shield (where neutrons interact most)</span>
 <span class="c1"># Coarse mesh on casing (less important)</span>
 <span class="c1"># Default mesh on outer shield</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;shielding.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"shielding.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;shield_inner&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># Fine mesh</span>
-        <span class="s2">&quot;casing&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>        <span class="c1"># Coarse mesh</span>
-        <span class="c1"># &quot;shield_outer&quot; uses global min/max</span>
+        <span class="s2">"shield_inner"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># Fine mesh</span>
+        <span class="s2">"casing"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>        <span class="c1"># Coarse mesh</span>
+        <span class="c1"># "shield_outer" uses global min/max</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -575,22 +575,22 @@
 <span class="n">default_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fine&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"global"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="c1"># GMSH mesh file with per-volume sizing</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;different_resolution_meshes.msh&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.msh"</span><span class="p">,</span>
     <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-        <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+        <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -607,7 +607,7 @@
 <p><strong>Checking tags</strong>: After adding geometry, check <code class="docutils literal notranslate"><span class="pre">model.material_tags</span></code> to see available tag names:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
 </pre></div>
 </div>

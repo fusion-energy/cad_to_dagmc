@@ -455,20 +455,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="c1"># Create some boxes (with void space between them)</span>
-<span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
-<span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">&quot;air&quot;</span><span class="p">,</span>  <span class="c1"># Tag the void as &quot;air&quot;</span>
+    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">,</span>  <span class="c1"># Tag the void as "air"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -480,19 +480,19 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
 <span class="c1"># Define the implicit complement material</span>
-<span class="n">air</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;air&quot;</span><span class="p">)</span>
-<span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">)</span>
-<span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">)</span>
-<span class="n">air</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">0.001225</span><span class="p">)</span>
+<span class="n">air</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"air"</span><span class="p">)</span>
+<span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"N"</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">)</span>
+<span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"O"</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">)</span>
+<span class="n">air</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001225</span><span class="p">)</span>
 
 <span class="c1"># Other materials...</span>
-<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mat1&quot;</span><span class="p">)</span>
+<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"mat1"</span><span class="p">)</span>
 <span class="c1"># ...</span>
 
 <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">air</span><span class="p">,</span> <span class="n">mat1</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
 
 <span class="c1"># Load DAGMC geometry</span>
-<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -504,10 +504,10 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
 
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;mesh.msh&quot;</span><span class="p">,</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">],</span>
-    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">&quot;void&quot;</span><span class="p">,</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">],</span>
+    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"void"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

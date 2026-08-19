@@ -454,13 +454,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
 <span class="p">)</span>
@@ -472,7 +472,7 @@
 <p>The <a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> writes the vtk file without GMSH. The tetrahedra size is controlled with a single <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> argument, which also selects the backend automatically:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -480,9 +480,9 @@
 <p>Optionally restrict which volumes are filled with tetrahedra using their material tag names:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">],</span>
+    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -514,10 +514,10 @@
 
 <span class="c1"># Create gear with twist</span>
 <span class="n">gear_shape</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span>
+    <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span>
     <span class="o">.</span><span class="n">parametricCurve</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">gear</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="o">.</span><span class="n">twistExtrude</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">faces</span><span class="p">(</span><span class="s2">&quot;&gt;Z&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">faces</span><span class="p">(</span><span class="s2">"&gt;Z"</span><span class="p">)</span>
     <span class="o">.</span><span class="n">workplane</span><span class="p">()</span>
     <span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="o">.</span><span class="n">cutThruAll</span><span class="p">()</span>
@@ -528,16 +528,16 @@
     <span class="p">(</span><span class="mf">2.75</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
     <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span>
 <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">spline</span><span class="p">(</span><span class="n">spline_points</span><span class="p">,</span> <span class="n">includeCurrent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">spline_shape</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">extrude</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">gear_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">spline_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">gear_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">spline_shape</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat2"</span><span class="p">])</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
 <span class="p">)</span>
@@ -549,7 +549,7 @@
 <p>Export only certain volumes to the VTK file:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;partial_mesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"partial_mesh.vtk"</span><span class="p">,</span>
     <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>  <span class="c1"># Only include volumes 1 and 3</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
@@ -568,7 +568,7 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
 <h3><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code><a class="headerlink" href="#export-unstructured-mesh-file" title="Link to this heading">#</a></h3>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>     <span class="c1"># Output file path</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>     <span class="c1"># Output file path</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Minimum element size (gmsh backend)</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>       <span class="c1"># Maximum element size (gmsh backend)</span>
     <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>         <span class="c1"># GMSH algorithm (1-10)</span>
@@ -576,8 +576,8 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
     <span class="n">volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>             <span class="c1"># Specific volumes to include (gmsh backend)</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
     <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Imprint shared surfaces</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>            <span class="c1"># CAD transfer method (gmsh backend)</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>     <span class="c1"># &quot;gmsh&quot;, &quot;cad-to-dagmc-mesher&quot; or auto-select</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"file"</span><span class="p">,</span>            <span class="c1"># CAD transfer method (gmsh backend)</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>     <span class="c1"># "gmsh", "cad-to-dagmc-mesher" or auto-select</span>
     <span class="n">target_edge_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Tet edge length (cad-to-dagmc-mesher backend)</span>
     <span class="n">tet_volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>         <span class="c1"># Volumes to fill with tets (cad-to-dagmc-mesher backend)</span>
 <span class="p">)</span>
@@ -675,13 +675,13 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
 <span class="c1"># Create mesh from VTK file</span>
-<span class="n">mesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">&quot;moab&quot;</span><span class="p">)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">"moab"</span><span class="p">)</span>
 
 <span class="c1"># Create tally with mesh filter</span>
 <span class="n">mesh_filter</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">MeshFilter</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
 <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">()</span>
 <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh_filter</span><span class="p">]</span>
-<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="s2">&quot;heating&quot;</span><span class="p">]</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"flux"</span><span class="p">,</span> <span class="s2">"heating"</span><span class="p">]</span>
 
 <span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
 </pre></div>
@@ -695,40 +695,40 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
 <span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
 <span class="c1"># Create geometry</span>
-<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 
 <span class="c1"># Export both surface and volume mesh</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
 
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">)</span>
 
 <span class="c1"># Set up OpenMC</span>
-<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mat1&quot;</span><span class="p">)</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">&quot;ao&quot;</span><span class="p">)</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"mat1"</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
 <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">mat1</span><span class="p">])</span>
 
 <span class="c1"># Geometry from DAGMC</span>
-<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
 
 <span class="c1"># Unstructured mesh tally</span>
-<span class="n">umesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">&quot;moab&quot;</span><span class="p">)</span>
+<span class="n">umesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="s2">"umesh.vtk"</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">"moab"</span><span class="p">)</span>
 <span class="n">mesh_filter</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">MeshFilter</span><span class="p">(</span><span class="n">umesh</span><span class="p">)</span>
-<span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mesh_tally&quot;</span><span class="p">)</span>
+<span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"mesh_tally"</span><span class="p">)</span>
 <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh_filter</span><span class="p">]</span>
-<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"flux"</span><span class="p">]</span>
 <span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
 
 <span class="c1"># Settings</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">5000</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;fixed source&quot;</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"fixed source"</span>
 
 <span class="c1"># Run</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">tallies</span><span class="p">)</span>

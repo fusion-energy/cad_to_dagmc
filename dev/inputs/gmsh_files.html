@@ -452,22 +452,22 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
 
 <span class="c1"># First, create a GMSH file (for this example)</span>
-<span class="n">result1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
-<span class="n">result2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">result1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">result2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result1</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result2</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;two_connected_cubes.stp&quot;</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"two_connected_cubes.stp"</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">"STEP"</span><span class="p">)</span>
 
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">geometry</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span><span class="s2">&quot;two_connected_cubes.stp&quot;</span><span class="p">)</span>
-<span class="n">geometry</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;example_gmsh_mesh.msh&quot;</span><span class="p">)</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span><span class="s2">"two_connected_cubes.stp"</span><span class="p">)</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"example_gmsh_mesh.msh"</span><span class="p">)</span>
 
 <span class="c1"># Now convert the GMSH file to DAGMC</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;example_gmsh_mesh.msh&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">],</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"example_gmsh_mesh.msh"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">],</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -480,9 +480,9 @@
 
 <span class="c1"># Material tags are read from GMSH physical groups</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;mesh_with_physical_groups.msh&quot;</span><span class="p">,</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh_with_physical_groups.msh"</span><span class="p">,</span>
     <span class="c1"># No material_tags needed - uses physical groups</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -501,23 +501,23 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">assembly_mesh_plugin</span>
 
 <span class="c1"># Create assembly with named parts</span>
-<span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-<span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;first_material&quot;</span><span class="p">)</span>   <span class="c1"># Name becomes physical group</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;second_material&quot;</span><span class="p">)</span>  <span class="c1"># Name becomes physical group</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"first_material"</span><span class="p">)</span>   <span class="c1"># Name becomes physical group</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"second_material"</span><span class="p">)</span>  <span class="c1"># Name becomes physical group</span>
 
 <span class="c1"># getTaggedGmsh initializes gmsh and creates mesh with physical groups</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">getTaggedGmsh</span><span class="p">()</span>
 
 <span class="c1"># Set mesh parameters</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MeshSizeMax&quot;</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MeshSizeMax"</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">)</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 2D surface mesh for DAGMC</span>
 
 <span class="c1"># Export to DAGMC - physical groups become material tags</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc_from_gmsh_object.h5m&quot;</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_from_gmsh_object.h5m"</span>
 <span class="p">)</span>
 
 <span class="c1"># Clean up GMSH</span>
@@ -534,12 +534,12 @@
 
 <span class="c1"># Initialize and set up GMSH</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;mesh.msh&quot;</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"mesh.msh"</span><span class="p">)</span>
 
 <span class="c1"># Export directly from the GMSH object</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">],</span>  <span class="c1"># Optional: override physical groups</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">],</span>  <span class="c1"># Optional: override physical groups</span>
 <span class="p">)</span>
 
 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
@@ -555,30 +555,30 @@
 
 <span class="c1"># Convert GMSH file (with physical groups) to DAGMC</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">&quot;tagged_mesh.msh&quot;</span><span class="p">,</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"tagged_mesh.msh"</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Set up OpenMC materials (names match physical groups)</span>
-<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;shell&quot;</span><span class="p">)</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">&quot;ao&quot;</span><span class="p">)</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"shell"</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
+<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
 
-<span class="n">mat2</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span><span class="p">)</span>
-<span class="n">mat2</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">&quot;ao&quot;</span><span class="p">)</span>
-<span class="n">mat2</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">)</span>
+<span class="n">mat2</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"insert"</span><span class="p">)</span>
+<span class="n">mat2</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
+<span class="n">mat2</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">)</span>
 
 <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">mat1</span><span class="p">,</span> <span class="n">mat2</span><span class="p">])</span>
 
 <span class="c1"># Load DAGMC geometry</span>
-<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
 
 <span class="c1"># Configure and run</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;fixed source&quot;</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"fixed source"</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -592,10 +592,10 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">gmsh_filename</span><span class="p">,</span>                        <span class="c1"># Path to GMSH .msh file</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>           <span class="c1"># Output DAGMC file</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>           <span class="c1"># Output DAGMC file</span>
     <span class="n">material_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>                   <span class="c1"># Optional: override physical groups</span>
     <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="c1"># Optional: void material tag</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>                   <span class="c1"># &quot;h5py&quot; or &quot;pymoab&quot;</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>                   <span class="c1"># "h5py" or "pymoab"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -604,10 +604,10 @@
 <h3><code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file()</span></code><a class="headerlink" href="#export-gmsh-object-to-dagmc-h5m-file" title="Link to this heading">#</a></h3>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>                 <span class="c1"># Output DAGMC file</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>                 <span class="c1"># Output DAGMC file</span>
     <span class="n">material_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>                   <span class="c1"># Optional: override physical groups</span>
     <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="c1"># Optional: void material tag</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>                   <span class="c1"># &quot;h5py&quot; or &quot;pymoab&quot;</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>                   <span class="c1"># "h5py" or "pymoab"</span>
 <span class="p">)</span>
 </pre></div>
 </div>

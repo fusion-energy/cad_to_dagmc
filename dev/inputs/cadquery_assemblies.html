@@ -457,7 +457,7 @@
 
 <span class="c1"># Convert with manual tags</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -472,13 +472,13 @@
 <span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>      <span class="c1"># Name becomes material tag</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;steel&quot;</span><span class="p">)</span>   <span class="c1"># Name becomes material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>      <span class="c1"># Name becomes material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>   <span class="c1"># Name becomes material tag</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span>  <span class="c1"># Use part names as tags</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span>  <span class="c1"># Use part names as tags</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
 </pre></div>
@@ -500,13 +500,13 @@ Always name your parts to ensure meaningful material tags.</p>
 <span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">))</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;small_sphere&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;steel&quot;</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"tungsten"</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"small_sphere"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"steel"</span><span class="p">))</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span>  <span class="c1"># Use Material objects as tags</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span>  <span class="c1"># Use Material objects as tags</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
 </pre></div>
@@ -528,22 +528,22 @@ Always name your parts to ensure meaningful material tags.</p>
 <span class="n">default_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fine&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"default"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="c1"># Use material tag names in set_size</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;different_resolution_meshes.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for this material</span>
-        <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Fine mesh for this material</span>
-        <span class="c1"># &quot;default&quot; not specified - uses global min/max</span>
+        <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for this material</span>
+        <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Fine mesh for this material</span>
+        <span class="c1"># "default" not specified - uses global min/max</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -558,18 +558,18 @@ Always name your parts to ensure meaningful material tags.</p>
 
 <span class="c1"># Create sub-assemblies</span>
 <span class="n">fuel_assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">fuel_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fuel_pin_1&quot;</span><span class="p">)</span>
-<span class="n">fuel_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fuel_pin_2&quot;</span><span class="p">)</span>
+<span class="n">fuel_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fuel_pin_1"</span><span class="p">)</span>
+<span class="n">fuel_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fuel_pin_2"</span><span class="p">)</span>
 
 <span class="n">coolant</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
 
 <span class="c1"># Create main assembly with nested assembly</span>
 <span class="n">main_assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">main_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fuel_assembly</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fuel&quot;</span><span class="p">)</span>  <span class="c1"># Nested assembly</span>
-<span class="n">main_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coolant</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coolant&quot;</span><span class="p">)</span>
+<span class="n">main_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fuel_assembly</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fuel"</span><span class="p">)</span>  <span class="c1"># Nested assembly</span>
+<span class="n">main_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coolant</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coolant"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">main_assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">main_assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
 </pre></div>
 </div>

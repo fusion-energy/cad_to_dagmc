@@ -448,13 +448,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
 <span class="p">)</span>
@@ -476,18 +476,18 @@
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere2</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
 <span class="c1"># Export using h5py backend (default, no MOAB needed)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc_h5py.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;h5py&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_h5py.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Export using pymoab backend (requires MOAB installation)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc_pymoab.h5m&quot;</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">&quot;pymoab&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_pymoab.h5m"</span><span class="p">,</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -498,25 +498,25 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cad-to-dagmc-mesher backend (default) - surface and volume meshing</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;cad-to-dagmc-mesher&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
     <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># GMSH backend - full control over mesh parameters</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
     <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># CadQuery backend - simpler, uses CadQuery&#39;s tessellation</span>
+<span class="c1"># CadQuery backend - simpler, uses CadQuery's tessellation</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;cadquery&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cadquery"</span><span class="p">,</span>
     <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
 <span class="p">)</span>
@@ -757,25 +757,25 @@ when <code class="docutils literal notranslate"><span class="pre">unstructured_v
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
 <span class="c1"># Define materials (names must match material tags)</span>
-<span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>
-<span class="n">tungsten</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-<span class="n">tungsten</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">19.3</span><span class="p">)</span>
+<span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
+<span class="n">tungsten</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"W"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">tungsten</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">19.3</span><span class="p">)</span>
 
-<span class="n">steel</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;steel&quot;</span><span class="p">)</span>
-<span class="n">steel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-<span class="n">steel</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">&quot;g/cm3&quot;</span><span class="p">,</span> <span class="mf">7.8</span><span class="p">)</span>
+<span class="n">steel</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>
+<span class="n">steel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"Fe"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">steel</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">7.8</span><span class="p">)</span>
 
 <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">tungsten</span><span class="p">,</span> <span class="n">steel</span><span class="p">])</span>
 
 <span class="c1"># Load the DAGMC geometry</span>
-<span class="n">dag_universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">dag_universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dag_universe</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">())</span>
 
 <span class="c1"># Set up settings</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;fixed source&quot;</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"fixed source"</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>

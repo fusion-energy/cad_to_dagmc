@@ -455,11 +455,11 @@
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">&quot;gmsh&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">,</span>
 <span class="p">)</span>
@@ -471,7 +471,7 @@
 <p>Control overall mesh density:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>   <span class="c1"># Minimum element size</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>  <span class="c1"># Maximum element size</span>
 <span class="p">)</span>
@@ -484,7 +484,7 @@
 <p>GMSH provides multiple meshing algorithms:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>  <span class="c1"># Frontal-Delaunay</span>
 <span class="p">)</span>
 </pre></div>
@@ -542,21 +542,21 @@
 <span class="n">default_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fine&quot;</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"global"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;different_resolution_meshes.h5m&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.h5m"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># By material tag name</span>
-        <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-        <span class="c1"># &quot;global&quot; uses min/max only</span>
+        <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># By material tag name</span>
+        <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="c1"># "global" uses min/max only</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -569,14 +569,14 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># File method (default) - more compatible</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>  <span class="c1"># Write temp BREP file</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"file"</span><span class="p">,</span>  <span class="c1"># Write temp BREP file</span>
 <span class="p">)</span>
 
 <span class="c1"># In-memory method - faster for large geometries</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">,</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;in memory&quot;</span><span class="p">,</span>  <span class="c1"># Direct transfer</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"in memory"</span><span class="p">,</span>  <span class="c1"># Direct transfer</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -613,15 +613,15 @@
 <span class="c1"># ... add geometry and configure mesh ...</span>
 
 <span class="c1"># Set advanced GMSH options</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.OptimizeNetgen&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Smoothing&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.OptimizeNetgen"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.Smoothing"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.Algorithm"</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 
 <span class="c1"># Generate mesh</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Export</span>
-<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 
 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 </pre></div>
@@ -636,14 +636,14 @@ CadQuery backend does not:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
 
 <span class="c1"># Volume mesh for unstructured mesh tallies</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;umesh.vtk&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
 <span class="p">)</span>

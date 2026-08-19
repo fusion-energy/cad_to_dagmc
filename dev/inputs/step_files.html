@@ -453,10 +453,10 @@
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;geometry.step&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">]</span>  <span class="c1"># One tag per volume in the file</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry.step"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">]</span>  <span class="c1"># One tag per volume in the file</span>
 <span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -471,17 +471,17 @@
 <span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>  <span class="c1"># Name will become material tag</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;steel&quot;</span><span class="p">)</span>        <span class="c1"># Name will become material tag</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;my_assembly.stp&quot;</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>  <span class="c1"># Name will become material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>        <span class="c1"># Name will become material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"my_assembly.stp"</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">"STEP"</span><span class="p">)</span>
 
 <span class="c1"># Load the STEP file using assembly names</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;my_assembly.stp&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_names&quot;</span><span class="p">,</span>  <span class="c1"># Automatically extract names from STEP</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"my_assembly.stp"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">,</span>  <span class="c1"># Automatically extract names from STEP</span>
 <span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -497,17 +497,17 @@
 <span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere_part&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;gold&quot;</span><span class="p">))</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;box_part&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;silver&quot;</span><span class="p">))</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;my_assembly.stp&quot;</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere_part"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"gold"</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box_part"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"silver"</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"my_assembly.stp"</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">"STEP"</span><span class="p">)</span>
 
 <span class="c1"># Load the STEP file using assembly materials</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;my_assembly.stp&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span><span class="p">,</span>  <span class="c1"># Extract materials from STEP</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"my_assembly.stp"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span><span class="p">,</span>  <span class="c1"># Extract materials from STEP</span>
 <span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;dagmc.h5m&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -522,27 +522,27 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="c1"># Create and save STEP files</span>
-<span class="n">result1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
-<span class="n">result2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">result1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="n">result2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result1</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result2</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;two_connected_cubes.stp&quot;</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"two_connected_cubes.stp"</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">"STEP"</span><span class="p">)</span>
 
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">sphere_assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">sphere_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
-<span class="n">sphere_assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;single_sphere.stp&quot;</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">&quot;STEP&quot;</span><span class="p">)</span>
+<span class="n">sphere_assembly</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"single_sphere.stp"</span><span class="p">,</span> <span class="n">exportType</span><span class="o">=</span><span class="s2">"STEP"</span><span class="p">)</span>
 
 <span class="c1"># Load multiple STEP files</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;two_connected_cubes.stp&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">,</span> <span class="s2">&quot;mat2&quot;</span><span class="p">],</span>  <span class="c1"># This file has 2 volumes</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"two_connected_cubes.stp"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">],</span>  <span class="c1"># This file has 2 volumes</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;single_sphere.stp&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat3&quot;</span><span class="p">],</span>  <span class="c1"># This file has 1 volume</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"single_sphere.stp"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat3"</span><span class="p">],</span>  <span class="c1"># This file has 1 volume</span>
 <span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
@@ -566,18 +566,18 @@
 
 <span class="c1"># Add STEP file (in mm)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;component.step&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steel&quot;</span><span class="p">],</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"component.step"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Convert mm to cm</span>
 <span class="p">)</span>
 
 <span class="c1"># Add CadQuery object (already in cm)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">sphere</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tungsten&quot;</span><span class="p">],</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">],</span>
 <span class="p">)</span>
 
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;combined.h5m&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"combined.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -586,8 +586,8 @@
 <p>STEP files from CAD software often use different units. Use <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to convert:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;geometry_in_mm.step&quot;</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mat1&quot;</span><span class="p">],</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry_in_mm.step"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">],</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># mm to cm (for neutronics)</span>
 <span class="p">)</span>
 </pre></div>
@@ -607,7 +607,7 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">,</span>             <span class="c1"># Path to the STEP file</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># List of tags, or &quot;assembly_names&quot;/&quot;assembly_materials&quot;</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># List of tags, or "assembly_names"/"assembly_materials"</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>     <span class="c1"># Geometry scaling factor</span>
 <span class="p">)</span>
 </pre></div>
@@ -646,9 +646,9 @@
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 
-<span class="n">shape</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importStep</span><span class="p">(</span><span class="s2">&quot;geometry.step&quot;</span><span class="p">)</span>
+<span class="n">shape</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importStep</span><span class="p">(</span><span class="s2">"geometry.step"</span><span class="p">)</span>
 <span class="n">num_volumes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File has </span><span class="si">{</span><span class="n">num_volumes</span><span class="si">}</span><span class="s2"> volumes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File has </span><span class="si">{</span><span class="n">num_volumes</span><span class="si">}</span><span class="s2"> volumes"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

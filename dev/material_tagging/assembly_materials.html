@@ -451,13 +451,13 @@
 <span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;large_sphere&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">))</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;small_sphere&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;steel&quot;</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"large_sphere"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"tungsten"</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"small_sphere"</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"steel"</span><span class="p">))</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span>  <span class="c1"># Use Material objects as tags</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span>  <span class="c1"># Use Material objects as tags</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
 </pre></div>
@@ -500,25 +500,25 @@
 <span class="c1"># Name describes geometry, material describes composition</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;inner_shield&quot;</span><span class="p">,</span>           <span class="c1"># Geometric description</span>
-    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>  <span class="c1"># Material composition</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"inner_shield"</span><span class="p">,</span>           <span class="c1"># Geometric description</span>
+    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"tungsten"</span><span class="p">)</span>  <span class="c1"># Material composition</span>
 <span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outer_shield&quot;</span><span class="p">,</span>           <span class="c1"># Geometric description</span>
-    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>  <span class="c1"># Same material!</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"outer_shield"</span><span class="p">,</span>           <span class="c1"># Geometric description</span>
+    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"tungsten"</span><span class="p">)</span>  <span class="c1"># Same material!</span>
 <span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;coolant_channel&quot;</span><span class="p">,</span>
-    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;water&quot;</span><span class="p">)</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"coolant_channel"</span><span class="p">,</span>
+    <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"water"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
-<span class="c1"># Output: [&#39;tungsten&#39;, &#39;tungsten&#39;, &#39;water&#39;]</span>
+<span class="c1"># Output: ['tungsten', 'tungsten', 'water']</span>
 </pre></div>
 </div>
 </section>
@@ -535,13 +535,13 @@
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
         <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;fuel_pin_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">&quot;tungsten&quot;</span><span class="p">)</span>  <span class="c1"># All share same material</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"fuel_pin_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">material</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="s2">"tungsten"</span><span class="p">)</span>  <span class="c1"># All share same material</span>
     <span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span><span class="p">)</span>
-<span class="c1"># All 5 volumes tagged with &quot;tungsten&quot;</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span><span class="p">)</span>
+<span class="c1"># All 5 volumes tagged with "tungsten"</span>
 </pre></div>
 </div>
 </section>
@@ -552,9 +552,9 @@
 <p><strong>CadQuery version</strong>: This feature requires CadQuery &gt; 2.6.1.</p>
 <p><strong>All parts need materials</strong>: Every part must have a material assigned, or you’ll get an error:</p>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>  <span class="c1"># No material!</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">&quot;assembly_materials&quot;</span><span class="p">)</span>
-<span class="c1"># ValueError: Part &#39;sphere&#39; has no material assigned</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>  <span class="c1"># No material!</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_materials"</span><span class="p">)</span>
+<span class="c1"># ValueError: Part 'sphere' has no material assigned</span>
 </pre></div>
 </div>
 </div>
