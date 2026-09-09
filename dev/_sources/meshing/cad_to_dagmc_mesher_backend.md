@@ -2,6 +2,29 @@
 
 The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs `pip install cad-to-dagmc-mesher` to use it. See [Installation](../installation.md#optional-packages).
 
+## Why a Neutronics-Specific Mesh?
+
+Finite-element meshes generally aims for regularly sized, near-equilateral
+elements throughout every surface because element shape and size affect the
+accuracy of field interpolation.
+
+DAGMC surface meshes serve a different purpose: particle tracking only needs
+a conforming, watertight representation of each boundary. A purpose-built
+neutronics mesh can therefore preserve curved geometry to the requested
+tolerance while representing large planar regions with very few triangles.
+Fewer triangles mean fewer candidate intersections during tracking and can
+improve particle throughput as shown by the plot on the right hand side of the diagram.
+
+The comparison below uses a simple cube with an embedded sphere to demonstrate that
+a neutronics specific mesh can get better volume accuracy with less triangles which
+results in faster and more accurate simulations.
+
+
+```{image} ../_static/mesher_comparison.png
+:alt: Three-panel comparison. A uniformly triangulated FEM mesh with box and sphere volume accuracy is on the left, a curvature-adaptive neutronics mesh with minimally triangulated planar cube faces and volume accuracy is in the middle, and measured OpenMC particle throughput versus triangle count is on the right.
+:width: 100%
+```
+
 ## Surface Mesh (h5m)
 
 <!--pytest-codeblocks:skip-->

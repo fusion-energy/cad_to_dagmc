@@ -236,9 +236,9 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -475,7 +475,7 @@ filenames. See <a class="reference internal" href="outputs/conformal_meshes.html
 <tr class="row-even"><td><p><strong>Three Meshing Backends</strong></p></td>
 <td><p><strong>Multiple Output Formats</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)<br>- cad-to-dagmc-mesher (surface and volume meshing)</p></td>
+<tr class="row-odd"><td><p>- cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)</p></td>
 <td><p>- DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Two H5M Backends</strong></p></td>
@@ -679,6 +679,18 @@ filenames. See <a class="reference internal" href="outputs/conformal_meshes.html
 <li class="toctree-l2"><a class="reference internal" href="meshing/index.html#mesh-sizing-overview">Mesh Sizing Overview</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#why-a-neutronics-specific-mesh">Why a Neutronics-Specific Mesh?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#backend-auto-selection">Backend Auto-Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#advantages">Advantages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#see-also">See Also</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#basic-usage">Basic Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#mesh-size-parameters">Mesh Size Parameters</a></li>
@@ -699,17 +711,6 @@ filenames. See <a class="reference internal" href="outputs/conformal_meshes.html
 <li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#when-to-use-cadquery-backend">When to Use CadQuery Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#comparison-example">Comparison Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#see-also">See Also</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#backend-auto-selection">Backend Auto-Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#advantages">Advantages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#limitations">Limitations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html#see-also">See Also</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a><ul>

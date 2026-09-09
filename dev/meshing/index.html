@@ -56,7 +56,7 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="GMSH Backend" href="gmsh_backend.html" />
+    <link rel="next" title="cad-to-dagmc-mesher Backend" href="cad_to_dagmc_mesher_backend.html" />
     <link rel="prev" title="Conformal Meshes" href="../outputs/conformal_meshes.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -235,9 +235,9 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cadquery_backend.html">CadQuery Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -448,17 +448,17 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">GMSH</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher</span></a></p></td>
+<td><p>Purpose-built, curvature-adaptive surface and tetrahedral mesher</p></td>
+<td><p>Efficient DAGMC tracking meshes and conformal volume meshes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">GMSH</span></a></p></td>
 <td><p>Full-featured meshing library</p></td>
 <td><p>Complex models, fine mesh control</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="cadquery_backend.html"><span class="std std-doc">CadQuery</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cadquery_backend.html"><span class="std std-doc">CadQuery</span></a></p></td>
 <td><p>Built-in CadQuery tessellation</p></td>
 <td><p>Simple models, flat surfaces</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher</span></a></p></td>
-<td><p>Purpose-built surface and tetrahedral mesher</p></td>
-<td><p>Surface and volume meshes without GMSH</p></td>
 </tr>
 </tbody>
 </table>
@@ -469,9 +469,9 @@
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>cad-to-dagmc-mesher</p></th>
 <th class="head"><p>GMSH</p></th>
 <th class="head"><p>CadQuery</p></th>
-<th class="head"><p>cad-to-dagmc-mesher</p></th>
 </tr>
 </thead>
 <tbody>
@@ -482,32 +482,32 @@
 </tr>
 <tr class="row-odd"><td><p>Volume mesh (vtk)</p></td>
 <td><p>Yes</p></td>
-<td><p><strong>No</strong></p></td>
 <td><p>Yes</p></td>
+<td><p><strong>No</strong></p></td>
 </tr>
 <tr class="row-even"><td><p>Mesh size control</p></td>
+<td><p>Tolerances + <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 <td><p>Full (min/max/per-volume)</p></td>
 <td><p>Limited (tolerance only)</p></td>
-<td><p>Tolerances + <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Mesh algorithms</p></td>
-<td><p>10 algorithms</p></td>
 <td><p>1 (built-in)</p></td>
+<td><p>10 algorithms</p></td>
 <td><p>1 (built-in)</p></td>
 </tr>
 <tr class="row-even"><td><p>Parallel meshing</p></td>
+<td><p>Yes (DAG scheduler)</p></td>
 <td><p>Yes</p></td>
 <td><p>Partial</p></td>
-<td><p>Yes (DAG scheduler)</p></td>
 </tr>
 <tr class="row-odd"><td><p>Dependencies</p></td>
+<td><p>Installed with cad_to_dagmc</p></td>
 <td><p>Requires GMSH</p></td>
 <td><p>Built into CadQuery</p></td>
-<td><p>Installed with cad_to_dagmc</p></td>
 </tr>
 <tr class="row-even"><td><p>Flat surface efficiency</p></td>
-<td><p>Standard</p></td>
 <td><p>Better (fewer triangles)</p></td>
+<td><p>Standard</p></td>
 <td><p>Better (fewer triangles)</p></td>
 </tr>
 </tbody>
@@ -516,6 +516,16 @@
 </section>
 <section id="choosing-a-backend">
 <h2>Choosing a Backend<a class="headerlink" href="#choosing-a-backend" title="Link to this heading">#</a></h2>
+<p><strong>Use cad-to-dagmc-mesher backend (the default) when:</strong></p>
+<ul class="simple">
+<li><p>You want a curvature-adaptive tracking mesh that avoids unnecessary triangles on flat surfaces</p></li>
+<li><p>You need volume meshes for unstructured mesh tallies without GMSH</p></li>
+<li><p>You want the surface (h5m) and volume (vtk) meshes from a single meshing call</p></li>
+<li><p>You want simple configuration (tolerances plus one tetrahedron edge length)</p></li>
+</ul>
+<p>A call that gives no backend and no backend-specific arguments uses
+cad-to-dagmc-mesher. It is installed with the pip package but is not on
+conda-forge, so a conda installation without it falls back to CadQuery.</p>
 <p><strong>Use GMSH backend when:</strong></p>
 <ul class="simple">
 <li><p>You need precise control over mesh density</p></li>
@@ -530,15 +540,6 @@
 <li><p>Your geometry has many flat surfaces (fewer triangles)</p></li>
 <li><p>Your geometry is straightforward</p></li>
 </ul>
-<p><strong>Use cad-to-dagmc-mesher backend (the default) when:</strong></p>
-<ul class="simple">
-<li><p>You need volume meshes for unstructured mesh tallies without GMSH</p></li>
-<li><p>You want the surface (h5m) and volume (vtk) meshes from a single meshing call</p></li>
-<li><p>You want simple configuration (tolerances plus one tetrahedron edge length)</p></li>
-</ul>
-<p>A call that gives no backend and no backend-specific arguments uses
-cad-to-dagmc-mesher. It is installed with the pip package but is not on
-conda-forge, so a conda installation without it falls back to CadQuery.</p>
 </section>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
@@ -550,6 +551,14 @@ conda-forge, so a conda installation without it falls back to CadQuery.</p>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
+
+<span class="c1"># cad-to-dagmc-mesher backend (default)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_mesher.h5m"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># GMSH backend</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
@@ -565,14 +574,6 @@ conda-forge, so a conda installation without it falls back to CadQuery.</p>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cadquery"</span><span class="p">,</span>
     <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># cad-to-dagmc-mesher backend</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_mesher.h5m"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
-    <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-    <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -604,11 +605,11 @@ conda-forge, so a conda installation without it falls back to CadQuery.</p>
       </div>
     </a>
     <a class="right-next"
-       href="gmsh_backend.html"
+       href="cad_to_dagmc_mesher_backend.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">GMSH Backend</p>
+        <p class="prev-next-title">cad-to-dagmc-mesher Backend</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

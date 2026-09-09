@@ -56,8 +56,8 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Per-Volume Mesh Sizing" href="mesh_sizing.html" />
-    <link rel="prev" title="CadQuery Backend" href="cadquery_backend.html" />
+    <link rel="next" title="GMSH Backend" href="gmsh_backend.html" />
+    <link rel="prev" title="Meshing Backends" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -235,9 +235,9 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Meshing Backends</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cadquery_backend.html">CadQuery Backend</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -419,6 +419,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-a-neutronics-specific-mesh">Why a Neutronics-Specific Mesh?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
@@ -441,6 +442,23 @@
   <section id="cad-to-dagmc-mesher-backend">
 <h1>cad-to-dagmc-mesher Backend<a class="headerlink" href="#cad-to-dagmc-mesher-backend" title="Link to this heading">#</a></h1>
 <p>The <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a> backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code> to use it. See <a class="reference internal" href="../installation.html#optional-packages"><span class="std std-ref">Installation</span></a>.</p>
+<section id="why-a-neutronics-specific-mesh">
+<h2>Why a Neutronics-Specific Mesh?<a class="headerlink" href="#why-a-neutronics-specific-mesh" title="Link to this heading">#</a></h2>
+<p>Finite-element meshes generally aims for regularly sized, near-equilateral
+elements throughout every surface because element shape and size affect the
+accuracy of field interpolation.</p>
+<p>DAGMC surface meshes serve a different purpose: particle tracking only needs
+a conforming, watertight representation of each boundary. A purpose-built
+neutronics mesh can therefore preserve curved geometry to the requested
+tolerance while representing large planar regions with very few triangles.
+Fewer triangles mean fewer candidate intersections during tracking and can
+improve particle throughput as shown by the plot on the right hand side of the diagram.</p>
+<p>The comparison below uses a simple cube with an embedded sphere to demonstrate that
+a neutronics specific mesh can get better volume accuracy with less triangles which
+results in faster and more accurate simulations.</p>
+<a class="reference internal image-reference" href="../_images/mesher_comparison.png"><img alt="Three-panel comparison. A uniformly triangulated FEM mesh with box and sphere volume accuracy is on the left, a curvature-adaptive neutronics mesh with minimally triangulated planar cube faces and volume accuracy is in the middle, and measured OpenMC particle throughput versus triangle count is on the right." src="../_images/mesher_comparison.png" style="width: 100%;" />
+</a>
+</section>
 <section id="surface-mesh-h5m">
 <h2>Surface Mesh (h5m)<a class="headerlink" href="#surface-mesh-h5m" title="Link to this heading">#</a></h2>
 <!--pytest-codeblocks:skip-->
@@ -630,20 +648,20 @@ units too, so a given number means the same deflection whichever backend you use
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cadquery_backend.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">CadQuery Backend</p>
+        <p class="prev-next-title">Meshing Backends</p>
       </div>
     </a>
     <a class="right-next"
-       href="mesh_sizing.html"
+       href="gmsh_backend.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Per-Volume Mesh Sizing</p>
+        <p class="prev-next-title">GMSH Backend</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -665,6 +683,7 @@ units too, so a given number means the same deflection whichever backend you use
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-a-neutronics-specific-mesh">Why a Neutronics-Specific Mesh?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
