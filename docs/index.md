@@ -37,7 +37,7 @@ filenames. See [Conformal Meshes](outputs/conformal_meshes.md).
 | **Multiple Input Formats** | **Flexible Material Tagging** |
 | - CadQuery objects<br>- STEP files<br>- GMSH mesh files | - Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups |
 | **Three Meshing Backends** | **Multiple Output Formats** |
-| - GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)<br>- cad-to-dagmc-mesher (surface and volume meshing) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
+| - cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
 | **Two H5M Backends** | **Advanced Options** |
 | - h5py (default, no MOAB needed)<br>- pymoab (official MOAB) | - Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing |
 
@@ -88,9 +88,9 @@ outputs/conformal_meshes
 :caption: Meshing
 
 meshing/index
+meshing/cad_to_dagmc_mesher_backend
 meshing/gmsh_backend
 meshing/cadquery_backend
-meshing/cad_to_dagmc_mesher_backend
 meshing/mesh_sizing
 ```
 
