@@ -55,11 +55,19 @@ model.export_dagmc_h5m_file(
 
 ## With Meshing Backends
 
-Choose between GMSH (default) and CadQuery meshing:
+Choose between the cad-to-dagmc-mesher (default), GMSH and CadQuery meshing:
 
 <!--pytest-codeblocks:skip-->
 ```python
-# GMSH backend (default) - full control over mesh parameters
+# cad-to-dagmc-mesher backend (default) - surface and volume meshing
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    meshing_backend="cad-to-dagmc-mesher",
+    tolerance=0.01,
+    angular_tolerance=0.2,
+)
+
+# GMSH backend - full control over mesh parameters
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     meshing_backend="gmsh",
@@ -86,15 +94,15 @@ model.export_dagmc_h5m_file(
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `filename` | str | "dagmc.h5m" | Output file path |
-| `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | bool | True | Imprint shared surfaces |
+| `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
+| `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
 
 **Backend Selection:**
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `meshing_backend` | str | auto | `"gmsh"` or `"cadquery"`. Auto-selected based on other arguments provided. Defaults to `"cadquery"` if no backend-specific args given. |
+| `meshing_backend` | str | auto | `"cad-to-dagmc-mesher"`, `"gmsh"` or `"cadquery"`. Auto-selected from the other arguments provided. Defaults to `"cad-to-dagmc-mesher"` when no backend-specific arguments are given, falling back to `"cadquery"` if cad-to-dagmc-mesher is not installed. |
 | `h5m_backend` | str | "h5py" | `"h5py"` or `"pymoab"` for writing h5m files |
 
 **GMSH Backend Parameters:**
@@ -117,8 +125,52 @@ These parameters only apply when using `meshing_backend="cadquery"`:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.1 | Linear tolerance for tessellation |
+| `tolerance` | float | 0.1 | Linear tolerance for tessellation, in scaled-geometry units |
 | `angular_tolerance` | float | 0.1 | Angular tolerance for tessellation |
+
+**cad-to-dagmc-mesher Backend Parameters:**
+
+These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `tolerance` | float | 0.01 | Linear tolerance for the surface mesh, in scaled-geometry units |
+| `angular_tolerance` | float | 0.2 | Angular tolerance for the surface mesh |
+| `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
+| `target_edge_length` | float | None | Target tetrahedron edge length, in scaled-geometry units |
+| `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
+
+:::{important}
+**`scale_factor` and the units of linear mesh sizes.** All the linear mesh sizing
+parameters are in the units of the **scaled** geometry, so the same number means
+the same deflection on the output mesh whichever backend you use:
+
+| Backend | Linear sizing parameters |
+|---------|--------------------------|
+| `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
+| `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
+| `cadquery` | `tolerance` |
+
+A consequence is that the defaults get finer as `scale_factor` grows. This matters
+most for the cad-to-dagmc-mesher `tolerance` default of `0.01`: with
+`scale_factor=100` (metres to centimetres) that is a 0.1 mm deflection, which on a
+large model can generate a huge number of facets and exhaust memory. Scale the
+tolerance with the geometry, for example `tolerance=0.5` (5 mm) for a metre-scale
+model exported with `scale_factor=100`.
+
+`angular_tolerance` is an angle and is unaffected by `scale_factor`.
+:::
+
+:::{note}
+Before this behaviour was made consistent, the `cadquery` backend interpreted
+`tolerance` in the units of the *unscaled* geometry, because it tessellates first
+and scales the resulting vertices afterwards. If you used that backend with a
+`scale_factor` other than 1.0, the same `tolerance` value now produces a mesh
+`scale_factor` times finer than it used to; multiply your old tolerance by
+`scale_factor` to get the previous mesh density. A warning is raised to flag this.
+:::
+
+`tet_volumes` and `target_edge_length` must be given together to write a volume mesh.
 
 :::{warning}
 Do not mix GMSH and CadQuery backend parameters in the same call. If you provide parameters from both backends without explicitly setting `meshing_backend`, an error will be raised.
@@ -126,7 +178,9 @@ Do not mix GMSH and CadQuery backend parameters in the same call. If you provide
 
 **Returns:**
 - `str` - Path to the created h5m file
-- Or `tuple[str, str]` - (h5m_path, vtk_path) if `unstructured_volumes` is set
+- Or `tuple[str, str]` - (h5m_path, vtk_path) when a volume mesh is also written, which is
+  when `unstructured_volumes` is set on the GMSH backend, or when `tet_volumes` and
+  `target_edge_length` are set on the cad-to-dagmc-mesher backend
 
 ## Using in OpenMC
 

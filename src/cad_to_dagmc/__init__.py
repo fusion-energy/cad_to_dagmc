@@ -11,7 +11,7 @@ except PackageNotFoundError:
 
     __version__ = get_version(root="..", relative_to=__file__)
 
-__all__ = ["__version__", "PyMoabNotFoundError"]
+__all__ = ["__version__", "PyMoabNotFoundError", "CadToDagmcMesherNotFoundError"]
 
 from .core import *
-from .core import PyMoabNotFoundError
+from .core import PyMoabNotFoundError, CadToDagmcMesherNotFoundError

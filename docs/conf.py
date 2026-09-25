@@ -25,7 +25,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
     "sphinx_design",
-    "sphinxcontrib.mermaid",
     "sphinxcadquery",
     "jupyter_sphinx",
     "pyvista.ext.plot_directive",
@@ -82,34 +81,6 @@ autodoc_typehints = "description"
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
-
-# Mermaid settings
-mermaid_version = "10.6.1"
-mermaid_d3_zoom = False
-mermaid_init_js = """
-mermaid.initialize({
-    startOnLoad: true,
-    theme: 'base',
-    themeVariables: {
-        primaryColor: '#f8fafc',
-        primaryTextColor: '#1e293b',
-        primaryBorderColor: '#cbd5e1',
-        lineColor: '#94a3b8',
-        secondaryColor: '#f1f5f9',
-        tertiaryColor: '#e2e8f0',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        fontSize: '14px'
-    },
-    flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-        curve: 'basis',
-        padding: 20,
-        nodeSpacing: 50,
-        rankSpacing: 60
-    }
-});
-"""
 
 # PyVista plot directive settings
 plot_setup = """

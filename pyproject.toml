@@ -20,12 +20,13 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery>=2.6.0",
+    "cadquery>=2.8.0",
     "numpy",
     "gmsh",
     "h5py",
-    "cadquery_direct_mesh_plugin>=0.1.0"
-# TODO once on pypi include moab here and remove from CI
+    "cadquery_direct_mesh_plugin>=0.2.0",
+    "cad-to-dagmc-mesher>=0.3.0"
+# TODO if moab become available on pypi include moab here and remove from CI
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 ]
 dynamic = ["version"]
@@ -38,7 +39,6 @@ write_to = "src/_version.py"
 tests = [
     "pytest",
     "pytest-codeblocks",
-    "vtk",
     "assembly-mesh-plugin",
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
@@ -49,7 +49,6 @@ docs = [
     "sphinx-book-theme",
     "sphinx-autodoc-typehints",
     "sphinx-design",
-    "sphinxcontrib-mermaid",
     "sphinxcadquery",
     "pyvista[jupyter]",
     "panel",

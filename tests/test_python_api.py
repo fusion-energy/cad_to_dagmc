@@ -189,7 +189,7 @@ def test_max_mesh_size_impacts_file_size(meshing_backend, tmp_path):
     assert small_file < medium_file
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.parametrize("h5m_backend", ["pymoab", "h5py"])
 def test_h5m_file_tags(meshing_backend, h5m_backend, tmp_path):
     """Checks that a h5m file is created with the correct tags"""
@@ -254,7 +254,7 @@ def test_add_stp_file_returned_volumes():
     assert vols == 2
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 def test_export_dagmc_h5m_file_handles_paths_folders_strings(meshing_backend, tmp_path):
     """Checks that a h5m file is created with various path formats"""
 

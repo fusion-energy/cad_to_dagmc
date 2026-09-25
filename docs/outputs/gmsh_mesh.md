@@ -91,7 +91,7 @@ model.export_gmsh_mesh_file(
 | `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | bool | True | Imprint shared surfaces |
+| `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `method` | str | "file" | CAD transfer method |
 
 ## Use Cases

@@ -61,6 +61,20 @@ When using `meshing_backend="cadquery"`, the following parameters are **ignored*
 - `mesh_algorithm`
 :::
 
+:::{note}
+`tolerance` is in the units of the **scaled** geometry, the same as the gmsh and
+cad-to-dagmc-mesher backends, so with `scale_factor=100` a `tolerance` of 0.5 is a
+5 mm deflection on the output mesh.
+
+This backend tessellates the unscaled geometry and scales the resulting vertices
+afterwards, so internally the tolerance is divided by `scale_factor` before being
+handed to the tessellator. Earlier versions did not do this, which meant the same
+`tolerance` value gave a `scale_factor` times coarser mesh here than with the other
+backends. If you relied on the old behaviour, multiply your tolerance by
+`scale_factor`; a warning is raised when `scale_factor` is not 1.0 to flag the
+change.
+:::
+
 ## When to Use CadQuery Backend
 
 **Good for:**
@@ -113,4 +127,5 @@ For a simple box, CadQuery will use just 12 triangles (2 per face), while GMSH m
 ## See Also
 
 - [GMSH Backend](gmsh_backend.md) - Full-featured meshing backend
+- [cad-to-dagmc-mesher Backend](cad_to_dagmc_mesher_backend.md) - Surface and volume meshing without GMSH
 - [Mesh Sizing](mesh_sizing.md) - Per-volume mesh control (GMSH only)

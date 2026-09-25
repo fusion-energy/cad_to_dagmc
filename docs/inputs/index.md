@@ -1,6 +1,6 @@
 # Input Sources
 
-cad_to_dagmc accepts geometry from three sources:
+cad_to_dagmc accepts geometry from these sources:
 
 | Input Type | Description | Use Case |
 |------------|-------------|----------|

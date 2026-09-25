@@ -1,30 +1,40 @@
 # Meshing Backends
 
-cad_to_dagmc supports two meshing backends for creating surface meshes.
+cad_to_dagmc supports three meshing backends for creating surface and volume meshes.
 
 ## Available Backends
 
 | Backend | Description | Best For |
 |---------|-------------|----------|
-| [GMSH](gmsh_backend.md) | Full-featured meshing library | Complex models, volume meshes |
+| [cad-to-dagmc-mesher](cad_to_dagmc_mesher_backend.md) | Purpose-built, curvature-adaptive surface and tetrahedral mesher | Efficient DAGMC tracking meshes and conformal volume meshes |
+| [GMSH](gmsh_backend.md) | Full-featured meshing library | Complex models, fine mesh control |
 | [CadQuery](cadquery_backend.md) | Built-in CadQuery tessellation | Simple models, flat surfaces |
 
 ## Quick Comparison
 
-| Feature | GMSH Backend | CadQuery Backend |
-|---------|--------------|------------------|
-| Surface mesh (h5m) | Yes | Yes |
-| Volume mesh (vtk) | Yes | **No** |
-| Mesh size control | Full (min/max/per-volume) | Limited (tolerance only) |
-| Mesh algorithms | 10 algorithms | 1 (built-in) |
-| Parallel meshing | Yes | Partial |
-| Dependencies | Requires GMSH | Built into CadQuery |
-| Flat surface efficiency | Standard | Better (fewer triangles) |
+| Feature | cad-to-dagmc-mesher | GMSH | CadQuery |
+|---------|---------------------|------|----------|
+| Surface mesh (h5m) | Yes | Yes | Yes |
+| Volume mesh (vtk) | Yes | Yes | **No** |
+| Mesh size control | Tolerances + `target_edge_length` | Full (min/max/per-volume) | Limited (tolerance only) |
+| Mesh algorithms | 1 (built-in) | 10 algorithms | 1 (built-in) |
+| Parallel meshing | Yes (DAG scheduler) | Yes | Partial |
+| Dependencies | Installed with cad_to_dagmc | Requires GMSH | Built into CadQuery |
+| Flat surface efficiency | Better (fewer triangles) | Standard | Better (fewer triangles) |
 
 ## Choosing a Backend
 
-**Use GMSH backend (default) when:**
-- You need volume meshes for unstructured mesh tallies
+**Use cad-to-dagmc-mesher backend (the default) when:**
+- You want a curvature-adaptive tracking mesh that avoids unnecessary triangles on flat surfaces
+- You need volume meshes for unstructured mesh tallies without GMSH
+- You want the surface (h5m) and volume (vtk) meshes from a single meshing call
+- You want simple configuration (tolerances plus one tetrahedron edge length)
+
+A call that gives no backend and no backend-specific arguments uses
+cad-to-dagmc-mesher. It is installed with the pip package but is not on
+conda-forge, so a conda installation without it falls back to CadQuery.
+
+**Use GMSH backend when:**
 - You need precise control over mesh density
 - You want per-volume mesh sizing with `set_size`
 - You need parallel meshing for large models
@@ -34,7 +44,6 @@ cad_to_dagmc supports two meshing backends for creating surface meshes.
 - You only need surface meshes
 - You want simpler configuration
 - Your geometry has many flat surfaces (fewer triangles)
-- You want to minimize dependencies
 - Your geometry is straightforward
 
 ## Basic Usage
@@ -49,7 +58,15 @@ assembly.add(cq.Workplane("XY").sphere(10))
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1"])
 
-# GMSH backend (default)
+# cad-to-dagmc-mesher backend (default)
+model.export_dagmc_h5m_file(
+    filename="dagmc_mesher.h5m",
+    meshing_backend="cad-to-dagmc-mesher",
+    tolerance=0.01,
+    angular_tolerance=0.2,
+)
+
+# GMSH backend
 model.export_dagmc_h5m_file(
     filename="dagmc_gmsh.h5m",
     meshing_backend="gmsh",

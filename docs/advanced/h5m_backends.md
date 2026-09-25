@@ -47,16 +47,17 @@ model.export_dagmc_h5m_file(
 
 ## Installing pymoab
 
-pymoab/MOAB must be installed separately (not available on PyPI):
+pymoab/MOAB is not on PyPI itself, so it is not a dependency of the pip package and has
+to be installed separately. Both of the first two options below are one liners:
 
-**Option 1: Conda (easiest)**
+**Option 1: Conda**
 
 <!--pytest-codeblocks:skip-->
 ```bash
 conda install -c conda-forge moab
 ```
 
-**Option 2: Extra index**
+**Option 2: pip, from an extra index**
 
 <!--pytest-codeblocks:skip-->
 ```bash

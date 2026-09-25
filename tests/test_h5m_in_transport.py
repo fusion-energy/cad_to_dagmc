@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 try:
@@ -126,10 +127,21 @@ def transport_particles_on_h5m_geometry(
 
     my_flux_cell_tally = statepoint.get_tally(name="flux")
 
+    # When an unstructured mesh was tallied on, check the mesh was actually
+    # read back and scored: one bin per tetrahedron, all finite, with some
+    # non-zero flux. This is what proves the written .vtk is usable rather
+    # than merely openable.
+    if vtk_filename:
+        umesh_tally = statepoint.get_tally(name="unstructured_mesh_tally")
+        umesh_mean = np.asarray(umesh_tally.mean).flatten()
+        assert len(umesh_mean) > 0
+        assert np.all(np.isfinite(umesh_mean))
+        assert umesh_mean.sum() > 0.0
+
     return my_flux_cell_tally.mean.flatten()[0]
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     h5m_filename = "test_two_sep_volumes.h5m"
@@ -154,7 +166,7 @@ def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
     h5m_filename = "one_cylinder.h5m"
@@ -176,7 +188,7 @@ def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     h5m_filename = "two_connected_cylinders.h5m"
@@ -200,7 +212,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_single_volume_list(meshing_backend):
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
@@ -223,7 +235,7 @@ def test_h5m_with_single_volume_list(meshing_backend):
         )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_not_touching(meshing_backend):
 
@@ -242,7 +254,7 @@ def test_h5m_with_multi_volume_not_touching(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_touching(meshing_backend):
     stp_files = [
@@ -316,4 +328,64 @@ def test_umesh_with_volumes(meshing_backend):
         material_tags=mat_tags,
         nuclides=["H1"] * len(mat_tags),
         vtk_filename=vtk_file,
+    )
+
+
+@pytest.mark.parametrize("meshing_backend", ["cad-to-dagmc-mesher"])
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_umesh_from_dagmc_export_with_mesher(meshing_backend):
+    """The cad-to-dagmc-mesher backend writes its own .vtk unstructured volume
+    mesh (without gmsh) that OpenMC can tally on."""
+    mat_tags = ["mat1"]
+    workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
+
+    model = CadToDagmc()
+    model.add_cadquery_object(workplane1, material_tags=mat_tags)
+
+    result = model.export_dagmc_h5m_file(
+        filename="mesher_umesh.h5m",
+        meshing_backend=meshing_backend,
+        tet_volumes=mat_tags,
+        target_edge_length=2.0,
+        umesh_filename="mesher_umesh.vtk",
+    )
+
+    # With tet_volumes + target_edge_length the export returns both the DAGMC
+    # surface mesh and the unstructured volume mesh.
+    assert isinstance(result, tuple)
+    h5m_filename, vtk_filename = result
+
+    transport_particles_on_h5m_geometry(
+        h5m_filename=h5m_filename,
+        material_tags=mat_tags,
+        nuclides=["H1"],
+        vtk_filename=vtk_filename,
+    )
+
+
+@pytest.mark.parametrize("meshing_backend", ["cad-to-dagmc-mesher"])
+@pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
+def test_export_unstructured_mesh_file_with_mesher(meshing_backend):
+    """export_unstructured_mesh_file supports the cad-to-dagmc-mesher backend."""
+    mat_tags = ["mat1"]
+    workplane1 = cq.Workplane("XY").cylinder(height=10, radius=4)
+
+    model = CadToDagmc()
+    model.add_cadquery_object(workplane1, material_tags=mat_tags)
+
+    h5m_filename = model.export_dagmc_h5m_file(
+        filename="mesher_geom.h5m", meshing_backend=meshing_backend
+    )
+
+    vtk_filename = model.export_unstructured_mesh_file(
+        filename="mesher_direct_umesh.vtk",
+        meshing_backend=meshing_backend,
+        target_edge_length=2.0,
+    )
+
+    transport_particles_on_h5m_geometry(
+        h5m_filename=h5m_filename,
+        material_tags=mat_tags,
+        nuclides=["H1"],
+        vtk_filename=vtk_filename,
     )
