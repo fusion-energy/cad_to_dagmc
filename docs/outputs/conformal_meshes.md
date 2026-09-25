@@ -56,6 +56,43 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 )
 ```
 
+### Controlling the Conformal 3D Mesh
+
+`mesh_algorithm_3d` and `volume_mesh_options` apply to this combined export as
+well as standalone `export_unstructured_mesh_file()` and
+`export_gmsh_mesh_file(dimensions=3)` calls:
+
+<!--pytest-codeblocks:skip-->
+```python
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    umesh_filename="umesh.vtk",
+    meshing_backend="gmsh",
+    unstructured_volumes=["tungsten", "steel"],
+    min_mesh_size=1.0,
+    max_mesh_size=5.0,
+    mesh_algorithm_3d=10,  # HXT; default 1 selects Delaunay
+    volume_mesh_options={
+        "Mesh.Optimize": 0,
+        "Mesh.MeshSizeExtendFromBoundary": 0,
+        "Mesh.MeshSizeMax": 1e22,
+    },
+)
+```
+
+The DAGMC surface is generated first with the normal surface sizing, then the
+overrides are applied before filling the selected volumes with tetrahedra.
+The existing surface triangulation is reused, not independently regenerated.
+These settings allow a coarser interior; they do not guarantee zero refinement.
+Avoid options that change element order, recombine elements or force remeshing
+when you need the first-order tetrahedral boundary to match the DAGMC triangles.
+
+Separate surface and volume export calls do not share mesh state, even when
+their sizes are identical. Use the combined export when matching the tracking
+and tally boundaries is required. See
+[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
+for defaults and precedence rules.
+
 ### Selecting Volumes for Volume Mesh
 
 #### By Volume ID
@@ -104,10 +141,12 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 When you use `unstructured_volumes` on the GMSH backend:
 
-1. GMSH creates a unified mesh for all volumes
-2. Surface triangles are extracted for the DAGMC h5m file
-3. Volume tetrahedra are extracted for the specified volumes
-4. Both share the same surface coordinates at interfaces
+1. GMSH generates the surface mesh for all volumes, including shared interfaces
+2. Surface triangles are extracted and written to the DAGMC h5m file
+3. Any `volume_mesh_options` are applied, then GMSH generates tetrahedra for the
+    selected volumes using the existing surface mesh as their boundary
+4. The tetrahedra are written to the VTK file, sharing the surface triangulation
+    with the DAGMC geometry
 
 This guarantees:
 - Surface triangles match volume mesh boundaries

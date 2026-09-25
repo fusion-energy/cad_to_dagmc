@@ -41,9 +41,11 @@ model.export_dagmc_h5m_file(
 
 Smaller values = finer mesh = more triangles = slower transport but more accurate geometry.
 
-## Mesh Algorithms
+## Surface Mesh Algorithms
 
-GMSH provides multiple meshing algorithms:
+`mesh_algorithm` sets GMSH's `Mesh.Algorithm`, which controls **2D surface
+meshing**, not the tetrahedral volume mesh. GMSH provides multiple surface
+meshing algorithms:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -177,13 +179,72 @@ model.export_unstructured_mesh_file(
 )
 ```
 
+### 3D Algorithms and Volume-Only Options
+
+Use `mesh_algorithm_3d` to set `Mesh.Algorithm3D` independently of the surface
+algorithm. The default is `1` (Delaunay); `10` selects HXT, which supports
+multithreaded volume meshing. The `threads` argument controls GMSH's thread
+count. Performance depends on the geometry, settings and GMSH build.
+
+For finer control, `volume_mesh_options` accepts a dictionary mapping GMSH
+option names to numeric or string values. Non-empty dictionaries cause the
+surfaces to be meshed first, using `min_mesh_size`, `max_mesh_size` and
+`set_size`. The overrides are then applied immediately before volume meshing,
+so relaxing the interior sizing does not coarsen the existing surface mesh.
+
+For example, to use HXT with relaxed interior sizing and standard quality
+optimisation disabled:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_unstructured_mesh_file(
+    filename="umesh.vtk",
+    min_mesh_size=1.0,
+    max_mesh_size=5.0,
+    mesh_algorithm_3d=10,
+    volume_mesh_options={
+        "Mesh.Optimize": 0,
+        "Mesh.MeshSizeExtendFromBoundary": 0,
+        "Mesh.MeshSizeMax": 1e22,
+    },
+)
+```
+
+These settings allow a coarser interior; they do not guarantee that all interior
+refinement is disabled. Check the resulting mesh quality and resolution for
+your application. Other GMSH size constraints still apply, including
+`Mesh.MeshSizeMin` unless it is also overridden.
+
+Both arguments are available on all three GMSH volume-export paths:
+
+- `export_unstructured_mesh_file(...)`
+- `export_gmsh_mesh_file(dimensions=3, ...)`
+- `export_dagmc_h5m_file(unstructured_volumes=..., ...)`
+
+The combined DAGMC/VTK export reuses the surface mesh already generated for the
+DAGMC file. Surface-only exports do not apply `volume_mesh_options`. The
+dictionary applies to the entire volume-meshing step, not to individual
+volumes, and its values take precedence over corresponding named arguments
+(including `mesh_algorithm_3d`) during that step. String values use
+`gmsh.option.setString`; numeric values use `gmsh.option.setNumber`. GMSH
+reports unsupported names or values as errors.
+
+With `volume_mesh_options=None` or `{}`, the existing meshing sequence is
+unchanged: direct volume exports use a single `generate(3)` call, while the
+combined DAGMC/VTK export keeps its existing `generate(2)` then `generate(3)`
+sequence. Options are scoped to the export's GMSH session and do not carry
+over to subsequent exports. These controls do not apply to the CadQuery or
+cad-to-dagmc-mesher backends.
+
 ## Parameters Reference
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `min_mesh_size` | float | None | Minimum mesh element size |
 | `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
+| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
+| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
+| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing |
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `method` | str | "file" | CAD transfer method |
 
