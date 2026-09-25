@@ -50,6 +50,13 @@ model.export_unstructured_mesh_file(
 )
 ```
 
+`mesh_algorithm` controls only the surface mesh. Use `mesh_algorithm_3d=10`
+to select HXT for the tetrahedra, or keep the default `1` (Delaunay). Advanced
+`volume_mesh_options` are applied only after the surfaces have been meshed,
+allowing a coarser interior without changing the surface sizing. See
+[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
+for an example and caveats.
+
 ## Complex Geometry Example
 
 Volume meshes work with complex curved geometries:
@@ -137,7 +144,9 @@ model.export_unstructured_mesh_file(
     filename="umesh.vtk",     # Output file path
     min_mesh_size=1.0,        # Minimum element size (gmsh backend)
     max_mesh_size=10.0,       # Maximum element size (gmsh backend)
-    mesh_algorithm=1,         # GMSH algorithm (1-10)
+    mesh_algorithm=1,         # GMSH 2D surface algorithm
+    mesh_algorithm_3d=1,      # GMSH 3D algorithm (1=Delaunay, 10=HXT)
+    volume_mesh_options=None, # GMSH options applied only after surface meshing
     set_size=None,            # Per-volume sizes (gmsh backend)
     volumes=None,             # Specific volumes to include (gmsh backend)
     scale_factor=1.0,         # Geometry scaling
@@ -156,7 +165,9 @@ model.export_unstructured_mesh_file(
 | `filename` | str | "umesh.vtk" | Output VTK file path |
 | `min_mesh_size` | float | None | Minimum mesh element size (gmsh) |
 | `max_mesh_size` | float | None | Maximum mesh element size (gmsh) |
-| `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
+| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
+| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
+| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing |
 | `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
