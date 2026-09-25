@@ -509,26 +509,26 @@ involved, rather than meshed.</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
+<span class="c1"># target_edge_length selects the cad-to-dagmc-mesher backend</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The volume mesh can also be produced with the <a class="reference internal" href="meshing/gmsh_backend.html"><span class="std std-doc">GMSH backend</span></a>,
+sized with <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code>:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The volume mesh can also be produced with the
-<a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> instead of GMSH.
-Passing <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> selects it automatically:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Volume mesh export requires the GMSH meshing backend or the cad-to-dagmc-mesher
+<p>Volume mesh export requires the cad-to-dagmc-mesher backend or the GMSH meshing
 backend. The CadQuery backend only supports surface meshes.</p>
 </div>
 </section>
@@ -536,16 +536,19 @@ backend. The CadQuery backend only supports surface meshes.</p>
 <h2>Creating Conformal Surface and Volume Meshes<a class="headerlink" href="#creating-conformal-surface-and-volume-meshes" title="Link to this heading">#</a></h2>
 <p>For neutronics simulations that use both DAGMC geometry and unstructured mesh tallies,
 you can create conformal meshes where the surface and volume meshes share the same
-boundary coordinates. This is done in a single export call using the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>
-parameter:</p>
+boundary coordinates. This is done in a single export call using the <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>
+and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> parameters:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="c1"># Create geometry</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
 
 <span class="c1"># Convert to DAGMC</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
@@ -554,6 +557,19 @@ parameter:</p>
 <span class="c1"># Export both surface mesh and volume mesh in one call</span>
 <span class="c1"># This ensures the meshes are conformal (share the same boundary)</span>
 <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># material tags of the volumes to fill with tetrahedra</span>
+    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> takes material tag names. For every listed volume the surface is
+remeshed at <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and that surface is both the DAGMC tracking
+surface and the boundary of the tetrahedra.</p>
+<p>The GMSH backend can do the same with the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>  <span class="c1"># volume IDs to create volume mesh for</span>
     <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
@@ -571,8 +587,8 @@ parameter:</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter specifies which volumes should have a tetrahedral
-volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+<p>On the GMSH backend, the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter specifies which volumes should
+have a tetrahedral volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
 tags are resolved to all volumes that have that tag. By exporting both meshes in a
 single call, the surface triangles of the DAGMC geometry will exactly match the
 boundary faces of the volume mesh.</p>

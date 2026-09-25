@@ -449,9 +449,8 @@ meshing backend itself. A GMSH mesh is already meshed, so it converts straight
 to a DAGMC h5m file.</p>
 <p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code> can write the DAGMC h5m file on its own, or write it
 together with a conformal unstructured mesh vtk file from a single meshing call.
-Pass <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the gmsh backend, or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and
-<code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> on the cad-to-dagmc-mesher backend, and it returns both
-filenames. See <a class="reference internal" href="outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>.</p>
+Pass <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> on the cad-to-dagmc-mesher backend,
+or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the gmsh backend, and it returns both filenames. See <a class="reference internal" href="outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>.</p>
 <a class="only-light reference internal image-reference" href="_images/workflow_light.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-light" src="_images/workflow_light.png" style="width: 100%;" />
 </a>
 <a class="only-dark reference internal image-reference" href="_images/workflow_dark.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-dark" src="_images/workflow_dark.png" style="width: 100%;" />
@@ -638,7 +637,7 @@ filenames. See <a class="reference internal" href="outputs/conformal_meshes.html
 </li>
 <li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#basic-export">Basic Export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#using-the-cad-to-dagmc-mesher-backend">Using the cad-to-dagmc-mesher Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#using-the-gmsh-backend">Using the GMSH Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#complex-geometry-example">Complex Geometry Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#selecting-specific-volumes">Selecting Specific Volumes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/unstructured_vtk.html#api-reference">API Reference</a></li>
@@ -658,11 +657,9 @@ filenames. See <a class="reference internal" href="outputs/conformal_meshes.html
 <li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#why-conformal-meshes">Why Conformal Meshes?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#using-the-gmsh-backend">Using the GMSH Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#complete-example-with-openmc">Complete Example with OpenMC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#how-it-works">How It Works</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#api-notes">API Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#cad-to-dagmc-mesher-alternative">cad-to-dagmc-mesher Alternative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outputs/conformal_meshes.html#see-also">See Also</a></li>
 </ul>
 </li>
