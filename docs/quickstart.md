@@ -79,6 +79,18 @@ assembly.add(sphere, name="sphere")
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["tungsten"])
 
+# target_edge_length selects the cad-to-dagmc-mesher backend
+model.export_unstructured_mesh_file(
+    filename="umesh.vtk",
+    target_edge_length=2.0,
+)
+```
+
+The volume mesh can also be produced with the [GMSH backend](meshing/gmsh_backend.md),
+sized with `min_mesh_size` and `max_mesh_size`:
+
+<!--pytest-codeblocks:skip-->
+```python
 model.export_unstructured_mesh_file(
     filename="umesh.vtk",
     min_mesh_size=1.0,
@@ -86,20 +98,8 @@ model.export_unstructured_mesh_file(
 )
 ```
 
-The volume mesh can also be produced with the
-[cad-to-dagmc-mesher backend](meshing/cad_to_dagmc_mesher_backend.md) instead of GMSH.
-Passing `target_edge_length` selects it automatically:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_unstructured_mesh_file(
-    filename="umesh.vtk",
-    target_edge_length=2.0,
-)
-```
-
 :::{note}
-Volume mesh export requires the GMSH meshing backend or the cad-to-dagmc-mesher
+Volume mesh export requires the cad-to-dagmc-mesher backend or the GMSH meshing
 backend. The CadQuery backend only supports surface meshes.
 :::
 
@@ -107,8 +107,8 @@ backend. The CadQuery backend only supports surface meshes.
 
 For neutronics simulations that use both DAGMC geometry and unstructured mesh tallies,
 you can create conformal meshes where the surface and volume meshes share the same
-boundary coordinates. This is done in a single export call using the `unstructured_volumes`
-parameter:
+boundary coordinates. This is done in a single export call using the `tet_volumes`
+and `target_edge_length` parameters:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -116,9 +116,12 @@ import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
 # Create geometry
+sphere = cq.Workplane("XY").sphere(10)
+box = cq.Workplane("XY").box(30, 30, 30).cut(sphere)
+
 assembly = cq.Assembly()
-assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
-assembly.add(cq.Workplane("XY").box(30, 30, 30), name="box")
+assembly.add(sphere, name="sphere")
+assembly.add(box, name="box")
 
 # Convert to DAGMC
 model = CadToDagmc()
@@ -126,6 +129,22 @@ model.add_cadquery_object(assembly, material_tags=["tungsten", "steel"])
 
 # Export both surface mesh and volume mesh in one call
 # This ensures the meshes are conformal (share the same boundary)
+dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    tet_volumes=["steel"],  # material tags of the volumes to fill with tetrahedra
+    target_edge_length=2.0,
+    umesh_filename="umesh.vtk",
+)
+```
+
+`tet_volumes` takes material tag names. For every listed volume the surface is
+remeshed at `target_edge_length`, and that surface is both the DAGMC tracking
+surface and the boundary of the tetrahedra.
+
+The GMSH backend can do the same with the `unstructured_volumes` parameter:
+
+<!--pytest-codeblocks:skip-->
+```python
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     unstructured_volumes=[2],  # volume IDs to create volume mesh for
@@ -143,8 +162,8 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 ```
 
 :::{note}
-The `unstructured_volumes` parameter specifies which volumes should have a tetrahedral
-volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
+On the GMSH backend, the `unstructured_volumes` parameter specifies which volumes should
+have a tetrahedral volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
 tags are resolved to all volumes that have that tag. By exporting both meshes in a
 single call, the surface triangles of the DAGMC geometry will exactly match the
 boundary faces of the volume mesh.
