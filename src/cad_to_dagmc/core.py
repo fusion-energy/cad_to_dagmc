@@ -1144,6 +1144,8 @@ def set_sizes_for_mesh(
     set_size: dict[int | str, float] | None = None,
     original_set_size: dict[int | str, float] | None = None,
     threads: int = 0,
+    *,
+    mesh_algorithm_3d: int = 1,
 ):
     """Sets up the mesh sizes for each volume in the mesh.
 
@@ -1153,8 +1155,11 @@ def set_sizes_for_mesh(
             into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
         max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
             into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
-        mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
+        mesh_algorithm: The Gmsh 2D surface mesh algorithm number. Passed into
             gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+        mesh_algorithm_3d: The Gmsh 3D volume mesh algorithm number. Passed into
+            gmsh.option.setNumber("Mesh.Algorithm3D", mesh_algorithm_3d).
+            Defaults to 1 (Delaunay); 10 selects HXT.
         set_size: a dictionary of volume ids (int) and target mesh sizes
             (floats) to set for each volume, passed to gmsh.model.mesh.setSize.
         threads: the number of threads for Gmsh to use. Passed into
@@ -1177,6 +1182,7 @@ def set_sizes_for_mesh(
         gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
 
     gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+    gmsh.option.setNumber("Mesh.Algorithm3D", mesh_algorithm_3d)
     gmsh.option.setNumber("General.NumThreads", threads)
 
     if set_size:
@@ -1233,6 +1239,30 @@ def set_sizes_for_mesh(
             print(f"Set mesh size {size} for boundary {boundary}")
 
     return gmsh
+
+
+def _generate_volume_mesh(
+    gmsh,
+    volume_mesh_options: dict[str, float | str] | None = None,
+    *,
+    surfaces_meshed: bool = False,
+):
+    """Apply volume options only after the surface mesh has been generated.
+
+    Keep the single generate(3) call when no overrides are provided. The DAGMC
+    export already meshes surfaces for the h5m file, so it can reuse that mesh.
+    Gmsh validates option names and values; errors propagate to the exporter,
+    which finalizes the session on failure as well as on success.
+    """
+    if volume_mesh_options:
+        if not surfaces_meshed:
+            gmsh.model.mesh.generate(2)
+        for name, value in volume_mesh_options.items():
+            if isinstance(value, str):
+                gmsh.option.setString(name, value)
+            else:
+                gmsh.option.setNumber(name, value)
+    gmsh.model.mesh.generate(3)
 
 
 def mesh_to_vertices_and_triangles(
@@ -1764,6 +1794,9 @@ class CadToDagmc:
         tet_volumes: Iterable[str] | None = None,
         tolerance: float = 0.01,
         angular_tolerance: float = 0.2,
+        *,
+        mesh_algorithm_3d: int = 1,
+        volume_mesh_options: dict[str, float | str] | None = None,
     ):
         """
         Exports an unstructured mesh file in VTK format for use with
@@ -1786,8 +1819,16 @@ class CadToDagmc:
                 into gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
             max_mesh_size: the maximum mesh element size to use in Gmsh. Passed
                 into gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
-            mesh_algorithm: The Gmsh mesh algorithm number to use. Passed into
+            mesh_algorithm: The Gmsh 2D surface mesh algorithm number. Passed into
                 gmsh.option.setNumber("Mesh.Algorithm", mesh_algorithm)
+            mesh_algorithm_3d: Gmsh 3D volume mesh algorithm, passed to
+                Mesh.Algorithm3D. Defaults to 1 (Delaunay); 10 selects HXT.
+                Only used by the gmsh backend.
+            volume_mesh_options: Gmsh option names mapped to numeric or string
+                values, applied after surface meshing and before volume meshing.
+                Overrides the corresponding sizing/algorithm options for the
+                volume step only. None or an empty dict keeps the single
+                generate(3) call. Only used by the gmsh backend.
             method: the method to use to import the geometry into gmsh. Options
                 are 'file' or 'in memory'. 'file' is the default and will write
                 the geometry to a temporary file before importing it into gmsh.
@@ -1869,6 +1910,16 @@ class CadToDagmc:
             )
 
         if meshing_backend == "cad-to-dagmc-mesher":
+            unused_params = []
+            if mesh_algorithm_3d != 1:
+                unused_params.append("mesh_algorithm_3d")
+            if volume_mesh_options is not None:
+                unused_params.append("volume_mesh_options")
+            if unused_params:
+                warnings.warn(
+                    "The following parameters are ignored when using "
+                    f"cad-to-dagmc-mesher backend: {', '.join(unused_params)}"
+                )
             return self._export_unstructured_mesh_file_with_mesher(
                 filename=filename,
                 target_edge_length=target_edge_length,
@@ -1916,6 +1967,7 @@ class CadToDagmc:
                 min_mesh_size=min_mesh_size,
                 max_mesh_size=max_mesh_size,
                 mesh_algorithm=mesh_algorithm,
+                mesh_algorithm_3d=mesh_algorithm_3d,
                 set_size=resolved_set_size,
                 original_set_size=set_size,
                 threads=threads,
@@ -1933,7 +1985,7 @@ class CadToDagmc:
                     "Mesh.SaveElementTagType", 3
                 )  # Save only volume elements
 
-            gmsh.model.mesh.generate(3)
+            _generate_volume_mesh(gmsh, volume_mesh_options)
 
             # makes the folder if it does not exist
             if Path(filename).parent:
@@ -2023,6 +2075,9 @@ class CadToDagmc:
         imprint: bool | int = True,
         set_size: dict[int | str, float] | None = None,
         threads: int = 0,
+        *,
+        mesh_algorithm_3d: int = 1,
+        volume_mesh_options: dict[str, float | str] | None = None,
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -2031,7 +2086,14 @@ class CadToDagmc:
             filename
             min_mesh_size: the minimum size of mesh elements to use.
             max_mesh_size: the maximum size of mesh elements to use.
-            mesh_algorithm: the gmsh mesh algorithm to use.
+            mesh_algorithm: the Gmsh 2D surface mesh algorithm to use.
+            mesh_algorithm_3d: Gmsh 3D volume mesh algorithm, passed to
+                Mesh.Algorithm3D. Defaults to 1 (Delaunay); 10 selects HXT.
+            volume_mesh_options: Gmsh option names mapped to numeric or string
+                values, applied after surface meshing and before volume meshing.
+                Overrides the corresponding sizing/algorithm options for the
+                volume step only. Ignored unless dimensions=3. None or an empty
+                dict keeps the single generate(dimensions) call.
             dimensions: The number of dimensions, 2 for a surface mesh 3 for a
                 volume mesh. Passed to gmsh.model.mesh.generate()
             method: the method to use to import the geometry into gmsh. Options
@@ -2044,7 +2106,7 @@ class CadToDagmc:
                 installing from PyPI.
             scale_factor: a scaling factor to apply to the geometry that can be
                 used to enlarge or shrink the geometry. Useful when converting
-                Useful when converting the geometry to cm for use in neutronics
+                the geometry to cm for use in neutronics.
             imprint: whether to imprint the geometry or not. Defaults to True as this is
                 normally needed to ensure the geometry is meshed correctly. However if
                 you know your geometry does not need imprinting you can set this to False
@@ -2099,12 +2161,16 @@ class CadToDagmc:
                 min_mesh_size=min_mesh_size,
                 max_mesh_size=max_mesh_size,
                 mesh_algorithm=mesh_algorithm,
+                mesh_algorithm_3d=mesh_algorithm_3d,
                 set_size=resolved_set_size,
                 original_set_size=set_size,
                 threads=threads,
             )
 
-            gmsh.model.mesh.generate(dimensions)
+            if dimensions == 3:
+                _generate_volume_mesh(gmsh, volume_mesh_options)
+            else:
+                gmsh.model.mesh.generate(dimensions)
 
             # makes the folder if it does not exist
             if Path(filename).parent:
@@ -2173,7 +2239,14 @@ class CadToDagmc:
                 For GMSH backend:
                 - min_mesh_size (float): minimum mesh element size
                 - max_mesh_size (float): maximum mesh element size
-                - mesh_algorithm (int): GMSH mesh algorithm (default: 1)
+                - mesh_algorithm (int): GMSH 2D surface mesh algorithm (default: 1)
+                - mesh_algorithm_3d (int): GMSH 3D volume mesh algorithm, passed
+                  to Mesh.Algorithm3D (default: 1, Delaunay; 10 selects HXT).
+                - volume_mesh_options (dict[str, float | str]): Gmsh options
+                  applied after surface meshing and before volume meshing.
+                  Overrides the corresponding sizing/algorithm options for the
+                  volume step only. Only used when unstructured_volumes is set.
+                  Defaults to None (no overrides).
                 - method (str): import method 'file' or 'in memory' (default: 'file')
                 - set_size (dict[int | str, float]): volume IDs (int) or material tag
                   names (str) mapped to target mesh sizes. Material tags are resolved
@@ -2221,6 +2294,8 @@ class CadToDagmc:
             "min_mesh_size",
             "max_mesh_size",
             "mesh_algorithm",
+            "mesh_algorithm_3d",
+            "volume_mesh_options",
             "set_size",
             "umesh_filename",
             "method",
@@ -2368,6 +2443,8 @@ class CadToDagmc:
         min_mesh_size = None
         max_mesh_size = None
         mesh_algorithm = 1
+        mesh_algorithm_3d = 1
+        volume_mesh_options = None
         method = "file"
         set_size = None
         unstructured_volumes = None
@@ -2412,6 +2489,8 @@ class CadToDagmc:
                 "min_mesh_size",
                 "max_mesh_size",
                 "mesh_algorithm",
+                "mesh_algorithm_3d",
+                "volume_mesh_options",
                 "set_size",
                 "umesh_filename",
                 "method",
@@ -2430,6 +2509,8 @@ class CadToDagmc:
             min_mesh_size = kwargs.get("min_mesh_size")
             max_mesh_size = kwargs.get("max_mesh_size")
             mesh_algorithm = kwargs.get("mesh_algorithm", 1)
+            mesh_algorithm_3d = kwargs.get("mesh_algorithm_3d", 1)
+            volume_mesh_options = kwargs.get("volume_mesh_options")
             method = kwargs.get("method", "file")
             set_size = kwargs.get("set_size")
             unstructured_volumes = kwargs.get("unstructured_volumes")
@@ -2453,6 +2534,16 @@ class CadToDagmc:
         elif meshing_backend == "cad-to-dagmc-mesher":
             tolerance = kwargs.get("tolerance", 0.01)
             angular_tolerance = kwargs.get("angular_tolerance", 0.2)
+            unused_params = [
+                param
+                for param in ("mesh_algorithm_3d", "volume_mesh_options")
+                if param in kwargs
+            ]
+            if unused_params:
+                warnings.warn(
+                    "The following parameters are ignored when using "
+                    f"cad-to-dagmc-mesher backend: {', '.join(unused_params)}"
+                )
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -2567,6 +2658,7 @@ class CadToDagmc:
                     min_mesh_size=min_mesh_size,
                     max_mesh_size=max_mesh_size,
                     mesh_algorithm=mesh_algorithm,
+                    mesh_algorithm_3d=mesh_algorithm_3d,
                     set_size=resolved_set_size,
                     original_set_size=set_size,
                     threads=threads,
@@ -2656,7 +2748,7 @@ class CadToDagmc:
                 for entry in all_2d_groups:
                     gmsh.model.removePhysicalGroups([entry])
 
-                gmsh.model.mesh.generate(3)
+                _generate_volume_mesh(gmsh, volume_mesh_options, surfaces_meshed=True)
                 gmsh.option.setNumber(
                     "Mesh.SaveElementTagType", 3
                 )  # Save only volume elements

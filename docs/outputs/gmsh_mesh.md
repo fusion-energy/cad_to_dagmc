@@ -72,7 +72,9 @@ model.export_gmsh_mesh_file(
     dimensions=2,             # 2 for surface, 3 for volume
     min_mesh_size=1.0,        # Minimum element size
     max_mesh_size=10.0,       # Maximum element size
-    mesh_algorithm=1,         # GMSH algorithm (1-10)
+    mesh_algorithm=1,         # GMSH 2D surface algorithm
+    mesh_algorithm_3d=1,      # GMSH 3D algorithm (1=Delaunay, 10=HXT)
+    volume_mesh_options=None, # GMSH options applied only after surface meshing
     set_size=None,            # Per-volume sizes
     scale_factor=1.0,         # Geometry scaling
     imprint=True,             # Imprint shared surfaces
@@ -88,11 +90,20 @@ model.export_gmsh_mesh_file(
 | `dimensions` | int | 2 | Mesh dimensions (2=surface, 3=volume) |
 | `min_mesh_size` | float | None | Minimum mesh element size |
 | `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH meshing algorithm |
+| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
+| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
+| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `dimensions=3` |
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
 | `method` | str | "file" | CAD transfer method |
+
+For `dimensions=3`, `mesh_algorithm_3d` selects the volume algorithm independently
+of the surface algorithm. A non-empty `volume_mesh_options` dictionary causes
+surface generation first, followed by the option overrides and volume
+generation. `dimensions=2` ignores these volume overrides. See
+[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
+for examples and precedence rules.
 
 ## Use Cases
 
