@@ -113,11 +113,19 @@ These parameters only apply when using `meshing_backend="gmsh"` (or when auto-se
 |-----------|------|---------|-------------|
 | `min_mesh_size` | float | None | Minimum mesh element size |
 | `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH meshing algorithm (1-10) |
+| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
+| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
+| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `unstructured_volumes` |
 | `method` | str | "file" | CAD transfer method: `"file"` or `"in memory"` |
 | `set_size` | dict | None | Per-volume mesh sizes. Keys can be volume IDs (int) or material tag names (str). |
 | `unstructured_volumes` | list | None | Volume IDs (int) or material tags (str) for conformal volume mesh |
 | `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
+
+`mesh_algorithm_3d` and `volume_mesh_options` configure the volume step without
+changing how the DAGMC surfaces are initially meshed. See
+[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
+for HXT and relaxed interior sizing. The existing surface mesh is reused for
+the unstructured output.
 
 **CadQuery Backend Parameters:**
 

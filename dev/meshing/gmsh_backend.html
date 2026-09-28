@@ -421,11 +421,14 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-size-parameters">Mesh Size Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-algorithms">Mesh Algorithms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-algorithms">Surface Mesh Algorithms</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#per-volume-mesh-sizing">Per-Volume Mesh Sizing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cad-transfer-method">CAD Transfer Method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-gmsh-options">Advanced GMSH Options</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-meshing">Volume Meshing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-meshing">Volume Meshing</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#d-algorithms-and-volume-only-options">3D Algorithms and Volume-Only Options</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters-reference">Parameters Reference</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
@@ -479,9 +482,11 @@
 </div>
 <p>Smaller values = finer mesh = more triangles = slower transport but more accurate geometry.</p>
 </section>
-<section id="mesh-algorithms">
-<h2>Mesh Algorithms<a class="headerlink" href="#mesh-algorithms" title="Link to this heading">#</a></h2>
-<p>GMSH provides multiple meshing algorithms:</p>
+<section id="surface-mesh-algorithms">
+<h2>Surface Mesh Algorithms<a class="headerlink" href="#surface-mesh-algorithms" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code> sets GMSH’s <code class="docutils literal notranslate"><span class="pre">Mesh.Algorithm</span></code>, which controls <strong>2D surface
+meshing</strong>, not the tetrahedral volume mesh. GMSH provides multiple surface
+meshing algorithms:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
@@ -649,6 +654,57 @@ CadQuery backend does not:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
+<section id="d-algorithms-and-volume-only-options">
+<h3>3D Algorithms and Volume-Only Options<a class="headerlink" href="#d-algorithms-and-volume-only-options" title="Link to this heading">#</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> to set <code class="docutils literal notranslate"><span class="pre">Mesh.Algorithm3D</span></code> independently of the surface
+algorithm. The default is <code class="docutils literal notranslate"><span class="pre">1</span></code> (Delaunay); <code class="docutils literal notranslate"><span class="pre">10</span></code> selects HXT, which supports
+multithreaded volume meshing. The <code class="docutils literal notranslate"><span class="pre">threads</span></code> argument controls GMSH’s thread
+count. Performance depends on the geometry, settings and GMSH build.</p>
+<p>For finer control, <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> accepts a dictionary mapping GMSH
+option names to numeric or string values. Non-empty dictionaries cause the
+surfaces to be meshed first, using <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> and
+<code class="docutils literal notranslate"><span class="pre">set_size</span></code>. The overrides are then applied immediately before volume meshing,
+so relaxing the interior sizing does not coarsen the existing surface mesh.</p>
+<p>For example, to use HXT with relaxed interior sizing and standard quality
+optimisation disabled:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">mesh_algorithm_3d</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">volume_mesh_options</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"Mesh.Optimize"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"Mesh.MeshSizeExtendFromBoundary"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"Mesh.MeshSizeMax"</span><span class="p">:</span> <span class="mf">1e22</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>These settings allow a coarser interior; they do not guarantee that all interior
+refinement is disabled. Check the resulting mesh quality and resolution for
+your application. Other GMSH size constraints still apply, including
+<code class="docutils literal notranslate"><span class="pre">Mesh.MeshSizeMin</span></code> unless it is also overridden.</p>
+<p>Both arguments are available on all three GMSH volume-export paths:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file(...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file(dimensions=3,</span> <span class="pre">...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file(unstructured_volumes=...,</span> <span class="pre">...)</span></code></p></li>
+</ul>
+<p>The combined DAGMC/VTK export reuses the surface mesh already generated for the
+DAGMC file. Surface-only exports do not apply <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code>. The
+dictionary applies to the entire volume-meshing step, not to individual
+volumes, and its values take precedence over corresponding named arguments
+(including <code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code>) during that step. String values use
+<code class="docutils literal notranslate"><span class="pre">gmsh.option.setString</span></code>; numeric values use <code class="docutils literal notranslate"><span class="pre">gmsh.option.setNumber</span></code>. GMSH
+reports unsupported names or values as errors.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">volume_mesh_options=None</span></code> or <code class="docutils literal notranslate"><span class="pre">{}</span></code>, the existing meshing sequence is
+unchanged: direct volume exports use a single <code class="docutils literal notranslate"><span class="pre">generate(3)</span></code> call, while the
+combined DAGMC/VTK export keeps its existing <code class="docutils literal notranslate"><span class="pre">generate(2)</span></code> then <code class="docutils literal notranslate"><span class="pre">generate(3)</span></code>
+sequence. Options are scoped to the export’s GMSH session and do not carry
+over to subsequent exports. These controls do not apply to the CadQuery or
+cad-to-dagmc-mesher backends.</p>
+</section>
 </section>
 <section id="parameters-reference">
 <h2>Parameters Reference<a class="headerlink" href="#parameters-reference" title="Link to this heading">#</a></h2>
@@ -674,7 +730,17 @@ CadQuery backend does not:</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code></p></td>
 <td><p>int</p></td>
 <td><p>1</p></td>
-<td><p>GMSH meshing algorithm</p></td>
+<td><p>GMSH 2D surface meshing algorithm</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code></p></td>
+<td><p>int</p></td>
+<td><p>1</p></td>
+<td><p>GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>None</p></td>
+<td><p>Numeric/string GMSH options applied after surface meshing, before volume meshing</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code></p></td>
 <td><p>dict</p></td>
@@ -750,11 +816,14 @@ CadQuery backend does not:</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-size-parameters">Mesh Size Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-algorithms">Mesh Algorithms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-algorithms">Surface Mesh Algorithms</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#per-volume-mesh-sizing">Per-Volume Mesh Sizing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cad-transfer-method">CAD Transfer Method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-gmsh-options">Advanced GMSH Options</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-meshing">Volume Meshing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-meshing">Volume Meshing</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#d-algorithms-and-volume-only-options">3D Algorithms and Volume-Only Options</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters-reference">Parameters Reference</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>

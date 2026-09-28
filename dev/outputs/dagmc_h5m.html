@@ -607,7 +607,17 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code></p></td>
 <td><p>int</p></td>
 <td><p>1</p></td>
-<td><p>GMSH meshing algorithm (1-10)</p></td>
+<td><p>GMSH 2D surface meshing algorithm</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code></p></td>
+<td><p>int</p></td>
+<td><p>1</p></td>
+<td><p>GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>None</p></td>
+<td><p>Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>str</p></td>
@@ -632,6 +642,11 @@
 </tbody>
 </table>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> and <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> configure the volume step without
+changing how the DAGMC surfaces are initially meshed. See
+<a class="reference internal" href="../meshing/gmsh_backend.html#d-algorithms-and-volume-only-options"><span class="std std-ref">3D algorithms and volume-only options</span></a>
+for HXT and relaxed interior sizing. The existing surface mesh is reused for
+the unstructured output.</p>
 <p><strong>CadQuery Backend Parameters:</strong></p>
 <p>These parameters only apply when using <code class="docutils literal notranslate"><span class="pre">meshing_backend=&quot;cadquery&quot;</span></code>:</p>
 <div class="pst-scrollable-table-container"><table class="table">

@@ -422,6 +422,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-conformal-meshes">Why Conformal Meshes?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the GMSH Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>
@@ -501,6 +502,40 @@
 <span class="p">)</span>
 </pre></div>
 </div>
+<section id="controlling-the-conformal-3d-mesh">
+<h3>Controlling the Conformal 3D Mesh<a class="headerlink" href="#controlling-the-conformal-3d-mesh" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> and <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> apply to this combined export as
+well as standalone <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file(dimensions=3)</span></code> calls:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">],</span>
+    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">mesh_algorithm_3d</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># HXT; default 1 selects Delaunay</span>
+    <span class="n">volume_mesh_options</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"Mesh.Optimize"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"Mesh.MeshSizeExtendFromBoundary"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"Mesh.MeshSizeMax"</span><span class="p">:</span> <span class="mf">1e22</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The DAGMC surface is generated first with the normal surface sizing, then the
+overrides are applied before filling the selected volumes with tetrahedra.
+The existing surface triangulation is reused, not independently regenerated.
+These settings allow a coarser interior; they do not guarantee zero refinement.
+Avoid options that change element order, recombine elements or force remeshing
+when you need the first-order tetrahedral boundary to match the DAGMC triangles.</p>
+<p>Separate surface and volume export calls do not share mesh state, even when
+their sizes are identical. Use the combined export when matching the tracking
+and tally boundaries is required. See
+<a class="reference internal" href="../meshing/gmsh_backend.html#d-algorithms-and-volume-only-options"><span class="std std-ref">3D algorithms and volume-only options</span></a>
+for defaults and precedence rules.</p>
+</section>
 <section id="selecting-volumes-for-volume-mesh">
 <h3>Selecting Volumes for Volume Mesh<a class="headerlink" href="#selecting-volumes-for-volume-mesh" title="Link to this heading">#</a></h3>
 <section id="by-volume-id">
@@ -547,10 +582,12 @@
 <h3>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h3>
 <p>When you use <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the GMSH backend:</p>
 <ol class="arabic simple">
-<li><p>GMSH creates a unified mesh for all volumes</p></li>
-<li><p>Surface triangles are extracted for the DAGMC h5m file</p></li>
-<li><p>Volume tetrahedra are extracted for the specified volumes</p></li>
-<li><p>Both share the same surface coordinates at interfaces</p></li>
+<li><p>GMSH generates the surface mesh for all volumes, including shared interfaces</p></li>
+<li><p>Surface triangles are extracted and written to the DAGMC h5m file</p></li>
+<li><p>Any <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> are applied, then GMSH generates tetrahedra for the
+selected volumes using the existing surface mesh as their boundary</p></li>
+<li><p>The tetrahedra are written to the VTK file, sharing the surface triangulation
+with the DAGMC geometry</p></li>
 </ol>
 <p>This guarantees:</p>
 <ul class="simple">
@@ -720,6 +757,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-conformal-meshes">Why Conformal Meshes?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the GMSH Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>

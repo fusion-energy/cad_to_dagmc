@@ -515,7 +515,9 @@
     <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>             <span class="c1"># 2 for surface, 3 for volume</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Minimum element size</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>       <span class="c1"># Maximum element size</span>
-    <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>         <span class="c1"># GMSH algorithm (1-10)</span>
+    <span class="n">mesh_algorithm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>         <span class="c1"># GMSH 2D surface algorithm</span>
+    <span class="n">mesh_algorithm_3d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>      <span class="c1"># GMSH 3D algorithm (1=Delaunay, 10=HXT)</span>
+    <span class="n">volume_mesh_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># GMSH options applied only after surface meshing</span>
     <span class="n">set_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>            <span class="c1"># Per-volume sizes</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
     <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Imprint shared surfaces</span>
@@ -556,7 +558,17 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm</span></code></p></td>
 <td><p>int</p></td>
 <td><p>1</p></td>
-<td><p>GMSH meshing algorithm</p></td>
+<td><p>GMSH 2D surface meshing algorithm</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code></p></td>
+<td><p>int</p></td>
+<td><p>1</p></td>
+<td><p>GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>None</p></td>
+<td><p>Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with <code class="docutils literal notranslate"><span class="pre">dimensions=3</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code></p></td>
 <td><p>dict</p></td>
@@ -581,6 +593,12 @@
 </tbody>
 </table>
 </div>
+<p>For <code class="docutils literal notranslate"><span class="pre">dimensions=3</span></code>, <code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> selects the volume algorithm independently
+of the surface algorithm. A non-empty <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> dictionary causes
+surface generation first, followed by the option overrides and volume
+generation. <code class="docutils literal notranslate"><span class="pre">dimensions=2</span></code> ignores these volume overrides. See
+<a class="reference internal" href="../meshing/gmsh_backend.html#d-algorithms-and-volume-only-options"><span class="std std-ref">3D algorithms and volume-only options</span></a>
+for examples and precedence rules.</p>
 </section>
 </section>
 <section id="use-cases">
