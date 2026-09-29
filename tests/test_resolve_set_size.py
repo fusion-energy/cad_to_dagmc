@@ -2,9 +2,48 @@ import warnings
 
 import pytest
 import cadquery as cq
+import numpy as np
 
 from cad_to_dagmc import CadToDagmc
 from cad_to_dagmc.core import resolve_set_size, set_sizes_for_mesh, init_gmsh, get_volumes
+
+
+def _face_min_edge_lengths(assembly, material_tags, set_size, volume_index=0):
+    """Return the minimum triangle edge length for each face of one volume."""
+    gmsh_obj = init_gmsh()
+    try:
+        gmsh_obj, volumes = get_volumes(gmsh_obj, assembly)
+        resolved_set_size = resolve_set_size(set_size, volumes, material_tags)
+        set_sizes_for_mesh(
+            gmsh=gmsh_obj,
+            min_mesh_size=0.1,
+            max_mesh_size=5.0,
+            set_size=resolved_set_size,
+            threads=1,
+        )
+        gmsh_obj.model.mesh.generate(2)
+
+        volume_id = volumes[volume_index][1]
+        faces = [tag for _, tag in gmsh_obj.model.getBoundary([(3, volume_id)], recursive=False)]
+        node_tags, coords, _ = gmsh_obj.model.mesh.getNodes()
+        points = dict(zip(node_tags, coords.reshape(-1, 3)))
+
+        min_edge_lengths = []
+        for tag in faces:
+            triangles = gmsh_obj.model.mesh.getElementsByType(2, tag)[1].reshape(-1, 3)
+            edge_lengths = []
+            for triangle in triangles:
+                triangle_points = [points[node] for node in triangle]
+                for first in range(3):
+                    for second in range(first + 1, 3):
+                        edge_lengths.append(
+                            np.linalg.norm(triangle_points[first] - triangle_points[second])
+                        )
+            min_edge_lengths.append(min(edge_lengths))
+
+        return sorted(min_edge_lengths)
+    finally:
+        gmsh_obj.finalize()
 
 
 # Unit tests for resolve_set_size helper function
@@ -235,6 +274,32 @@ def test_set_size_material_tag_multiple_volumes(tmp_path):
     )
 
     assert h5m_file.is_file()
+
+
+def test_set_size_on_disjoint_sphere_does_not_refine_box_faces():
+    """A fine sphere should not shrink the box face triangles when it is disjoint."""
+    coarse_box = cq.Workplane("XY").box(10, 10, 10)
+    fine_sphere = cq.Workplane("XY").center(30, 0).sphere(5)
+
+    box_and_sphere = cq.Assembly()
+    box_and_sphere.add(coarse_box, name="box")
+    box_and_sphere.add(fine_sphere, name="sphere")
+
+    box_face_mins = _face_min_edge_lengths(
+        box_and_sphere,
+        ["box", "sphere"],
+        {"box": 2.0, "sphere": 0.25},
+        volume_index=0,
+    )
+    sphere_face_mins = _face_min_edge_lengths(
+        box_and_sphere,
+        ["box", "sphere"],
+        {"box": 2.0, "sphere": 0.25},
+        volume_index=1,
+    )
+
+    assert min(box_face_mins) > 1.0
+    assert max(sphere_face_mins) < 0.2
 
 
 def _make_gmsh_with_two_volumes():
