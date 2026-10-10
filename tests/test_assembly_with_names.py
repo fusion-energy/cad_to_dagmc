@@ -1,11 +1,12 @@
-from os import name
 import tempfile
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
 from pathlib import Path
+
+import cadquery as cq
 import pytest
-from test_python_api import get_volumes_and_materials_from_h5m
 from packaging.version import Version
+from test_python_api import get_volumes_and_materials_from_h5m
+
+from cad_to_dagmc import CadToDagmc
 
 # cq.Material requires CadQuery > 2.6.1
 CADQUERY_VERSION = Version(cq.__version__)
@@ -37,7 +38,9 @@ def test_cadquery_assembly_with_names():
             cadquery_object=assembly, material_tags="assembly_names"
         )
         test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
+            filename=str(Path(tmpdir) / "dagmc.h5m"),
+            min_mesh_size=0.5,
+            max_mesh_size=1.0e6,
         )
 
         assert Path(test_h5m_filename).is_file()
@@ -69,12 +72,16 @@ def test_cadquery_assembly_with_incomplete_names():
 
         my_model = CadToDagmc()
         # note that material tags are not needed here
-        my_model.add_cadquery_object(
-            cadquery_object=assembly, material_tags="assembly_names"
-        )
-        test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
-        )
+        with pytest.warns(UserWarning, match="Material tag .* is too long"):
+            my_model.add_cadquery_object(
+                cadquery_object=assembly, material_tags="assembly_names"
+            )
+        with pytest.warns(UserWarning, match="Material tag .* is too long"):
+            test_h5m_filename = my_model.export_dagmc_h5m_file(
+                filename=str(Path(tmpdir) / "dagmc.h5m"),
+                min_mesh_size=0.5,
+                max_mesh_size=1.0e6,
+            )
 
         assert Path(test_h5m_filename).is_file()
 
@@ -111,7 +118,9 @@ def test_cadquery_assembly_with_nested_assembly():
             cadquery_object=assembly2, material_tags="assembly_names"
         )
         test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
+            filename=str(Path(tmpdir) / "dagmc.h5m"),
+            min_mesh_size=0.5,
+            max_mesh_size=1.0e6,
         )
 
         assert Path(test_h5m_filename).is_file()

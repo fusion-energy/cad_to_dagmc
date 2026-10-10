@@ -1,7 +1,8 @@
+import assembly_mesh_plugin  # noqa: F401
 import cadquery as cq
-import cad_to_dagmc
 import gmsh
-import assembly_mesh_plugin
+
+import cad_to_dagmc
 
 box_shape1 = cq.Workplane("XY").box(50, 50, 50)
 box_shape2 = cq.Workplane("XY").moveTo(0, 50).box(50, 50, 100)

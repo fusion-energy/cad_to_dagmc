@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 text = cq.Workplane().text(txt="DAGMC", fontsize=10, distance=1)
 

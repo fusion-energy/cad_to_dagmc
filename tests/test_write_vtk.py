@@ -11,7 +11,7 @@ except ImportError:
     openmc = None
 
 from cad_to_dagmc import CadToDagmc
-from cad_to_dagmc.core import write_vtk, combine_tet_meshes
+from cad_to_dagmc.core import combine_tet_meshes, write_vtk
 
 
 def _box_to_tets(x0, y0, z0, dx, dy, dz):

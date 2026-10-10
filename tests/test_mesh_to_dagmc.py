@@ -1,12 +1,13 @@
-import gmsh
-from test_python_api import get_volumes_and_materials_from_h5m
-from test_h5m_in_transport import transport_particles_on_h5m_geometry
-import cadquery as cq
-import assembly_mesh_plugin
-import gmsh
 import math
-import cad_to_dagmc
+
+import assembly_mesh_plugin  # noqa: F401
+import cadquery as cq
+import gmsh
 import pytest
+from test_h5m_in_transport import transport_particles_on_h5m_geometry
+from test_python_api import get_volumes_and_materials_from_h5m
+
+import cad_to_dagmc
 
 try:
     import pydagmc
@@ -55,7 +56,8 @@ def test_mesh_to_dagmc_with_mesh_object():
         2: "mat:insert",
     }
 
-    model = pydagmc.Model(test_h5m_filename)
+    with pytest.warns(UserWarning, match="Assigned geom_dimension=4"):
+        model = pydagmc.Model(test_h5m_filename)
     v1 = model.volumes_by_id[1]  # get volume by id number 1
     v2 = model.volumes_by_id[2]  # get volume by id number 2
     assert len(model.volumes_by_id) == 2
@@ -98,7 +100,8 @@ def test_mesh_to_dagmc_with_cadquery_object():
         1: "mat:firstmat",
         2: "mat:aluminum",
     }
-    model = pydagmc.Model(test_h5m_filename)
+    with pytest.warns(UserWarning, match="Assigned geom_dimension=4"):
+        model = pydagmc.Model(test_h5m_filename)
     v1 = model.volumes_by_id[1]  # get volume by id number 1
     v2 = model.volumes_by_id[2]  # get volume by id number 2
     assert len(model.volumes_by_id) == 2

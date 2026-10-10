@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 result = cq.Workplane("XY").moveTo(10, 0).box(3, 3, 0.5).edges("|Z").fillet(0.125)
 

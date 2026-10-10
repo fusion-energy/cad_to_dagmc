@@ -96,14 +96,21 @@ def test_scale_factor_in_openmc(
 
     my_model = cad_to_dagmc.CadToDagmc()
     my_model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1"])
-    my_model.export_dagmc_h5m_file(
-        filename=f"scale-{scale_factor}.h5m",
-        min_mesh_size=0.5,
-        max_mesh_size=1.0e6,
-        scale_factor=scale_factor,
-        meshing_backend=meshing_backend,
-    )
+    export_kwargs = {
+        "filename": f"scale-{scale_factor}.h5m",
+        "scale_factor": scale_factor,
+        "meshing_backend": meshing_backend,
+    }
+    if meshing_backend == "gmsh":
+        export_kwargs.update(min_mesh_size=0.5, max_mesh_size=1.0e6)
 
+    if meshing_backend == "cadquery" and scale_factor != 1.0:
+        with pytest.warns(UserWarning, match="tolerance .*scaled geometry"):
+            my_model.export_dagmc_h5m_file(**export_kwargs)
+    else:
+        my_model.export_dagmc_h5m_file(**export_kwargs)
+
+    openmc.reset_auto_ids()
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")
 
     for a, b in zip(dag_model.bounding_box.lower_left, expected_bbox_lower_left):

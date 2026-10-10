@@ -1,7 +1,8 @@
 """Sphinx configuration for cad_to_dagmc documentation."""
 
-import cad_to_dagmc
 import pyvista
+
+import cad_to_dagmc
 
 # PyVista configuration for building docs
 pyvista.OFF_SCREEN = True

@@ -394,15 +394,16 @@ class TestKwargsExportDagmcH5mFile:
         """Test CadQuery backend with all valid parameters"""
         output_file = tmp_path / "test_cadquery_all_params.h5m"
 
-        result = self.my_model.export_dagmc_h5m_file(
-            filename=str(output_file),
-            meshing_backend="cadquery",
-            tolerance=0.01,
-            angular_tolerance=0.15,
-            scale_factor=2.0,
-            imprint=False,
-            implicit_complement_material_tag="vacuum",
-        )
+        with pytest.warns(UserWarning, match="tolerance .*scaled geometry"):
+            result = self.my_model.export_dagmc_h5m_file(
+                filename=str(output_file),
+                meshing_backend="cadquery",
+                tolerance=0.01,
+                angular_tolerance=0.15,
+                scale_factor=2.0,
+                imprint=False,
+                implicit_complement_material_tag="vacuum",
+            )
 
         assert result == str(output_file)
         assert output_file.exists()

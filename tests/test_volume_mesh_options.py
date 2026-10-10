@@ -22,13 +22,13 @@ def model():
 
 
 def _export(model, exporter, tmp_path, **kwargs):
-    options = dict(
-        min_mesh_size=0.5,
-        max_mesh_size=2.0,
-        set_size={"steel": 1.0},
-        threads=1,
-        imprint=False,
-    )
+    options = {
+        "min_mesh_size": 0.5,
+        "max_mesh_size": 2.0,
+        "set_size": {"steel": 1.0},
+        "threads": 1,
+        "imprint": False,
+    }
     options.update(kwargs)
     if exporter == "vtk":
         filename = tmp_path / "volume.vtk"
@@ -346,11 +346,11 @@ def test_surface_only_export_ignores_volume_options(model, exporter, tmp_path, m
         generate(dimension)
 
     monkeypatch.setattr(gmsh.model.mesh, "generate", capture)
-    kwargs = dict(
-        max_mesh_size=2.0,
-        threads=1,
-        volume_mesh_options={"Mesh.MeshSizeMax": 1e22, "Invalid.Option": 0},
-    )
+    kwargs = {
+        "max_mesh_size": 2.0,
+        "threads": 1,
+        "volume_mesh_options": {"Mesh.MeshSizeMax": 1e22, "Invalid.Option": 0},
+    }
     if exporter == "msh":
         model.export_gmsh_mesh_file(filename=str(tmp_path / "surface.msh"), **kwargs)
     else:
@@ -408,14 +408,15 @@ def test_non_gmsh_backend_warns_about_volume_options(model, backend, tmp_path, m
         "cad_to_dagmc.core.get_ids_from_assembly",
         Mock(side_effect=RuntimeError("arguments handled")),
     )
-    with pytest.warns(UserWarning, match="mesh_algorithm_3d, volume_mesh_options"):
-        with pytest.raises(RuntimeError, match="arguments handled"):
-            model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "surface.h5m"),
-                meshing_backend=backend,
-                mesh_algorithm_3d=10,
-                volume_mesh_options={"Mesh.Optimize": 0},
-            )
+    with pytest.warns(
+        UserWarning, match="mesh_algorithm_3d, volume_mesh_options"
+    ), pytest.raises(RuntimeError, match="arguments handled"):
+        model.export_dagmc_h5m_file(
+            filename=str(tmp_path / "surface.h5m"),
+            meshing_backend=backend,
+            mesh_algorithm_3d=10,
+            volume_mesh_options={"Mesh.Optimize": 0},
+        )
 
 
 def test_unstructured_mesher_warns_about_volume_options(model, tmp_path, monkeypatch):

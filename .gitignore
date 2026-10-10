@@ -139,3 +139,7 @@ src/_version.py
 *.msh
 *.step
 _build/
+
+# IDE files and folders
+.idea/
+.vscode/

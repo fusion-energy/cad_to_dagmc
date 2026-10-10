@@ -3,9 +3,9 @@
 
 
 # making the GMESH file
-import cad_to_dagmc
 import openmc
 
+import cad_to_dagmc
 
 # converting the mesh file to a DAGMC file
 

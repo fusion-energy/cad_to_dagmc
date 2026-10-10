@@ -1,6 +1,6 @@
-from cad_to_dagmc import CadToDagmc
-
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 result = cq.Workplane("XY")
 spline_points = [

@@ -1,12 +1,12 @@
 """Pytest configuration and fixtures for cad_to_dagmc tests."""
 
 import os
-import pytest
 
+import pytest
 
 # Check if pymoab is available
 try:
-    import pymoab
+    import pymoab as _pymoab  # noqa: F401
     PYMOAB_AVAILABLE = True
 except ImportError:
     PYMOAB_AVAILABLE = False
@@ -14,7 +14,7 @@ except ImportError:
 
 # Check if cad-to-dagmc-mesher is available
 try:
-    import cad_to_dagmc_mesher
+    import cad_to_dagmc_mesher as _mesher  # noqa: F401
     MESHER_AVAILABLE = True
 except ImportError:
     MESHER_AVAILABLE = False
@@ -60,12 +60,18 @@ def pytest_collection_modifyitems(config, items):
             params = item.callspec.params
 
             # Skip pymoab backend tests if pymoab is not installed
-            if not PYMOAB_AVAILABLE:
-                if params.get("method") == "pymoab" or params.get("h5m_backend") == "pymoab":
-                    item.add_marker(skip_pymoab)
+            if (
+                not PYMOAB_AVAILABLE
+                and (
+                    params.get("method") == "pymoab"
+                    or params.get("h5m_backend") == "pymoab"
+                )
+            ):
+                item.add_marker(skip_pymoab)
 
             # Skip cad-to-dagmc-mesher backend tests if the mesher is not installed
-            if not MESHER_AVAILABLE:
-                if params.get("meshing_backend") == "cad-to-dagmc-mesher":
-                    item.add_marker(skip_mesher)
-
+            if (
+                not MESHER_AVAILABLE
+                and params.get("meshing_backend") == "cad-to-dagmc-mesher"
+            ):
+                item.add_marker(skip_mesher)

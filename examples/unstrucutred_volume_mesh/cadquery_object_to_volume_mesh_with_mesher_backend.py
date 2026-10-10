@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 # This example writes a tetrahedral unstructured volume mesh using the
 # cad-to-dagmc-mesher backend instead of gmsh. The resulting vtk file can be

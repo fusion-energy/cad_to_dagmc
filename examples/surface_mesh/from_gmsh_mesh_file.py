@@ -1,10 +1,11 @@
 # this file makes a GMESH mesh file from a Step file
 # then loads up the GMESH file and converts it to a DAGMC file
 
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
-import cad_to_dagmc
 import openmc
+
+import cad_to_dagmc
+from cad_to_dagmc import CadToDagmc
 
 # making the gmsh file just so we have one for the example
 result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)

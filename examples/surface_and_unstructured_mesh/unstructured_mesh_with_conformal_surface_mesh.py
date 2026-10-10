@@ -6,9 +6,9 @@
 # Additionally only volume 2 is volume meshed, while all three volumes are surface meshed
 
 import cadquery as cq
-from cad_to_dagmc import CadToDagmc
 import openmc
 
+from cad_to_dagmc import CadToDagmc
 
 box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)
 inner_sphere = cq.Workplane("XY").sphere(6).cut(box_cutter)

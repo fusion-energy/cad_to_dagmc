@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 # make other shapes from the CadQuery examples
 spline_points = [

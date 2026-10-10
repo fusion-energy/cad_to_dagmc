@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import pytest
 
@@ -6,8 +8,9 @@ try:
 except ImportError:
     openmc = None
 
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 """
 Tests that check that:
@@ -21,9 +24,9 @@ Tests that check that:
 def transport_particles_on_h5m_geometry(
     h5m_filename: str,
     material_tags: list,
-    nuclides: list = None,
-    cross_sections_xml: str = None,
-    vtk_filename: str = None,
+    nuclides: list | None = None,
+    cross_sections_xml: str | None = None,
+    vtk_filename: str | None = None,
 ):
     """A function for testing the geometry file with particle transport in
     DAGMC OpenMC. Requires openmc and either the cross_sections_xml to be
@@ -42,6 +45,7 @@ def transport_particles_on_h5m_geometry(
     if nuclides is None:
         nuclides = list(NATURAL_ABUNDANCE.keys())
 
+    openmc.reset_auto_ids()
     materials = openmc.Materials()
     for i, material_tag in enumerate(material_tags):
         # simplified material definitions have been used to keen this example minimal
@@ -311,16 +315,17 @@ def test_umesh_with_volumes(meshing_backend):
     mat_tags = ["mat1", "mat2", "mat3"]
     model.add_cadquery_object(assembly, material_tags=mat_tags)
 
+    set_size = {1: 0.9, 2: 0.1, 3: 0.9}
     h5m_file = model.export_dagmc_h5m_file(
         filename="dagmc.h5m",
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         meshing_backend=meshing_backend,
     )
 
     vtk_file = model.export_unstructured_mesh_file(
         filename="umesh_vol_1.vtk",
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
-        volumes=[1],  # only mesh volume 2 out of the three volumes
+        set_size=set_size,
+        volumes=[1],  # only mesh volume 1 out of the three volumes
     )
 
     transport_particles_on_h5m_geometry(

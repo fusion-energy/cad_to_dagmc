@@ -4,7 +4,6 @@ from pathlib import Path
 import cadquery as cq
 import gmsh
 import h5py
-import numpy as np
 import pytest
 
 from cad_to_dagmc import CadToDagmc
@@ -12,8 +11,8 @@ from cad_to_dagmc.core import check_material_tags
 
 # Check if pymoab is available
 try:
-    import pymoab as mb
-    from pymoab import core, types
+    import pymoab as _mb  # noqa: F401
+    from pymoab import core, types  # noqa: F401
     PYMOAB_AVAILABLE = True
 except ImportError:
     PYMOAB_AVAILABLE = False
@@ -349,6 +348,11 @@ def test_check_material_tags_too_long():
         assert "a" * 29 in str(w[-1].message)
 
 
+def test_check_material_tags_rejects_non_string_values():
+    with pytest.raises(TypeError, match="material_tags should be an iterable of strings"):
+        check_material_tags([1], [1])
+
+
 @pytest.mark.parametrize(
     "scale_factor, expected_width",
     [
@@ -525,10 +529,11 @@ def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
     model = CadToDagmc()
     model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
+    set_size = {1: 0.9, 2: 0.1, 3: 0.9}
     h5m_file = tmp_path / "dagmc.h5m"
     filename = model.export_dagmc_h5m_file(
         filename=str(h5m_file),
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         meshing_backend=meshing_backend,
     )
     assert Path(filename).is_file()
@@ -536,7 +541,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
     vtk_file1 = tmp_path / "umesh_vol_1.vtk"
     filename = model.export_unstructured_mesh_file(
         filename=str(vtk_file1),
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         volumes=[1],  # only mesh volume 1 out of the three volumes
     )
     assert Path(filename).is_file()
@@ -544,7 +549,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
     vtk_file2 = tmp_path / "umesh_vol_2.vtk"
     filename = model.export_unstructured_mesh_file(
         filename=str(vtk_file2),
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         volumes=[2],  # only mesh volume 2 out of the three volumes
     )
     assert Path(filename).is_file()
@@ -552,7 +557,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
     vtk_file3 = tmp_path / "umesh_vol_3.vtk"
     filename = model.export_unstructured_mesh_file(
         filename=str(vtk_file3),
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         volumes=[3],  # only mesh volume 3 out of the three volumes
     )
     assert Path(filename).is_file()
@@ -560,7 +565,7 @@ def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
     vtk_file4 = tmp_path / "umesh_vol_1_2.vtk"
     filename = model.export_unstructured_mesh_file(
         filename=str(vtk_file4),
-        set_size={1: 0.9, 2: 0.1, 3: 0.9},
+        set_size=set_size,
         volumes=[1, 2],  # only mesh volumes 1 and 2 out of the three volumes
     )
 

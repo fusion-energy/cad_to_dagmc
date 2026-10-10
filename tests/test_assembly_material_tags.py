@@ -2,6 +2,7 @@
 match the number of solids, even when leaf children have 0 or multiple solids."""
 
 import cadquery as cq
+
 from cad_to_dagmc import CadToDagmc
 
 

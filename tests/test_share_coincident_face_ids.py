@@ -51,7 +51,9 @@ def _surface_ids_and_shared_count(h5m_filename):
     ):
         try:
             category = moab_core.tag_get_data(category_tag, entity, flat=True)[0]
-        except Exception:
+        except RuntimeError as exc:
+            if "MOAB ErrorCode: MB_TAG_NOT_FOUND" not in str(exc):
+                raise
             continue
         if isinstance(category, bytes):
             category = category.decode(errors="ignore")

@@ -1,6 +1,8 @@
-from cad_to_dagmc import CadToDagmc
+from math import cos, floor, pi, sin
+
 import cadquery as cq
-from math import sin, cos, pi, floor
+
+from cad_to_dagmc import CadToDagmc
 
 
 # define the generating function

@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
 result2 = cq.Workplane("XY").moveTo(10, 0).box(10.0, 10.0, 5.0)

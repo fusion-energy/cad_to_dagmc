@@ -54,8 +54,6 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        env:
-          OPENMC_CROSS_SECTIONS: /home/runner/work/cad_to_dagmc/cad_to_dagmc/cross_sections.xml
         run: |
           source "${HOME}/miniforge/etc/profile.d/conda.sh"
           conda activate ci-env
@@ -63,7 +61,8 @@ jobs:
           python -m pip install . --no-deps
           python -m pip install openmc_data_downloader
           openmc_data_downloader -l ENDFB-7.1-NNDC -i Fe56 Be9 Al27
+          export OPENMC_CROSS_SECTIONS="${GITHUB_WORKSPACE}/cross_sections.xml"
           git clone --single-branch -b main --depth 1 https://github.com/fusion-energy/model_benchmark_zoo.git
           cd model_benchmark_zoo
           python -m pip install .[tests]
-          pytest tests/test_cad_to_dagmc -v
+          PYTHONPATH="${GITHUB_WORKSPACE}/tests" pytest -p openmc_benchmark_plugin tests/test_cad_to_dagmc -v

@@ -1,5 +1,6 @@
-import pytest
 import cadquery as cq
+import pytest
+
 from cad_to_dagmc.core import CadToDagmc
 
 

@@ -1,5 +1,6 @@
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+
+from cad_to_dagmc import CadToDagmc
 
 # see Cadquery docs for lots of examples
 # https://cadquery.readthedocs.io/en/latest/examples.html

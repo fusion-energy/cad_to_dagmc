@@ -15,6 +15,7 @@ neutronics simulations with codes like OpenMC.
 """
 
 import cadquery as cq
+
 from cad_to_dagmc import CadToDagmc
 
 # Create a simple assembly with two spheres

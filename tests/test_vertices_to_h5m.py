@@ -1,16 +1,14 @@
 """Tests for vertices_to_h5m function with both pymoab and h5py backends."""
 
-import os
-from pathlib import Path
 
 import pytest
-
-from cad_to_dagmc.core import vertices_to_h5m, PyMoabNotFoundError
 from test_python_api import get_volumes_and_materials_from_h5m
+
+from cad_to_dagmc.core import PyMoabNotFoundError, vertices_to_h5m
 
 # Check if pymoab is available
 try:
-    import pymoab
+    import pymoab as _pymoab  # noqa: F401
     PYMOAB_AVAILABLE = True
 except ImportError:
     PYMOAB_AVAILABLE = False

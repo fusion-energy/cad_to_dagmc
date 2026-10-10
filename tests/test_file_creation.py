@@ -1,11 +1,11 @@
-from cad_to_dagmc import CadToDagmc
 from pathlib import Path
-import cadquery as cq
-import cad_to_dagmc
-import pytest
 
+import cadquery as cq
+import pytest
 from test_python_api import get_volumes_and_materials_from_h5m
 
+import cad_to_dagmc
+from cad_to_dagmc import CadToDagmc
 
 """
 Tests that check that:

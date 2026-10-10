@@ -1,11 +1,15 @@
 import warnings
 
-import pytest
 import cadquery as cq
+import pytest
 
 from cad_to_dagmc import CadToDagmc
-from cad_to_dagmc.core import resolve_set_size, set_sizes_for_mesh, init_gmsh, get_volumes
-
+from cad_to_dagmc.core import (
+    get_volumes,
+    init_gmsh,
+    resolve_set_size,
+    set_sizes_for_mesh,
+)
 
 # Unit tests for resolve_set_size helper function
 
@@ -124,7 +128,7 @@ def test_set_size_with_material_tag_string(tmp_path):
     h5m_file = tmp_path / "dagmc.h5m"
 
     # Use material tag string in set_size
-    filename = model.export_dagmc_h5m_file(
+    model.export_dagmc_h5m_file(
         filename=str(h5m_file),
         min_mesh_size=0.5,
         max_mesh_size=2.0,
@@ -152,7 +156,7 @@ def test_set_size_with_mixed_int_and_string(tmp_path):
     h5m_file = tmp_path / "dagmc.h5m"
 
     # Use mixed int and string in set_size
-    filename = model.export_dagmc_h5m_file(
+    model.export_dagmc_h5m_file(
         filename=str(h5m_file),
         min_mesh_size=0.5,
         max_mesh_size=2.0,
@@ -178,7 +182,7 @@ def test_set_size_with_assembly_names(tmp_path):
     h5m_file = tmp_path / "dagmc.h5m"
 
     # Use assembly names in set_size
-    filename = model.export_dagmc_h5m_file(
+    model.export_dagmc_h5m_file(
         filename=str(h5m_file),
         min_mesh_size=0.1,
         max_mesh_size=2.0,
@@ -226,7 +230,7 @@ def test_set_size_material_tag_multiple_volumes(tmp_path):
     h5m_file = tmp_path / "dagmc.h5m"
 
     # "steel" should set size for volumes 1 and 3
-    filename = model.export_dagmc_h5m_file(
+    model.export_dagmc_h5m_file(
         filename=str(h5m_file),
         min_mesh_size=0.5,
         max_mesh_size=2.0,

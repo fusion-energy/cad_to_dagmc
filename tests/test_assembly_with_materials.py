@@ -1,10 +1,12 @@
 import tempfile
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
 from pathlib import Path
+
+import cadquery as cq
 import pytest
-from test_python_api import get_volumes_and_materials_from_h5m
 from packaging.version import Version
+from test_python_api import get_volumes_and_materials_from_h5m
+
+from cad_to_dagmc import CadToDagmc
 
 # assembly_materials feature requires CadQuery > 2.6.1
 CADQUERY_VERSION = Version(cq.__version__)
@@ -36,7 +38,9 @@ def test_cadquery_assembly_with_materials():
             cadquery_object=assembly, material_tags="assembly_materials"
         )
         test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
+            filename=str(Path(tmpdir) / "dagmc.h5m"),
+            min_mesh_size=0.5,
+            max_mesh_size=1.0e6,
         )
 
         assert Path(test_h5m_filename).is_file()
@@ -96,7 +100,9 @@ def test_cadquery_assembly_with_nested_assembly():
             cadquery_object=assembly2, material_tags="assembly_materials"
         )
         test_h5m_filename = my_model.export_dagmc_h5m_file(
-            min_mesh_size=0.5, max_mesh_size=1.0e6
+            filename=str(Path(tmpdir) / "dagmc.h5m"),
+            min_mesh_size=0.5,
+            max_mesh_size=1.0e6,
         )
 
         assert Path(test_h5m_filename).is_file()

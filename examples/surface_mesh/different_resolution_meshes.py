@@ -2,6 +2,7 @@
 # Meshes the 3 volumes with different resolutions
 # exports the mesh to a DAGMC h5m file and GMsh msh file
 import cadquery as cq
+
 from cad_to_dagmc import CadToDagmc
 
 box_set_size_course_mesh = cq.Workplane().box(1, 1, 2)

@@ -1,18 +1,22 @@
+from __future__ import annotations
+
+import functools
+import importlib.util
+import tempfile
+import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterable
-import functools
-import importlib.util
+
 import cadquery as cq
 import gmsh
 import numpy as np
 from cadquery import importers
+from cadquery.occ_impl.geom import Vector
 from cadquery.occ_impl.importers.assembly import importStep as importStepAssembly
 from cadquery.occ_impl.shapes import setThreads
 from OCP.OSD import OSD_ThreadPool
-import tempfile
-import warnings
-from typing import Iterable
+
 from cad_to_dagmc import __version__
 
 
@@ -408,7 +412,7 @@ def define_moab_core_and_tags():
     # create pymoab instance
     moab_core = core.Core()
 
-    tags = dict()
+    tags = {}
 
     sense_tag_name = "GEOM_SENSE_2"
     sense_tag_size = 2
@@ -451,7 +455,7 @@ def define_moab_core_and_tags():
 
 
 def vertices_to_h5m(
-    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    vertices: list[tuple[float, float, float]] | list[Vector],
     triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
@@ -490,7 +494,7 @@ def vertices_to_h5m(
 
 
 def _vertices_to_h5m_pymoab(
-    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    vertices: list[tuple[float, float, float]] | list[Vector],
     triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
@@ -521,7 +525,7 @@ def _vertices_to_h5m_pymoab(
     face_ids_with_solid_ids = {}
     for solid_id, triangles_on_each_face in triangles_by_solid_by_face.items():
         for face_id, triangles_on_face in triangles_on_each_face.items():
-            if face_id in face_ids_with_solid_ids.keys():
+            if face_id in face_ids_with_solid_ids:
                 face_ids_with_solid_ids[face_id].append(solid_id)
             else:
                 face_ids_with_solid_ids[face_id] = [solid_id]
@@ -555,7 +559,7 @@ def _vertices_to_h5m_pymoab(
         # moab_core.tag_set_data(tags["geom_dimension"], group_set, 4)
 
         for face_id, triangles_on_face in triangles_on_each_face.items():
-            if face_id not in added_surfaces_ids.keys():
+            if face_id not in added_surfaces_ids:
                 face_set = moab_core.create_meshset()
                 moab_core.tag_set_data(tags["global_id"], face_set, face_id)
                 moab_core.tag_set_data(tags["geom_dimension"], face_set, 2)
@@ -640,7 +644,7 @@ def _vertices_to_h5m_pymoab(
 
 
 def _vertices_to_h5m_h5py(
-    vertices: list[tuple[float, float, float]] | list["cadquery.occ_impl.geom.Vector"],
+    vertices: list[tuple[float, float, float]] | list[Vector],
     triangles_by_solid_by_face: dict[int, dict[int, list[list[int]]]],
     material_tags: list[str],
     h5m_filename: str = "dagmc.h5m",
@@ -651,8 +655,9 @@ def _vertices_to_h5m_h5py(
     Creates an h5m file compatible with DAGMC using h5py directly,
     without requiring pymoab.
     """
-    import h5py
     from datetime import datetime
+
+    import h5py
 
     if len(material_tags) != len(triangles_by_solid_by_face):
         msg = f"The number of material_tags provided is {len(material_tags)} and the number of sets of triangles is {len(triangles_by_solid_by_face)}. You must provide one material_tag for every triangle set"
@@ -671,7 +676,7 @@ def _vertices_to_h5m_h5py(
     # Build face_ids_with_solid_ids to track shared faces
     face_ids_with_solid_ids = {}
     for solid_id, triangles_on_each_face in triangles_by_solid_by_face.items():
-        for face_id in triangles_on_each_face.keys():
+        for face_id in triangles_on_each_face:
             if face_id in face_ids_with_solid_ids:
                 face_ids_with_solid_ids[face_id].append(solid_id)
             else:
@@ -727,7 +732,7 @@ def _vertices_to_h5m_h5py(
         tstt["elemtypes"] = h5py.enum_dtype(elems)
 
         # History
-        now = datetime.now()
+        now = datetime.now().astimezone()
         tstt.create_dataset(
             "history",
             data=[
@@ -761,8 +766,7 @@ def _vertices_to_h5m_h5py(
         # For each solid: 1 volume set, N surface sets (one per face), 1 group set (material)
         # Plus: 1 file set at the end, optionally 1 implicit complement group
 
-        solid_ids = list(triangles_by_solid_by_face.keys())
-        num_solids = len(solid_ids)
+        solid_ids = list(triangles_by_solid_by_face)
 
         # Assign set IDs
         sets_start_id = global_id
@@ -1067,16 +1071,13 @@ def _vertices_to_h5m_h5py(
         set_global_ids = []
 
         # Surface global IDs
-        for face_id in sorted(all_faces.keys()):
-            set_global_ids.append(face_id)
+        set_global_ids.extend(sorted(all_faces))
 
         # Volume global IDs
-        for solid_id in solid_ids:
-            set_global_ids.append(solid_id)
+        set_global_ids.extend(solid_ids)
 
         # Group global IDs
-        for solid_id in solid_ids:
-            set_global_ids.append(solid_id)
+        set_global_ids.extend(solid_ids)
 
         # Implicit complement
         if implicit_complement_material_tag:
@@ -1169,11 +1170,10 @@ def set_sizes_for_mesh(
     Returns:
         The resulting gmsh object and volumes
     """
-    if min_mesh_size and max_mesh_size:
-        if min_mesh_size > max_mesh_size:
-            raise ValueError(
-                f"min_mesh_size must be less than or equal to max_mesh_size. Currently min_mesh_size is set to {min_mesh_size} and max_mesh_size is set to {max_mesh_size}"
-            )
+    if min_mesh_size and max_mesh_size and min_mesh_size > max_mesh_size:
+        raise ValueError(
+            f"min_mesh_size must be less than or equal to max_mesh_size. Currently min_mesh_size is set to {min_mesh_size} and max_mesh_size is set to {max_mesh_size}"
+        )
 
     if min_mesh_size:
         gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_size)
@@ -1191,7 +1191,7 @@ def set_sizes_for_mesh(
         print("volumes", volumes)
 
         # Ensure all volume IDs in set_size exist in the available volumes
-        for volume_id in set_size.keys():
+        for volume_id in set_size:
             if volume_id not in available_volumes:
                 raise ValueError(
                     f"volume ID of {volume_id} set in set_sizes but not found in available volumes {volumes}"
@@ -1348,8 +1348,8 @@ def check_material_tags(material_tags, iterable_solids):
             raise ValueError(msg)
         for material_tag in material_tags:
             if not isinstance(material_tag, str):
-                msg = f"material_tags should be an iterable of strings."
-                raise ValueError(msg)
+                msg = "material_tags should be an iterable of strings."
+                raise TypeError(msg)
             if len(material_tag) > 28:
                 msg = (
                     f"Material tag {material_tag} is too long. DAGMC will truncate this material tag "
@@ -2569,7 +2569,8 @@ class CadToDagmc:
         try:
             # Use the CadQuery direct mesh plugin
             if meshing_backend == "cadquery":
-                import cadquery_direct_mesh_plugin
+                import cadquery_direct_mesh_plugin  # noqa: F401
+
                 # tolerance is documented as being in the units of the scaled
                 # geometry, matching the gmsh and cad-to-dagmc-mesher backends
                 # (both of which scale the geometry before meshing it). This

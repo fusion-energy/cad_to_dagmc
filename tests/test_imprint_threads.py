@@ -72,9 +72,8 @@ class TestThreadLimit:
 
     def test_limit_is_restored_after_an_exception(self):
         before = _pool_threads()
-        with pytest.raises(RuntimeError):
-            with thread_limit(2):
-                raise RuntimeError("meshing failed")
+        with pytest.raises(RuntimeError), thread_limit(2):
+            raise RuntimeError("meshing failed")
         assert _pool_threads() == before
 
     def test_none_leaves_the_pool_alone(self):
@@ -121,9 +120,8 @@ class TestImprintThreadLimit:
     def test_the_original_imprint_is_put_back_after_an_exception(self):
         real_imprint = cq.occ_impl.assembly.imprint
         before = _pool_threads()
-        with pytest.raises(RuntimeError):
-            with imprint_thread_limit(2):
-                raise RuntimeError("meshing failed")
+        with pytest.raises(RuntimeError), imprint_thread_limit(2):
+            raise RuntimeError("meshing failed")
         assert cq.occ_impl.assembly.imprint is real_imprint
         assert _pool_threads() == before
 
