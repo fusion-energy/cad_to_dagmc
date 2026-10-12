@@ -16,6 +16,7 @@ from cadquery.occ_impl.geom import Vector
 from cadquery.occ_impl.importers.assembly import importStep as importStepAssembly
 from cadquery.occ_impl.shapes import setThreads
 from OCP.OSD import OSD_ThreadPool
+from OCP.TopoDS import TopoDS_Iterator
 
 from cad_to_dagmc import __version__
 
@@ -1763,12 +1764,7 @@ class CadToDagmc:
         else:
             iterable_solids = cadquery_compound.val().Solids()
 
-        if scale_factor == 1.0:
-            scaled_iterable_solids = iterable_solids
-        else:
-            scaled_iterable_solids = [
-                part.scale(scale_factor) for part in iterable_solids
-            ]
+        scaled_iterable_solids = _scale_together(iterable_solids, scale_factor)
 
         check_material_tags(material_tags, scaled_iterable_solids)
         if material_tags:
@@ -2785,20 +2781,53 @@ class CadToDagmc:
                 gmsh.finalize()
 
 
-def _build_assembly(parts, scale_factor: float = 1.0, names=None):
-    """Build a CadQuery assembly from parts, optionally scaling each part.
+def _scale_together(shapes, scale_factor: float = 1.0) -> list:
+    """Scale shapes as one, keeping any faces they share shared.
+
+    Solids that were imprinted against each other share the face between them,
+    and the mesher relies on that sharing to give the face a sense for both
+    volumes. Scaling each solid on its own transforms that face once per solid,
+    so every solid ends up with its own copy and the interface becomes two
+    coincident one sided DAGMC surfaces. Scaling them together as one compound
+    transforms each shared face once.
 
     Shape.scale returns a new shape (it does not mutate in place), so the
-    original parts in self.parts are left untouched and repeated exports stay
-    consistent.
+    shapes passed in are left untouched.
+
+    Args:
+        shapes: the shapes to scale.
+        scale_factor: the scaling factor to apply.
+
+    Returns:
+        The scaled shapes, in the same order as the shapes passed in.
+    """
+    shapes = list(shapes)
+    if scale_factor == 1.0:
+        return shapes
+    scaled = cq.Compound.makeCompound(shapes).scale(scale_factor)
+    # The direct children of the compound, rather than Solids(), so that every
+    # shape passed in comes back as exactly one shape in the same position.
+    children = []
+    iterator = TopoDS_Iterator(scaled.wrapped)
+    while iterator.More():
+        children.append(cq.Shape.cast(iterator.Value()))
+        iterator.Next()
+    return children
+
+
+def _build_assembly(parts, scale_factor: float = 1.0, names=None):
+    """Build a CadQuery assembly from parts, optionally scaling them.
+
+    The parts are scaled together with _scale_together so faces they share
+    stay shared, and the original parts in self.parts are left untouched so
+    repeated exports stay consistent.
 
     names, when given, labels each child. cad-to-dagmc-mesher's SolidConfig
     addresses solids by assembly child name, so naming them is what lets us ask
     for per-solid meshing rather than the positional material_tags API.
     """
     assembly = cq.Assembly()
-    for index, part in enumerate(parts):
-        scaled = part.scale(scale_factor) if scale_factor != 1.0 else part
+    for index, scaled in enumerate(_scale_together(parts, scale_factor)):
         if names is None:
             assembly.add(scaled)
         else:
