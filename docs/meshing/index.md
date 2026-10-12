@@ -1,6 +1,6 @@
 # Meshing Backends
 
-cad_to_dagmc supports three meshing backends for creating surface and volume meshes.
+cad_to_dagmc supports two meshing backends for creating surface and volume meshes.
 
 ## Available Backends
 
@@ -8,19 +8,18 @@ cad_to_dagmc supports three meshing backends for creating surface and volume mes
 |---------|-------------|----------|
 | [cad-to-dagmc-mesher](cad_to_dagmc_mesher_backend.md) | Purpose-built, curvature-adaptive surface and tetrahedral mesher | Efficient DAGMC tracking meshes and conformal volume meshes |
 | [GMSH](gmsh_backend.md) | Full-featured meshing library | Complex models, fine mesh control |
-| [CadQuery](cadquery_backend.md) | Built-in CadQuery tessellation | Simple models, flat surfaces |
 
 ## Quick Comparison
 
-| Feature | cad-to-dagmc-mesher | GMSH | CadQuery |
-|---------|---------------------|------|----------|
-| Surface mesh (h5m) | Yes | Yes | Yes |
-| Volume mesh (vtk) | Yes | Yes | **No** |
-| Mesh size control | Tolerances + `target_edge_length` | Full (min/max/per-volume) | Limited (tolerance only) |
-| Mesh algorithms | 1 (built-in) | 10 algorithms | 1 (built-in) |
-| Parallel meshing | Yes (DAG scheduler) | Yes | Partial |
-| Dependencies | Installed with cad_to_dagmc | Requires GMSH | Built into CadQuery |
-| Flat surface efficiency | Better (fewer triangles) | Standard | Better (fewer triangles) |
+| Feature | cad-to-dagmc-mesher | GMSH |
+|---------|---------------------|------|
+| Surface mesh (h5m) | Yes | Yes |
+| Volume mesh (vtk) | Yes | Yes |
+| Mesh size control | Tolerances + `target_edge_length` | Full (min/max/per-volume) |
+| Mesh algorithms | 1 (built-in) | 10 algorithms |
+| Parallel meshing | Yes (DAG scheduler) | Yes |
+| Dependencies | Installed with cad_to_dagmc | Requires GMSH |
+| Flat surface efficiency | Better (fewer triangles) | Standard |
 
 ## Choosing a Backend
 
@@ -32,19 +31,13 @@ cad_to_dagmc supports three meshing backends for creating surface and volume mes
 
 A call that gives no backend and no backend-specific arguments uses
 cad-to-dagmc-mesher. It is installed with the pip package but is not on
-conda-forge, so a conda installation without it falls back to CadQuery.
+conda-forge, so a conda installation without it falls back to GMSH and warns.
 
 **Use GMSH backend when:**
 - You need precise control over mesh density
 - You want per-volume mesh sizing with `set_size`
 - You need parallel meshing for large models
 - You need specific mesh algorithms
-
-**Use CadQuery backend when:**
-- You only need surface meshes
-- You want simpler configuration
-- Your geometry has many flat surfaces (fewer triangles)
-- Your geometry is straightforward
 
 ## Basic Usage
 
@@ -72,14 +65,6 @@ model.export_dagmc_h5m_file(
     meshing_backend="gmsh",
     min_mesh_size=0.5,
     max_mesh_size=10.0,
-)
-
-# CadQuery backend
-model.export_dagmc_h5m_file(
-    filename="dagmc_cq.h5m",
-    meshing_backend="cadquery",
-    tolerance=0.1,
-    angular_tolerance=0.1,
 )
 ```
 

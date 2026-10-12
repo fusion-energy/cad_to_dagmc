@@ -151,6 +151,7 @@ model.export_unstructured_mesh_file(
     volumes=None,             # Specific volumes to include (gmsh backend)
     scale_factor=1.0,         # Geometry scaling
     imprint=True,             # Imprint shared surfaces
+    imprint_glue="partial",   # Imprint glue: "partial", "full" or None
     method="file",            # CAD transfer method (gmsh backend)
     meshing_backend=None,     # "gmsh", "cad-to-dagmc-mesher" or auto-select
     target_edge_length=None,  # Tet edge length (cad-to-dagmc-mesher backend)
@@ -172,6 +173,7 @@ model.export_unstructured_mesh_file(
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
+| `imprint_glue` | str or None | "partial" | Glue option for the imprint: `"partial"`, `"full"` or `None`. Keyword-only. See [Imprinting](../advanced/imprinting.md#choosing-the-imprint-glue) |
 | `method` | str | "file" | CAD transfer method (gmsh) |
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
 | `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |

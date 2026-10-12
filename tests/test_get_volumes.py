@@ -51,7 +51,7 @@ def test_get_volumes(scale_factor, expected_bbox):
             1.0,
             (-5.0000001, -5.0000001, -5.0000001),
             (5.0000001, 5.0000001, 5.0000001),
-            "cadquery",
+            "cad-to-dagmc-mesher",
         ),
         (
             1.0,
@@ -63,7 +63,7 @@ def test_get_volumes(scale_factor, expected_bbox):
             2.0,
             (-10.0000001, -10.0000001, -10.0000001),
             (10.0000001, 10.0000001, 10.0000001),
-            "cadquery",
+            "cad-to-dagmc-mesher",
         ),
         (
             2.0,
@@ -75,7 +75,7 @@ def test_get_volumes(scale_factor, expected_bbox):
             10.0,
             (-50.0000001, -50.0000001, -50.0000001),
             (50.0000001, 50.0000001, 50.0000001),
-            "cadquery",
+            "cad-to-dagmc-mesher",
         ),
         (
             10.0,
@@ -104,11 +104,7 @@ def test_scale_factor_in_openmc(
     if meshing_backend == "gmsh":
         export_kwargs.update(min_mesh_size=0.5, max_mesh_size=1.0e6)
 
-    if meshing_backend == "cadquery" and scale_factor != 1.0:
-        with pytest.warns(UserWarning, match="tolerance .*scaled geometry"):
-            my_model.export_dagmc_h5m_file(**export_kwargs)
-    else:
-        my_model.export_dagmc_h5m_file(**export_kwargs)
+    my_model.export_dagmc_h5m_file(**export_kwargs)
 
     openmc.reset_auto_ids()
     dag_model = openmc.DAGMCUniverse(filename=f"scale-{scale_factor}.h5m")

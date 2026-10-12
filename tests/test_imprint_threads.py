@@ -5,8 +5,8 @@ the imprint argument accepts a positive int as well as a bool. The int limits
 the OpenCASCADE thread pool while the imprint runs and the previous limit is
 put back afterwards so other cadquery operations are unaffected. The limit is
 on the imprint alone: the meshing that follows it keeps all its threads, which
-takes some care for the cadquery and cad-to-dagmc-mesher backends because they
-imprint part way through their own meshing call.
+takes some care for the cad-to-dagmc-mesher backend because it imprints part
+way through its own meshing call.
 """
 
 import functools
@@ -158,7 +158,7 @@ class TestImprintAssembly:
 
 
 @pytest.mark.parametrize(
-    "meshing_backend", ["gmsh", "cadquery", "cad-to-dagmc-mesher"]
+    "meshing_backend", ["gmsh", "cad-to-dagmc-mesher"]
 )
 def test_export_dagmc_h5m_file_with_thread_limited_imprint(tmp_path, meshing_backend):
     """Every backend accepts imprint=1 and leaves the thread pool as it found it."""
@@ -205,15 +205,15 @@ def imprint_spy(monkeypatch):
     """Record the size of the OCC thread pool each time an imprint runs.
 
     Restoring the pool afterwards is not enough on its own, the limit also has
-    to be in place while the imprint is running. The cadquery plugin and
-    cad-to-dagmc-mesher call cq.occ_impl.assembly.imprint themselves, so
-    patching it here catches the imprint whichever backend triggers it.
+    to be in place while the imprint is running. imprint_assembly and
+    cad-to-dagmc-mesher both call cq.occ_impl.assembly.imprint, so patching it
+    here catches the imprint whichever backend triggers it.
     """
     real_imprint = cq.occ_impl.assembly.imprint
     pool_sizes = []
 
     # functools.wraps keeps the signature visible to the inspect.signature
-    # check in imprint_assembly that looks for the glue argument.
+    # check in cad-to-dagmc-mesher that looks for the glue argument.
     @functools.wraps(real_imprint)
     def spy(*args, **kwargs):
         pool_sizes.append(_pool_threads())
@@ -255,7 +255,6 @@ def _unstructured(backend, **kwargs):
 # that need cad-to-dagmc-mesher flagged so they skip when it is not installed.
 IMPRINT_PATHS = {
     "h5m_gmsh": (_dagmc_h5m("gmsh"), False),
-    "h5m_cadquery": (_dagmc_h5m("cadquery"), False),
     "h5m_mesher": (_dagmc_h5m("cad-to-dagmc-mesher"), True),
     "h5m_gmsh_with_umesh": (
         _dagmc_h5m("gmsh", unstructured_volumes=["mat1"], umesh_filename="umesh.vtk"),
@@ -323,42 +322,9 @@ def test_every_imprint_path_leaves_the_pool_alone_for_bools(
     assert _pool_threads() == before
 
 
-def test_cadquery_backend_tessellates_on_all_threads(tmp_path, monkeypatch, imprint_spy):
-    """The plugin imprints inside toMesh, but only the imprint is limited.
-
-    BRepMesh_IncrementalMesh is the tessellation and it runs on the same OCC
-    pool as the imprint, so it is what would be slowed down if the limit
-    covered the whole toMesh call instead of just the imprint.
-    """
-    plugin = pytest.importorskip("cadquery_direct_mesh_plugin.plugin")
-
-    before = _pool_threads()
-    tessellation_pool_sizes = []
-    real_tessellate = plugin.BRepMesh_IncrementalMesh
-
-    def spy(*args, **kwargs):
-        tessellation_pool_sizes.append(_pool_threads())
-        return real_tessellate(*args, **kwargs)
-
-    monkeypatch.setattr(plugin, "BRepMesh_IncrementalMesh", spy)
-
-    _model().export_dagmc_h5m_file(
-        filename=str(tmp_path / "dagmc.h5m"),
-        meshing_backend="cadquery",
-        imprint=1,
-    )
-
-    assert imprint_spy == [1], "the imprint should have been limited"
-    assert tessellation_pool_sizes, "the plugin did not tessellate anything"
-    assert set(tessellation_pool_sizes) == {before}, (
-        "tessellation ran on a limited pool, the imprint limit is leaking into "
-        "the meshing"
-    )
-
-
 def test_mesher_backend_meshes_on_all_threads(tmp_path, monkeypatch, imprint_spy):
-    """Same again for cad-to-dagmc-mesher, which also imprints part way
-    through its own meshing call. Probing just after its imprint returns shows
+    """cad-to-dagmc-mesher imprints part way through its own meshing call, so
+    only the imprint should be limited. Probing just after its imprint returns shows
     whether the pool is back up for the meshing that follows."""
     mesher_assembly = pytest.importorskip("cad_to_dagmc_mesher.cad._assembly")
     if not hasattr(mesher_assembly, "_imprint_assembly"):
