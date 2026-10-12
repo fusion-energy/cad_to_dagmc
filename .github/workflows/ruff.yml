@@ -1,0 +1,32 @@
+# Lints the Python code with ruff's default rules, so that the code base stays
+# as clean as the ruff tidy up in #228 left it.
+
+name: Ruff
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Pinned so a new ruff release adding rules does not fail CI on code
+      # nobody changed. Bump it deliberately and fix any new findings together.
+      - name: Install ruff
+        run: python -m pip install ruff==0.17.0
+
+      - name: Run ruff
+        run: ruff check . --output-format=github
