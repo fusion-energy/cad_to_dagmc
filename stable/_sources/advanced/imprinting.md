@@ -100,6 +100,60 @@ model.export_dagmc_h5m_file(
 )
 ```
 
+## Meshing Geometry You Imprinted Yourself
+
+If you need more control over the imprint than cad_to_dagmc gives you, for
+example a different glue option, a fuzzy tolerance, or a tool other than
+CadQuery, you can imprint the geometry yourself, save it as a BREP file, and
+mesh it with `imprint=False`.
+
+```python
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+# A small box sitting on part of a big box's top face, so imprinting has to
+# split that face
+big = cq.Workplane("XY").box(10, 10, 10)
+small = cq.Workplane("XY").transformed(offset=(0, 0, 7)).box(4, 4, 4)
+
+assembly = cq.Assembly()
+assembly.add(big)
+assembly.add(small)
+
+# Imprint however you like, here with CadQuery's own imprint
+imprinted, _ = cq.occ_impl.assembly.imprint(assembly)
+imprinted.exportBrep("imprinted.brep")
+
+# Later, possibly in another script, load the imprinted geometry
+model = CadToDagmc()
+model.add_cadquery_object(
+    cq.importers.importBrep("imprinted.brep"),
+    material_tags=["big", "small"],
+)
+
+# The geometry is already imprinted, so do not imprint it again
+model.export_dagmc_h5m_file(
+    filename="pre_imprinted.h5m",
+    imprint=False,
+    meshing_backend="cad-to-dagmc-mesher",
+    scale_factor=10,
+)
+```
+
+This works because a BREP file keeps the topology the imprint created: the face
+two solids share is stored once and referenced by both, which is what gives
+the DAGMC surface between them a sense for each volume. Both the
+cad-to-dagmc-mesher and GMSH backends support this, including with
+`scale_factor`.
+
+:::{warning}
+Use BREP, not STEP. A STEP file stores each solid separately, so the shared
+face comes back as two coincident copies, one per solid. With `imprint=False`
+these become two one sided DAGMC surfaces rather than one surface shared by
+both volumes, and particles crossing the interface are not handed to the
+neighbouring volume. Nothing reports this, the file is written as normal.
+:::
+
 ## See Also
 
 - [GMSH Backend](../meshing/gmsh_backend.md) - Meshing options

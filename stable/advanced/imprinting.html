@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Imprinting &#8212; cad_to_dagmc 0.14.3 documentation</title>
+    <title>Imprinting &#8212; cad_to_dagmc 0.14.4 documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=c1decb3a"></script>
+    <script src="../_static/documentation_options.js?v=6b1698f2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="Geometry Scaling" href="geometry_scaling.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.14.3" />
+  <meta name="docsearch:version" content="0.14.4" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -189,8 +189,8 @@
       
     
     
-    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.3 documentation - Home"/>
-    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.3 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
   
   
 </a></div>
@@ -427,6 +427,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -536,6 +537,58 @@
 </pre></div>
 </div>
 </section>
+<section id="meshing-geometry-you-imprinted-yourself">
+<h2>Meshing Geometry You Imprinted Yourself<a class="headerlink" href="#meshing-geometry-you-imprinted-yourself" title="Link to this heading">#</a></h2>
+<p>If you need more control over the imprint than cad_to_dagmc gives you, for
+example a different glue option, a fuzzy tolerance, or a tool other than
+CadQuery, you can imprint the geometry yourself, save it as a BREP file, and
+mesh it with <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="c1"># A small box sitting on part of a big box's top face, so imprinting has to</span>
+<span class="c1"># split that face</span>
+<span class="n">big</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">small</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">transformed</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">big</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small</span><span class="p">)</span>
+
+<span class="c1"># Imprint however you like, here with CadQuery's own imprint</span>
+<span class="n">imprinted</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+<span class="n">imprinted</span><span class="o">.</span><span class="n">exportBrep</span><span class="p">(</span><span class="s2">"imprinted.brep"</span><span class="p">)</span>
+
+<span class="c1"># Later, possibly in another script, load the imprinted geometry</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
+    <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importBrep</span><span class="p">(</span><span class="s2">"imprinted.brep"</span><span class="p">),</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"big"</span><span class="p">,</span> <span class="s2">"small"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># The geometry is already imprinted, so do not imprint it again</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"pre_imprinted.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This works because a BREP file keeps the topology the imprint created: the face
+two solids share is stored once and referenced by both, which is what gives
+the DAGMC surface between them a sense for each volume. Both the
+cad-to-dagmc-mesher and GMSH backends support this, including with
+<code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use BREP, not STEP. A STEP file stores each solid separately, so the shared
+face comes back as two coincident copies, one per solid. With <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>
+these become two one sided DAGMC surfaces rather than one surface shared by
+both volumes, and particles crossing the interface are not handed to the
+neighbouring volume. Nothing reports this, the file is written as normal.</p>
+</div>
+</section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -600,6 +653,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

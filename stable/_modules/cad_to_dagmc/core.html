@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>cad_to_dagmc.core &#8212; cad_to_dagmc 0.14.3 documentation</title>
+    <title>cad_to_dagmc.core &#8212; cad_to_dagmc 0.14.4 documentation</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=c1decb3a"></script>
+    <script src="../../_static/documentation_options.js?v=6b1698f2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/thebelab-helper.js"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.14.3" />
+  <meta name="docsearch:version" content="0.14.4" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -184,8 +184,8 @@
       
     
     
-    <img src="../../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.3 documentation - Home"/>
-    <img src="../../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.3 documentation - Home"/>
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
+    <img src="../../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
   
   
 </a></div>
@@ -387,6 +387,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.importers.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">importStep</span> <span class="k">as</span> <span class="n">importStepAssembly</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">OCP.OSD</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSD_ThreadPool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.TopoDS</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopoDS_Iterator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 
@@ -2168,12 +2169,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">iterable_solids</span> <span class="o">=</span> <span class="n">cadquery_compound</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="n">scaled_iterable_solids</span> <span class="o">=</span> <span class="n">iterable_solids</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">scaled_iterable_solids</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">part</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">iterable_solids</span>
-            <span class="p">]</span>
+        <span class="n">scaled_iterable_solids</span> <span class="o">=</span> <span class="n">_scale_together</span><span class="p">(</span><span class="n">iterable_solids</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
 
         <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="n">scaled_iterable_solids</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">material_tags</span><span class="p">:</span>
@@ -3201,20 +3197,53 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_assembly</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Build a CadQuery assembly from parts, optionally scaling each part.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_scale_together</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Scale shapes as one, keeping any faces they share shared.</span>
+
+<span class="sd">    Solids that were imprinted against each other share the face between them,</span>
+<span class="sd">    and the mesher relies on that sharing to give the face a sense for both</span>
+<span class="sd">    volumes. Scaling each solid on its own transforms that face once per solid,</span>
+<span class="sd">    so every solid ends up with its own copy and the interface becomes two</span>
+<span class="sd">    coincident one sided DAGMC surfaces. Scaling them together as one compound</span>
+<span class="sd">    transforms each shared face once.</span>
 
 <span class="sd">    Shape.scale returns a new shape (it does not mutate in place), so the</span>
-<span class="sd">    original parts in self.parts are left untouched and repeated exports stay</span>
-<span class="sd">    consistent.</span>
+<span class="sd">    shapes passed in are left untouched.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shapes: the shapes to scale.</span>
+<span class="sd">        scale_factor: the scaling factor to apply.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The scaled shapes, in the same order as the shapes passed in.</span>
+<span class="sd">    """</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">shapes</span>
+    <span class="n">scaled</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Compound</span><span class="o">.</span><span class="n">makeCompound</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span>
+    <span class="c1"># The direct children of the compound, rather than Solids(), so that every</span>
+    <span class="c1"># shape passed in comes back as exactly one shape in the same position.</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">iterator</span> <span class="o">=</span> <span class="n">TopoDS_Iterator</span><span class="p">(</span><span class="n">scaled</span><span class="o">.</span><span class="n">wrapped</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">iterator</span><span class="o">.</span><span class="n">More</span><span class="p">():</span>
+        <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Shape</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">iterator</span><span class="o">.</span><span class="n">Value</span><span class="p">()))</span>
+        <span class="n">iterator</span><span class="o">.</span><span class="n">Next</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">children</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_assembly</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Build a CadQuery assembly from parts, optionally scaling them.</span>
+
+<span class="sd">    The parts are scaled together with _scale_together so faces they share</span>
+<span class="sd">    stay shared, and the original parts in self.parts are left untouched so</span>
+<span class="sd">    repeated exports stay consistent.</span>
 
 <span class="sd">    names, when given, labels each child. cad-to-dagmc-mesher's SolidConfig</span>
 <span class="sd">    addresses solids by assembly child name, so naming them is what lets us ask</span>
 <span class="sd">    for per-solid meshing rather than the positional material_tags API.</span>
 <span class="sd">    """</span>
     <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
-        <span class="n">scaled</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="n">part</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">scaled</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_scale_together</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scaled</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
