@@ -21,7 +21,7 @@ This section covers advanced configuration options for fine-tuning your CAD to D
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     scale_factor=0.1,                      # mm to cm conversion
-    imprint={"threads": "all", "glue": "partial"},  # Handle shared surfaces
+    imprint="partial",                     # Handle shared surfaces
     implicit_complement_material_tag="air", # Tag for void space
     h5m_backend="h5py",                    # H5M writing backend
     method="file",                         # CAD transfer method, gmsh backend only
@@ -34,7 +34,7 @@ model.export_dagmc_h5m_file(
 |--------|-------------|
 | `scale_factor` | CAD in different units than simulation |
 | `imprint=False` | Single volume or non-touching geometry |
-| `imprint={"threads": 1, "glue": "partial"}` | Imprinting runs out of RAM on a large model |
+| `imprint_threads=1` | Imprinting runs out of RAM on a large model |
 | `imprint=False` with a BREP | Geometry you [imprinted yourself](imprinting.md#meshing-geometry-you-imprinted-yourself) |
 | `implicit_complement_material_tag` | Need to track particles in void |
 | `h5m_backend="pymoab"` | Compatibility with older DAGMC tools |

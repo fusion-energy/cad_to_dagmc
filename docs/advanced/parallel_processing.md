@@ -12,20 +12,20 @@ processor count; meshing has separate thread controls.
 
 ## Limiting Imprinting Threads
 
-Imprinting is usually the most memory hungry parallel step. Set `"threads"` in
-the `imprint` dictionary without changing a global setting:
+Imprinting is usually the most memory hungry parallel step. Set the keyword-only
+`imprint_threads` argument without changing a global setting:
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint={"threads": 1, "glue": "partial"},  # Lower peak RAM
+    imprint_threads=1,  # Lower peak RAM
 )
 ```
 
 Only imprinting is limited; meshing uses its own settings on both backends. The
 previous pool size is restored afterwards, including on errors. By default,
-`"threads": "all"` requests all logical processors, overriding an existing limit.
+`imprint_threads="all"` requests all logical processors, overriding an existing limit.
 See [Imprinting](imprinting.md) for the available options.
 
 ## Limiting CadQuery Threads
@@ -104,7 +104,7 @@ gmsh.option.setNumber("Mesh.MaxNumThreads3D", 4)
 
 | Component | Method | When Applied |
 |-----------|--------|--------------|
-| Imprinting | `imprint={"threads": 4, "glue": "partial"}` | For the duration of the imprint only |
+| Imprinting | `imprint_threads=4` | For the duration of the imprint only |
 | CadQuery | `setThreads()` | Before other CadQuery operations |
 | CadQuery | `OSD_ThreadPool.DefaultPool_s()` | Before importing CadQuery |
 | CadQuery | `OMP_NUM_THREADS` env var | Before Python starts |
