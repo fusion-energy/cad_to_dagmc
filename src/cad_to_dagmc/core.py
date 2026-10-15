@@ -2668,15 +2668,24 @@ def _mesh_with_cad_to_dagmc_mesher(
         for name in names
     ]
 
-    # The mesher imprints internally, so the limit is put on the imprint
-    # itself and the meshing keeps all its threads.
+    # Adapt the existing bool/int exporter API to mesher 0.3.5. The mesher
+    # scopes its own thread limit; preserve the caller's pool for imprint=True.
+    imprint_options = (
+        {
+            "threads": (
+                imprint_threads if imprint_threads is not None
+                else OSD_ThreadPool.DefaultPool_s().NbThreads()
+            ),
+            "glue": "partial",
+        }
+        if imprint else False
+    )
     try:
-        with imprint_thread_limit(imprint_threads):
-            result = mesh_assembly(
-                assembly,
-                solid_config=configs,
-                imprint=imprint,
-            )
+        result = mesh_assembly(
+            assembly,
+            solid_config=configs,
+            imprint=imprint_options,
+        )
         return (
             result["vertices"],
             result["triangles_by_solid_by_face"],

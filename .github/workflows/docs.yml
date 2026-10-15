@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - ci/cadquery-stable-master
   push:
     branches:
       - main
