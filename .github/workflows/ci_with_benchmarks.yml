@@ -3,9 +3,6 @@ name: CI with model benchmark zoo
 
 on:
   pull_request:
-    branches:
-      - main
-      - ci/cadquery-stable-master
     paths-ignore:
       - 'docs/**'
       - '.gitignore'
@@ -15,7 +12,7 @@ on:
       - 'readthedocs.yml'
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
   testing:
