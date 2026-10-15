@@ -145,7 +145,7 @@ def transport_particles_on_h5m_geometry(
     return my_flux_cell_tally.mean.flatten()[0]
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     h5m_filename = "test_two_sep_volumes.h5m"
@@ -170,7 +170,7 @@ def test_transport_result_h5m_with_2_sep_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
     h5m_filename = "one_cylinder.h5m"
@@ -192,7 +192,7 @@ def test_transport_result_h5m_with_1_curved_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     h5m_filename = "two_connected_cylinders.h5m"
@@ -216,7 +216,7 @@ def test_transport_result_h5m_with_2_joined_curved_volumes(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_single_volume_list(meshing_backend):
     """The simplest geometry, a single 4 sided shape with lists instead of np arrays"""
@@ -239,7 +239,7 @@ def test_h5m_with_single_volume_list(meshing_backend):
         )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_not_touching(meshing_backend):
 
@@ -258,7 +258,7 @@ def test_h5m_with_multi_volume_not_touching(meshing_backend):
     )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_h5m_with_multi_volume_touching(meshing_backend):
     stp_files = [
@@ -292,7 +292,7 @@ def test_h5m_with_multi_volume_touching(meshing_backend):
         )
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh"])
 @pytest.mark.skipif(openmc is None, reason="openmc tests only required for CI")
 def test_umesh_with_volumes(meshing_backend):
     box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)

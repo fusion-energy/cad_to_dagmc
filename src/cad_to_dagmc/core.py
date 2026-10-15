@@ -50,8 +50,8 @@ class CadToDagmcMesherNotFoundError(ImportError):
                 "cad-to-dagmc conda package.\n\n"
                 "Install it with pip, which works alongside a conda installation:\n"
                 "  pip install cad-to-dagmc-mesher\n\n"
-                "Alternatively, use a meshing backend that is always available:\n"
-                "  export_dagmc_h5m_file(..., meshing_backend='cadquery')\n"
+                "Alternatively, use the gmsh meshing backend, which is always "
+                "available:\n"
                 "  export_dagmc_h5m_file(..., meshing_backend='gmsh')"
             )
         super().__init__(message)
@@ -235,13 +235,13 @@ def imprint_thread_limit(threads: int | None):
     """Limit the threads used by imprinting and by nothing else.
 
     The gmsh backend imprints through imprint_assembly, so there the imprint
-    can simply be wrapped in thread_limit. The cadquery plugin and
-    cad-to-dagmc-mesher instead imprint part way through their own meshing
-    call, so wrapping that call would limit the meshing too, and the meshing
-    is not what runs out of memory.
+    can simply be wrapped in thread_limit. cad-to-dagmc-mesher instead
+    imprints part way through its own meshing call, so wrapping that call
+    would limit the meshing too, and the meshing is not what runs out of
+    memory.
 
-    Both of them reach the imprint through cq.occ_impl.assembly.imprint and
-    look it up when they call it, so swapping in a wrapper that shrinks the
+    The mesher reaches the imprint through cq.occ_impl.assembly.imprint and
+    looks it up when it calls it, so swapping in a wrapper that shrinks the
     pool around the real imprint keeps the limit on the imprint and off the
     meshing either side of it. The original function is put back on the way
     out, including when meshing raises part way through.
@@ -307,94 +307,6 @@ def imprint_assembly(assembly, threads: int | None = None):
         if "glue" in inspect.signature(imprint).parameters:
             return imprint(assembly, glue="partial")
         return imprint(assembly)
-
-
-def share_coincident_face_ids(triangles_by_solid_by_face):
-    """Give the face two touching solids share a single id in both of them.
-
-    Imprinting leaves one face between two touching solids, but
-    cadquery_direct_mesh_plugin numbers faces per solid, so depending on the
-    installed version each solid can contribute its own id for that one face.
-    Writing both produces two coincident one sided DAGMC surfaces instead of
-    one surface carrying a sense for each volume, which does not transport
-    correctly: particles crossing the interface are not handed to the
-    neighbouring volume, and the flux tallied there comes out low with nothing
-    reported.
-
-    The plugin welds vertices across the whole assembly, so both copies of the
-    interface index the same vertices and differ only in winding. Keying on the
-    triangle set with each triangle sorted is therefore orientation insensitive
-    and identifies the copies. Only the ids are rewritten. Each solid keeps its
-    own winding under the shared id, which is what vertices_to_h5m expects: it
-    writes the surface once from the first solid that refers to it and reads
-    the second solid off the shared id to build GEOM_SENSE_2.
-
-    Ids are handed out from 1 in order of first appearance rather than the
-    plugin's original ids being kept. Merging without renumbering would leave
-    the ids of the dropped copies unused, so the highest surface id would stay
-    as high as the unmerged count. Those ids become DAGMC surface ids, and a
-    DAGMC universe embedded in CSG shares an id space with the CSG surfaces, so
-    an inflated range collides with them ("Surface ID 21 exists in both
-    Universe 3 and the CSG geometry"). Renumbering also matches what gmsh and
-    cad-to-dagmc-mesher produce.
-
-    This reproduces what the plugin does when it shares imprinted face ids
-    itself (jmwright/cadquery-direct-mesh-plugin#10), including the numbering.
-    It is idempotent, so it is a no-op against a plugin that already shares
-    them. Once that pull request is released AND the
-    cadquery_direct_mesh_plugin floor in pyproject.toml is raised to that
-    release, this function and its call can be removed. Removing it before the
-    floor is raised would reintroduce the bug for anyone on an older plugin.
-
-    Args:
-        triangles_by_solid_by_face: Dict mapping solid_id -> face_id -> list of
-            triangles, each triangle a list of vertex indices.
-
-    Returns:
-        The same mapping with coincident faces sharing one face id, and ids
-        renumbered contiguously from 1.
-
-    Raises:
-        ValueError: if a face is shared by more than two solids, or if one
-            solid carries the same face twice. Neither is representable as
-            DAGMC geometry, and vertices_to_h5m would silently write a wrong
-            sense rather than fail.
-    """
-
-    def canonical(triangles):
-        return frozenset(tuple(sorted(int(vertex) for vertex in triangle))
-                         for triangle in triangles)
-
-    id_by_key = {}
-    solid_ids_by_key = {}
-    remapped = {}
-    for solid_id, faces in triangles_by_solid_by_face.items():
-        shared_faces = {}
-        for triangles in faces.values():
-            key = canonical(triangles)
-            solid_ids_by_key.setdefault(key, []).append(solid_id)
-            if key not in id_by_key:
-                id_by_key[key] = len(id_by_key) + 1
-            shared_faces[id_by_key[key]] = triangles
-        remapped[solid_id] = shared_faces
-
-    for key, solid_ids in solid_ids_by_key.items():
-        if len(solid_ids) != len(set(solid_ids)):
-            msg = (
-                f"Solid {solid_ids[0]} has the same face twice, so it cannot be "
-                "written as DAGMC geometry. This points at a degenerate or zero "
-                "thickness feature in the CAD."
-            )
-            raise ValueError(msg)
-        if len(solid_ids) > 2:
-            msg = (
-                f"The face with id {id_by_key[key]} is shared by solids "
-                f"{sorted(solid_ids)}. A DAGMC surface separates at most two "
-                "volumes, so this points at overlapping solids in the CAD."
-            )
-            raise ValueError(msg)
-
-    return remapped
 
 
 def define_moab_core_and_tags():
@@ -2200,7 +2112,7 @@ class CadToDagmc:
             scale_factor: a scaling factor to apply to the geometry. All the
                 linear mesh sizing arguments (min_mesh_size, max_mesh_size and
                 set_size for gmsh, tolerance and target_edge_length for
-                cad-to-dagmc-mesher, tolerance for cadquery) are in the units of
+                cad-to-dagmc-mesher) are in the units of
                 the SCALED geometry, so the same number means the same thing on
                 the output mesh whichever backend is used. For example with
                 scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
@@ -2222,13 +2134,13 @@ class CadToDagmc:
             **kwargs: Backend-specific parameters:
 
                 Backend selection:
-                - meshing_backend (str, optional): explicitly specify 'gmsh',
-                  'cadquery' or 'cad-to-dagmc-mesher'. If not provided, backend is
-                  auto-selected based on other arguments: tet_volumes or
-                  target_edge_length select 'cad-to-dagmc-mesher', gmsh-specific
+                - meshing_backend (str, optional): explicitly specify 'gmsh' or
+                  'cad-to-dagmc-mesher'. If not provided, backend is
+                  auto-selected based on other arguments: cad-to-dagmc-mesher
+                  arguments select 'cad-to-dagmc-mesher', gmsh-specific
                   arguments select 'gmsh'. Defaults to 'cad-to-dagmc-mesher' if
                   no backend-specific arguments are given, falling back to
-                  'cadquery' when cad-to-dagmc-mesher is not installed.
+                  'gmsh' when cad-to-dagmc-mesher is not installed.
                 - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.
                   Defaults to 'h5py'.
 
@@ -2253,11 +2165,6 @@ class CadToDagmc:
                 - umesh_filename (str): filename for unstructured mesh (default: 'umesh.vtk')
                 - threads (int): number of threads for Gmsh to use. 0 uses all
                   available cores (default), 1 uses a single thread.
-
-                For CadQuery backend:
-                - tolerance (float): meshing tolerance (default: 0.1), in the
-                  units of the scaled geometry (see scale_factor above)
-                - angular_tolerance (float): angular tolerance (default: 0.1)
 
                 For cad-to-dagmc-mesher backend:
                 - tolerance (float): surface meshing tolerance (default: 0.01),
@@ -2285,7 +2192,6 @@ class CadToDagmc:
         imprint, imprint_threads = resolve_imprint(imprint)
 
         # Define all acceptable kwargs
-        cadquery_keys = {"tolerance", "angular_tolerance"}
         gmsh_keys = {
             "min_mesh_size",
             "max_mesh_size",
@@ -2299,7 +2205,7 @@ class CadToDagmc:
             "threads",
         }
         cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length"}
-        all_acceptable_keys = cadquery_keys | gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
+        all_acceptable_keys = gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -2316,88 +2222,44 @@ class CadToDagmc:
         h5m_backend = kwargs.pop("h5m_backend", "h5py")
 
         if meshing_backend is None:
-            # Auto-select meshing_backend based on kwargs. tolerance and
-            # angular_tolerance are accepted by both the cadquery and the
-            # cad-to-dagmc-mesher backends, and when only those are given the
-            # cad-to-dagmc-mesher backend is preferred.
+            # Auto-select meshing_backend based on kwargs.
             # umesh_filename is accepted by both the gmsh and the
             # cad-to-dagmc-mesher backends, so it is not gmsh specific, but it
             # is still part of gmsh_keys because it selects gmsh when nothing
-            # else narrows the choice. Combining it with tolerance stays
-            # ambiguous: the mesher only honours umesh_filename when
-            # tet_volumes and target_edge_length are supplied too, so no single
-            # backend accepts that combination as given.
-            mesher_only_keys = {"tet_volumes", "target_edge_length"}
+            # else narrows the choice.
             gmsh_only_keys = gmsh_keys - {"umesh_filename"}
-            has_cadquery = any(key in kwargs for key in cadquery_keys)
             has_gmsh = any(key in kwargs for key in gmsh_keys)
-            has_mesher = any(key in kwargs for key in mesher_only_keys)
+            has_mesher = any(key in kwargs for key in cad_to_dagmc_mesher_keys)
             if has_mesher:
                 provided_gmsh = [key for key in sorted(gmsh_only_keys) if key in kwargs]
                 if provided_gmsh:
                     provided_mesher = [
-                        key for key in sorted(mesher_only_keys) if key in kwargs
+                        key for key in sorted(cad_to_dagmc_mesher_keys) if key in kwargs
                     ]
                     raise ValueError(
                         "Ambiguous backend: both cad-to-dagmc-mesher and GMSH-specific arguments provided.\n"
-                        f"cad-to-dagmc-mesher-specific arguments: {sorted(mesher_only_keys)}\n"
+                        f"cad-to-dagmc-mesher-specific arguments: {sorted(cad_to_dagmc_mesher_keys)}\n"
                         f"GMSH-specific arguments: {sorted(gmsh_only_keys)}\n"
                         f"Provided cad-to-dagmc-mesher arguments: {provided_mesher}\n"
                         f"Provided GMSH arguments: {provided_gmsh}\n"
                         "Please provide only one backend's arguments."
                     )
-                meshing_backend = "cad-to-dagmc-mesher"
-            elif has_cadquery and has_gmsh:
-                provided_cadquery = [key for key in sorted(cadquery_keys) if key in kwargs]
-                provided_gmsh_only = [
-                    key for key in sorted(gmsh_only_keys) if key in kwargs
-                ]
-                provided_gmsh_shared = [
-                    key for key in sorted(gmsh_keys - gmsh_only_keys) if key in kwargs
-                ]
-                message = (
-                    "Ambiguous backend: the arguments provided are not all accepted "
-                    "by any single meshing backend.\n"
-                    f"Accepted by cadquery and cad-to-dagmc-mesher: {provided_cadquery}\n"
-                )
-                if provided_gmsh_only:
-                    message += f"Accepted by gmsh only: {provided_gmsh_only}\n"
-                if provided_gmsh_shared:
-                    message += (
-                        "Accepted by gmsh and cad-to-dagmc-mesher: "
-                        f"{provided_gmsh_shared}\n"
-                        "Note that cad-to-dagmc-mesher only writes an unstructured "
-                        "volume mesh when tet_volumes and target_edge_length are "
-                        "also given.\n"
-                    )
-                message += "Please set meshing_backend explicitly."
-                raise ValueError(message)
-            elif has_cadquery:
-                # cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so
-                # reaching here means only keys that both backends accept were
-                # given and the choice is genuinely ambiguous. Prefer the
-                # mesher and make the decision visible.
-                provided_shared = [key for key in sorted(cadquery_keys) if key in kwargs]
                 if not _cad_to_dagmc_mesher_is_available():
+                    provided_mesher = [
+                        key for key in sorted(cad_to_dagmc_mesher_keys) if key in kwargs
+                    ]
                     raise CadToDagmcMesherNotFoundError(
-                        f"The arguments {provided_shared} are accepted by both the "
-                        "cadquery and the cad-to-dagmc-mesher meshing backends, so "
-                        "the cad-to-dagmc-mesher backend would be selected, but "
+                        f"The arguments {provided_mesher} select the "
+                        "cad-to-dagmc-mesher meshing backend, but "
                         "cad-to-dagmc-mesher is not installed. It is not available "
                         "on conda-forge so it has to be installed separately.\n\n"
                         "Either install it:\n"
                         "  pip install cad-to-dagmc-mesher\n\n"
-                        "or ask for the cadquery backend explicitly:\n"
-                        f"  export_dagmc_h5m_file(..., meshing_backend='cadquery', "
-                        f"{provided_shared[0]}=...)"
+                        "or use the gmsh backend, which sizes the mesh with its own "
+                        "arguments such as min_mesh_size and max_mesh_size:\n"
+                        "  export_dagmc_h5m_file(..., meshing_backend='gmsh', "
+                        "max_mesh_size=...)"
                     )
-                warnings.warn(
-                    f"The arguments {provided_shared} are accepted by both the "
-                    "cadquery and the cad-to-dagmc-mesher meshing backends. The "
-                    "cad-to-dagmc-mesher backend has been selected. Pass "
-                    "meshing_backend='cadquery' or "
-                    "meshing_backend='cad-to-dagmc-mesher' to choose explicitly."
-                )
                 meshing_backend = "cad-to-dagmc-mesher"
             elif has_gmsh:
                 meshing_backend = "gmsh"
@@ -2407,28 +2269,37 @@ class CadToDagmc:
                 # cad-to-dagmc-mesher is a dependency of the pip package but is
                 # not on conda-forge, so a conda installation can be without it.
                 # A call that names no backend at all has expressed no
-                # preference, so fall back to cadquery, which is always present,
+                # preference, so fall back to gmsh, which is always present,
                 # rather than failing. Warn so the substitution is visible and
                 # so the remedy is to hand, since pip installing the mesher
                 # works alongside a conda installation.
                 warnings.warn(
                     "No meshing backend was given so the cad-to-dagmc-mesher "
                     "backend would be used, but cad-to-dagmc-mesher is not "
-                    "installed. Falling back to the cadquery backend. "
+                    "installed. Falling back to the gmsh backend. "
                     "cad-to-dagmc-mesher is not available on conda-forge, "
                     "install it with pip, which works alongside a conda "
                     "installation:\n"
                     "  pip install cad-to-dagmc-mesher\n\n"
-                    "Pass meshing_backend='cadquery' to select the cadquery "
+                    "Pass meshing_backend='gmsh' to select the gmsh "
                     "backend explicitly and silence this warning."
                 )
-                meshing_backend = "cadquery"
+                meshing_backend = "gmsh"
+
+        if meshing_backend == "cadquery":
+            raise ValueError(
+                'meshing_backend "cadquery" has been removed along with the '
+                "cadquery_direct_mesh_plugin it used. Use "
+                'meshing_backend="cad-to-dagmc-mesher", which takes the same '
+                "tolerance and angular_tolerance arguments, or "
+                'meshing_backend="gmsh".'
+            )
 
         # Validate meshing backend
-        if meshing_backend not in ["gmsh", "cadquery", "cad-to-dagmc-mesher"]:
+        if meshing_backend not in ["gmsh", "cad-to-dagmc-mesher"]:
             raise ValueError(
                 f'meshing_backend "{meshing_backend}" not supported. '
-                'Available options are "gmsh", "cadquery", or "cad-to-dagmc-mesher"'
+                'Available options are "gmsh" or "cad-to-dagmc-mesher"'
             )
 
         print(f"Using meshing backend: {meshing_backend}")
@@ -2449,58 +2320,7 @@ class CadToDagmc:
         tet_data = None
 
         # Extract backend-specific parameters with defaults
-        if meshing_backend == "cadquery":
-            # CadQuery parameters
-            tolerance = kwargs.get("tolerance", 0.1)
-            angular_tolerance = kwargs.get("angular_tolerance", 0.1)
-
-            if scale_factor != 1.0:
-                # Transitional warning: tolerance used to be in unscaled units
-                # for this backend only. Remove in a future release once the
-                # consistent behaviour has been out for a while.
-                warnings.warn(
-                    f"tolerance ({tolerance}) is in the units of the scaled "
-                    f"geometry, so with scale_factor={scale_factor} it is a "
-                    f"deflection of {tolerance} in the output mesh's units. "
-                    "This matches the gmsh and cad-to-dagmc-mesher backends. "
-                    "Previous versions of cad_to_dagmc interpreted tolerance in "
-                    "the units of the unscaled geometry for the cadquery "
-                    "backend only, so this produces a mesh "
-                    f"{scale_factor}x finer than before for the same tolerance; "
-                    f"pass tolerance={tolerance * scale_factor} to reproduce the "
-                    "old mesh density."
-                )
-
-            # Check for invalid parameters
-            unstructured_volumes = kwargs.get("unstructured_volumes")
-            if unstructured_volumes is not None or kwargs.get("tet_volumes") is not None:
-                raise ValueError(
-                    "CadQuery backend cannot be used for volume meshing. "
-                    "unstructured_volumes and tet_volumes must be None when "
-                    "using 'cadquery' backend."
-                )
-
-            # Warn about unused GMSH and cad-to-dagmc-mesher parameters
-            gmsh_params = [
-                "min_mesh_size",
-                "max_mesh_size",
-                "mesh_algorithm",
-                "mesh_algorithm_3d",
-                "volume_mesh_options",
-                "set_size",
-                "umesh_filename",
-                "method",
-                "threads",
-                "target_edge_length",
-            ]
-            unused_params = [param for param in gmsh_params if param in kwargs]
-            if unused_params:
-                warnings.warn(
-                    f"The following parameters are ignored when using CadQuery backend: "
-                    f"{', '.join(unused_params)}"
-                )
-
-        elif meshing_backend == "gmsh":
+        if meshing_backend == "gmsh":
             # GMSH parameters
             min_mesh_size = kwargs.get("min_mesh_size")
             max_mesh_size = kwargs.get("max_mesh_size")
@@ -2563,57 +2383,8 @@ class CadToDagmc:
         # may own when using a non-gmsh backend.
         gmsh_session_started = False
         try:
-            # Use the CadQuery direct mesh plugin
-            if meshing_backend == "cadquery":
-                import cadquery_direct_mesh_plugin  # noqa: F401
-
-                # tolerance is documented as being in the units of the scaled
-                # geometry, matching the gmsh and cad-to-dagmc-mesher backends
-                # (both of which scale the geometry before meshing it). This
-                # backend is the odd one out: the plugin tessellates the
-                # unscaled solids and multiplies the resulting vertices by
-                # scale_factor afterwards, so the tolerance it is given is in
-                # unscaled units. Convert so the same number means the same
-                # deflection on the output mesh whichever backend is used.
-                cq_tolerance = tolerance / scale_factor
-                # Mesh the assembly using CadQuery's direct-mesh plugin. The
-                # plugin imprints internally, so the limit is put on the
-                # imprint itself and the tessellation keeps all its threads.
-                with imprint_thread_limit(imprint_threads):
-                    cq_mesh = assembly.toMesh(
-                        imprint=imprint,
-                        tolerance=cq_tolerance,
-                        angular_tolerance=angular_tolerance,
-                        scale_factor=scale_factor,
-                    )
-
-                # Fix the material tag order for imprinted assemblies
-                if cq_mesh["imprinted_assembly"] is not None:
-                    imprinted_solids_with_org_id = cq_mesh[
-                        "imprinted_solids_with_orginal_ids"
-                    ]
-
-                    scrambled_ids = get_ids_from_imprinted_assembly(
-                        imprinted_solids_with_org_id
-                    )
-
-                    material_tags_in_brep_order = order_material_ids_by_brep_order(
-                        original_ids, scrambled_ids, self.material_tags
-                    )
-                else:
-                    material_tags_in_brep_order = self.material_tags
-
-                check_material_tags(material_tags_in_brep_order, self.parts)
-
-                # Extract the mesh information to allow export to h5m from the direct-mesh result
-                vertices = cq_mesh["vertices"]
-                triangles_by_solid_by_face = cq_mesh["solid_face_triangle_vertex_map"]
-                if imprint:
-                    triangles_by_solid_by_face = share_coincident_face_ids(
-                        triangles_by_solid_by_face
-                    )
             # Use gmsh
-            elif meshing_backend == "gmsh":
+            if meshing_backend == "gmsh":
                 # If assembly is not to be imprinted, pass through the assembly as-is
                 if imprint:
                     print("Imprinting assembly for mesh generation")
@@ -2692,7 +2463,7 @@ class CadToDagmc:
                     )
 
                 # scale_factor is applied to the geometry before meshing so the
-                # h5m and .vtk match the gmsh/cadquery backends (which scale).
+                # h5m and .vtk match the gmsh backend (which scales).
                 mesher_assembly = _build_assembly(
                     self.parts, scale_factor,
                     names=_solid_names(self.material_tags),
@@ -2714,7 +2485,7 @@ class CadToDagmc:
             else:
                 raise ValueError(
                     f'meshing_backend {meshing_backend} not supported. '
-                    'Available options are "cadquery", "gmsh", or "cad-to-dagmc-mesher"'
+                    'Available options are "gmsh" or "cad-to-dagmc-mesher"'
                 )
 
             dagmc_filename = vertices_to_h5m(

@@ -48,7 +48,7 @@ jobs:
           # satisfies it. Otherwise pip resolves cadquery from PyPI on top of the
           # conda environment, which drags in cadquery-ocp and a second vtk, and
           # the install fails because pip cannot uninstall the conda provided vtk.
-          conda install -c conda-forge "openmc=0.15.3=dagmc*nompi*" trimesh networkx "cadquery>=2.8.0" cadquery-direct-mesh-plugin gmsh python-gmsh
+          conda install -c conda-forge "openmc=0.15.3=dagmc*nompi*" trimesh networkx "cadquery>=2.8.0" gmsh python-gmsh
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
 

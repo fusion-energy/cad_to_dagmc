@@ -253,15 +253,6 @@ def build_figure(theme_name):
     gmsh_left, gmsh_right = draw_box(
         ax, theme, "meshing", 9.0, 1.5, "gmsh", [("full mesh size control", False)]
     )
-    cq_left, cq_right = draw_box(
-        ax,
-        theme,
-        "meshing",
-        6.7,
-        1.5,
-        "cadquery",
-        [("tessellation, surface only", False)],
-    )
 
     # Stage 4, the h5m writers.
     writer_left, writer_right = draw_box(
@@ -311,12 +302,10 @@ def build_figure(theme_name):
     # Tagged geometry goes to whichever meshing backend is selected.
     draw_arrow(ax, theme, (tags_right, 10.8), (mesher_left, 11.3))
     draw_arrow(ax, theme, (tags_right, 9.7), (gmsh_left, 9.0))
-    draw_arrow(ax, theme, (tags_right, 8.6), (cq_left, 6.9))
 
     # Every backend writes the surface mesh through an h5m writer.
-    draw_arrow(ax, theme, (mesher_right, 10.8), (writer_left, 8.95))
-    draw_arrow(ax, theme, (gmsh_right, 9.0), (writer_left, 8.5))
-    draw_arrow(ax, theme, (cq_right, 7.0), (writer_left, 8.05))
+    draw_arrow(ax, theme, (mesher_right, 10.8), (writer_left, 8.8))
+    draw_arrow(ax, theme, (gmsh_right, 9.0), (writer_left, 8.2))
     draw_arrow(ax, theme, (writer_right, 8.5), (h5m_left, 8.5))
 
     # Both volume meshers write their tetrahedra straight to a vtk file.

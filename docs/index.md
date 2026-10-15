@@ -18,13 +18,13 @@ Pass `tet_volumes` and `target_edge_length` on the cad-to-dagmc-mesher backend,
 or `unstructured_volumes` on the gmsh backend, and it returns both filenames. See [Conformal Meshes](outputs/conformal_meshes.md).
 
 ```{image} _static/workflow_light.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
 :class: only-light
 :width: 100%
 ```
 
 ```{image} _static/workflow_dark.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
 :class: only-dark
 :width: 100%
 ```
@@ -35,8 +35,8 @@ or `unstructured_volumes` on the gmsh backend, and it returns both filenames. Se
 |---|---|
 | **Multiple Input Formats** | **Flexible Material Tagging** |
 | - CadQuery objects<br>- STEP files<br>- GMSH mesh files | - Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups |
-| **Three Meshing Backends** | **Multiple Output Formats** |
-| - cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
+| **Two Meshing Backends** | **Multiple Output Formats** |
+| - cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
 | **Two H5M Backends** | **Advanced Options** |
 | - h5py (default, no MOAB needed)<br>- pymoab (official MOAB) | - Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing |
 
@@ -89,7 +89,6 @@ outputs/conformal_meshes
 meshing/index
 meshing/cad_to_dagmc_mesher_backend
 meshing/gmsh_backend
-meshing/cadquery_backend
 meshing/mesh_sizing
 ```
 

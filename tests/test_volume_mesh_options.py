@@ -401,7 +401,7 @@ def test_new_options_reject_ambiguous_backend(model, kwargs, tmp_path):
         )
 
 
-@pytest.mark.parametrize("backend", ["cadquery", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("backend", ["cad-to-dagmc-mesher"])
 def test_non_gmsh_backend_warns_about_volume_options(model, backend, tmp_path, monkeypatch):
     # Stop before either backend runs, after argument handling and warnings.
     monkeypatch.setattr(

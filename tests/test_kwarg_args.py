@@ -17,19 +17,18 @@ class TestKwargsExportDagmcH5mFile:
         box = cq.Workplane("XY").box(10, 10, 10)
         self.my_model.add_cadquery_object(box, material_tags=["steel"])
 
-    def test_cadquery_backend_with_tolerance_params(self, tmp_path):
-        """Test CadQuery backend with tolerance parameters"""
-        output_file = tmp_path / "test_cadquery.h5m"
+    def test_removed_cadquery_backend_raises_error(self, tmp_path):
+        """The cadquery direct-mesh plugin backend has been removed, so asking
+        for it explains what to use instead rather than reporting an unknown
+        backend."""
+        with pytest.raises(ValueError, match='"cadquery" has been removed') as excinfo:
+            self.my_model.export_dagmc_h5m_file(
+                filename=str(tmp_path / "test_cadquery.h5m"),
+                meshing_backend="cadquery",
+                tolerance=0.05,
+            )
 
-        result = self.my_model.export_dagmc_h5m_file(
-            filename=str(output_file),
-            meshing_backend="cadquery",
-            tolerance=0.05,
-            angular_tolerance=0.2,
-        )
-
-        assert result == str(output_file)
-        assert output_file.exists()
+        assert "cad-to-dagmc-mesher" in str(excinfo.value)
 
     def test_gmsh_backend_with_mesh_size_params(self, tmp_path):
         """Test GMSH backend with mesh size parameters"""
@@ -61,36 +60,10 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_cadquery_backend_with_unstructured_volumes_raises_error(self, tmp_path):
-        """Test that CadQuery backend with unstructured_volumes raises ValueError"""
-        output_file = tmp_path / "test_invalid.h5m"
-
-        with pytest.raises(
-            ValueError, match="CadQuery backend cannot be used for volume meshing"
-        ):
-            self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file),
-                meshing_backend="cadquery",
-                unstructured_volumes=[1],
-            )
-
-    def test_cadquery_backend_with_tet_volumes_raises_error(self, tmp_path):
-        """The CadQuery backend cannot volume mesh, so an explicit cadquery
-        backend combined with tet_volumes must fail fast."""
-        with pytest.raises(
-            ValueError, match="CadQuery backend cannot be used for volume meshing"
-        ):
-            self.my_model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "test_invalid_tet.h5m"),
-                meshing_backend="cadquery",
-                tet_volumes=["steel"],
-            )
-
     def test_mesher_backend_auto_selected_from_tet_volumes(self, tmp_path):
         """tet_volumes selects the cad-to-dagmc-mesher backend when no
         meshing_backend is given. The mesher branch then fails fast because
-        target_edge_length is missing, which proves the backend was selected
-        (the cadquery default would have silently ignored tet_volumes)."""
+        target_edge_length is missing, which proves the backend was selected."""
         with pytest.raises(ValueError, match="requires BOTH tet_volumes"):
             self.my_model.export_dagmc_h5m_file(
                 filename=str(tmp_path / "auto_mesher.h5m"),
@@ -119,92 +92,51 @@ class TestKwargsExportDagmcH5mFile:
 
     @pytest.mark.requires_mesher
     @pytest.mark.parametrize(
-        "shared_kwargs",
+        "mesher_kwargs",
         [
             {"tolerance": 0.05},
             {"angular_tolerance": 0.2},
             {"tolerance": 0.05, "angular_tolerance": 0.2},
         ],
     )
-    def test_shared_kwargs_select_mesher_and_warn(self, tmp_path, shared_kwargs):
-        """tolerance and angular_tolerance are accepted by both the cadquery
-        and the cad-to-dagmc-mesher backends, so the mesher is preferred and
-        the choice is reported."""
-        output_file = tmp_path / "shared_kwargs.h5m"
+    def test_tolerance_kwargs_select_mesher(self, tmp_path, capsys, mesher_kwargs):
+        """tolerance and angular_tolerance are only accepted by the
+        cad-to-dagmc-mesher backend, so they select it without any warning."""
+        output_file = tmp_path / "mesher_kwargs.h5m"
 
-        with pytest.warns(UserWarning, match="cad-to-dagmc-mesher backend has been"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             result = self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file), **shared_kwargs
+                filename=str(output_file), **mesher_kwargs
             )
 
         assert result == str(output_file)
         assert output_file.exists()
+        assert "Using meshing backend: cad-to-dagmc-mesher" in capsys.readouterr().out
 
-    @pytest.mark.requires_mesher
-    def test_shared_kwargs_warning_names_the_provided_arguments(self, tmp_path):
-        """The warning lists the shared arguments that triggered the choice."""
-        with pytest.warns(UserWarning) as record:
-            self.my_model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "named_args.h5m"), tolerance=0.05
-            )
-
-        message = str(record[0].message)
-        assert "tolerance" in message
-        assert "angular_tolerance" not in message
-
-    def test_explicit_backend_overrides_shared_kwarg_preference(self, tmp_path):
-        """An explicit meshing_backend wins over the shared kwarg preference,
-        and no ambiguity warning is emitted."""
-        output_file = tmp_path / "explicit_cadquery.h5m"
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            result = self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file),
-                meshing_backend="cadquery",
-                tolerance=0.05,
-            )
-
-        assert result == str(output_file)
-        assert output_file.exists()
-        assert not [
-            warning
-            for warning in w
-            if "cad-to-dagmc-mesher backend has been" in str(warning.message)
-        ]
-
-    def test_shared_kwargs_with_gmsh_args_still_ambiguous(self, tmp_path):
-        """Preferring the mesher for shared kwargs must not swallow the
-        existing CadQuery and GMSH ambiguity error."""
+    def test_tolerance_with_gmsh_args_is_ambiguous(self, tmp_path):
+        """tolerance selects the mesher and min_mesh_size selects gmsh, so
+        together they raise rather than guessing."""
         with pytest.raises(ValueError, match="Ambiguous backend"):
             self.my_model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "cq_gmsh_ambiguous.h5m"),
+                filename=str(tmp_path / "mesher_gmsh_ambiguous.h5m"),
                 tolerance=0.05,
                 min_mesh_size=0.5,
             )
 
-    def test_ambiguity_message_does_not_call_umesh_filename_gmsh_specific(
-        self, tmp_path
-    ):
-        """umesh_filename is accepted by gmsh and cad-to-dagmc-mesher, so the
-        ambiguity error must not describe it as gmsh specific, and it should
-        say why the mesher cannot simply be used instead."""
-        with pytest.raises(ValueError) as excinfo:
+    def test_tolerance_with_umesh_filename_needs_the_tet_arguments(self, tmp_path):
+        """umesh_filename is accepted by gmsh and cad-to-dagmc-mesher, so with
+        tolerance it is not ambiguous: the mesher is selected, and it says it
+        needs tet_volumes and target_edge_length to write the volume mesh."""
+        with pytest.raises(ValueError, match="requires BOTH tet_volumes"):
             self.my_model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "umesh_ambiguous.h5m"),
+                filename=str(tmp_path / "umesh_mesher.h5m"),
                 tolerance=0.05,
-                umesh_filename=str(tmp_path / "umesh_ambiguous.vtk"),
+                umesh_filename=str(tmp_path / "umesh_mesher.vtk"),
             )
 
-        message = str(excinfo.value)
-        assert "Accepted by gmsh and cad-to-dagmc-mesher: ['umesh_filename']" in message
-        assert "Accepted by gmsh only" not in message
-        assert "tet_volumes and target_edge_length" in message
-        assert "meshing_backend" in message
-
-    def test_ambiguity_message_separates_gmsh_only_arguments(self, tmp_path):
-        """Genuinely gmsh specific arguments are reported as such."""
+    def test_ambiguity_message_names_the_provided_arguments(self, tmp_path):
+        """The ambiguity error says which argument came from which backend."""
         with pytest.raises(ValueError) as excinfo:
             self.my_model.export_dagmc_h5m_file(
                 filename=str(tmp_path / "gmsh_ambiguous.h5m"),
@@ -213,8 +145,8 @@ class TestKwargsExportDagmcH5mFile:
             )
 
         message = str(excinfo.value)
-        assert "Accepted by gmsh only: ['min_mesh_size']" in message
-        assert "Accepted by cadquery and cad-to-dagmc-mesher: ['tolerance']" in message
+        assert "Provided GMSH arguments: ['min_mesh_size']" in message
+        assert "Provided cad-to-dagmc-mesher arguments: ['tolerance']" in message
 
     def test_umesh_filename_alone_still_selects_gmsh(self, tmp_path):
         """umesh_filename on its own remains a gmsh request."""
@@ -239,7 +171,7 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_shared_kwargs_without_mesher_installed_raises_helpful_error(
+    def test_mesher_kwargs_without_mesher_installed_raises_helpful_error(
         self, tmp_path, monkeypatch
     ):
         """cad-to-dagmc-mesher is not on conda-forge, so when it would be auto
@@ -255,26 +187,26 @@ class TestKwargsExportDagmcH5mFile:
 
         message = str(excinfo.value)
         assert "pip install cad-to-dagmc-mesher" in message
-        assert "meshing_backend='cadquery'" in message
+        assert "meshing_backend='gmsh'" in message
         assert "tolerance" in message
 
-    def test_explicit_cadquery_works_without_mesher_installed(
+    def test_explicit_gmsh_works_without_mesher_installed(
         self, tmp_path, monkeypatch
     ):
         """The remedy the error suggests actually works."""
         monkeypatch.setattr(
             "cad_to_dagmc.core._cad_to_dagmc_mesher_is_available", lambda: False
         )
-        output_file = tmp_path / "explicit_cq_no_mesher.h5m"
+        output_file = tmp_path / "explicit_gmsh_no_mesher.h5m"
 
         result = self.my_model.export_dagmc_h5m_file(
-            filename=str(output_file), meshing_backend="cadquery", tolerance=0.05
+            filename=str(output_file), meshing_backend="gmsh", max_mesh_size=1.0
         )
 
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_no_backend_args_without_mesher_installed_falls_back_to_cadquery(
+    def test_no_backend_args_without_mesher_installed_falls_back_to_gmsh(
         self, tmp_path, monkeypatch, capsys
     ):
         """A plain export must not be affected by the mesher being absent.
@@ -287,12 +219,12 @@ class TestKwargsExportDagmcH5mFile:
         )
         output_file = tmp_path / "default_no_mesher.h5m"
 
-        with pytest.warns(UserWarning, match="Falling back to the cadquery backend"):
+        with pytest.warns(UserWarning, match="Falling back to the gmsh backend"):
             result = self.my_model.export_dagmc_h5m_file(filename=str(output_file))
 
         assert result == str(output_file)
         assert output_file.exists()
-        assert "Using meshing backend: cadquery" in capsys.readouterr().out
+        assert "Using meshing backend: gmsh" in capsys.readouterr().out
 
     def test_no_backend_args_default_to_cad_to_dagmc_mesher(self, tmp_path, capsys):
         """With no backend selecting arguments the mesher is chosen."""
@@ -309,9 +241,7 @@ class TestKwargsExportDagmcH5mFile:
         # Naming no backend expresses no preference, so there is nothing to
         # disambiguate and nothing to warn about.
         assert not [
-            warning
-            for warning in w
-            if "cad-to-dagmc-mesher backend has been" in str(warning.message)
+            warning for warning in w if "meshing backend" in str(warning.message)
         ]
 
     def test_invalid_meshing_backend_raises_error(self, tmp_path):
@@ -323,30 +253,8 @@ class TestKwargsExportDagmcH5mFile:
                 filename=str(output_file), meshing_backend="invalid"
             )
 
-    def test_cadquery_backend_warns_about_gmsh_parameters(self, tmp_path):
-        """Test that CadQuery backend warns about unused GMSH parameters"""
-        output_file = tmp_path / "test_warnings.h5m"
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file),
-                meshing_backend="cadquery",
-                min_mesh_size=0.1,  # GMSH parameter, should be ignored
-                tolerance=0.05,
-            )
-
-            # Check that warning was issued
-            assert len(w) == 1
-            assert (
-                "following parameters are ignored when using CadQuery backend"
-                in str(w[0].message)
-            )
-            assert "min_mesh_size" in str(w[0].message)
-
-    def test_gmsh_backend_warns_about_cadquery_parameters(self, tmp_path):
-        """Test that GMSH backend warns about unused CadQuery parameters"""
+    def test_gmsh_backend_warns_about_mesher_parameters(self, tmp_path):
+        """Test that GMSH backend warns about unused cad-to-dagmc-mesher parameters"""
         output_file = tmp_path / "test_warnings_gmsh.h5m"
 
         with warnings.catch_warnings(record=True) as w:
@@ -355,7 +263,7 @@ class TestKwargsExportDagmcH5mFile:
             self.my_model.export_dagmc_h5m_file(
                 filename=str(output_file),
                 meshing_backend="gmsh",
-                tolerance=0.05,  # CadQuery parameter, should be ignored
+                tolerance=0.05,  # cad-to-dagmc-mesher parameter, should be ignored
                 min_mesh_size=0.1,
             )
 
@@ -365,18 +273,6 @@ class TestKwargsExportDagmcH5mFile:
                 w[0].message
             )
             assert "tolerance" in str(w[0].message)
-
-    def test_cadquery_backend_uses_default_tolerances(self, tmp_path):
-        """Test that CadQuery backend uses default tolerances when not specified"""
-        output_file = tmp_path / "test_defaults.h5m"
-
-        # This should work without specifying tolerance parameters
-        result = self.my_model.export_dagmc_h5m_file(
-            filename=str(output_file), meshing_backend="cadquery"
-        )
-
-        assert result == str(output_file)
-        assert output_file.exists()
 
     def test_gmsh_backend_uses_default_values(self, tmp_path):
         """Test that GMSH backend uses default values when not specified"""
@@ -390,20 +286,20 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_cadquery_backend_with_all_valid_parameters(self, tmp_path):
-        """Test CadQuery backend with all valid parameters"""
-        output_file = tmp_path / "test_cadquery_all_params.h5m"
+    @pytest.mark.requires_mesher
+    def test_mesher_backend_with_all_valid_parameters(self, tmp_path):
+        """Test cad-to-dagmc-mesher backend with all valid parameters"""
+        output_file = tmp_path / "test_mesher_all_params.h5m"
 
-        with pytest.warns(UserWarning, match="tolerance .*scaled geometry"):
-            result = self.my_model.export_dagmc_h5m_file(
-                filename=str(output_file),
-                meshing_backend="cadquery",
-                tolerance=0.01,
-                angular_tolerance=0.15,
-                scale_factor=2.0,
-                imprint=False,
-                implicit_complement_material_tag="vacuum",
-            )
+        result = self.my_model.export_dagmc_h5m_file(
+            filename=str(output_file),
+            meshing_backend="cad-to-dagmc-mesher",
+            tolerance=0.01,
+            angular_tolerance=0.15,
+            scale_factor=2.0,
+            imprint=False,
+            implicit_complement_material_tag="vacuum",
+        )
 
         assert result == str(output_file)
         assert output_file.exists()
@@ -427,14 +323,17 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
+    @pytest.mark.requires_mesher
     def test_multiple_backend_switches(self, tmp_path):
         """Test that the same model can be exported with different backends"""
-        output_file_cq = tmp_path / "test_switch_cq.h5m"
+        output_file_cq = tmp_path / "test_switch_mesher.h5m"
         output_file_gmsh = tmp_path / "test_switch_gmsh.h5m"
 
-        # Export with CadQuery backend
+        # Export with cad-to-dagmc-mesher backend
         result_cq = self.my_model.export_dagmc_h5m_file(
-            filename=str(output_file_cq), meshing_backend="cadquery", tolerance=0.1
+            filename=str(output_file_cq),
+            meshing_backend="cad-to-dagmc-mesher",
+            tolerance=0.1,
         )
 
         # Export with GMSH backend
@@ -494,14 +393,15 @@ class TestKwargsValidation:
         assert "tolerance" in error_message  # valid param should be in error
         assert "min_mesh_size" in error_message  # valid param should be in error
 
-    def test_all_valid_cadquery_kwargs_accepted(self, tmp_path):
-        """Test that all valid CadQuery kwargs are accepted"""
-        output_file = tmp_path / "test_valid_cq_kwargs.h5m"
+    @pytest.mark.requires_mesher
+    def test_all_valid_mesher_kwargs_accepted(self, tmp_path):
+        """Test that all valid cad-to-dagmc-mesher surface kwargs are accepted"""
+        output_file = tmp_path / "test_valid_mesher_kwargs.h5m"
 
         # Should not raise any error
         result = self.my_model.export_dagmc_h5m_file(
             filename=str(output_file),
-            meshing_backend="cadquery",
+            meshing_backend="cad-to-dagmc-mesher",
             tolerance=0.1,
             angular_tolerance=0.2,
         )
@@ -554,7 +454,7 @@ class TestKwargsValidation:
             self.my_model.export_dagmc_h5m_file(
                 filename=str(output_file),
                 Tolerance=0.1,  # wrong case
-                MESHING_BACKEND="cadquery",  # wrong case
+                MESHING_BACKEND="gmsh",  # wrong case
             )
 
         error_message = str(excinfo.value)
@@ -590,13 +490,14 @@ class TestKwargsWithMultipleVolumes:
         assert result == str(output_file)
         assert output_file.exists()
 
-    def test_cadquery_backend_with_multiple_volumes(self, tmp_path):
-        """Test CadQuery backend works with multiple volumes"""
-        output_file = tmp_path / "test_multi_volume_cq.h5m"
+    @pytest.mark.requires_mesher
+    def test_mesher_backend_with_multiple_volumes(self, tmp_path):
+        """Test cad-to-dagmc-mesher backend works with multiple volumes"""
+        output_file = tmp_path / "test_multi_volume_mesher.h5m"
 
         result = self.my_model.export_dagmc_h5m_file(
             filename=str(output_file),
-            meshing_backend="cadquery",
+            meshing_backend="cad-to-dagmc-mesher",
             tolerance=0.08,
             angular_tolerance=0.12,
         )
