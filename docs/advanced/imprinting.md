@@ -54,7 +54,7 @@ Only the imprint is limited. The meshing that follows it keeps all its threads o
 
 ## Choosing the Imprint Glue
 
-The boolean operations behind imprinting can be told how the solids are expected to meet, which lets them skip work. This is set with `imprint_glue`, which is passed straight through to CadQuery's imprint:
+The boolean operations behind imprinting can be told how the solids are expected to meet, which lets them skip work. This is set with `imprint_glue`. On CadQuery master with the glue API, the option is passed straight through to CadQuery's imprint:
 
 | `imprint_glue` | What it does | Use when |
 |----------------|--------------|----------|
@@ -73,7 +73,22 @@ model.export_dagmc_h5m_file(
 )
 ```
 
-`imprint_glue` is accepted by `export_dagmc_h5m_file`, `export_unstructured_mesh_file` and `export_gmsh_mesh_file` (keyword-only on the latter two), whichever meshing backend is used. It is ignored when `imprint=False`. It needs a CadQuery release that includes [CadQuery/cadquery#2069](https://github.com/CadQuery/cadquery/pull/2069), the release after 2.8.0.
+`imprint_glue` is accepted by `export_dagmc_h5m_file`, `export_unstructured_mesh_file` and `export_gmsh_mesh_file` (keyword-only on the latter two), whichever meshing backend is used.
+
+### CadQuery version compatibility
+
+Both CadQuery **2.8.0** and the latest **master** are supported and tested.
+Glue support was added in [CadQuery/cadquery#2069](https://github.com/CadQuery/cadquery/pull/2069). The installed API is checked rather than relying on a version string.
+
+| `imprint_glue` | CadQuery 2.8.0 | CadQuery master with the glue API |
+|---|---|---|
+| `"partial"` (default) | Legacy no-glue imprint with a `UserWarning` that the partial-glue optimization is unavailable | Exact `"partial"` option |
+| `"full"` | `RuntimeError` with the installed version and upgrade advice, before imprinting or writing the output | Exact `"full"` option |
+| `None` | Legacy no-glue imprint without a fallback warning | Exact `None` option |
+
+For warning-free use on 2.8.0, set `imprint_glue=None`. A fallback warning means that the geometry is still imprinted, but without the requested optimization. It does not mean partial glue was used.
+
+All three valid values are ignored when `imprint=False` or only one solid is present. Invalid values still raise `ValueError`, even with imprinting disabled. Both meshing backends follow the same compatibility rules; the mesher backend requires a version of cad-to-dagmc-mesher that includes `imprint_glue`.
 
 ## When to Disable Imprinting
 

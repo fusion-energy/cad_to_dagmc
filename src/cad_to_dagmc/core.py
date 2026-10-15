@@ -306,8 +306,10 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
     """Imprint a CadQuery assembly into a connected compound.
 
     Uses cadquery's BOPAlgo_Builder based imprint (CadQuery/cadquery#2069),
-    passing glue through to it. See resolve_imprint_glue for what each glue
-    option does.
+    passing glue through to it. On CadQuery 2.8.0, None uses the legacy
+    no-glue imprint, "partial" uses it with a warning that the optimization
+    is unavailable, and "full" raises RuntimeError with upgrade advice.
+    See resolve_imprint_glue for what each glue option does.
 
     Args:
         assembly: the cadquery assembly to imprint.
@@ -320,6 +322,9 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
     Returns:
         (imprinted_shape, imprinted_solids_with_original_ids)
     """
+    import inspect
+
+    glue = resolve_imprint_glue(glue)
     # Imprinting needs at least two solids to do anything. Skipping it for a
     # single solid is not just an optimization: the BOPAlgo_Builder based
     # imprint returns a Null shape when given fewer than two arguments.
@@ -332,8 +337,28 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
         compound = cq.occ_impl.shapes.Compound.makeCompound(solids)
         return compound, {s: (id_map[s],) for s in solids}
 
+    imprint = cq.occ_impl.assembly.imprint
+    if "glue" not in inspect.signature(imprint).parameters:
+        if glue == "full":
+            raise RuntimeError(
+                f'CadQuery {cq.__version__} cannot honour imprint_glue="full": '
+                "its imprint has no glue option. Use imprint_glue=None for the "
+                "legacy no-glue imprint, or upgrade CadQuery to a version "
+                "including CadQuery/cadquery#2069."
+            )
+        if glue == "partial":
+            warnings.warn(
+                f'CadQuery {cq.__version__} has no glue option; imprint_glue="partial" '
+                "uses the legacy no-glue imprint without the partial-glue "
+                "optimization. Use imprint_glue=None to request this behavior "
+                "explicitly, or upgrade CadQuery for glue support.",
+                UserWarning,
+                stacklevel=2,
+            )
+        with thread_limit(threads):
+            return imprint(assembly)
     with thread_limit(threads):
-        return cq.occ_impl.assembly.imprint(assembly, glue=glue)
+        return imprint(assembly, glue=glue)
 
 
 def define_moab_core_and_tags():
@@ -1795,7 +1820,9 @@ class CadToDagmc:
                 partly coincide are not split. None turns glue off for a full
                 general-fuse intersection, the slowest but the one that also
                 handles faces that cross and solids that overlap. Ignored when
-                imprint is False.
+                imprint is False or only one solid is present. On CadQuery 2.8.0,
+                None uses the legacy imprint, "partial" uses it with a warning,
+                and "full" raises RuntimeError with upgrade advice.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag. Only used by the gmsh backend.
@@ -2076,7 +2103,9 @@ class CadToDagmc:
                 partly coincide are not split. None turns glue off for a full
                 general-fuse intersection, the slowest but the one that also
                 handles faces that cross and solids that overlap. Ignored when
-                imprint is False.
+                imprint is False or only one solid is present. On CadQuery 2.8.0,
+                None uses the legacy imprint, "partial" uses it with a warning,
+                and "full" raises RuntimeError with upgrade advice.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag.
@@ -2195,7 +2224,9 @@ class CadToDagmc:
                 exactly, as faces that only partly coincide are not split. None
                 turns glue off for a full general-fuse intersection, the slowest but
                 the one that also handles faces that cross and solids that overlap.
-                Ignored when imprint is False.
+                Ignored when imprint is False or only one solid is present.
+                On CadQuery 2.8.0, None uses the legacy imprint, "partial" uses
+                it with a warning, and "full" raises RuntimeError with upgrade advice.
 
             **kwargs: Backend-specific parameters:
 

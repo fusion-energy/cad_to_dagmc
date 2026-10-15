@@ -21,10 +21,13 @@ on:
 
 jobs:
   testing:
+    name: Python ${{ matrix.python-version }} / CadQuery ${{ matrix.cadquery }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.12]
+        cadquery: ["2.8.0", "master"]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
@@ -45,15 +48,18 @@ jobs:
         run: |
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
-          # TODO before merging remove these two lines and raise the floors in
-          # pyproject.toml instead. cadquery comes from git until a release
-          # includes the glue option on imprint (CadQuery/cadquery#2069) and
-          # cad-to-dagmc-mesher until a release includes imprint_glue.
-          python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery"
+          if [[ "${{ matrix.cadquery }}" == "master" ]]; then
+            python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@master"
+          else
+            python -m pip install "cadquery==${{ matrix.cadquery }}"
+          fi
+          # TODO replace the feature branch with a released mesher dependency
+          # once a release includes imprint_glue.
           python -m pip install "cad-to-dagmc-mesher @ git+https://github.com/fusion-energy/cad-to-dagmc-mesher@imprint-glue-option"
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"
+          python -c 'import cadquery as cq, inspect; signature = inspect.signature(cq.occ_impl.assembly.imprint); print(cq.__version__, signature); assert ("glue" in signature.parameters) == ("${{ matrix.cadquery }}" == "master")'
 
       - name: Run tests with h5py backend only (validates package works without pymoab)
         shell: bash
