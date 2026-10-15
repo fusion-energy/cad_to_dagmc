@@ -250,7 +250,8 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
             the peak RAM of the imprint at the cost of speed. Defaults to None
             which leaves the thread count as it is.
         glue: the glue option for the imprint, "partial", "full" or None.
-            Defaults to "partial".
+            Defaults to "partial". Explicit None disables glue, not imprinting;
+            it does not select the default.
 
     Returns:
         (imprinted_shape, imprinted_solids_with_original_ids)

@@ -78,6 +78,12 @@ Set `imprint["glue"]` according to how the solids meet:
 | `"full"` | Skips edge and face intersections | Shared whole faces must coincide exactly; partly coincident faces are not split |
 | `None` | No glue; runs general intersection checks | Geometry requiring general intersection rather than glue assumptions |
 
+`None` means **glue off**, not "use the default". Imprinting still runs.
+On CadQuery with selectable glue, omitting its `glue` argument defaults to
+`"partial"`; explicitly passing `glue=None` disables the glue optimisation.
+Likewise, omitting this package's `imprint` argument selects `"partial"`, while
+`imprint=False` disables imprinting entirely.
+
 Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
 overlaps in the CAD model before exporting.
 

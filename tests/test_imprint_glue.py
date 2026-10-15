@@ -142,12 +142,13 @@ def test_imprint_error_restores_thread_pool(monkeypatch, supports_glue):
 
 
 @pytest.mark.skipif(not HAS_GLUE, reason="legacy imprint has no selectable glue API")
-@pytest.mark.parametrize("glue, mode", [
-    ("partial", BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
-    ("full", BOPAlgo_GlueEnum.BOPAlgo_GlueFull),
-    (None, BOPAlgo_GlueEnum.BOPAlgo_GlueOff),
-])
-def test_modern_imprint_uses_actual_occ_glue_enum(monkeypatch, glue, mode):
+@pytest.mark.parametrize("options, mode", [
+    ({}, BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
+    ({"glue": "partial"}, BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
+    ({"glue": "full"}, BOPAlgo_GlueEnum.BOPAlgo_GlueFull),
+    ({"glue": None}, BOPAlgo_GlueEnum.BOPAlgo_GlueOff),
+], ids=["omitted-default", "partial", "full", "explicit-none"])
+def test_modern_imprint_uses_actual_occ_glue_enum(monkeypatch, options, mode):
     real_builder, builders = cq.occ_impl.assembly.BOPAlgo_Builder, []
 
     def recording_builder():
@@ -156,7 +157,7 @@ def test_modern_imprint_uses_actual_occ_glue_enum(monkeypatch, glue, mode):
         return builder
 
     monkeypatch.setattr(cq.occ_impl.assembly, "BOPAlgo_Builder", recording_builder)
-    imprint_assembly(_two_touching_boxes(), glue=glue)
+    imprint_assembly(_two_touching_boxes(), **options)
     assert len(builders) == 1
     assert builders[0].Glue() == mode
 
