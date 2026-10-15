@@ -87,18 +87,8 @@ model.export_dagmc_h5m_file(
 |-----------|------|---------|-------------|
 | `filename` | str | "dagmc.h5m" | Output file path |
 | `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
-| `imprint` | Mapping or False | Immutable `{"threads": "all", "glue": "partial"}` | `False` disables imprinting. An enabled mapping must contain exactly both keys: `"threads"` is `"all"` or a positive int (not bool); `"glue"` is `"partial"`, `"full"`, or `None`. |
+| `imprint` | dict or False | `{"threads": "all", "glue": "partial"}` | Imprint shared surfaces; `False` disables it. See [Imprinting](../advanced/imprinting.md) for options. |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
-
-The imprint mapping is never modified. `"all"` actively requests the OCC logical
-processor count for the imprint only, restoring the previous pool afterwards,
-including on errors. The mapping is passed directly to
-`cad-to-dagmc-mesher==0.3.5`; GMSH uses the same validated options. `"full"` requires
-exact whole-face coincidence, and `None` disables glue, not overlap rejection.
-CadQuery 2.8's legacy API supports only partial glue for multiple solids;
-`"full"` and `None` raise before imprinting or output. A single solid skips
-imprinting, but invalid options are still rejected. See
-[Imprinting](../advanced/imprinting.md) for details and migration guidance.
 
 **Backend Selection:**
 

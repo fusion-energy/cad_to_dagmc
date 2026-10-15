@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from contextlib import contextmanager
 from pathlib import Path
 from types import MappingProxyType
-from typing import Iterable, Literal, TypedDict
+from typing import Iterable, Literal
 
 import cadquery as cq
 import gmsh
@@ -160,13 +160,6 @@ def combine_tet_meshes(tet_data):
     remap[np.argsort(first_index)] = np.arange(len(keep))
 
     return vertices[keep], remap[inverse.reshape(-1)][tetrahedra]
-
-
-class ImprintOptions(TypedDict):
-    """Enabled imprint configuration; both keys are required."""
-
-    threads: int | Literal["all"]
-    glue: Literal["partial", "full"] | None
 
 
 DEFAULT_IMPRINT: Mapping[str, object] = MappingProxyType(

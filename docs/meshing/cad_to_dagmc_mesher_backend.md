@@ -1,14 +1,6 @@
 # cad-to-dagmc-mesher Backend
 
-The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. Version **0.3.5** is pinned and installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs `pip install cad-to-dagmc-mesher==0.3.5` to use it. See [Installation](../installation.md#optional-packages).
-
-The export methods use this version's `imprint` API directly: omission selects an
-immutable `{"threads": "all", "glue": "partial"}` mapping, `False` disables
-imprinting, and an explicit mapping must contain exactly both keys. `"threads"`
-is `"all"` or a positive integer (not a boolean); `"glue"` is `"partial"`,
-`"full"`, or `None`. The mapping is passed unchanged to the mesher. See
-[Imprinting](../advanced/imprinting.md) for thread restoration, glue semantics,
-and CadQuery compatibility; GMSH uses the same validated options.
+The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs `pip install cad-to-dagmc-mesher` to use it. See [Installation](../installation.md#optional-packages).
 
 ## Why a Neutronics-Specific Mesh?
 

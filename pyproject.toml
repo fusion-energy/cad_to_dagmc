@@ -20,7 +20,6 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    # CadQuery 2.8.0 is supported via the legacy imprint API.
     "cadquery>=2.8.0",
     "numpy",
     "gmsh",

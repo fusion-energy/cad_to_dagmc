@@ -14,31 +14,28 @@ Without imprinting, adjacent volumes might have incompatible meshes at their int
 
 ## Default Behavior
 
-All three export methods, `export_dagmc_h5m_file`,
-`export_unstructured_mesh_file`, and `export_gmsh_mesh_file`, accept the same
-`imprint` configuration. Omitting it uses an immutable default mapping with the
-contents `{"threads": "all", "glue": "partial"}`:
+Imprinting is enabled by default for all three export methods. Omitting `imprint`
+uses `{"threads": "all", "glue": "partial"}`:
 
 <!--pytest-codeblocks:skip-->
 ```python
-model.export_dagmc_h5m_file(filename="dagmc.h5m")
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint={"threads": "all", "glue": "partial"},  # Default
+)
 ```
 
-To enable imprinting explicitly, provide a mapping containing **exactly both**
-`"threads"` and `"glue"`. Missing or additional keys are rejected; partial
-configurations are not merged with defaults. Caller mappings are never modified.
+Explicit dictionaries require exactly the two keys below; partial configurations
+are not merged with defaults. Caller dictionaries are never modified.
 
 | Entry | Accepted values | Default |
 |-------|-----------------|---------|
 | `"threads"` | `"all"` or a positive Python `int`; booleans are not accepted | `"all"` |
 | `"glue"` | `"partial"`, `"full"`, or `None` | `"partial"` |
 
-The mesher backend receives the mapping directly, matching the API of the pinned
-dependency `cad-to-dagmc-mesher==0.3.5`. GMSH uses the same validated options.
-
 ## Disabling Imprinting
 
-For geometries that don't need it, use the literal `False` instead of a mapping:
+For geometries that don't need it, use `imprint=False`:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -66,30 +63,23 @@ One thread generally uses less memory at the cost of speed. Larger positive
 integers trade memory for parallelism, for example
 `imprint={"threads": 4, "glue": "partial"}`.
 
-`"threads": "all"` actively requests the OpenCASCADE logical processor count,
-`max(1, OSD_Parallel.NbLogicalProcessors_s())`. It does not inherit a previously
-limited pool. Both `"all"` and explicit integer counts apply only during
-imprinting. The previous pool size is restored afterwards, including on errors,
-so subsequent meshing and CadQuery operations retain their own thread settings.
-Zero, negative integers, booleans, floats, `None`, and strings other than
-`"all"` are invalid thread values.
+`"threads": "all"` requests all OpenCASCADE logical processors, even if the
+current pool is limited. On both backends, thread settings apply only during
+imprinting; the previous pool size is restored afterwards, including on errors.
+Meshing and later CadQuery operations keep their own thread settings.
 
 ## Choosing the Imprint Glue
 
-The boolean operations behind imprinting can be told how the solids are expected
-to meet, which lets them skip work. Set this with `imprint["glue"]`. On CadQuery
-with the selectable glue API, the value is passed through to its imprint:
+Set `imprint["glue"]` according to how the solids meet:
 
-| `imprint["glue"]` | What it does | Use when |
+| `imprint["glue"]` | What it does | Geometry requirement |
 |----------------|--------------|----------|
-| `"partial"` (default) | Fastest and lowest RAM | Solids touch or share faces, fully or in part, without any faces crossing or solids overlapping |
-| `"full"` | Does not intersect edges or faces at all | Shared whole faces coincide exactly. Faces that only partly coincide are not split |
-| `None` | Glue off, a full general-fuse intersection. The slowest | A general intersection is needed rather than glue assumptions; input solids must still not overlap |
+| `"partial"` (default) | Glues fully or partly coincident faces | Touching solids without crossing faces or overlaps |
+| `"full"` | Skips edge and face intersections | Shared whole faces must coincide exactly; partly coincident faces are not split |
+| `None` | No glue; runs general intersection checks | Geometry requiring general intersection rather than glue assumptions |
 
-Note the name `"full"` is counterintuitive: it is the *least* thorough option, as it assumes the faces already match. For the most thorough imprint use `None`.
-
-Disabling glue does not make overlapping solids valid DAGMC geometry. Overlaps
-still have no unique material and are rejected; repair them in the CAD model.
+Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
+overlaps in the CAD model before exporting.
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -101,42 +91,18 @@ model.export_dagmc_h5m_file(
 
 ### CadQuery version compatibility
 
-Both CadQuery **2.8.0** and the latest **master** are supported and tested.
-Glue support was added in [CadQuery/cadquery#2069](https://github.com/CadQuery/cadquery/pull/2069). The installed API is checked rather than relying on a version string.
-
-| `imprint["glue"]` | CadQuery 2.8.0 | CadQuery master with the glue API |
-|---|---|---|
-| `"partial"` (default) | Legacy imprint already uses partial glue, without a fallback warning | Exact `"partial"` option |
-| `"full"` | On multi-solid geometry, `RuntimeError` before imprinting or writing output, with the installed version and upgrade advice | Exact `"full"` option |
-| `None` | On multi-solid geometry, `RuntimeError` before imprinting or writing output: the legacy API cannot disable partial glue | Exact `None` option, leaving glue off |
-
-CadQuery 2.8.0 uses `BOPAlgo_MakeConnected`, which internally hard-codes
-[`BOPAlgo_GlueShift` (partial glue)](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/BOPAlgo/BOPAlgo_MakeConnected.cxx).
-Calling its imprint without a `glue` keyword therefore uses partial glue, not
-no glue. On current master, omitting `glue` also selects partial, whereas
-explicit `glue=None` leaves the builder in `GlueOff` mode. Neither `"full"`
-nor `None` can be honoured by the legacy API, so they fail rather than
-silently using partial glue.
-
-`imprint=False` disables the operation and supplies no glue or thread options.
-With a single solid, a valid mapping is still checked, but the actual imprint
-is skipped, so all three valid glue modes can be used even on the legacy API.
-Invalid mapping keys, thread values, or glue values are always rejected,
-including for a single solid. Both meshing backends follow these rules.
+CadQuery 2.8.0's legacy imprint always uses partial glue. On multi-solid
+geometry, `"full"` and `None` raise `RuntimeError`; CadQuery master with the
+selectable glue API supports all three modes. Support is detected from the
+installed imprint signature, not the version string.
 
 ## Migrating from the Previous API
 
 | Previous call | Replacement |
 |---------------|-------------|
-| `imprint=True` | Omit `imprint`, or use `imprint={"threads": "all", "glue": "partial"}` |
+| `imprint=True` | Omit `imprint` |
 | `imprint=1` | `imprint={"threads": 1, "glue": "partial"}` |
 | `imprint=False` | Unchanged |
-
-The old `True` and integer shorthands are no longer accepted; `imprint=None` is
-also invalid. Move any separate `imprint_glue` value into the mapping's `"glue"`
-entry and always include `"threads"`. There is no compatibility shim or separate
-glue keyword. Only omission selects the immutable default; passing an empty or
-incomplete mapping is an error.
 
 ## When to Disable Imprinting
 

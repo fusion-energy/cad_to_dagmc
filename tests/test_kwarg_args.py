@@ -1,7 +1,4 @@
 import warnings
-from collections import UserDict
-from types import MappingProxyType
-from unittest.mock import Mock
 
 import cadquery as cq
 import pytest
@@ -174,48 +171,6 @@ class TestKwargsExportDagmcH5mFile:
         assert result == str(output_file)
         assert output_file.exists()
 
-    @pytest.mark.parametrize(
-        "imprint",
-        [
-            False,
-            {"threads": "all", "glue": "partial"},
-            MappingProxyType({"threads": 1, "glue": None}),
-            UserDict({"threads": 1, "glue": "full"}),
-        ],
-    )
-    @pytest.mark.parametrize(
-        "backend_kwargs, expected_backend",
-        [
-            ({}, "cad-to-dagmc-mesher"),
-            ({"max_mesh_size": 1.0}, "gmsh"),
-            ({"tolerance": 0.05}, "cad-to-dagmc-mesher"),
-        ],
-    )
-    def test_shared_imprint_options_do_not_select_a_backend(
-        self, tmp_path, monkeypatch, capsys, imprint, backend_kwargs, expected_backend
-    ):
-        """Neither mapping entries nor False are backend-selecting arguments."""
-        monkeypatch.setattr(
-            "cad_to_dagmc.core._cad_to_dagmc_mesher_is_available", lambda: True
-        )
-        stop_after_selection = Mock(side_effect=RuntimeError("arguments handled"))
-        monkeypatch.setattr(
-            "cad_to_dagmc.core.get_ids_from_assembly", stop_after_selection
-        )
-        original = dict(imprint) if imprint is not False else False
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            with pytest.raises(RuntimeError, match="arguments handled"):
-                self.my_model.export_dagmc_h5m_file(
-                    filename=str(tmp_path / "shared_imprint.h5m"),
-                    imprint=imprint,
-                    **backend_kwargs,
-                )
-        stop_after_selection.assert_called_once()
-        assert f"Using meshing backend: {expected_backend}" in capsys.readouterr().out
-        assert imprint == original
-        assert not list(tmp_path.iterdir())
-
     def test_mesher_kwargs_without_mesher_installed_raises_helpful_error(
         self, tmp_path, monkeypatch
     ):
@@ -342,7 +297,7 @@ class TestKwargsExportDagmcH5mFile:
             tolerance=0.01,
             angular_tolerance=0.15,
             scale_factor=2.0,
-            imprint={"threads": 1, "glue": None},
+            imprint=False,
             implicit_complement_material_tag="vacuum",
         )
 

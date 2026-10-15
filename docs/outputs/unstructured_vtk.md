@@ -150,7 +150,7 @@ model.export_unstructured_mesh_file(
     set_size=None,            # Per-volume sizes (gmsh backend)
     volumes=None,             # Specific volumes to include (gmsh backend)
     scale_factor=1.0,         # Geometry scaling
-    imprint={"threads": "all", "glue": "partial"},  # Default imprint options
+    imprint={"threads": "all", "glue": "partial"},  # Imprint shared surfaces
     method="file",            # CAD transfer method (gmsh backend)
     meshing_backend=None,     # "gmsh", "cad-to-dagmc-mesher" or auto-select
     target_edge_length=None,  # Tet edge length (cad-to-dagmc-mesher backend)
@@ -171,23 +171,13 @@ model.export_unstructured_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | Mapping or False | Immutable `{"threads": "all", "glue": "partial"}` | `False` disables imprinting. An enabled mapping must contain exactly both keys: `"threads"` is `"all"` or a positive int (not bool); `"glue"` is `"partial"`, `"full"`, or `None`. |
+| `imprint` | dict or False | `{"threads": "all", "glue": "partial"}` | Imprint shared surfaces; `False` disables it. See [Imprinting](../advanced/imprinting.md) for options. |
 | `method` | str | "file" | CAD transfer method (gmsh) |
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
 | `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |
 | `tet_volumes` | list[str] | None | Material tags of volumes to fill with tets (cad-to-dagmc-mesher) |
 | `tolerance` | float | 0.01 | Surface mesh linear tolerance (cad-to-dagmc-mesher) |
 | `angular_tolerance` | float | 0.2 | Surface mesh angular tolerance (cad-to-dagmc-mesher) |
-
-The imprint mapping is never modified. `"all"` actively requests the OCC logical
-processor count for the imprint only, restoring the previous pool afterwards,
-including on errors. The mapping is passed directly to
-`cad-to-dagmc-mesher==0.3.5`; GMSH uses the same validated options. `"full"` requires
-exact whole-face coincidence, and `None` disables glue, not overlap rejection.
-CadQuery 2.8's legacy API supports only partial glue for multiple solids;
-`"full"` and `None` raise before imprinting or output. A single solid skips
-imprinting, but invalid options are still rejected. See
-[Imprinting](../advanced/imprinting.md) for details and migration guidance.
 
 ## Using in OpenMC
 

@@ -77,7 +77,7 @@ model.export_gmsh_mesh_file(
     volume_mesh_options=None, # GMSH options applied only after surface meshing
     set_size=None,            # Per-volume sizes
     scale_factor=1.0,         # Geometry scaling
-    imprint={"threads": "all", "glue": "partial"},  # Default imprint options
+    imprint={"threads": "all", "glue": "partial"},  # Imprint shared surfaces
     method="file",            # CAD transfer method
 )
 ```
@@ -95,17 +95,8 @@ model.export_gmsh_mesh_file(
 | `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `dimensions=3` |
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | Mapping or False | Immutable `{"threads": "all", "glue": "partial"}` | `False` disables imprinting. An enabled mapping must contain exactly both keys: `"threads"` is `"all"` or a positive int (not bool); `"glue"` is `"partial"`, `"full"`, or `None`. |
+| `imprint` | dict or False | `{"threads": "all", "glue": "partial"}` | Imprint shared surfaces; `False` disables it. See [Imprinting](../advanced/imprinting.md) for options. |
 | `method` | str | "file" | CAD transfer method |
-
-The imprint mapping is never modified. `"all"` actively requests the OCC logical
-processor count for the imprint only, restoring the previous pool afterwards,
-including on errors. GMSH uses the same validated imprint options as the mesher
-backend. `"full"` requires exact whole-face coincidence, and `None` disables glue,
-not overlap rejection. CadQuery 2.8's legacy API supports only partial glue for
-multiple solids; `"full"` and `None` raise before imprinting or output. A single
-solid skips imprinting, but invalid options are still rejected. See
-[Imprinting](../advanced/imprinting.md) for details and migration guidance.
 
 For `dimensions=3`, `mesh_algorithm_3d` selects the volume algorithm independently
 of the surface algorithm. A non-empty `volume_mesh_options` dictionary causes

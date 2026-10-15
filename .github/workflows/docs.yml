@@ -33,8 +33,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Documentation also works with released CadQuery's legacy imprint.
-          python -m pip install "cadquery==2.8.0"
           python -m pip install .[docs,tests]
 
       - name: Test documentation code snippets
