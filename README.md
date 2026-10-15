@@ -13,3 +13,15 @@
 A minimal package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) (h5m) files, [unstructured mesh](https://docs.openmc.org/en/latest/pythonapi/generated/openmc.UnstructuredMesh.html) files (vtk) and Gmsh (msh) files ready for use in neutronics simulations.
 
 ## See the :point_right: [online documentation](https://fusion-energy.github.io/cad_to_dagmc/) :point_left: for installation options, usage recommendations and Python API details.
+
+## Imprint configuration
+
+The three export methods share the `cad-to-dagmc-mesher==0.3.5` API. Omit
+`imprint` to use the immutable default `{"threads": "all", "glue": "partial"}`,
+or pass `imprint=False` to disable it. An explicit mapping must contain exactly
+both keys and is never modified. `"threads"` accepts `"all"` or a positive integer
+(not a boolean); `"all"` requests the OCC logical processor count during imprinting
+and restores the previous pool afterwards. `"glue"` accepts `"partial"`,
+`"full"`, or `None`. See the [imprinting guide](docs/advanced/imprinting.md) and
+its [migration table](docs/advanced/imprinting.md#migrating-from-the-previous-api)
+for geometry requirements and CadQuery compatibility.

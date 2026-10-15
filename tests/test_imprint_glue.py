@@ -1,6 +1,6 @@
-"""Tests for the imprint_glue argument.
+"""Tests for the glue entry in the explicit imprint mapping.
 
-imprint_glue is passed through to cadquery's imprint as its glue option.
+imprint['glue'] is passed through to cadquery's imprint as its glue option.
 "partial" is the fast, low RAM default for solids that touch or share faces
 without crossing or overlapping, "full" is for solids whose shared faces
 coincide exactly, and None turns glue off for a full general-fuse
@@ -9,7 +9,10 @@ intersection."""
 import functools
 import inspect
 import warnings
+from collections import UserDict
 from contextlib import nullcontext
+from types import MappingProxyType
+from unittest.mock import Mock
 
 import cadquery as cq
 import gmsh
@@ -19,9 +22,10 @@ from OCP.OSD import OSD_ThreadPool
 
 from cad_to_dagmc import CadToDagmc
 from cad_to_dagmc.core import (
+    DEFAULT_IMPRINT,
     _mesh_with_cad_to_dagmc_mesher,
+    _resolve_glue,
     imprint_assembly,
-    resolve_imprint_glue,
 )
 
 HAS_GLUE = "glue" in inspect.signature(cq.occ_impl.assembly.imprint).parameters
@@ -70,15 +74,18 @@ def glue_spy(monkeypatch):
     return glues
 
 
-class TestResolveImprintGlue:
+class TestResolveGlue:
     @pytest.mark.parametrize("glue", ["partial", "full", None])
     def test_cadquery_glue_options_are_accepted(self, glue):
-        assert resolve_imprint_glue(glue) == glue
+        assert _resolve_glue(glue) == glue
 
-    @pytest.mark.parametrize("glue", ["off", "Partial", "shift", True, False, 1])
+    @pytest.mark.parametrize("glue", ["off", "Partial", "shift", True, False, 1, [], {}])
     def test_anything_else_is_rejected(self, glue):
-        with pytest.raises(ValueError, match="imprint_glue must be"):
-            resolve_imprint_glue(glue)
+        with pytest.raises(ValueError, match=r"imprint\['glue'\] must be") as excinfo:
+            _resolve_glue(glue)
+        assert str(excinfo.value) == (
+            f'imprint[\'glue\'] must be "partial", "full" or None, got {glue!r}'
+        )
 
 
 class TestImprintAssembly:
@@ -115,14 +122,14 @@ class TestImprintAssembly:
 
 
 def _dagmc_h5m(backend, **kwargs):
-    def export(model, tmp_path, imprint_glue, imprint=True):
+    def export(model, tmp_path, imprint=DEFAULT_IMPRINT, **export_kwargs):
         options = dict(kwargs)
+        options.update(export_kwargs)
         if "unstructured_volumes" in options or "tet_volumes" in options:
             options["umesh_filename"] = str(tmp_path / "umesh.vtk")
         return model.export_dagmc_h5m_file(
             filename=str(tmp_path / "dagmc.h5m"),
             meshing_backend=backend,
-            imprint_glue=imprint_glue,
             imprint=imprint,
             **options,
         )
@@ -130,20 +137,19 @@ def _dagmc_h5m(backend, **kwargs):
     return export
 
 
-def _gmsh_mesh(model, tmp_path, imprint_glue, imprint=True):
+def _gmsh_mesh(model, tmp_path, imprint=DEFAULT_IMPRINT, **export_kwargs):
     return model.export_gmsh_mesh_file(
-        filename=str(tmp_path / "mesh.msh"), imprint_glue=imprint_glue, imprint=imprint
+        filename=str(tmp_path / "mesh.msh"), imprint=imprint, **export_kwargs
     )
 
 
 def _unstructured(backend, **kwargs):
-    def export(model, tmp_path, imprint_glue, imprint=True):
+    def export(model, tmp_path, imprint=DEFAULT_IMPRINT, **export_kwargs):
         return model.export_unstructured_mesh_file(
             filename=str(tmp_path / "umesh.vtk"),
             meshing_backend=backend,
-            imprint_glue=imprint_glue,
             imprint=imprint,
-            **kwargs,
+            **(kwargs | export_kwargs),
         )
 
     return export
@@ -170,18 +176,21 @@ IMPRINT_PATHS = {
 
 @pytest.mark.parametrize("glue", ["partial", "full", None])
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
-@pytest.mark.parametrize("imprint", [True, 1])
-def test_every_export_passes_the_glue_to_cadquery(tmp_path, glue_spy, path, glue, imprint):
+@pytest.mark.parametrize("threads", ["all", 1])
+def test_every_export_passes_the_glue_to_cadquery(tmp_path, glue_spy, path, glue, threads):
     export, needs_mesher = IMPRINT_PATHS[path]
     if needs_mesher:
         pytest.importorskip("cad_to_dagmc_mesher")
 
+    imprint = {"threads": threads, "glue": glue}
+    original = imprint.copy()
     before = OSD_ThreadPool.DefaultPool_s().NbThreads()
     with warnings.catch_warnings():
         warnings.simplefilter("error", UserWarning)
         with _expected_response(glue):
-            export(_model(), tmp_path, glue, imprint=imprint)
+            export(_model(), tmp_path, imprint=imprint)
 
+    assert imprint == original
     assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
     assert not gmsh.isInitialized()
     if not HAS_GLUE and glue != "partial":
@@ -197,21 +206,42 @@ def test_every_export_passes_the_glue_to_cadquery(tmp_path, glue_spy, path, glue
 
 
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
-def test_invalid_glue_is_rejected_by_every_export(tmp_path, glue_spy, path):
-    export, needs_mesher = IMPRINT_PATHS[path]
-    if needs_mesher:
-        pytest.importorskip("cad_to_dagmc_mesher")
+@pytest.mark.parametrize("glue", ["off", "Partial", True, False, 1, [], {}])
+@pytest.mark.parametrize("single_solid", [False, True])
+def test_invalid_glue_is_rejected_by_every_export(
+    tmp_path, monkeypatch, glue_spy, path, glue, single_solid
+):
+    export, _ = IMPRINT_PATHS[path]
+    model = _model()
+    if single_solid:
+        model = CadToDagmc()
+        model.add_cadquery_object(cq.Workplane().box(10, 10, 10), material_tags=["mat1"])
+        if path == "h5m_umesh_gmsh":
+            export = _dagmc_h5m("gmsh", unstructured_volumes=[1])
+    side_effects = Mock(side_effect=AssertionError("geometry or meshing ran before validation"))
+    for name in ("get_ids_from_assembly", "imprint_assembly", "init_gmsh", "_mesh_with_cad_to_dagmc_mesher"):
+        monkeypatch.setattr(f"cad_to_dagmc.core.{name}", side_effects)
+    monkeypatch.setattr(model, "_export_unstructured_mesh_file_with_mesher", side_effects)
+    imprint = {"threads": 1, "glue": glue}
+    original = imprint.copy()
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
 
-    with pytest.raises(ValueError, match="imprint_glue must be"):
-        export(_model(), tmp_path, "off")
+    with pytest.raises(ValueError, match=r"imprint\['glue'\] must be"):
+        export(model, tmp_path, imprint=imprint)
 
+    side_effects.assert_not_called()
+    assert imprint == original
     assert glue_spy == [], "the imprint ran before the glue was checked"
+    assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
+    assert not gmsh.isInitialized()
+    assert not list(tmp_path.iterdir())
 
 
 @pytest.mark.parametrize("glue", GLUES)
+@pytest.mark.parametrize("threads", ["all", 1])
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
 @pytest.mark.parametrize("single_solid", [False, True])
-def test_glue_is_ignored_when_not_imprinting(tmp_path, glue_spy, path, glue, single_solid):
+def test_glue_is_ignored_when_not_imprinting(tmp_path, glue_spy, path, glue, threads, single_solid):
     export, needs_mesher = IMPRINT_PATHS[path]
     if needs_mesher:
         pytest.importorskip("cad_to_dagmc_mesher")
@@ -222,11 +252,21 @@ def test_glue_is_ignored_when_not_imprinting(tmp_path, glue_spy, path, glue, sin
     # Select only the existing volume for the single-solid H5M+Gmsh route.
     if single_solid and path == "h5m_umesh_gmsh":
         export = _dagmc_h5m("gmsh", unstructured_volumes=[1])
+    options = {"threads": threads, "glue": glue}
+    original = options.copy()
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
     with warnings.catch_warnings():
         warnings.simplefilter("error", UserWarning)
-        export(model, tmp_path, glue, imprint=single_solid)
+        export(model, tmp_path, imprint=options if single_solid else False)
+    assert options == original
     assert glue_spy == []
+    assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
     assert not gmsh.isInitialized()
+    output = tmp_path / ("mesh.msh" if path == "gmsh_mesh_file" else
+                         "umesh.vtk" if path.startswith("umesh_") else "dagmc.h5m")
+    assert output.stat().st_size > 0
+    if path.startswith("h5m_umesh_"):
+        assert (tmp_path / "umesh.vtk").stat().st_size > 0
 
 
 @pytest.mark.parametrize("glue", ["partial", None])
@@ -246,13 +286,12 @@ def test_partial_face_contact_is_split(glue):
 
 
 def test_glue_and_thread_count_combine(tmp_path, glue_spy):
-    """imprint sets the threads and imprint_glue the glue, independently."""
+    """Both entries of imprint reach the same operation."""
     with _expected_response(None):
         _model().export_dagmc_h5m_file(
             filename=str(tmp_path / "dagmc.h5m"),
             meshing_backend="gmsh",
-            imprint=1,
-            imprint_glue=None,
+            imprint={"threads": 1, "glue": None},
         )
     assert glue_spy == ([None] if HAS_GLUE else [])
 
@@ -273,8 +312,13 @@ def test_both_api_signatures(monkeypatch, supports_glue, glue):
 
     monkeypatch.setattr(cq.occ_impl.assembly, "imprint", modern if supports_glue else legacy)
     if not supports_glue and glue != "partial":
-        with pytest.raises(RuntimeError, match='Use imprint_glue="partial".*upgrade CadQuery'):
+        with pytest.raises(RuntimeError, match="legacy imprint always uses partial glue") as excinfo:
             imprint_assembly(_two_touching_boxes(), glue=glue)
+        message = str(excinfo.value)
+        assert "imprint['glue']" in message
+        assert '"threads": "all", "glue": "partial"' in message
+        assert "upgrade CadQuery" in message
+        assert "imprint_glue" not in message
         assert calls == []
     else:
         with warnings.catch_warnings():
@@ -325,14 +369,60 @@ def test_modern_imprint_uses_the_requested_occ_glue_mode(monkeypatch, glue, mode
     assert builders[0].Glue() == mode
 
 
-@pytest.mark.parametrize("enabled", [False, True])
-@pytest.mark.parametrize("threads", [None, 1])
-@pytest.mark.parametrize("glue", GLUES)
-def test_exporter_translates_options_to_the_new_mesher_api(monkeypatch, enabled, threads, glue):
-    cad = pytest.importorskip("cad_to_dagmc_mesher.cad")
+@pytest.mark.parametrize("path", IMPRINT_PATHS)
+@pytest.mark.parametrize("glue", ["full", None])
+def test_legacy_signature_rejects_unsupported_glue_without_outputs(
+    tmp_path, monkeypatch, path, glue
+):
+    """Exercise legacy rejection even when the installed CadQuery is modern."""
+    export, needs_mesher = IMPRINT_PATHS[path]
+    if needs_mesher:
+        pytest.importorskip("cad_to_dagmc_mesher")
     calls = []
 
+    def legacy(assembly):
+        calls.append(assembly)
+        raise AssertionError("unsupported glue reached legacy imprint")
+
+    monkeypatch.setattr(cq.occ_impl.assembly, "imprint", legacy)
+    imprint = {"threads": "all", "glue": glue}
+    original = imprint.copy()
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        with pytest.raises(RuntimeError, match="legacy imprint always uses partial glue"):
+            export(_model(), tmp_path, imprint)
+    assert calls == []
+    assert imprint == original
+    assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
+    assert cq.occ_impl.assembly.imprint is legacy
+    assert not gmsh.isInitialized()
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("mapping_factory", [dict, MappingProxyType, UserDict])
+@pytest.mark.parametrize("threads", ["all", 1])
+@pytest.mark.parametrize("glue", GLUES)
+def test_exporter_forwards_the_same_imprint_mapping_to_mesher(monkeypatch, mapping_factory, threads, glue):
+    options = mapping_factory({"threads": threads, "glue": glue})
+    _assert_mesher_forwarding(monkeypatch, options)
+
+
+@pytest.mark.parametrize("imprint", [False, DEFAULT_IMPRINT])
+def test_exporter_forwards_false_and_immutable_default_to_mesher(monkeypatch, imprint):
+    _assert_mesher_forwarding(monkeypatch, imprint)
+
+
+def _assert_mesher_forwarding(monkeypatch, imprint):
+    cad = pytest.importorskip("cad_to_dagmc_mesher.cad")
+    calls = []
+    original = dict(imprint) if imprint is not False else False
+    real_imprint = cq.occ_impl.assembly.imprint
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
+
     def mesh_assembly(assembly, *, solid_config, imprint):
+        assert cq.occ_impl.assembly.imprint is real_imprint
+        assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
         calls.append(imprint)
         return {
             "vertices": [],
@@ -341,11 +431,51 @@ def test_exporter_translates_options_to_the_new_mesher_api(monkeypatch, enabled,
         }
 
     monkeypatch.setattr(cad, "mesh_assembly", mesh_assembly)
-    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
     _mesh_with_cad_to_dagmc_mesher(
         _two_touching_boxes(), ["left", "right"], 1.0, 0.3,
-        tet_volumes=None, target_edge_length=None, imprint=enabled,
-        imprint_threads=threads, imprint_glue=glue,
+        tet_volumes=None, target_edge_length=None, imprint=imprint,
     )
-    assert calls == ([{"threads": threads or before, "glue": glue}] if enabled else [False])
+    assert len(calls) == 1
+    assert calls[0] is imprint, "do not copy, resolve, or translate the caller's mapping"
+    assert imprint == original
+    assert cq.occ_impl.assembly.imprint is real_imprint
     assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
+
+
+def test_mesher_adapter_has_no_separate_imprint_arguments():
+    parameters = inspect.signature(_mesh_with_cad_to_dagmc_mesher).parameters
+    assert "imprint" in parameters
+    assert "imprint_threads" not in parameters
+    assert "imprint_glue" not in parameters
+
+
+@pytest.mark.parametrize("removed_keyword", ["imprint_threads", "imprint_glue"])
+def test_mesher_adapter_rejects_removed_keywords(removed_keyword):
+    with pytest.raises(TypeError, match=f"unexpected keyword argument '{removed_keyword}'"):
+        _mesh_with_cad_to_dagmc_mesher(
+            _two_touching_boxes(), ["left", "right"], 1.0, 0.3,
+            tet_volumes=None, target_edge_length=None, imprint=False,
+            **{removed_keyword: None},
+        )
+
+
+@pytest.mark.parametrize("path", IMPRINT_PATHS)
+@pytest.mark.parametrize("mapping_factory", [MappingProxyType, UserDict])
+def test_every_export_accepts_other_mapping_types_unchanged(
+    tmp_path, path, mapping_factory
+):
+    export, needs_mesher = IMPRINT_PATHS[path]
+    if needs_mesher:
+        pytest.importorskip("cad_to_dagmc_mesher")
+    imprint = mapping_factory({"threads": 1, "glue": "partial"})
+    original = dict(imprint)
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
+    export(_model(), tmp_path, imprint)
+    assert imprint == original
+    assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
+    assert not gmsh.isInitialized()
+    output = tmp_path / ("mesh.msh" if path == "gmsh_mesh_file" else
+                         "umesh.vtk" if path.startswith("umesh_") else "dagmc.h5m")
+    assert output.stat().st_size > 0
+    if path.startswith("h5m_umesh_"):
+        assert (tmp_path / "umesh.vtk").stat().st_size > 0

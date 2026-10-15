@@ -47,7 +47,6 @@ jobs:
           # Use conda CadQuery to avoid pulling a second OCP/VTK through pip.
           # Both released CadQuery and master are covered by the pip CI matrix.
           conda install -c conda-forge "openmc=0.15.3=dagmc*nompi*" trimesh networkx gmsh python-gmsh "cadquery=2.8.0"
-          python -m pip install "cad-to-dagmc-mesher @ git+https://github.com/fusion-energy/cad-to-dagmc-mesher@imprint-glue-option"
           python -m pip install .[tests]
           python -m pip install git+https://github.com/svalinn/pydagmc
 

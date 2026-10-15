@@ -37,8 +37,6 @@ jobs:
           python -m pip install --upgrade pip
           # Documentation also works with released CadQuery's legacy imprint.
           python -m pip install "cadquery==2.8.0"
-          # TODO replace the feature branch once a mesher release includes imprint_glue.
-          python -m pip install "cad-to-dagmc-mesher @ git+https://github.com/fusion-energy/cad-to-dagmc-mesher@imprint-glue-option"
           python -m pip install .[docs,tests]
 
       - name: Test documentation code snippets

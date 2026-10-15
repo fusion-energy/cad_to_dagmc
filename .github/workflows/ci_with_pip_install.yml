@@ -53,9 +53,6 @@ jobs:
           else
             python -m pip install "cadquery==${{ matrix.cadquery }}"
           fi
-          # TODO replace the feature branch with a released mesher dependency
-          # once a release includes imprint_glue.
-          python -m pip install "cad-to-dagmc-mesher @ git+https://github.com/fusion-energy/cad-to-dagmc-mesher@imprint-glue-option"
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"

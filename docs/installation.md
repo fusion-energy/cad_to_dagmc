@@ -9,12 +9,15 @@ The two routes differ in which optional packages come along with them, see
 
 ## Install using pip
 
+<!--pytest-codeblocks:skip-->
 ```bash
 pip install cad_to_dagmc
 ```
 
 This also installs [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher),
-the default meshing backend.
+the default meshing backend, pinned to `cad-to-dagmc-mesher==0.3.5`. Its explicit
+imprint mapping API is also used by this package; see
+[Imprinting](advanced/imprinting.md).
 
 ## Install using Mamba
 
@@ -53,7 +56,7 @@ cad_to_dagmc.
 
 | Package | Needed for | With pip | With Conda/Mamba |
 |---------|------------|----------|------------------|
-| [cad-to-dagmc-mesher](meshing/cad_to_dagmc_mesher_backend.md) | the default meshing backend | installed as a dependency | not on conda-forge, add with `pip install cad-to-dagmc-mesher` |
+| [cad-to-dagmc-mesher](meshing/cad_to_dagmc_mesher_backend.md) | the default meshing backend | installed as a dependency, pinned to `==0.3.5` | not on conda-forge, add with `pip install cad-to-dagmc-mesher==0.3.5` |
 | pymoab | `h5m_backend="pymoab"` | `pip install --extra-index-url https://shimwell.github.io/wheels moab` | `conda install -c conda-forge moab` |
 
 :::{note}
