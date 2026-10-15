@@ -9,6 +9,7 @@ The two routes differ in which optional packages come along with them, see
 
 ## Install using pip
 
+<!--pytest-codeblocks:skip-->
 ```bash
 pip install cad_to_dagmc
 ```

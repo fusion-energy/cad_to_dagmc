@@ -3083,15 +3083,24 @@
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
     <span class="p">]</span>
 
-    <span class="c1"># The mesher imprints internally, so the limit is put on the imprint</span>
-    <span class="c1"># itself and the meshing keeps all its threads.</span>
+    <span class="c1"># Adapt the existing bool/int exporter API to mesher 0.3.5. The mesher</span>
+    <span class="c1"># scopes its own thread limit; preserve the caller's pool for imprint=True.</span>
+    <span class="n">imprint_options</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"threads"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">imprint_threads</span> <span class="k">if</span> <span class="n">imprint_threads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">OSD_ThreadPool</span><span class="o">.</span><span class="n">DefaultPool_s</span><span class="p">()</span><span class="o">.</span><span class="n">NbThreads</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="s2">"glue"</span><span class="p">:</span> <span class="s2">"partial"</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">imprint</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
-                <span class="n">assembly</span><span class="p">,</span>
-                <span class="n">solid_config</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
-                <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
+            <span class="n">assembly</span><span class="p">,</span>
+            <span class="n">solid_config</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
+            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint_options</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"vertices"</span><span class="p">],</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"triangles_by_solid_by_face"</span><span class="p">],</span>
