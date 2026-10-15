@@ -141,7 +141,6 @@ def get_volumes_and_materials_from_h5m(filename: str) -> dict:
         return vol_mat
 
 
-# TODO: Add min/max mesh size feature to CadQuery direct mesher and enable it for this test
 @pytest.mark.parametrize("meshing_backend", ["gmsh"])
 def test_max_mesh_size_impacts_file_size(meshing_backend, tmp_path):
     """Checks the reducing max_mesh_size value increases the file size"""
@@ -188,7 +187,7 @@ def test_max_mesh_size_impacts_file_size(meshing_backend, tmp_path):
     assert small_file < medium_file
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 @pytest.mark.parametrize("h5m_backend", ["pymoab", "h5py"])
 def test_h5m_file_tags(meshing_backend, h5m_backend, tmp_path):
     """Checks that a h5m file is created with the correct tags"""
@@ -253,7 +252,7 @@ def test_add_stp_file_returned_volumes():
     assert vols == 2
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh", "cad-to-dagmc-mesher"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh", "cad-to-dagmc-mesher"])
 def test_export_dagmc_h5m_file_handles_paths_folders_strings(meshing_backend, tmp_path):
     """Checks that a h5m file is created with various path formats"""
 
@@ -507,7 +506,7 @@ def test_unstructured_mesh_export_with_surface_mesh(tmp_path):
     # TODO check the volume mesh outer surface is the same as the surface mesh volume 2 surface
 
 
-@pytest.mark.parametrize("meshing_backend", ["cadquery", "gmsh"])
+@pytest.mark.parametrize("meshing_backend", ["gmsh"])
 def test_unstructured_mesh_with_volumes(meshing_backend, tmp_path):
 
     box_cutter = cq.Workplane("XY").moveTo(0, 5).box(20, 10, 20)

@@ -55,7 +55,7 @@ model.export_dagmc_h5m_file(
 
 ## With Meshing Backends
 
-Choose between the cad-to-dagmc-mesher (default), GMSH and CadQuery meshing:
+Choose between the cad-to-dagmc-mesher (default) and GMSH meshing backends:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -74,14 +74,6 @@ model.export_dagmc_h5m_file(
     min_mesh_size=0.5,
     max_mesh_size=10.0,
     mesh_algorithm=1,
-)
-
-# CadQuery backend - simpler, uses CadQuery's tessellation
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    meshing_backend="cadquery",
-    tolerance=0.1,
-    angular_tolerance=0.1,
 )
 ```
 
@@ -102,7 +94,7 @@ model.export_dagmc_h5m_file(
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `meshing_backend` | str | auto | `"cad-to-dagmc-mesher"`, `"gmsh"` or `"cadquery"`. Auto-selected from the other arguments provided. Defaults to `"cad-to-dagmc-mesher"` when no backend-specific arguments are given, falling back to `"cadquery"` if cad-to-dagmc-mesher is not installed. |
+| `meshing_backend` | str | auto | `"cad-to-dagmc-mesher"` or `"gmsh"`. Auto-selected from the other arguments provided. Defaults to `"cad-to-dagmc-mesher"` when no backend-specific arguments are given, falling back to `"gmsh"` if cad-to-dagmc-mesher is not installed. |
 | `h5m_backend` | str | "h5py" | `"h5py"` or `"pymoab"` for writing h5m files |
 
 **GMSH Backend Parameters:**
@@ -127,15 +119,6 @@ changing how the DAGMC surfaces are initially meshed. See
 for HXT and relaxed interior sizing. The existing surface mesh is reused for
 the unstructured output.
 
-**CadQuery Backend Parameters:**
-
-These parameters only apply when using `meshing_backend="cadquery"`:
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `tolerance` | float | 0.1 | Linear tolerance for tessellation, in scaled-geometry units |
-| `angular_tolerance` | float | 0.1 | Angular tolerance for tessellation |
-
 **cad-to-dagmc-mesher Backend Parameters:**
 
 These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
@@ -157,7 +140,6 @@ the same deflection on the output mesh whichever backend you use:
 |---------|--------------------------|
 | `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
 | `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
-| `cadquery` | `tolerance` |
 
 A consequence is that the defaults get finer as `scale_factor` grows. This matters
 most for the cad-to-dagmc-mesher `tolerance` default of `0.01`: with
@@ -169,19 +151,10 @@ model exported with `scale_factor=100`.
 `angular_tolerance` is an angle and is unaffected by `scale_factor`.
 :::
 
-:::{note}
-Before this behaviour was made consistent, the `cadquery` backend interpreted
-`tolerance` in the units of the *unscaled* geometry, because it tessellates first
-and scales the resulting vertices afterwards. If you used that backend with a
-`scale_factor` other than 1.0, the same `tolerance` value now produces a mesh
-`scale_factor` times finer than it used to; multiply your old tolerance by
-`scale_factor` to get the previous mesh density. A warning is raised to flag this.
-:::
-
 `tet_volumes` and `target_edge_length` must be given together to write a volume mesh.
 
 :::{warning}
-Do not mix GMSH and CadQuery backend parameters in the same call. If you provide parameters from both backends without explicitly setting `meshing_backend`, an error will be raised.
+Do not mix GMSH and cad-to-dagmc-mesher backend parameters in the same call. If you provide parameters from both backends without explicitly setting `meshing_backend`, an error will be raised.
 :::
 
 **Returns:**
@@ -227,5 +200,5 @@ model.run()
 
 - [H5M Backends](../advanced/h5m_backends.md) - h5py vs pymoab comparison
 - [GMSH Backend](../meshing/gmsh_backend.md) - GMSH meshing options
-- [CadQuery Backend](../meshing/cadquery_backend.md) - CadQuery meshing options
+- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md) - cad-to-dagmc-mesher meshing options
 - [Conformal Meshes](conformal_meshes.md) - Combined surface and volume output

@@ -24,7 +24,6 @@ dependencies = [
     "numpy",
     "gmsh",
     "h5py",
-    "cadquery_direct_mesh_plugin>=0.2.0",
     "cad-to-dagmc-mesher>=0.3.4"
 # TODO if moab become available on pypi include moab here and remove from CI
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
