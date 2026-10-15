@@ -205,6 +205,38 @@ def resolve_imprint(imprint: bool | int) -> tuple[bool, int | None]:
     )
 
 
+IMPRINT_GLUE_OPTIONS = ("partial", "full", None)
+
+
+def resolve_imprint_glue(imprint_glue: str | None) -> str | None:
+    """Check the imprint_glue argument is a glue option cadquery's imprint takes.
+
+    The glue option tells the boolean operations behind imprinting how the
+    solids are expected to meet, which lets them skip work. "partial" is the
+    fastest and lowest RAM and is right for solids that touch or share faces,
+    fully or in part, without any faces crossing or solids overlapping. "full"
+    is only right when the shared faces coincide exactly: it does not
+    intersect edges or faces at all, so faces that only partly coincide are
+    not split. None turns glue off for a full general-fuse intersection, the
+    slowest but the one that also handles faces that cross and solids that
+    overlap.
+
+    Args:
+        imprint_glue: the imprint_glue argument as given by the user.
+
+    Returns:
+        imprint_glue, unchanged.
+
+    Raises:
+        ValueError: if imprint_glue is not "partial", "full" or None.
+    """
+    if imprint_glue not in IMPRINT_GLUE_OPTIONS:
+        raise ValueError(
+            f'imprint_glue must be "partial", "full" or None, got {imprint_glue!r}'
+        )
+    return imprint_glue
+
+
 @contextmanager
 def thread_limit(threads: int | None):
     """Limit the threads OpenCASCADE uses, restoring the limit afterwards.
@@ -256,8 +288,8 @@ def imprint_thread_limit(threads: int | None):
 
     real_imprint = cq.occ_impl.assembly.imprint
 
-    # functools.wraps keeps the signature intact: imprint_assembly and
-    # cad-to-dagmc-mesher both inspect it for the glue argument.
+    # functools.wraps keeps the signature intact: cad-to-dagmc-mesher
+    # inspects it for the glue argument.
     @functools.wraps(real_imprint)
     def limited_imprint(*args, **kwargs):
         with thread_limit(threads):
@@ -270,26 +302,24 @@ def imprint_thread_limit(threads: int | None):
         cq.occ_impl.assembly.imprint = real_imprint
 
 
-def imprint_assembly(assembly, threads: int | None = None):
+def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "partial"):
     """Imprint a CadQuery assembly into a connected compound.
 
-    Uses the BOPAlgo_Builder based imprint with glue="partial" when the
-    installed cadquery supports it (CadQuery/cadquery#2069, faster and
-    lower RAM than the older BOPAlgo_MakeConnected based imprint, with the
-    same result for touching, non-overlapping solids). Older cadquery
-    versions fall back to the original single-argument imprint.
+    Uses cadquery's BOPAlgo_Builder based imprint (CadQuery/cadquery#2069),
+    passing glue through to it. See resolve_imprint_glue for what each glue
+    option does.
 
     Args:
         assembly: the cadquery assembly to imprint.
         threads: the number of threads to imprint with. Fewer threads lowers
             the peak RAM of the imprint at the cost of speed. Defaults to None
             which leaves the thread count as it is.
+        glue: the glue option for the imprint, "partial", "full" or None.
+            Defaults to "partial".
 
     Returns:
         (imprinted_shape, imprinted_solids_with_original_ids)
     """
-    import inspect
-
     # Imprinting needs at least two solids to do anything. Skipping it for a
     # single solid is not just an optimization: the BOPAlgo_Builder based
     # imprint returns a Null shape when given fewer than two arguments.
@@ -303,10 +333,7 @@ def imprint_assembly(assembly, threads: int | None = None):
         return compound, {s: (id_map[s],) for s in solids}
 
     with thread_limit(threads):
-        imprint = cq.occ_impl.assembly.imprint
-        if "glue" in inspect.signature(imprint).parameters:
-            return imprint(assembly, glue="partial")
-        return imprint(assembly)
+        return cq.occ_impl.assembly.imprint(assembly, glue=glue)
 
 
 def define_moab_core_and_tags():
@@ -1705,6 +1732,7 @@ class CadToDagmc:
         *,
         mesh_algorithm_3d: int = 1,
         volume_mesh_options: dict[str, float | str] | None = None,
+        imprint_glue: str | None = "partial",
     ):
         """
         Exports an unstructured mesh file in VTK format for use with
@@ -1759,6 +1787,15 @@ class CadToDagmc:
                 that follows it keeps all its threads whichever backend is used, and
                 the thread count is restored afterwards so the cadquery operations
                 that follow are unaffected.
+            imprint_glue: the glue option for the imprint, passed to cadquery's
+                imprint. "partial" (the default) is the fastest and lowest RAM, and
+                is right for solids that touch or share faces, fully or in part,
+                without any faces crossing or solids overlapping. "full" is only
+                right when the shared faces coincide exactly, as faces that only
+                partly coincide are not split. None turns glue off for a full
+                general-fuse intersection, the slowest but the one that also
+                handles faces that cross and solids that overlap. Ignored when
+                imprint is False.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag. Only used by the gmsh backend.
@@ -1801,6 +1838,7 @@ class CadToDagmc:
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
         imprint, imprint_threads = resolve_imprint(imprint)
+        imprint_glue = resolve_imprint_glue(imprint_glue)
 
         if meshing_backend is None:
             # Auto-select the backend: the tet arguments are specific to
@@ -1836,6 +1874,7 @@ class CadToDagmc:
                 angular_tolerance=angular_tolerance,
                 imprint=imprint,
                 imprint_threads=imprint_threads,
+                imprint_glue=imprint_glue,
                 scale_factor=scale_factor,
             )
 
@@ -1845,7 +1884,9 @@ class CadToDagmc:
 
         if imprint:
             print("Imprinting assembly for unstructured mesh generation")
-            imprinted_assembly, _ = imprint_assembly(assembly, threads=imprint_threads)
+            imprinted_assembly, _ = imprint_assembly(
+                assembly, threads=imprint_threads, glue=imprint_glue
+            )
         else:
             imprinted_assembly = assembly
 
@@ -1919,6 +1960,7 @@ class CadToDagmc:
         angular_tolerance: float,
         imprint: bool,
         imprint_threads: int | None = None,
+        imprint_glue: str | None = "partial",
         scale_factor: float = 1.0,
     ) -> str:
         """Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.
@@ -1953,6 +1995,7 @@ class CadToDagmc:
             target_edge_length=target_edge_length,
             imprint=imprint,
             imprint_threads=imprint_threads,
+            imprint_glue=imprint_glue,
         )
 
         if not tet_data:
@@ -1986,6 +2029,7 @@ class CadToDagmc:
         *,
         mesh_algorithm_3d: int = 1,
         volume_mesh_options: dict[str, float | str] | None = None,
+        imprint_glue: str | None = "partial",
     ):
         """Saves a GMesh msh file of the geometry in either 2D surface mesh or
         3D volume mesh.
@@ -2024,6 +2068,15 @@ class CadToDagmc:
                 the number of threads, so fewer threads lowers the peak RAM of large
                 models at the cost of speed. The thread count is restored afterwards so
                 the cadquery operations that follow are unaffected.
+            imprint_glue: the glue option for the imprint, passed to cadquery's
+                imprint. "partial" (the default) is the fastest and lowest RAM, and
+                is right for solids that touch or share faces, fully or in part,
+                without any faces crossing or solids overlapping. "full" is only
+                right when the shared faces coincide exactly, as faces that only
+                partly coincide are not split. None turns glue off for a full
+                general-fuse intersection, the slowest but the one that also
+                handles faces that cross and solids that overlap. Ignored when
+                imprint is False.
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag.
@@ -2032,6 +2085,7 @@ class CadToDagmc:
         """
 
         imprint, imprint_threads = resolve_imprint(imprint)
+        imprint_glue = resolve_imprint_glue(imprint_glue)
 
         assembly = cq.Assembly()
         for part in self.parts:
@@ -2039,7 +2093,9 @@ class CadToDagmc:
 
         if imprint:
             print("Imprinting assembly for mesh generation")
-            imprinted_assembly, _ = imprint_assembly(assembly, threads=imprint_threads)
+            imprinted_assembly, _ = imprint_assembly(
+                assembly, threads=imprint_threads, glue=imprint_glue
+            )
         else:
             imprinted_assembly = assembly
 
@@ -2101,6 +2157,7 @@ class CadToDagmc:
         implicit_complement_material_tag: str | None = None,
         scale_factor: float = 1.0,
         imprint: bool | int = True,
+        imprint_glue: str | None = "partial",
         **kwargs,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
@@ -2130,6 +2187,15 @@ class CadToDagmc:
                 limited, the meshing that follows it keeps all its threads whichever
                 backend is used, and the thread count is restored afterwards so the
                 cadquery operations that follow are unaffected.
+            imprint_glue: the glue option for the imprint, passed to cadquery's
+                imprint whichever backend is used. "partial" (the default) is the
+                fastest and lowest RAM, and is right for solids that touch or share
+                faces, fully or in part, without any faces crossing or solids
+                overlapping. "full" is only right when the shared faces coincide
+                exactly, as faces that only partly coincide are not split. None
+                turns glue off for a full general-fuse intersection, the slowest but
+                the one that also handles faces that cross and solids that overlap.
+                Ignored when imprint is False.
 
             **kwargs: Backend-specific parameters:
 
@@ -2190,6 +2256,7 @@ class CadToDagmc:
         """
 
         imprint, imprint_threads = resolve_imprint(imprint)
+        imprint_glue = resolve_imprint_glue(imprint_glue)
 
         # Define all acceptable kwargs
         gmsh_keys = {
@@ -2389,7 +2456,9 @@ class CadToDagmc:
                 if imprint:
                     print("Imprinting assembly for mesh generation")
                     imprinted_assembly, imprinted_solids_with_org_id = (
-                        imprint_assembly(assembly, threads=imprint_threads)
+                        imprint_assembly(
+                            assembly, threads=imprint_threads, glue=imprint_glue
+                        )
                     )
 
                     scrambled_ids = get_ids_from_imprinted_assembly(
@@ -2479,6 +2548,7 @@ class CadToDagmc:
                         target_edge_length=target_edge_length,
                         imprint=imprint,
                         imprint_threads=imprint_threads,
+                        imprint_glue=imprint_glue,
                     )
                 )
 
@@ -2623,6 +2693,7 @@ def _solid_names(material_tags) -> list[str]:
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
     tet_volumes, target_edge_length, imprint, imprint_threads=None,
+    imprint_glue="partial",
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.
 
@@ -2676,6 +2747,7 @@ def _mesh_with_cad_to_dagmc_mesher(
                 assembly,
                 solid_config=configs,
                 imprint=imprint,
+                imprint_glue=imprint_glue,
             )
         return (
             result["vertices"],

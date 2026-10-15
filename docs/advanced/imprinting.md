@@ -52,6 +52,29 @@ model.export_dagmc_h5m_file(
 
 Only the imprint is limited. The meshing that follows it keeps all its threads on every backend, and the thread count is restored once the imprint is done so the cadquery operations that follow are not limited either. Note that `imprint=0` is not accepted: `0` cannot be told apart from `False` in Python, so use `imprint=False` to turn imprinting off.
 
+## Choosing the Imprint Glue
+
+The boolean operations behind imprinting can be told how the solids are expected to meet, which lets them skip work. This is set with `imprint_glue`, which is passed straight through to CadQuery's imprint:
+
+| `imprint_glue` | What it does | Use when |
+|----------------|--------------|----------|
+| `"partial"` (default) | Fastest and lowest RAM | Solids touch or share faces, fully or in part, without any faces crossing or solids overlapping |
+| `"full"` | Does not intersect edges or faces at all | Shared faces coincide exactly. Faces that only partly coincide are not split |
+| `None` | Glue off, a full general-fuse intersection. The slowest | Faces cross one another or solids overlap |
+
+Note the name `"full"` is counterintuitive: it is the *least* thorough option, as it assumes the faces already match. For the most thorough imprint use `None`.
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint=4,          # imprint on 4 threads
+    imprint_glue=None,  # full general-fuse intersection
+)
+```
+
+`imprint_glue` is accepted by `export_dagmc_h5m_file`, `export_unstructured_mesh_file` and `export_gmsh_mesh_file` (keyword-only on the latter two), whichever meshing backend is used. It is ignored when `imprint=False`. It needs a CadQuery release that includes [CadQuery/cadquery#2069](https://github.com/CadQuery/cadquery/pull/2069), the release after 2.8.0.
+
 ## When to Disable Imprinting
 
 **Safe to disable when:**

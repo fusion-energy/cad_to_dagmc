@@ -45,6 +45,12 @@ jobs:
         run: |
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
+          # TODO before merging remove these two lines and raise the floors in
+          # pyproject.toml instead. cadquery comes from git until a release
+          # includes the glue option on imprint (CadQuery/cadquery#2069) and
+          # cad-to-dagmc-mesher until a release includes imprint_glue.
+          python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery"
+          python -m pip install "cad-to-dagmc-mesher @ git+https://github.com/fusion-energy/cad-to-dagmc-mesher@imprint-glue-option"
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"

@@ -88,6 +88,7 @@ model.export_dagmc_h5m_file(
 | `filename` | str | "dagmc.h5m" | Output file path |
 | `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
 | `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
+| `imprint_glue` | str or None | "partial" | Glue option for the imprint: `"partial"`, `"full"` or `None`. See [Imprinting](../advanced/imprinting.md#choosing-the-imprint-glue) |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
 
 **Backend Selection:**

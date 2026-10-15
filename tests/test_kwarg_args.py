@@ -298,6 +298,7 @@ class TestKwargsExportDagmcH5mFile:
             angular_tolerance=0.15,
             scale_factor=2.0,
             imprint=False,
+            imprint_glue=None,
             implicit_complement_material_tag="vacuum",
         )
 

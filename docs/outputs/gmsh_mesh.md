@@ -78,6 +78,7 @@ model.export_gmsh_mesh_file(
     set_size=None,            # Per-volume sizes
     scale_factor=1.0,         # Geometry scaling
     imprint=True,             # Imprint shared surfaces
+    imprint_glue="partial",   # Imprint glue: "partial", "full" or None
     method="file",            # CAD transfer method
 )
 ```
@@ -96,6 +97,7 @@ model.export_gmsh_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
+| `imprint_glue` | str or None | "partial" | Glue option for the imprint: `"partial"`, `"full"` or `None`. Keyword-only. See [Imprinting](../advanced/imprinting.md#choosing-the-imprint-glue) |
 | `method` | str | "file" | CAD transfer method |
 
 For `dimensions=3`, `mesh_algorithm_3d` selects the volume algorithm independently

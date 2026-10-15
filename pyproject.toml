@@ -20,6 +20,9 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
+    # TODO before merging raise the cadquery floor to the first release with the
+    # glue option on imprint (CadQuery/cadquery#2069), and the
+    # cad-to-dagmc-mesher floor to the first release with imprint_glue.
     "cadquery>=2.8.0",
     "numpy",
     "gmsh",
