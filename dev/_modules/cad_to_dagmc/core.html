@@ -232,7 +232,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../meshing/cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -426,8 +425,8 @@
                 <span class="s2">"cad-to-dagmc conda package.</span><span class="se">\n\n</span><span class="s2">"</span>
                 <span class="s2">"Install it with pip, which works alongside a conda installation:</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"  pip install cad-to-dagmc-mesher</span><span class="se">\n\n</span><span class="s2">"</span>
-                <span class="s2">"Alternatively, use a meshing backend that is always available:</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"  export_dagmc_h5m_file(..., meshing_backend='cadquery')</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Alternatively, use the gmsh meshing backend, which is always "</span>
+                <span class="s2">"available:</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"  export_dagmc_h5m_file(..., meshing_backend='gmsh')"</span>
             <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
@@ -612,13 +611,13 @@
 <span class="w">    </span><span class="sd">"""Limit the threads used by imprinting and by nothing else.</span>
 
 <span class="sd">    The gmsh backend imprints through imprint_assembly, so there the imprint</span>
-<span class="sd">    can simply be wrapped in thread_limit. The cadquery plugin and</span>
-<span class="sd">    cad-to-dagmc-mesher instead imprint part way through their own meshing</span>
-<span class="sd">    call, so wrapping that call would limit the meshing too, and the meshing</span>
-<span class="sd">    is not what runs out of memory.</span>
+<span class="sd">    can simply be wrapped in thread_limit. cad-to-dagmc-mesher instead</span>
+<span class="sd">    imprints part way through its own meshing call, so wrapping that call</span>
+<span class="sd">    would limit the meshing too, and the meshing is not what runs out of</span>
+<span class="sd">    memory.</span>
 
-<span class="sd">    Both of them reach the imprint through cq.occ_impl.assembly.imprint and</span>
-<span class="sd">    look it up when they call it, so swapping in a wrapper that shrinks the</span>
+<span class="sd">    The mesher reaches the imprint through cq.occ_impl.assembly.imprint and</span>
+<span class="sd">    looks it up when it calls it, so swapping in a wrapper that shrinks the</span>
 <span class="sd">    pool around the real imprint keeps the limit on the imprint and off the</span>
 <span class="sd">    meshing either side of it. The original function is put back on the way</span>
 <span class="sd">    out, including when meshing raises part way through.</span>
@@ -684,94 +683,6 @@
         <span class="k">if</span> <span class="s2">"glue"</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">share_coincident_face_ids</span><span class="p">(</span><span class="n">triangles_by_solid_by_face</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Give the face two touching solids share a single id in both of them.</span>
-
-<span class="sd">    Imprinting leaves one face between two touching solids, but</span>
-<span class="sd">    cadquery_direct_mesh_plugin numbers faces per solid, so depending on the</span>
-<span class="sd">    installed version each solid can contribute its own id for that one face.</span>
-<span class="sd">    Writing both produces two coincident one sided DAGMC surfaces instead of</span>
-<span class="sd">    one surface carrying a sense for each volume, which does not transport</span>
-<span class="sd">    correctly: particles crossing the interface are not handed to the</span>
-<span class="sd">    neighbouring volume, and the flux tallied there comes out low with nothing</span>
-<span class="sd">    reported.</span>
-
-<span class="sd">    The plugin welds vertices across the whole assembly, so both copies of the</span>
-<span class="sd">    interface index the same vertices and differ only in winding. Keying on the</span>
-<span class="sd">    triangle set with each triangle sorted is therefore orientation insensitive</span>
-<span class="sd">    and identifies the copies. Only the ids are rewritten. Each solid keeps its</span>
-<span class="sd">    own winding under the shared id, which is what vertices_to_h5m expects: it</span>
-<span class="sd">    writes the surface once from the first solid that refers to it and reads</span>
-<span class="sd">    the second solid off the shared id to build GEOM_SENSE_2.</span>
-
-<span class="sd">    Ids are handed out from 1 in order of first appearance rather than the</span>
-<span class="sd">    plugin's original ids being kept. Merging without renumbering would leave</span>
-<span class="sd">    the ids of the dropped copies unused, so the highest surface id would stay</span>
-<span class="sd">    as high as the unmerged count. Those ids become DAGMC surface ids, and a</span>
-<span class="sd">    DAGMC universe embedded in CSG shares an id space with the CSG surfaces, so</span>
-<span class="sd">    an inflated range collides with them ("Surface ID 21 exists in both</span>
-<span class="sd">    Universe 3 and the CSG geometry"). Renumbering also matches what gmsh and</span>
-<span class="sd">    cad-to-dagmc-mesher produce.</span>
-
-<span class="sd">    This reproduces what the plugin does when it shares imprinted face ids</span>
-<span class="sd">    itself (jmwright/cadquery-direct-mesh-plugin#10), including the numbering.</span>
-<span class="sd">    It is idempotent, so it is a no-op against a plugin that already shares</span>
-<span class="sd">    them. Once that pull request is released AND the</span>
-<span class="sd">    cadquery_direct_mesh_plugin floor in pyproject.toml is raised to that</span>
-<span class="sd">    release, this function and its call can be removed. Removing it before the</span>
-<span class="sd">    floor is raised would reintroduce the bug for anyone on an older plugin.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        triangles_by_solid_by_face: Dict mapping solid_id -&gt; face_id -&gt; list of</span>
-<span class="sd">            triangles, each triangle a list of vertex indices.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The same mapping with coincident faces sharing one face id, and ids</span>
-<span class="sd">        renumbered contiguously from 1.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if a face is shared by more than two solids, or if one</span>
-<span class="sd">            solid carries the same face twice. Neither is representable as</span>
-<span class="sd">            DAGMC geometry, and vertices_to_h5m would silently write a wrong</span>
-<span class="sd">            sense rather than fail.</span>
-<span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">canonical</span><span class="p">(</span><span class="n">triangles</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">triangle</span><span class="p">))</span>
-                         <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">triangles</span><span class="p">)</span>
-
-    <span class="n">id_by_key</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">solid_ids_by_key</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">remapped</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">solid_id</span><span class="p">,</span> <span class="n">faces</span> <span class="ow">in</span> <span class="n">triangles_by_solid_by_face</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">shared_faces</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">triangles</span> <span class="ow">in</span> <span class="n">faces</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">canonical</span><span class="p">(</span><span class="n">triangles</span><span class="p">)</span>
-            <span class="n">solid_ids_by_key</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solid_id</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">id_by_key</span><span class="p">:</span>
-                <span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_by_key</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">shared_faces</span><span class="p">[</span><span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">triangles</span>
-        <span class="n">remapped</span><span class="p">[</span><span class="n">solid_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_faces</span>
-
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">solid_ids</span> <span class="ow">in</span> <span class="n">solid_ids_by_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"Solid </span><span class="si">{</span><span class="n">solid_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> has the same face twice, so it cannot be "</span>
-                <span class="s2">"written as DAGMC geometry. This points at a degenerate or zero "</span>
-                <span class="s2">"thickness feature in the CAD."</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"The face with id </span><span class="si">{</span><span class="n">id_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2"> is shared by solids "</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">solid_ids</span><span class="p">)</span><span class="si">}</span><span class="s2">. A DAGMC surface separates at most two "</span>
-                <span class="s2">"volumes, so this points at overlapping solids in the CAD."</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">remapped</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">define_moab_core_and_tags</span><span class="p">():</span>
@@ -2614,7 +2525,7 @@
 <span class="sd">            scale_factor: a scaling factor to apply to the geometry. All the</span>
 <span class="sd">                linear mesh sizing arguments (min_mesh_size, max_mesh_size and</span>
 <span class="sd">                set_size for gmsh, tolerance and target_edge_length for</span>
-<span class="sd">                cad-to-dagmc-mesher, tolerance for cadquery) are in the units of</span>
+<span class="sd">                cad-to-dagmc-mesher) are in the units of</span>
 <span class="sd">                the SCALED geometry, so the same number means the same thing on</span>
 <span class="sd">                the output mesh whichever backend is used. For example with</span>
 <span class="sd">                scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm</span>
@@ -2636,13 +2547,13 @@
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
 <span class="sd">                Backend selection:</span>
-<span class="sd">                - meshing_backend (str, optional): explicitly specify 'gmsh',</span>
-<span class="sd">                  'cadquery' or 'cad-to-dagmc-mesher'. If not provided, backend is</span>
-<span class="sd">                  auto-selected based on other arguments: tet_volumes or</span>
-<span class="sd">                  target_edge_length select 'cad-to-dagmc-mesher', gmsh-specific</span>
+<span class="sd">                - meshing_backend (str, optional): explicitly specify 'gmsh' or</span>
+<span class="sd">                  'cad-to-dagmc-mesher'. If not provided, backend is</span>
+<span class="sd">                  auto-selected based on other arguments: cad-to-dagmc-mesher</span>
+<span class="sd">                  arguments select 'cad-to-dagmc-mesher', gmsh-specific</span>
 <span class="sd">                  arguments select 'gmsh'. Defaults to 'cad-to-dagmc-mesher' if</span>
 <span class="sd">                  no backend-specific arguments are given, falling back to</span>
-<span class="sd">                  'cadquery' when cad-to-dagmc-mesher is not installed.</span>
+<span class="sd">                  'gmsh' when cad-to-dagmc-mesher is not installed.</span>
 <span class="sd">                - h5m_backend (str, optional): 'pymoab' or 'h5py' for writing h5m files.</span>
 <span class="sd">                  Defaults to 'h5py'.</span>
 
@@ -2667,11 +2578,6 @@
 <span class="sd">                - umesh_filename (str): filename for unstructured mesh (default: 'umesh.vtk')</span>
 <span class="sd">                - threads (int): number of threads for Gmsh to use. 0 uses all</span>
 <span class="sd">                  available cores (default), 1 uses a single thread.</span>
-
-<span class="sd">                For CadQuery backend:</span>
-<span class="sd">                - tolerance (float): meshing tolerance (default: 0.1), in the</span>
-<span class="sd">                  units of the scaled geometry (see scale_factor above)</span>
-<span class="sd">                - angular_tolerance (float): angular tolerance (default: 0.1)</span>
 
 <span class="sd">                For cad-to-dagmc-mesher backend:</span>
 <span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01),</span>
@@ -2699,7 +2605,6 @@
         <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
 
         <span class="c1"># Define all acceptable kwargs</span>
-        <span class="n">cadquery_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="s2">"angular_tolerance"</span><span class="p">}</span>
         <span class="n">gmsh_keys</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"min_mesh_size"</span><span class="p">,</span>
             <span class="s2">"max_mesh_size"</span><span class="p">,</span>
@@ -2713,7 +2618,7 @@
             <span class="s2">"threads"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="s2">"angular_tolerance"</span><span class="p">,</span> <span class="s2">"tet_volumes"</span><span class="p">,</span> <span class="s2">"target_edge_length"</span><span class="p">}</span>
-        <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">cadquery_keys</span> <span class="o">|</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"meshing_backend"</span><span class="p">,</span> <span class="s2">"h5m_backend"</span><span class="p">}</span>
+        <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"meshing_backend"</span><span class="p">,</span> <span class="s2">"h5m_backend"</span><span class="p">}</span>
 
         <span class="c1"># Check for invalid kwargs</span>
         <span class="n">invalid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">all_acceptable_keys</span>
@@ -2730,88 +2635,44 @@
         <span class="n">h5m_backend</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"h5m_backend"</span><span class="p">,</span> <span class="s2">"h5py"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Auto-select meshing_backend based on kwargs. tolerance and</span>
-            <span class="c1"># angular_tolerance are accepted by both the cadquery and the</span>
-            <span class="c1"># cad-to-dagmc-mesher backends, and when only those are given the</span>
-            <span class="c1"># cad-to-dagmc-mesher backend is preferred.</span>
+            <span class="c1"># Auto-select meshing_backend based on kwargs.</span>
             <span class="c1"># umesh_filename is accepted by both the gmsh and the</span>
             <span class="c1"># cad-to-dagmc-mesher backends, so it is not gmsh specific, but it</span>
             <span class="c1"># is still part of gmsh_keys because it selects gmsh when nothing</span>
-            <span class="c1"># else narrows the choice. Combining it with tolerance stays</span>
-            <span class="c1"># ambiguous: the mesher only honours umesh_filename when</span>
-            <span class="c1"># tet_volumes and target_edge_length are supplied too, so no single</span>
-            <span class="c1"># backend accepts that combination as given.</span>
-            <span class="n">mesher_only_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tet_volumes"</span><span class="p">,</span> <span class="s2">"target_edge_length"</span><span class="p">}</span>
+            <span class="c1"># else narrows the choice.</span>
             <span class="n">gmsh_only_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">-</span> <span class="p">{</span><span class="s2">"umesh_filename"</span><span class="p">}</span>
-            <span class="n">has_cadquery</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cadquery_keys</span><span class="p">)</span>
             <span class="n">has_gmsh</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">gmsh_keys</span><span class="p">)</span>
-            <span class="n">has_mesher</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mesher_only_keys</span><span class="p">)</span>
+            <span class="n">has_mesher</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cad_to_dagmc_mesher_keys</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">has_mesher</span><span class="p">:</span>
                 <span class="n">provided_gmsh</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">provided_gmsh</span><span class="p">:</span>
                     <span class="n">provided_mesher</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mesher_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cad_to_dagmc_mesher_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
                     <span class="p">]</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">"Ambiguous backend: both cad-to-dagmc-mesher and GMSH-specific arguments provided.</span><span class="se">\n</span><span class="s2">"</span>
-                        <span class="sa">f</span><span class="s2">"cad-to-dagmc-mesher-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">mesher_only_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"cad-to-dagmc-mesher-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cad_to_dagmc_mesher_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="sa">f</span><span class="s2">"GMSH-specific arguments: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="sa">f</span><span class="s2">"Provided cad-to-dagmc-mesher arguments: </span><span class="si">{</span><span class="n">provided_mesher</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="sa">f</span><span class="s2">"Provided GMSH arguments: </span><span class="si">{</span><span class="n">provided_gmsh</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="s2">"Please provide only one backend's arguments."</span>
                     <span class="p">)</span>
-                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"cad-to-dagmc-mesher"</span>
-            <span class="k">elif</span> <span class="n">has_cadquery</span> <span class="ow">and</span> <span class="n">has_gmsh</span><span class="p">:</span>
-                <span class="n">provided_cadquery</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cadquery_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
-                <span class="n">provided_gmsh_only</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
-                <span class="p">]</span>
-                <span class="n">provided_gmsh_shared</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">gmsh_keys</span> <span class="o">-</span> <span class="n">gmsh_only_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
-                <span class="p">]</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">"Ambiguous backend: the arguments provided are not all accepted "</span>
-                    <span class="s2">"by any single meshing backend.</span><span class="se">\n</span><span class="s2">"</span>
-                    <span class="sa">f</span><span class="s2">"Accepted by cadquery and cad-to-dagmc-mesher: </span><span class="si">{</span><span class="n">provided_cadquery</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">provided_gmsh_only</span><span class="p">:</span>
-                    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"Accepted by gmsh only: </span><span class="si">{</span><span class="n">provided_gmsh_only</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="k">if</span> <span class="n">provided_gmsh_shared</span><span class="p">:</span>
-                    <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
-                        <span class="s2">"Accepted by gmsh and cad-to-dagmc-mesher: "</span>
-                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provided_gmsh_shared</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-                        <span class="s2">"Note that cad-to-dagmc-mesher only writes an unstructured "</span>
-                        <span class="s2">"volume mesh when tet_volumes and target_edge_length are "</span>
-                        <span class="s2">"also given.</span><span class="se">\n</span><span class="s2">"</span>
-                    <span class="p">)</span>
-                <span class="n">message</span> <span class="o">+=</span> <span class="s2">"Please set meshing_backend explicitly."</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">has_cadquery</span><span class="p">:</span>
-                <span class="c1"># cadquery_keys is a subset of cad_to_dagmc_mesher_keys, so</span>
-                <span class="c1"># reaching here means only keys that both backends accept were</span>
-                <span class="c1"># given and the choice is genuinely ambiguous. Prefer the</span>
-                <span class="c1"># mesher and make the decision visible.</span>
-                <span class="n">provided_shared</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cadquery_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">_cad_to_dagmc_mesher_is_available</span><span class="p">():</span>
+                    <span class="n">provided_mesher</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cad_to_dagmc_mesher_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                    <span class="p">]</span>
                     <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"The arguments </span><span class="si">{</span><span class="n">provided_shared</span><span class="si">}</span><span class="s2"> are accepted by both the "</span>
-                        <span class="s2">"cadquery and the cad-to-dagmc-mesher meshing backends, so "</span>
-                        <span class="s2">"the cad-to-dagmc-mesher backend would be selected, but "</span>
+                        <span class="sa">f</span><span class="s2">"The arguments </span><span class="si">{</span><span class="n">provided_mesher</span><span class="si">}</span><span class="s2"> select the "</span>
+                        <span class="s2">"cad-to-dagmc-mesher meshing backend, but "</span>
                         <span class="s2">"cad-to-dagmc-mesher is not installed. It is not available "</span>
                         <span class="s2">"on conda-forge so it has to be installed separately.</span><span class="se">\n\n</span><span class="s2">"</span>
                         <span class="s2">"Either install it:</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="s2">"  pip install cad-to-dagmc-mesher</span><span class="se">\n\n</span><span class="s2">"</span>
-                        <span class="s2">"or ask for the cadquery backend explicitly:</span><span class="se">\n</span><span class="s2">"</span>
-                        <span class="sa">f</span><span class="s2">"  export_dagmc_h5m_file(..., meshing_backend='cadquery', "</span>
-                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provided_shared</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">=...)"</span>
+                        <span class="s2">"or use the gmsh backend, which sizes the mesh with its own "</span>
+                        <span class="s2">"arguments such as min_mesh_size and max_mesh_size:</span><span class="se">\n</span><span class="s2">"</span>
+                        <span class="s2">"  export_dagmc_h5m_file(..., meshing_backend='gmsh', "</span>
+                        <span class="s2">"max_mesh_size=...)"</span>
                     <span class="p">)</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"The arguments </span><span class="si">{</span><span class="n">provided_shared</span><span class="si">}</span><span class="s2"> are accepted by both the "</span>
-                    <span class="s2">"cadquery and the cad-to-dagmc-mesher meshing backends. The "</span>
-                    <span class="s2">"cad-to-dagmc-mesher backend has been selected. Pass "</span>
-                    <span class="s2">"meshing_backend='cadquery' or "</span>
-                    <span class="s2">"meshing_backend='cad-to-dagmc-mesher' to choose explicitly."</span>
-                <span class="p">)</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"cad-to-dagmc-mesher"</span>
             <span class="k">elif</span> <span class="n">has_gmsh</span><span class="p">:</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"gmsh"</span>
@@ -2821,28 +2682,37 @@
                 <span class="c1"># cad-to-dagmc-mesher is a dependency of the pip package but is</span>
                 <span class="c1"># not on conda-forge, so a conda installation can be without it.</span>
                 <span class="c1"># A call that names no backend at all has expressed no</span>
-                <span class="c1"># preference, so fall back to cadquery, which is always present,</span>
+                <span class="c1"># preference, so fall back to gmsh, which is always present,</span>
                 <span class="c1"># rather than failing. Warn so the substitution is visible and</span>
                 <span class="c1"># so the remedy is to hand, since pip installing the mesher</span>
                 <span class="c1"># works alongside a conda installation.</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">"No meshing backend was given so the cad-to-dagmc-mesher "</span>
                     <span class="s2">"backend would be used, but cad-to-dagmc-mesher is not "</span>
-                    <span class="s2">"installed. Falling back to the cadquery backend. "</span>
+                    <span class="s2">"installed. Falling back to the gmsh backend. "</span>
                     <span class="s2">"cad-to-dagmc-mesher is not available on conda-forge, "</span>
                     <span class="s2">"install it with pip, which works alongside a conda "</span>
                     <span class="s2">"installation:</span><span class="se">\n</span><span class="s2">"</span>
                     <span class="s2">"  pip install cad-to-dagmc-mesher</span><span class="se">\n\n</span><span class="s2">"</span>
-                    <span class="s2">"Pass meshing_backend='cadquery' to select the cadquery "</span>
+                    <span class="s2">"Pass meshing_backend='gmsh' to select the gmsh "</span>
                     <span class="s2">"backend explicitly and silence this warning."</span>
                 <span class="p">)</span>
-                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"cadquery"</span>
+                <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"gmsh"</span>
+
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"cadquery"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'meshing_backend "cadquery" has been removed along with the '</span>
+                <span class="s2">"cadquery_direct_mesh_plugin it used. Use "</span>
+                <span class="s1">'meshing_backend="cad-to-dagmc-mesher", which takes the same '</span>
+                <span class="s2">"tolerance and angular_tolerance arguments, or "</span>
+                <span class="s1">'meshing_backend="gmsh".'</span>
+            <span class="p">)</span>
 
         <span class="c1"># Validate meshing backend</span>
-        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"gmsh"</span><span class="p">,</span> <span class="s2">"cadquery"</span><span class="p">,</span> <span class="s2">"cad-to-dagmc-mesher"</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"gmsh"</span><span class="p">,</span> <span class="s2">"cad-to-dagmc-mesher"</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'meshing_backend "</span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1">" not supported. '</span>
-                <span class="s1">'Available options are "gmsh", "cadquery", or "cad-to-dagmc-mesher"'</span>
+                <span class="s1">'Available options are "gmsh" or "cad-to-dagmc-mesher"'</span>
             <span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using meshing backend: </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -2863,58 +2733,7 @@
         <span class="n">tet_data</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Extract backend-specific parameters with defaults</span>
-        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"cadquery"</span><span class="p">:</span>
-            <span class="c1"># CadQuery parameters</span>
-            <span class="n">tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-            <span class="n">angular_tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"angular_tolerance"</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
-                <span class="c1"># Transitional warning: tolerance used to be in unscaled units</span>
-                <span class="c1"># for this backend only. Remove in a future release once the</span>
-                <span class="c1"># consistent behaviour has been out for a while.</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"tolerance (</span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">) is in the units of the scaled "</span>
-                    <span class="sa">f</span><span class="s2">"geometry, so with scale_factor=</span><span class="si">{</span><span class="n">scale_factor</span><span class="si">}</span><span class="s2"> it is a "</span>
-                    <span class="sa">f</span><span class="s2">"deflection of </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2"> in the output mesh's units. "</span>
-                    <span class="s2">"This matches the gmsh and cad-to-dagmc-mesher backends. "</span>
-                    <span class="s2">"Previous versions of cad_to_dagmc interpreted tolerance in "</span>
-                    <span class="s2">"the units of the unscaled geometry for the cadquery "</span>
-                    <span class="s2">"backend only, so this produces a mesh "</span>
-                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">scale_factor</span><span class="si">}</span><span class="s2">x finer than before for the same tolerance; "</span>
-                    <span class="sa">f</span><span class="s2">"pass tolerance=</span><span class="si">{</span><span class="n">tolerance</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">scale_factor</span><span class="si">}</span><span class="s2"> to reproduce the "</span>
-                    <span class="s2">"old mesh density."</span>
-                <span class="p">)</span>
-
-            <span class="c1"># Check for invalid parameters</span>
-            <span class="n">unstructured_volumes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"unstructured_volumes"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">unstructured_volumes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tet_volumes"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">"CadQuery backend cannot be used for volume meshing. "</span>
-                    <span class="s2">"unstructured_volumes and tet_volumes must be None when "</span>
-                    <span class="s2">"using 'cadquery' backend."</span>
-                <span class="p">)</span>
-
-            <span class="c1"># Warn about unused GMSH and cad-to-dagmc-mesher parameters</span>
-            <span class="n">gmsh_params</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">"min_mesh_size"</span><span class="p">,</span>
-                <span class="s2">"max_mesh_size"</span><span class="p">,</span>
-                <span class="s2">"mesh_algorithm"</span><span class="p">,</span>
-                <span class="s2">"mesh_algorithm_3d"</span><span class="p">,</span>
-                <span class="s2">"volume_mesh_options"</span><span class="p">,</span>
-                <span class="s2">"set_size"</span><span class="p">,</span>
-                <span class="s2">"umesh_filename"</span><span class="p">,</span>
-                <span class="s2">"method"</span><span class="p">,</span>
-                <span class="s2">"threads"</span><span class="p">,</span>
-                <span class="s2">"target_edge_length"</span><span class="p">,</span>
-            <span class="p">]</span>
-            <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">gmsh_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">unused_params</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"The following parameters are ignored when using CadQuery backend: "</span>
-                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unused_params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-                <span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"gmsh"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"gmsh"</span><span class="p">:</span>
             <span class="c1"># GMSH parameters</span>
             <span class="n">min_mesh_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"min_mesh_size"</span><span class="p">)</span>
             <span class="n">max_mesh_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_mesh_size"</span><span class="p">)</span>
@@ -2977,57 +2796,8 @@
         <span class="c1"># may own when using a non-gmsh backend.</span>
         <span class="n">gmsh_session_started</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Use the CadQuery direct mesh plugin</span>
-            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"cadquery"</span><span class="p">:</span>
-                <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery_direct_mesh_plugin</span>  <span class="c1"># noqa: F401</span>
-
-                <span class="c1"># tolerance is documented as being in the units of the scaled</span>
-                <span class="c1"># geometry, matching the gmsh and cad-to-dagmc-mesher backends</span>
-                <span class="c1"># (both of which scale the geometry before meshing it). This</span>
-                <span class="c1"># backend is the odd one out: the plugin tessellates the</span>
-                <span class="c1"># unscaled solids and multiplies the resulting vertices by</span>
-                <span class="c1"># scale_factor afterwards, so the tolerance it is given is in</span>
-                <span class="c1"># unscaled units. Convert so the same number means the same</span>
-                <span class="c1"># deflection on the output mesh whichever backend is used.</span>
-                <span class="n">cq_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span> <span class="o">/</span> <span class="n">scale_factor</span>
-                <span class="c1"># Mesh the assembly using CadQuery's direct-mesh plugin. The</span>
-                <span class="c1"># plugin imprints internally, so the limit is put on the</span>
-                <span class="c1"># imprint itself and the tessellation keeps all its threads.</span>
-                <span class="k">with</span> <span class="n">imprint_thread_limit</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">):</span>
-                    <span class="n">cq_mesh</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span>
-                        <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
-                        <span class="n">tolerance</span><span class="o">=</span><span class="n">cq_tolerance</span><span class="p">,</span>
-                        <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
-                        <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
-                    <span class="p">)</span>
-
-                <span class="c1"># Fix the material tag order for imprinted assemblies</span>
-                <span class="k">if</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">"imprinted_assembly"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span>
-                        <span class="s2">"imprinted_solids_with_orginal_ids"</span>
-                    <span class="p">]</span>
-
-                    <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
-                        <span class="n">imprinted_solids_with_org_id</span>
-                    <span class="p">)</span>
-
-                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="n">order_material_ids_by_brep_order</span><span class="p">(</span>
-                        <span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">material_tags_in_brep_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span>
-
-                <span class="n">check_material_tags</span><span class="p">(</span><span class="n">material_tags_in_brep_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
-
-                <span class="c1"># Extract the mesh information to allow export to h5m from the direct-mesh result</span>
-                <span class="n">vertices</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">"vertices"</span><span class="p">]</span>
-                <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">cq_mesh</span><span class="p">[</span><span class="s2">"solid_face_triangle_vertex_map"</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
-                    <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">share_coincident_face_ids</span><span class="p">(</span>
-                        <span class="n">triangles_by_solid_by_face</span>
-                    <span class="p">)</span>
             <span class="c1"># Use gmsh</span>
-            <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"gmsh"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"gmsh"</span><span class="p">:</span>
                 <span class="c1"># If assembly is not to be imprinted, pass through the assembly as-is</span>
                 <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">"Imprinting assembly for mesh generation"</span><span class="p">)</span>
@@ -3106,7 +2876,7 @@
                     <span class="p">)</span>
 
                 <span class="c1"># scale_factor is applied to the geometry before meshing so the</span>
-                <span class="c1"># h5m and .vtk match the gmsh/cadquery backends (which scale).</span>
+                <span class="c1"># h5m and .vtk match the gmsh backend (which scales).</span>
                 <span class="n">mesher_assembly</span> <span class="o">=</span> <span class="n">_build_assembly</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span>
                     <span class="n">names</span><span class="o">=</span><span class="n">_solid_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">),</span>
@@ -3128,7 +2898,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">'meshing_backend </span><span class="si">{</span><span class="n">meshing_backend</span><span class="si">}</span><span class="s1"> not supported. '</span>
-                    <span class="s1">'Available options are "cadquery", "gmsh", or "cad-to-dagmc-mesher"'</span>
+                    <span class="s1">'Available options are "gmsh" or "cad-to-dagmc-mesher"'</span>
                 <span class="p">)</span>
 
             <span class="n">dagmc_filename</span> <span class="o">=</span> <span class="n">vertices_to_h5m</span><span class="p">(</span>

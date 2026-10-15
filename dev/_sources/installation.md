@@ -65,7 +65,7 @@ above serves wheels for it so pip installing it is still a one liner.
 
 :::{note}
 cad-to-dagmc-mesher is not on conda-forge. Without it, a call that names no meshing
-backend falls back to the cadquery backend and warns. pip installing it works alongside
+backend falls back to the gmsh backend and warns. pip installing it works alongside
 a Conda/Mamba installation.
 :::
 

@@ -237,7 +237,6 @@
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -516,7 +515,7 @@ above serves wheels for it so pip installing it is still a one liner.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>cad-to-dagmc-mesher is not on conda-forge. Without it, a call that names no meshing
-backend falls back to the cadquery backend and warns. pip installing it works alongside
+backend falls back to the gmsh backend and warns. pip installing it works alongside
 a Conda/Mamba installation.</p>
 </div>
 </section>

@@ -237,7 +237,6 @@
 <li class="toctree-l1"><a class="reference internal" href="index.html">Meshing Backends</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -565,7 +564,7 @@ which on a large model can produce an enormous number of facets and exhaust
 memory. Scale the tolerance along with the geometry: for a metre-scale model
 exported with <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code>, something like <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> (5 mm) is a more
 reasonable starting point.</p>
-<p>The gmsh and cadquery backends take their linear mesh sizes in scaled-geometry
+<p>The gmsh backend takes its linear mesh sizes in scaled-geometry
 units too, so a given number means the same deflection whichever backend you use.
 <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is an angle and is unaffected by scaling.</p>
 </div>
@@ -575,7 +574,7 @@ units too, so a given number means the same deflection whichever backend you use
 <p>When <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code> is not given, the tet arguments select this backend automatically:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file(...,</span> <span class="pre">target_edge_length=...)</span></code> uses cad-to-dagmc-mesher; without tet arguments it uses gmsh.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file(...,</span> <span class="pre">tet_volumes=...,</span> <span class="pre">target_edge_length=...)</span></code> uses cad-to-dagmc-mesher; mixing these with gmsh-specific arguments (for example <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>) raises an error asking for an explicit <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file(...)</span></code> uses cad-to-dagmc-mesher when given any of its arguments (<code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>, <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>) or no backend-specific arguments at all; mixing these with gmsh-specific arguments (for example <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>) raises an error asking for an explicit <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code>. If cad-to-dagmc-mesher is not installed, a call with no backend-specific arguments falls back to gmsh and warns.</p></li>
 </ul>
 </section>
 <section id="advantages">
@@ -629,7 +628,6 @@ units too, so a given number means the same deflection whichever backend you use
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Full-featured meshing backend</p></li>
-<li><p><a class="reference internal" href="cadquery_backend.html"><span class="std std-doc">CadQuery Backend</span></a> - Surface-only tessellation backend</p></li>
 <li><p><a class="reference internal" href="../outputs/unstructured_vtk.html"><span class="std std-doc">Unstructured VTK</span></a> - Volume mesh output details</p></li>
 <li><p><a class="reference internal" href="../outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a> - Matching surface and volume meshes</p></li>
 </ul>

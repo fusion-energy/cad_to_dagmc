@@ -236,7 +236,6 @@
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -714,7 +713,7 @@ for the implicit complement (void space).</p></li>
 <li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – a scaling factor to apply to the geometry. All the
 linear mesh sizing arguments (min_mesh_size, max_mesh_size and
 set_size for gmsh, tolerance and target_edge_length for
-cad-to-dagmc-mesher, tolerance for cadquery) are in the units of
+cad-to-dagmc-mesher) are in the units of
 the SCALED geometry, so the same number means the same thing on
 the output mesh whichever backend is used. For example with
 scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
@@ -734,14 +733,14 @@ backend is used, and the thread count is restored afterwards so the
 cadquery operations that follow are unaffected.</p></li>
 <li><p><strong>**kwargs</strong> – <p>Backend-specific parameters:</p>
 <p>Backend selection:
-- meshing_backend (str, optional): explicitly specify ‘gmsh’,</p>
+- meshing_backend (str, optional): explicitly specify ‘gmsh’ or</p>
 <blockquote>
-<div><p>’cadquery’ or ‘cad-to-dagmc-mesher’. If not provided, backend is
-auto-selected based on other arguments: tet_volumes or
-target_edge_length select ‘cad-to-dagmc-mesher’, gmsh-specific
+<div><p>’cad-to-dagmc-mesher’. If not provided, backend is
+auto-selected based on other arguments: cad-to-dagmc-mesher
+arguments select ‘cad-to-dagmc-mesher’, gmsh-specific
 arguments select ‘gmsh’. Defaults to ‘cad-to-dagmc-mesher’ if
 no backend-specific arguments are given, falling back to
-‘cadquery’ when cad-to-dagmc-mesher is not installed.</p>
+‘gmsh’ when cad-to-dagmc-mesher is not installed.</p>
 </div></blockquote>
 <ul>
 <li><p>h5m_backend (str, optional): ‘pymoab’ or ‘h5py’ for writing h5m files.
@@ -771,14 +770,6 @@ all volume IDs that have that tag. Can mix ints and strings.</p></li>
 <li><p>umesh_filename (str): filename for unstructured mesh (default: ‘umesh.vtk’)</p></li>
 <li><p>threads (int): number of threads for Gmsh to use. 0 uses all
 available cores (default), 1 uses a single thread.</p></li>
-</ul>
-<p>For CadQuery backend:
-- tolerance (float): meshing tolerance (default: 0.1), in the</p>
-<blockquote>
-<div><p>units of the scaled geometry (see scale_factor above)</p>
-</div></blockquote>
-<ul>
-<li><p>angular_tolerance (float): angular tolerance (default: 0.1)</p></li>
 </ul>
 <p>For cad-to-dagmc-mesher backend:
 - tolerance (float): surface meshing tolerance (default: 0.01),</p>
