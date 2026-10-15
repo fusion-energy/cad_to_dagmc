@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - ci/cadquery-stable-master
     paths-ignore:
       - 'docs/**'
       - '.gitignore'
@@ -27,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.12]
-        cadquery: ["2.8.0", "master"]
+        cadquery: [stable, master]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
@@ -51,12 +52,11 @@ jobs:
           if [[ "${{ matrix.cadquery }}" == "master" ]]; then
             python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@master"
           else
-            python -m pip install "cadquery==${{ matrix.cadquery }}"
+            python -m pip install --upgrade cadquery
           fi
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"
-          python -c 'import cadquery as cq, inspect; signature = inspect.signature(cq.occ_impl.assembly.imprint); print(cq.__version__, signature); assert ("glue" in signature.parameters) == ("${{ matrix.cadquery }}" == "master")'
 
       - name: Run tests with h5py backend only (validates package works without pymoab)
         shell: bash
