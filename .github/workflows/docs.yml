@@ -2,11 +2,9 @@ name: Documentation
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
-      - main
+      - '**'
     tags:
       - '*'
 
@@ -59,17 +57,17 @@ jobs:
           sphinx-build docs _build/pr-${{ github.event.pull_request.number }}
 
       - name: Check links
-        if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         run: |
           sphinx-build -b linkcheck docs _build/linkcheck || true
 
       - name: Add root redirect
-        if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         run: |
           cp docs/_static/root_redirect.html _build/index.html
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         uses: peaceiris/actions-gh-pages@v4
         with:
           publish_branch: gh-pages

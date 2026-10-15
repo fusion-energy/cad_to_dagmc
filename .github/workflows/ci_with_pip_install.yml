@@ -6,8 +6,6 @@ name: CI with pip install
 
 on:
   pull_request:
-    branches:
-      - main
     paths-ignore:
       - 'docs/**'
       - '.gitignore'
@@ -17,14 +15,17 @@ on:
       - 'readthedocs.yml'
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
   testing:
+    name: Python ${{ matrix.python-version }} / CadQuery ${{ matrix.cadquery }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.12]
+        cadquery: [stable, master]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
@@ -45,6 +46,11 @@ jobs:
         run: |
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
+          if [[ "${{ matrix.cadquery }}" == "master" ]]; then
+            python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@master"
+          else
+            python -m pip install --upgrade cadquery
+          fi
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"

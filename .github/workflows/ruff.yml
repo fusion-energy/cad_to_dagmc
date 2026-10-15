@@ -5,11 +5,9 @@ name: Ruff
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
   ruff:
