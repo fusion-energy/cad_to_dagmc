@@ -14,20 +14,23 @@ from contextlib import nullcontext
 import cadquery as cq
 import gmsh
 import pytest
+from OCP.BOPAlgo import BOPAlgo_GlueEnum
 from OCP.OSD import OSD_ThreadPool
 
 from cad_to_dagmc import CadToDagmc
-from cad_to_dagmc.core import imprint_assembly, resolve_imprint_glue
+from cad_to_dagmc.core import (
+    _mesh_with_cad_to_dagmc_mesher,
+    imprint_assembly,
+    resolve_imprint_glue,
+)
 
 HAS_GLUE = "glue" in inspect.signature(cq.occ_impl.assembly.imprint).parameters
 GLUES = ("partial", "full", None)
 
 
 def _expected_response(glue):
-    if not HAS_GLUE and glue == "full":
-        return pytest.raises(RuntimeError, match='cannot honour imprint_glue="full"')
-    if not HAS_GLUE and glue == "partial":
-        return pytest.warns(UserWarning, match="legacy no-glue imprint")
+    if not HAS_GLUE and glue != "partial":
+        return pytest.raises(RuntimeError, match="legacy imprint always uses partial glue")
     return nullcontext()
 
 
@@ -88,7 +91,7 @@ class TestImprintAssembly:
     def test_glue_is_passed_to_cadquery(self, glue_spy, glue):
         with _expected_response(glue):
             shape, _ = imprint_assembly(_two_touching_boxes(), glue=glue)
-        if not HAS_GLUE and glue == "full":
+        if not HAS_GLUE and glue != "partial":
             assert glue_spy == []
             return
         assert glue_spy == [glue if HAS_GLUE else "not given"]
@@ -104,7 +107,7 @@ class TestImprintAssembly:
             partial, _ = imprint_assembly(_two_touching_boxes(), glue="partial")
         with _expected_response(glue):
             other, _ = imprint_assembly(_two_touching_boxes(), glue=glue)
-        if not HAS_GLUE and glue == "full":
+        if not HAS_GLUE and glue != "partial":
             return
 
         assert len(other.Solids()) == len(partial.Solids()) == 2
@@ -181,7 +184,7 @@ def test_every_export_passes_the_glue_to_cadquery(tmp_path, glue_spy, path, glue
 
     assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
     assert not gmsh.isInitialized()
-    if not HAS_GLUE and glue == "full":
+    if not HAS_GLUE and glue != "partial":
         assert glue_spy == []
         assert not list(tmp_path.iterdir()), "unsupported glue must not create output files"
         return
@@ -233,6 +236,8 @@ def test_partial_face_contact_is_split(glue):
     assembly.add(cq.Workplane().transformed(offset=(0, 0, 7)).box(4, 4, 4))
     with _expected_response(glue):
         shape, _ = imprint_assembly(assembly, glue=glue)
+    if not HAS_GLUE and glue != "partial":
+        return
     assert len(shape.Solids()) == 2
     # A split ring is added to the big face, and the contact patch is shared.
     assert len(shape.Faces()) == 12
@@ -242,13 +247,14 @@ def test_partial_face_contact_is_split(glue):
 
 def test_glue_and_thread_count_combine(tmp_path, glue_spy):
     """imprint sets the threads and imprint_glue the glue, independently."""
-    _model().export_dagmc_h5m_file(
-        filename=str(tmp_path / "dagmc.h5m"),
-        meshing_backend="gmsh",
-        imprint=1,
-        imprint_glue=None,
-    )
-    assert glue_spy == [None if HAS_GLUE else "not given"]
+    with _expected_response(None):
+        _model().export_dagmc_h5m_file(
+            filename=str(tmp_path / "dagmc.h5m"),
+            meshing_backend="gmsh",
+            imprint=1,
+            imprint_glue=None,
+        )
+    assert glue_spy == ([None] if HAS_GLUE else [])
 
 
 @pytest.mark.parametrize("supports_glue", [False, True])
@@ -266,16 +272,13 @@ def test_both_api_signatures(monkeypatch, supports_glue, glue):
         return sentinel
 
     monkeypatch.setattr(cq.occ_impl.assembly, "imprint", modern if supports_glue else legacy)
-    if not supports_glue and glue == "full":
-        with pytest.raises(RuntimeError, match="Use imprint_glue=None.*upgrade CadQuery"):
+    if not supports_glue and glue != "partial":
+        with pytest.raises(RuntimeError, match='Use imprint_glue="partial".*upgrade CadQuery'):
             imprint_assembly(_two_touching_boxes(), glue=glue)
         assert calls == []
     else:
-        response = (
-            pytest.warns(UserWarning, match="legacy no-glue imprint")
-            if not supports_glue and glue == "partial" else nullcontext()
-        )
-        with response:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             assert imprint_assembly(_two_touching_boxes(), glue=glue) is sentinel
         assert calls == [glue if supports_glue else "legacy"]
 
@@ -293,5 +296,56 @@ def test_imprint_error_restores_thread_pool(monkeypatch, supports_glue):
 
     monkeypatch.setattr(cq.occ_impl.assembly, "imprint", modern if supports_glue else legacy)
     with pytest.raises(RuntimeError, match="imprint failed"):
-        imprint_assembly(_two_touching_boxes(), threads=1, glue=None)
+        imprint_assembly(_two_touching_boxes(), threads=1, glue="partial")
+    assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before
+
+
+@pytest.mark.skipif(not HAS_GLUE, reason="legacy imprint has no selectable glue API")
+@pytest.mark.parametrize(
+    "glue, mode",
+    [
+        ("partial", BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
+        ("full", BOPAlgo_GlueEnum.BOPAlgo_GlueFull),
+        (None, BOPAlgo_GlueEnum.BOPAlgo_GlueOff),
+    ],
+)
+def test_modern_imprint_uses_the_requested_occ_glue_mode(monkeypatch, glue, mode):
+    """Explicit None must reach GlueOff, not CadQuery's default partial glue."""
+    real_builder = cq.occ_impl.assembly.BOPAlgo_Builder
+    builders = []
+
+    def recording_builder():
+        builder = real_builder()
+        builders.append(builder)
+        return builder
+
+    monkeypatch.setattr(cq.occ_impl.assembly, "BOPAlgo_Builder", recording_builder)
+    imprint_assembly(_two_touching_boxes(), glue=glue)
+    assert len(builders) == 1
+    assert builders[0].Glue() == mode
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+@pytest.mark.parametrize("threads", [None, 1])
+@pytest.mark.parametrize("glue", GLUES)
+def test_exporter_translates_options_to_the_new_mesher_api(monkeypatch, enabled, threads, glue):
+    cad = pytest.importorskip("cad_to_dagmc_mesher.cad")
+    calls = []
+
+    def mesh_assembly(assembly, *, solid_config, imprint):
+        calls.append(imprint)
+        return {
+            "vertices": [],
+            "triangles_by_solid_by_face": {},
+            "material_tags": [config.name for config in solid_config],
+        }
+
+    monkeypatch.setattr(cad, "mesh_assembly", mesh_assembly)
+    before = OSD_ThreadPool.DefaultPool_s().NbThreads()
+    _mesh_with_cad_to_dagmc_mesher(
+        _two_touching_boxes(), ["left", "right"], 1.0, 0.3,
+        tet_volumes=None, target_edge_length=None, imprint=enabled,
+        imprint_threads=threads, imprint_glue=glue,
+    )
+    assert calls == ([{"threads": threads or before, "glue": glue}] if enabled else [False])
     assert OSD_ThreadPool.DefaultPool_s().NbThreads() == before

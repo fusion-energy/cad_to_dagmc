@@ -82,13 +82,19 @@ Glue support was added in [CadQuery/cadquery#2069](https://github.com/CadQuery/c
 
 | `imprint_glue` | CadQuery 2.8.0 | CadQuery master with the glue API |
 |---|---|---|
-| `"partial"` (default) | Legacy no-glue imprint with a `UserWarning` that the partial-glue optimization is unavailable | Exact `"partial"` option |
+| `"partial"` (default) | Legacy imprint already uses partial glue, without a fallback warning | Exact `"partial"` option |
 | `"full"` | `RuntimeError` with the installed version and upgrade advice, before imprinting or writing the output | Exact `"full"` option |
-| `None` | Legacy no-glue imprint without a fallback warning | Exact `None` option |
+| `None` | `RuntimeError`: the legacy API cannot disable partial glue | Exact `None` option, leaving glue off |
 
-For warning-free use on 2.8.0, set `imprint_glue=None`. A fallback warning means that the geometry is still imprinted, but without the requested optimization. It does not mean partial glue was used.
+CadQuery 2.8.0 uses `BOPAlgo_MakeConnected`, which internally hard-codes
+[`BOPAlgo_GlueShift` (partial glue)](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/BOPAlgo/BOPAlgo_MakeConnected.cxx).
+Calling its imprint without a `glue` keyword therefore uses partial glue, not
+no glue. On current master, omitting `glue` also selects partial, whereas
+explicit `glue=None` leaves the builder in `GlueOff` mode. Neither `"full"`
+nor `None` can be honoured by the legacy API, so they fail rather than
+silently using partial glue.
 
-All three valid values are ignored when `imprint=False` or only one solid is present. Invalid values still raise `ValueError`, even with imprinting disabled. Both meshing backends follow the same compatibility rules; the mesher backend requires a version of cad-to-dagmc-mesher that includes `imprint_glue`.
+All three valid values are ignored when `imprint=False` or only one solid is present. Invalid values still raise `ValueError`, even with imprinting disabled. Both meshing backends follow the same compatibility rules. The mesher backend translates these public arguments into cad-to-dagmc-mesher's `imprint={"threads": ..., "glue": ...}` configuration; a release with that dictionary API is required.
 
 ## When to Disable Imprinting
 
