@@ -77,8 +77,8 @@ model.export_gmsh_mesh_file(
     volume_mesh_options=None, # GMSH options applied only after surface meshing
     set_size=None,            # Per-volume sizes
     scale_factor=1.0,         # Geometry scaling
-    imprint="partial",       # Imprint shared surfaces
-    imprint_threads="all",   # Keyword-only imprint thread count
+    imprint="partial",        # Imprint shared surfaces
+    imprint_threads="all",    # Keyword-only imprint thread count
     method="file",            # CAD transfer method
 )
 ```
@@ -97,7 +97,7 @@ model.export_gmsh_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
 | `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
-| `imprint_threads` | `"all"` or positive Python `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
+| `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
 | `method` | str | "file" | CAD transfer method |
 
 For `dimensions=3`, `mesh_algorithm_3d` selects the volume algorithm independently

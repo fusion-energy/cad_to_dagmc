@@ -7,6 +7,7 @@ from unittest.mock import Mock
 
 import cadquery as cq
 import gmsh
+import numpy as np
 import pytest
 from OCP.OSD import OSD_Parallel, OSD_ThreadPool
 
@@ -105,17 +106,19 @@ def imprint_calls(monkeypatch):
 def test_scalar_modes_and_threads_are_resolved_without_changing_pool(imprint, threads):
     before = _pool_threads()
     expected = max(1, OSD_Parallel.NbLogicalProcessors_s()) if threads == "all" else threads
-    assert resolve_imprint(imprint, threads) == (
-        imprint is not False, expected, "partial" if imprint is False else imprint,
-    )
+    assert resolve_imprint(imprint, threads) == expected
     assert _pool_threads() == before
+
+
+def test_int_like_threads_are_accepted():
+    assert resolve_imprint("partial", np.int64(4)) == 4
 
 
 @pytest.mark.parametrize("processors", [0, 1, 7])
 def test_all_uses_logical_processors_not_the_current_pool(monkeypatch, processors):
     monkeypatch.setattr(OSD_Parallel, "NbLogicalProcessors_s", lambda: processors)
     with thread_limit(2):
-        assert resolve_imprint() == (True, max(1, processors), "partial")
+        assert resolve_imprint() == max(1, processors)
         assert _pool_threads() == 2
 
 

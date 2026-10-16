@@ -33,7 +33,7 @@ model.export_dagmc_h5m_file(
 | Parameter | Accepted values | Default |
 |-----------|-----------------|---------|
 | `imprint` | `"partial"`, `"full"`, `None` (glue off, imprinting still runs), or `False` (skip imprinting) | `"partial"` |
-| `imprint_threads` | `"all"` or a strictly positive built-in Python `int`; booleans are not accepted | `"all"` |
+| `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `"all"` |
 
 `imprint=True`, integer shorthand, and dictionaries are not accepted. Use a
 scalar `imprint` mode and the separate `imprint_threads` keyword instead.
@@ -56,7 +56,7 @@ model.export_dagmc_h5m_file(
 
 Imprinting runs in parallel and its peak RAM scales with the number of threads.
 Large models can run out of memory when imprinting on all logical processors.
-Set `imprint_threads` to a positive Python integer without changing the glue mode:
+Set `imprint_threads` to a positive integer without changing the glue mode:
 
 <!--pytest-codeblocks:skip-->
 ```python

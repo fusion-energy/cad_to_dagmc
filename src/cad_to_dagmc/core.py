@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import operator
 import tempfile
 import warnings
 from contextlib import contextmanager
@@ -163,10 +164,10 @@ def combine_tet_meshes(tet_data):
 def resolve_imprint(
     imprint: Literal["partial", "full", False] | None = "partial",
     imprint_threads: int | Literal["all"] = "all",
-) -> tuple[bool, int, str | None]:
+) -> int:
     """Validate the mode and thread limit, including when imprinting is disabled.
 
-    Return (enabled, thread_count, glue). ``"all"`` actively requests the
+    Return the thread count. ``"all"`` actively requests the
     logical processor count, not the caller's current OCC pool size. The
     caller applies the limit only while imprinting and restores it afterwards.
     """
@@ -177,14 +178,22 @@ def resolve_imprint(
         )
     if imprint_threads == "all":
         threads = max(1, OSD_Parallel.NbLogicalProcessors_s())
-    elif type(imprint_threads) is not int or imprint_threads < 1:
-        raise ValueError(
-            "imprint_threads must be 'all' or a positive int, "
-            f"got {imprint_threads!r}"
-        )
     else:
-        threads = imprint_threads
-    return imprint is not False, threads, "partial" if imprint is False else imprint
+        try:
+            # operator.index accepts int-likes such as numpy integers; bool is
+            # an int subclass but never a meaningful thread count.
+            threads = (
+                None if isinstance(imprint_threads, bool)
+                else operator.index(imprint_threads)
+            )
+        except TypeError:
+            threads = None
+        if threads is None or threads < 1:
+            raise ValueError(
+                "imprint_threads must be 'all' or a positive int, "
+                f"got {imprint_threads!r}"
+            )
+    return threads
 
 
 def _resolve_glue(glue: str | None) -> str | None:
@@ -1721,7 +1730,7 @@ class CadToDagmc:
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive Python int.
+                (default, all OCC logical processors) or a positive int.
                 Fewer threads reduce peak RAM at the cost of speed. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
@@ -1766,7 +1775,7 @@ class CadToDagmc:
         if Path(filename).suffix != ".vtk":
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
-        do_imprint, resolved_imprint_threads, glue = resolve_imprint(imprint, imprint_threads)
+        resolved_imprint_threads = resolve_imprint(imprint, imprint_threads)
 
         if meshing_backend is None:
             # Auto-select the backend: the tet arguments are specific to
@@ -1809,10 +1818,10 @@ class CadToDagmc:
         for part in self.parts:
             assembly.add(part)
 
-        if do_imprint:
+        if imprint is not False:
             print("Imprinting assembly for unstructured mesh generation")
             imprinted_assembly, _ = imprint_assembly(
-                assembly, threads=resolved_imprint_threads, glue=glue
+                assembly, threads=resolved_imprint_threads, glue=imprint
             )
         else:
             imprinted_assembly = assembly
@@ -1992,7 +2001,7 @@ class CadToDagmc:
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive Python int.
+                (default, all OCC logical processors) or a positive int.
                 Fewer threads reduce peak RAM at the cost of speed. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
@@ -2003,16 +2012,16 @@ class CadToDagmc:
                 available cores (default), 1 uses a single thread.
         """
 
-        do_imprint, resolved_imprint_threads, glue = resolve_imprint(imprint, imprint_threads)
+        resolved_imprint_threads = resolve_imprint(imprint, imprint_threads)
 
         assembly = cq.Assembly()
         for part in self.parts:
             assembly.add(part)
 
-        if do_imprint:
+        if imprint is not False:
             print("Imprinting assembly for mesh generation")
             imprinted_assembly, _ = imprint_assembly(
-                assembly, threads=resolved_imprint_threads, glue=glue
+                assembly, threads=resolved_imprint_threads, glue=imprint
             )
         else:
             imprinted_assembly = assembly
@@ -2106,7 +2115,7 @@ class CadToDagmc:
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive Python int.
+                (default, all OCC logical processors) or a positive int.
                 Fewer threads reduce peak RAM at the cost of speed. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
@@ -2172,7 +2181,7 @@ class CadToDagmc:
             ValueError: If invalid parameter combinations are used.
         """
 
-        do_imprint, resolved_imprint_threads, glue = resolve_imprint(imprint, imprint_threads)
+        resolved_imprint_threads = resolve_imprint(imprint, imprint_threads)
 
         # Define all acceptable kwargs
         gmsh_keys = {
@@ -2369,11 +2378,11 @@ class CadToDagmc:
             # Use gmsh
             if meshing_backend == "gmsh":
                 # If assembly is not to be imprinted, pass through the assembly as-is
-                if do_imprint:
+                if imprint is not False:
                     print("Imprinting assembly for mesh generation")
                     imprinted_assembly, imprinted_solids_with_org_id = (
                         imprint_assembly(
-                            assembly, threads=resolved_imprint_threads, glue=glue
+                            assembly, threads=resolved_imprint_threads, glue=imprint
                         )
                     )
 

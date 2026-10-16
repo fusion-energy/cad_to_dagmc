@@ -159,12 +159,17 @@ def test_default_glue_is_partial(imprint_calls):
     assert [glue for _, glue in imprint_calls] == ["partial" if HAS_GLUE else "legacy"]
 
 
-@pytest.mark.parametrize("partial_contact, glue, faces, volumes", [
-    (False, "partial", 11, [1000, 1000]), (False, "full", 11, [1000, 1000]),
-    (False, None, 11, [1000, 1000]), (True, "partial", 12, [64, 1000]),
-    (True, None, 12, [64, 1000]),
+@pytest.mark.parametrize("partial_contact, glue, faces, volumes, shared", [
+    (False, "partial", 11, [1000, 1000], 1), (False, "full", 11, [1000, 1000], 1),
+    (False, None, 11, [1000, 1000], 1), (True, "partial", 12, [64, 1000], 1),
+    (True, None, 12, [64, 1000], 1),
+    # full glue only merges exactly coincident faces, so a partly coincident
+    # contact is left unsplit and nothing is shared
+    (True, "full", 12, [64, 1000], 0),
 ])
-def test_full_and_partial_face_contact_topology(partial_contact, glue, faces, volumes):
+def test_full_and_partial_face_contact_topology(
+    partial_contact, glue, faces, volumes, shared
+):
     assembly = _two_touching_boxes()
     if partial_contact:
         assembly = cq.Assembly()
@@ -178,7 +183,9 @@ def test_full_and_partial_face_contact_topology(partial_contact, glue, faces, vo
     assert len(shape.Faces()) == faces
     assert sorted(solid.Volume() for solid in shape.Solids()) == pytest.approx(volumes)
     left, right = shape.Solids()
-    assert sum(face.isSame(other) for face in left.Faces() for other in right.Faces()) == 1
+    assert sum(
+        face.isSame(other) for face in left.Faces() for other in right.Faces()
+    ) == shared
 
 
 @pytest.mark.parametrize("imprint, imprint_threads", [
