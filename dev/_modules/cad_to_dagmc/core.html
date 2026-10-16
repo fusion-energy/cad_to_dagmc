@@ -2691,15 +2691,6 @@
                 <span class="p">)</span>
                 <span class="n">meshing_backend</span> <span class="o">=</span> <span class="s2">"gmsh"</span>
 
-        <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"cadquery"</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'meshing_backend "cadquery" has been removed along with the '</span>
-                <span class="s2">"cadquery_direct_mesh_plugin it used. Use "</span>
-                <span class="s1">'meshing_backend="cad-to-dagmc-mesher", which takes the same '</span>
-                <span class="s2">"tolerance and angular_tolerance arguments, or "</span>
-                <span class="s1">'meshing_backend="gmsh".'</span>
-            <span class="p">)</span>
-
         <span class="c1"># Validate meshing backend</span>
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"gmsh"</span><span class="p">,</span> <span class="s2">"cad-to-dagmc-mesher"</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -2738,7 +2729,7 @@
             <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"umesh_filename"</span><span class="p">,</span> <span class="s2">"umesh.vtk"</span><span class="p">)</span>
             <span class="n">threads</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"threads"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-            <span class="c1"># Warn about unused CadQuery and cad-to-dagmc-mesher parameters</span>
+            <span class="c1"># Warn about unused cad-to-dagmc-mesher parameters</span>
             <span class="n">non_gmsh_params</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="s2">"tolerance"</span><span class="p">,</span>
                 <span class="s2">"angular_tolerance"</span><span class="p">,</span>

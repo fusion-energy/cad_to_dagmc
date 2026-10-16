@@ -426,7 +426,6 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-from-the-previous-api">Migrating from the Previous API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
@@ -491,9 +490,7 @@ options uses <code class="docutils literal notranslate"><span class="pre">imprin
 </tbody>
 </table>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">imprint=True</span></code>, integer shorthand, and dictionaries are not accepted. Use a
-scalar <code class="docutils literal notranslate"><span class="pre">imprint</span></code> mode and the separate <code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> keyword instead.
-<code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> is validated even when <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>; booleans, zero,
+<p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> is validated even when <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>; booleans, zero,
 negative integers, floats, and <code class="docutils literal notranslate"><span class="pre">None</span></code> are invalid thread settings.</p>
 </section>
 <section id="disabling-imprinting">
@@ -574,33 +571,6 @@ geometry, <code class="docutils literal notranslate"><span class="pre">&quot;ful
 selectable glue API supports all three modes. Support is detected from the
 installed imprint signature, not the version string.</p>
 </section>
-</section>
-<section id="migrating-from-the-previous-api">
-<h2>Migrating from the Previous API<a class="headerlink" href="#migrating-from-the-previous-api" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Previous call</p></th>
-<th class="head"><p>Replacement</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=True</span></code></p></td>
-<td><p>Omit <code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=4</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code></p></td>
-<td><p>Unchanged</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">imprint=True</span></code> used to leave the OpenCASCADE thread pool as you had
-set it. The default <code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> now uses every logical processor for
-the imprint, even if you limited the pool beforehand, then restores your pool
-afterwards. To keep a lower limit for the imprint, pass it explicitly, for
-example <code class="docutils literal notranslate"><span class="pre">imprint_threads=2</span></code>.</p>
 </section>
 <section id="when-to-disable-imprinting">
 <h2>When to Disable Imprinting<a class="headerlink" href="#when-to-disable-imprinting" title="Link to this heading">#</a></h2>
@@ -769,7 +739,6 @@ neighbouring volume. Nothing reports this, the file is written as normal.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-from-the-previous-api">Migrating from the Previous API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
