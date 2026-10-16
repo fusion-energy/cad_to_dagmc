@@ -18,19 +18,6 @@ class TestKwargsExportDagmcH5mFile:
         box = cq.Workplane("XY").box(10, 10, 10)
         self.my_model.add_cadquery_object(box, material_tags=["steel"])
 
-    def test_removed_cadquery_backend_raises_error(self, tmp_path):
-        """The cadquery direct-mesh plugin backend has been removed, so asking
-        for it explains what to use instead rather than reporting an unknown
-        backend."""
-        with pytest.raises(ValueError, match='"cadquery" has been removed') as excinfo:
-            self.my_model.export_dagmc_h5m_file(
-                filename=str(tmp_path / "test_cadquery.h5m"),
-                meshing_backend="cadquery",
-                tolerance=0.05,
-            )
-
-        assert "cad-to-dagmc-mesher" in str(excinfo.value)
-
     def test_gmsh_backend_with_mesh_size_params(self, tmp_path):
         """Test GMSH backend with mesh size parameters"""
         output_file = tmp_path / "test_gmsh.h5m"

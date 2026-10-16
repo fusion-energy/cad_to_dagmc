@@ -2278,15 +2278,6 @@ class CadToDagmc:
                 )
                 meshing_backend = "gmsh"
 
-        if meshing_backend == "cadquery":
-            raise ValueError(
-                'meshing_backend "cadquery" has been removed along with the '
-                "cadquery_direct_mesh_plugin it used. Use "
-                'meshing_backend="cad-to-dagmc-mesher", which takes the same '
-                "tolerance and angular_tolerance arguments, or "
-                'meshing_backend="gmsh".'
-            )
-
         # Validate meshing backend
         if meshing_backend not in ["gmsh", "cad-to-dagmc-mesher"]:
             raise ValueError(
@@ -2325,7 +2316,7 @@ class CadToDagmc:
             umesh_filename = kwargs.get("umesh_filename", "umesh.vtk")
             threads = kwargs.get("threads", 0)
 
-            # Warn about unused CadQuery and cad-to-dagmc-mesher parameters
+            # Warn about unused cad-to-dagmc-mesher parameters
             non_gmsh_params = [
                 "tolerance",
                 "angular_tolerance",
