@@ -539,11 +539,16 @@
 <td><p>Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
-<td><p>bool or int</p></td>
-<td><p>True</p></td>
-<td><p>Imprint shared surfaces. An int limits the imprint to that many threads</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>, or <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code></p></td>
+<td><p>Shared-surface imprint mode. <code class="docutils literal notranslate"><span class="pre">None</span></code> still imprints, with glue disabled; only <code class="docutils literal notranslate"><span class="pre">False</span></code> skips imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or positive <code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+<td><p>Keyword-only thread count for imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for validation and scope.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
 <td><p>str</p></td>
 <td><p>None</p></td>
 <td><p>Void space material tag</p></td>

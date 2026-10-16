@@ -443,7 +443,9 @@
                   
   <section id="parallel-processing">
 <h1>Parallel Processing<a class="headerlink" href="#parallel-processing" title="Link to this heading">#</a></h1>
-<p>Both CadQuery and GMSH use parallel processing for operations like imprinting and meshing. By default, they use all available CPU cores.</p>
+<p>Both CadQuery and GMSH use parallel processing for operations like imprinting
+and meshing. By default, imprinting explicitly requests the OpenCASCADE logical
+processor count; meshing has separate thread controls.</p>
 <section id="when-to-limit-threads">
 <h2>When to Limit Threads<a class="headerlink" href="#when-to-limit-threads" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -454,19 +456,24 @@
 </section>
 <section id="limiting-imprinting-threads">
 <h2>Limiting Imprinting Threads<a class="headerlink" href="#limiting-imprinting-threads" title="Link to this heading">#</a></h2>
-<p>Imprinting is usually the most memory hungry parallel step. The export methods take the thread count directly on the <code class="docutils literal notranslate"><span class="pre">imprint</span></code> argument, so there is no need to change any global setting:</p>
+<p>Imprinting is usually the most memory hungry parallel step. Set the keyword-only
+<code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> argument without changing a global setting:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># imprint on a single thread, the lowest peak RAM</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Lower peak RAM</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Only the imprint is limited, the meshing keeps all its threads on every backend, and the previous thread count is restored once the imprint is done. See <a class="reference internal" href="imprinting.html"><span class="std std-doc">Imprinting</span></a> for details.</p>
+<p>Only imprinting is limited; meshing uses its own settings on both backends. The
+previous pool size is restored afterwards, including on errors. By default,
+<code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> requests all logical processors, overriding an existing limit.
+See <a class="reference internal" href="imprinting.html"><span class="std std-doc">Imprinting</span></a> for the available options.</p>
 </section>
 <section id="limiting-cadquery-threads">
 <h2>Limiting CadQuery Threads<a class="headerlink" href="#limiting-cadquery-threads" title="Link to this heading">#</a></h2>
-<p>To limit every CadQuery operation rather than just the imprint, CadQuery provides a <code class="docutils literal notranslate"><span class="pre">setThreads</span></code> function:</p>
+<p>For other CadQuery operations, use <code class="docutils literal notranslate"><span class="pre">setThreads</span></code> to configure the OpenCASCADE
+thread pool:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
 
@@ -542,12 +549,12 @@ python<span class="w"> </span>my_script.py
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Imprinting</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">imprint=&lt;int&gt;</span></code> export argument</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code></p></td>
 <td><p>For the duration of the imprint only</p></td>
 </tr>
 <tr class="row-odd"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">setThreads()</span></code></p></td>
-<td><p>Any time before operations</p></td>
+<td><p>Before other CadQuery operations</p></td>
 </tr>
 <tr class="row-even"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OSD_ThreadPool.DefaultPool_s()</span></code></p></td>

@@ -519,7 +519,8 @@
     <span class="n">volume_mesh_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># GMSH options applied only after surface meshing</span>
     <span class="n">set_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>            <span class="c1"># Per-volume sizes</span>
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>             <span class="c1"># Imprint shared surfaces</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>        <span class="c1"># Imprint shared surfaces</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>    <span class="c1"># Keyword-only imprint thread count</span>
     <span class="n">method</span><span class="o">=</span><span class="s2">"file"</span><span class="p">,</span>            <span class="c1"># CAD transfer method</span>
 <span class="p">)</span>
 </pre></div>
@@ -580,11 +581,16 @@
 <td><p>Geometry scale factor</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
-<td><p>bool or int</p></td>
-<td><p>True</p></td>
-<td><p>Imprint shared surfaces. An int limits the imprint to that many threads</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>, or <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code></p></td>
+<td><p>Shared-surface imprint mode. <code class="docutils literal notranslate"><span class="pre">None</span></code> still imprints, with glue disabled; only <code class="docutils literal notranslate"><span class="pre">False</span></code> skips imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for options.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or positive <code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+<td><p>Keyword-only thread count for imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for validation and scope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>str</p></td>
 <td><p>“file”</p></td>
 <td><p>CAD transfer method</p></td>

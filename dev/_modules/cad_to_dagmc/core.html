@@ -370,13 +370,13 @@
   <h1>Source code for cad_to_dagmc.core</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
@@ -385,7 +385,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.geom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.importers.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">importStep</span> <span class="k">as</span> <span class="n">importStepAssembly</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.OSD</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSD_ThreadPool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.OSD</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSD_Parallel</span><span class="p">,</span> <span class="n">OSD_ThreadPool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">OCP.TopoDS</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopoDS_Iterator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
@@ -537,48 +537,48 @@
     <span class="k">return</span> <span class="n">vertices</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">remap</span><span class="p">[</span><span class="n">inverse</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)][</span><span class="n">tetrahedra</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Split the imprint argument into a flag and a thread limit.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_imprint</span><span class="p">(</span>
+    <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">,</span>
+    <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate the mode and thread limit, including when imprinting is disabled.</span>
 
-<span class="sd">    The imprint argument of the export methods accepts either a bool or an</span>
-<span class="sd">    int. True imprints with however many threads the OpenCASCADE thread pool</span>
-<span class="sd">    is set to (all cores unless the caller has already limited it), False</span>
-<span class="sd">    skips imprinting, and a positive int imprints with that many threads.</span>
-<span class="sd">    Imprinting runs in parallel and its peak RAM scales with the number of</span>
-<span class="sd">    threads, so a large model that runs out of memory can often be imprinted</span>
-<span class="sd">    by lowering the thread count.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        imprint: the imprint argument as given by the user.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        (do_imprint, threads) where threads is None when the thread count is</span>
-<span class="sd">        to be left as the caller set it.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if an int less than 1 is given.</span>
-<span class="sd">        TypeError: if something other than a bool or an int is given.</span>
+<span class="sd">    Return the thread count. ``"all"`` actively requests the</span>
+<span class="sd">    logical processor count, not the caller's current OCC pool size. The</span>
+<span class="sd">    caller applies the limit only while imprinting and restores it afterwards.</span>
 <span class="sd">    """</span>
-    <span class="c1"># bool is a subclass of int so it has to be tested for first. It also</span>
-    <span class="c1"># means an int cannot express "do not imprint": imprint=0 would be</span>
-    <span class="c1"># indistinguishable from imprint=False, so 0 is rejected rather than</span>
-    <span class="c1"># guessed at.</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">imprint</span><span class="p">,</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">imprint</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"imprint=</span><span class="si">{</span><span class="n">imprint</span><span class="si">}</span><span class="s2"> is not a valid number of threads. Use "</span>
-                <span class="s2">"imprint=False to skip imprinting, imprint=True to imprint "</span>
-                <span class="s2">"with all available cores, or a positive int to imprint with "</span>
-                <span class="s2">"that many threads."</span>
+    <span class="k">if</span> <span class="n">imprint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">imprint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"imprint must be 'partial', 'full', None or False, "</span>
+            <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">imprint</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">imprint_threads</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">OSD_Parallel</span><span class="o">.</span><span class="n">NbLogicalProcessors_s</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># operator.index accepts int-likes such as numpy integers; bool is</span>
+            <span class="c1"># an int subclass but never a meaningful thread count.</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">imprint</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"imprint must be a bool or an int, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Use "</span>
-        <span class="s2">"imprint=True or imprint=False to turn imprinting on or off, or a "</span>
-        <span class="s2">"positive int to imprint with that many threads."</span>
-    <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">threads</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"imprint_threads must be 'all' or a positive int, "</span>
+                <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">imprint_threads</span><span class="si">!r}</span><span class="s2">"</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">threads</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_glue</span><span class="p">(</span><span class="n">glue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate the glue mode, matching cad-to-dagmc-mesher."""</span>
+    <span class="k">if</span> <span class="n">glue</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"imprint must be 'partial', 'full' or None, got </span><span class="si">{</span><span class="n">glue</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">glue</span>
 
 
 <span class="nd">@contextmanager</span>
@@ -606,66 +606,30 @@
         <span class="n">setThreads</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
 
 
-<span class="nd">@contextmanager</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">imprint_thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Limit the threads used by imprinting and by nothing else.</span>
-
-<span class="sd">    The gmsh backend imprints through imprint_assembly, so there the imprint</span>
-<span class="sd">    can simply be wrapped in thread_limit. cad-to-dagmc-mesher instead</span>
-<span class="sd">    imprints part way through its own meshing call, so wrapping that call</span>
-<span class="sd">    would limit the meshing too, and the meshing is not what runs out of</span>
-<span class="sd">    memory.</span>
-
-<span class="sd">    The mesher reaches the imprint through cq.occ_impl.assembly.imprint and</span>
-<span class="sd">    looks it up when it calls it, so swapping in a wrapper that shrinks the</span>
-<span class="sd">    pool around the real imprint keeps the limit on the imprint and off the</span>
-<span class="sd">    meshing either side of it. The original function is put back on the way</span>
-<span class="sd">    out, including when meshing raises part way through.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        threads: the number of threads to imprint with, or None to leave the</span>
-<span class="sd">            pool alone.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">yield</span>
-        <span class="k">return</span>
-
-    <span class="n">real_imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
-
-    <span class="c1"># functools.wraps keeps the signature intact: imprint_assembly and</span>
-    <span class="c1"># cad-to-dagmc-mesher both inspect it for the glue argument.</span>
-    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">real_imprint</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">limited_imprint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">real_imprint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span> <span class="o">=</span> <span class="n">limited_imprint</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">yield</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span> <span class="o">=</span> <span class="n">real_imprint</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">glue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Imprint a CadQuery assembly into a connected compound.</span>
 
-<span class="sd">    Uses the BOPAlgo_Builder based imprint with glue="partial" when the</span>
-<span class="sd">    installed cadquery supports it (CadQuery/cadquery#2069, faster and</span>
-<span class="sd">    lower RAM than the older BOPAlgo_MakeConnected based imprint, with the</span>
-<span class="sd">    same result for touching, non-overlapping solids). Older cadquery</span>
-<span class="sd">    versions fall back to the original single-argument imprint.</span>
+<span class="sd">    Uses cadquery's BOPAlgo_Builder based imprint (CadQuery/cadquery#2069),</span>
+<span class="sd">    passing glue through to it. CadQuery 2.8.0's legacy MakeConnected imprint</span>
+<span class="sd">    always uses partial glue (BOPAlgo_GlueShift), so "partial" works without</span>
+<span class="sd">    a warning. "full" and None raise RuntimeError with upgrade advice.</span>
+<span class="sd">    Glue modes are the same as the export methods' imprint configuration.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        assembly: the cadquery assembly to imprint.</span>
 <span class="sd">        threads: the number of threads to imprint with. Fewer threads lowers</span>
 <span class="sd">            the peak RAM of the imprint at the cost of speed. Defaults to None</span>
 <span class="sd">            which leaves the thread count as it is.</span>
+<span class="sd">        glue: the glue option for the imprint, "partial", "full" or None.</span>
+<span class="sd">            Defaults to "partial". Explicit None disables glue, not imprinting;</span>
+<span class="sd">            it does not select the default.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (imprinted_shape, imprinted_solids_with_original_ids)</span>
 <span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 
+    <span class="n">glue</span> <span class="o">=</span> <span class="n">_resolve_glue</span><span class="p">(</span><span class="n">glue</span><span class="p">)</span>
     <span class="c1"># Imprinting needs at least two solids to do anything. Skipping it for a</span>
     <span class="c1"># single solid is not just an optimization: the BOPAlgo_Builder based</span>
     <span class="c1"># imprint returns a Null shape when given fewer than two arguments.</span>
@@ -678,11 +642,20 @@
         <span class="n">compound</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">Compound</span><span class="o">.</span><span class="n">makeCompound</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">compound</span><span class="p">,</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">(</span><span class="n">id_map</span><span class="p">[</span><span class="n">s</span><span class="p">],)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">solids</span><span class="p">}</span>
 
+    <span class="n">imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
+    <span class="k">if</span> <span class="s2">"glue"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">glue</span> <span class="o">!=</span> <span class="s2">"partial"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"CadQuery </span><span class="si">{</span><span class="n">cq</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2"> cannot honour imprint=</span><span class="si">{</span><span class="n">glue</span><span class="si">!r}</span><span class="s2">: "</span>
+                <span class="s2">"its legacy imprint always uses partial glue (BOPAlgo_GlueShift). "</span>
+                <span class="s2">"Use imprint='partial', "</span>
+                <span class="s2">"or upgrade CadQuery to a version "</span>
+                <span class="s2">"including CadQuery/cadquery#2069."</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">thread_limit</span><span class="p">(</span><span class="n">threads</span><span class="p">):</span>
-        <span class="n">imprint</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span>
-        <span class="k">if</span> <span class="s2">"glue"</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="n">glue</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">define_moab_core_and_tags</span><span class="p">():</span>
@@ -2100,7 +2073,7 @@
         <span class="n">mesh_algorithm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"file"</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2110,6 +2083,7 @@
         <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
         <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">mesh_algorithm_3d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">volume_mesh_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2155,17 +2129,18 @@
 <span class="sd">            scale_factor: a scaling factor to apply to the geometry that can be</span>
 <span class="sd">                used to enlarge or shrink the geometry. Useful when converting</span>
 <span class="sd">                the geometry to cm for use in neutronics.</span>
-<span class="sd">            imprint: whether to imprint the geometry or not. Defaults to True as this is</span>
-<span class="sd">                normally needed to ensure the geometry is meshed correctly. However if</span>
-<span class="sd">                you know your geometry does not need imprinting you can set this to False</span>
-<span class="sd">                and this can save time. A positive int can be passed instead of True to</span>
-<span class="sd">                imprint with that many threads, for example imprint=1 imprints on a</span>
-<span class="sd">                single thread. Imprinting runs in parallel and its peak RAM scales with</span>
-<span class="sd">                the number of threads, so fewer threads lowers the peak RAM of large</span>
-<span class="sd">                models at the cost of speed. Only the imprint is limited, the meshing</span>
-<span class="sd">                that follows it keeps all its threads whichever backend is used, and</span>
-<span class="sd">                the thread count is restored afterwards so the cadquery operations</span>
-<span class="sd">                that follow are unaffected.</span>
+<span class="sd">            imprint: "partial" (default) for non-overlapping contact, "full" for</span>
+<span class="sd">                exactly coincident whole faces, None to imprint without glue, or</span>
+<span class="sd">                False to skip imprinting entirely. None does not mean the default.</span>
+<span class="sd">                CadQuery 2.8.0 supports only partial glue; other modes raise</span>
+<span class="sd">                RuntimeError before imprinting multiple solids. A single solid</span>
+<span class="sd">                skips imprinting, but arguments are always validated. True,</span>
+<span class="sd">                integers, and dictionaries are not accepted.</span>
+<span class="sd">            imprint_threads: keyword-only thread limit for imprinting: "all"</span>
+<span class="sd">                (default, all OCC logical processors) or a positive int.</span>
+<span class="sd">                Fewer threads reduce peak RAM at the cost of speed. The previous</span>
+<span class="sd">                OCC pool is restored before meshing, including after errors.</span>
+<span class="sd">                Validated even when imprint=False; independent of Gmsh threads.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag. Only used by the gmsh backend.</span>
@@ -2207,7 +2182,7 @@
         <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">".vtk"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unstructured mesh filename must have a .vtk extension"</span><span class="p">)</span>
 
-        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
+        <span class="n">resolved_imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Auto-select the backend: the tet arguments are specific to</span>
@@ -2250,9 +2225,11 @@
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
             <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">imprint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"Imprinting assembly for unstructured mesh generation"</span><span class="p">)</span>
-            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
+            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span>
+                <span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">resolved_imprint_threads</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="n">imprint</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
@@ -2325,8 +2302,8 @@
         <span class="n">tet_volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">],</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.</span>
@@ -2390,10 +2367,11 @@
         <span class="n">dimensions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"file"</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">,</span>
         <span class="n">set_size</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">mesh_algorithm_3d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">volume_mesh_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2425,15 +2403,18 @@
 <span class="sd">            scale_factor: a scaling factor to apply to the geometry that can be</span>
 <span class="sd">                used to enlarge or shrink the geometry. Useful when converting</span>
 <span class="sd">                the geometry to cm for use in neutronics.</span>
-<span class="sd">            imprint: whether to imprint the geometry or not. Defaults to True as this is</span>
-<span class="sd">                normally needed to ensure the geometry is meshed correctly. However if</span>
-<span class="sd">                you know your geometry does not need imprinting you can set this to False</span>
-<span class="sd">                and this can save time. A positive int can be passed instead of True to</span>
-<span class="sd">                imprint with that many threads, for example imprint=1 imprints on a</span>
-<span class="sd">                single thread. Imprinting runs in parallel and its peak RAM scales with</span>
-<span class="sd">                the number of threads, so fewer threads lowers the peak RAM of large</span>
-<span class="sd">                models at the cost of speed. The thread count is restored afterwards so</span>
-<span class="sd">                the cadquery operations that follow are unaffected.</span>
+<span class="sd">            imprint: "partial" (default) for non-overlapping contact, "full" for</span>
+<span class="sd">                exactly coincident whole faces, None to imprint without glue, or</span>
+<span class="sd">                False to skip imprinting entirely. None does not mean the default.</span>
+<span class="sd">                CadQuery 2.8.0 supports only partial glue; other modes raise</span>
+<span class="sd">                RuntimeError before imprinting multiple solids. A single solid</span>
+<span class="sd">                skips imprinting, but arguments are always validated. True,</span>
+<span class="sd">                integers, and dictionaries are not accepted.</span>
+<span class="sd">            imprint_threads: keyword-only thread limit for imprinting: "all"</span>
+<span class="sd">                (default, all OCC logical processors) or a positive int.</span>
+<span class="sd">                Fewer threads reduce peak RAM at the cost of speed. The previous</span>
+<span class="sd">                OCC pool is restored before meshing, including after errors.</span>
+<span class="sd">                Validated even when imprint=False; independent of Gmsh threads.</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag.</span>
@@ -2441,15 +2422,17 @@
 <span class="sd">                available cores (default), 1 uses a single thread.</span>
 <span class="sd">        """</span>
 
-        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
+        <span class="n">resolved_imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="p">)</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
             <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">imprint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"Imprinting assembly for mesh generation"</span><span class="p">)</span>
-            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
+            <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imprint_assembly</span><span class="p">(</span>
+                <span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">resolved_imprint_threads</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="n">imprint</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imprinted_assembly</span> <span class="o">=</span> <span class="n">assembly</span>
 
@@ -2513,7 +2496,9 @@
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dagmc.h5m"</span><span class="p">,</span>
         <span class="n">implicit_complement_material_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">imprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Saves a DAGMC h5m file of the geometry</span>
@@ -2535,18 +2520,23 @@
 <span class="sd">                model can produce a very fine mesh and exhaust memory, so scale</span>
 <span class="sd">                the tolerance along with the geometry. angular_tolerance is an</span>
 <span class="sd">                angle and so is unaffected by scaling.</span>
-<span class="sd">            imprint: whether to imprint the geometry or not. A positive int can be</span>
-<span class="sd">                passed instead of True to imprint with that many threads, for example</span>
-<span class="sd">                imprint=1 imprints on a single thread. Imprinting runs in parallel and</span>
-<span class="sd">                its peak RAM scales with the number of threads, so fewer threads lowers</span>
-<span class="sd">                the peak RAM of large models at the cost of speed. Only the imprint is</span>
-<span class="sd">                limited, the meshing that follows it keeps all its threads whichever</span>
-<span class="sd">                backend is used, and the thread count is restored afterwards so the</span>
-<span class="sd">                cadquery operations that follow are unaffected.</span>
+<span class="sd">            imprint: "partial" (default) for non-overlapping contact, "full" for</span>
+<span class="sd">                exactly coincident whole faces, None to imprint without glue, or</span>
+<span class="sd">                False to skip imprinting entirely. None does not mean the default.</span>
+<span class="sd">                CadQuery 2.8.0 supports only partial glue; other modes raise</span>
+<span class="sd">                RuntimeError before imprinting multiple solids. A single solid</span>
+<span class="sd">                skips imprinting, but arguments are always validated. True,</span>
+<span class="sd">                integers, and dictionaries are not accepted.</span>
+<span class="sd">            imprint_threads: keyword-only thread limit for imprinting: "all"</span>
+<span class="sd">                (default, all OCC logical processors) or a positive int.</span>
+<span class="sd">                Fewer threads reduce peak RAM at the cost of speed. The previous</span>
+<span class="sd">                OCC pool is restored before meshing, including after errors.</span>
+<span class="sd">                Validated even when imprint=False; independent of Gmsh threads.</span>
 
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
 <span class="sd">                Backend selection:</span>
+
 <span class="sd">                - meshing_backend (str, optional): explicitly specify 'gmsh' or</span>
 <span class="sd">                  'cad-to-dagmc-mesher'. If not provided, backend is</span>
 <span class="sd">                  auto-selected based on other arguments: cad-to-dagmc-mesher</span>
@@ -2558,6 +2548,7 @@
 <span class="sd">                  Defaults to 'h5py'.</span>
 
 <span class="sd">                For GMSH backend:</span>
+
 <span class="sd">                - min_mesh_size (float): minimum mesh element size</span>
 <span class="sd">                - max_mesh_size (float): maximum mesh element size</span>
 <span class="sd">                - mesh_algorithm (int): GMSH 2D surface mesh algorithm (default: 1)</span>
@@ -2580,6 +2571,7 @@
 <span class="sd">                  available cores (default), 1 uses a single thread.</span>
 
 <span class="sd">                For cad-to-dagmc-mesher backend:</span>
+
 <span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01),</span>
 <span class="sd">                  in the units of the scaled geometry (see scale_factor above).</span>
 <span class="sd">                  With scale_factor=100 the 0.01 default is a 0.1 mm deflection,</span>
@@ -2602,7 +2594,7 @@
 <span class="sd">            ValueError: If invalid parameter combinations are used.</span>
 <span class="sd">        """</span>
 
-        <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">)</span>
+        <span class="n">resolved_imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="p">)</span>
 
         <span class="c1"># Define all acceptable kwargs</span>
         <span class="n">gmsh_keys</span> <span class="o">=</span> <span class="p">{</span>
@@ -2799,10 +2791,12 @@
             <span class="c1"># Use gmsh</span>
             <span class="k">if</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"gmsh"</span><span class="p">:</span>
                 <span class="c1"># If assembly is not to be imprinted, pass through the assembly as-is</span>
-                <span class="k">if</span> <span class="n">imprint</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">imprint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">"Imprinting assembly for mesh generation"</span><span class="p">)</span>
                     <span class="n">imprinted_assembly</span><span class="p">,</span> <span class="n">imprinted_solids_with_org_id</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">imprint_assembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">)</span>
+                        <span class="n">imprint_assembly</span><span class="p">(</span>
+                            <span class="n">assembly</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">resolved_imprint_threads</span><span class="p">,</span> <span class="n">glue</span><span class="o">=</span><span class="n">imprint</span>
+                        <span class="p">)</span>
                     <span class="p">)</span>
 
                     <span class="n">scrambled_ids</span> <span class="o">=</span> <span class="n">get_ids_from_imprinted_assembly</span><span class="p">(</span>
@@ -3037,7 +3031,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
     <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
-    <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.</span>
 
@@ -3083,23 +3077,13 @@
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
     <span class="p">]</span>
 
-    <span class="c1"># Adapt the existing bool/int exporter API to mesher 0.3.5. The mesher</span>
-    <span class="c1"># scopes its own thread limit; preserve the caller's pool for imprint=True.</span>
-    <span class="n">imprint_options</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">"threads"</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">imprint_threads</span> <span class="k">if</span> <span class="n">imprint_threads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">OSD_ThreadPool</span><span class="o">.</span><span class="n">DefaultPool_s</span><span class="p">()</span><span class="o">.</span><span class="n">NbThreads</span><span class="p">()</span>
-            <span class="p">),</span>
-            <span class="s2">"glue"</span><span class="p">:</span> <span class="s2">"partial"</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">imprint</span> <span class="k">else</span> <span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="c1"># The mesher owns its imprint thread scope; do not limit meshing here.</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
             <span class="n">assembly</span><span class="p">,</span>
             <span class="n">solid_config</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
-            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint_options</span><span class="p">,</span>
+            <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
+            <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"vertices"</span><span class="p">],</span>

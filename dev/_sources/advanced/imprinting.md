@@ -14,19 +14,35 @@ Without imprinting, adjacent volumes might have incompatible meshes at their int
 
 ## Default Behavior
 
-Imprinting is enabled by default:
+Imprinting is enabled by default for `export_dagmc_h5m_file()`,
+`export_gmsh_mesh_file()`, and `export_unstructured_mesh_file()`. Omitting the
+options uses `imprint="partial"` and `imprint_threads="all"`:
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint=True,  # Default
+    imprint="partial",      # Default glue mode
+    imprint_threads="all",  # Default imprint thread count
 )
 ```
 
+`imprint` selects the glue mode or skips imprinting. The separate
+`imprint_threads` argument is keyword-only on all three export methods.
+
+| Parameter | Accepted values | Default |
+|-----------|-----------------|---------|
+| `imprint` | `"partial"`, `"full"`, `None` (glue off, imprinting still runs), or `False` (skip imprinting) | `"partial"` |
+| `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `"all"` |
+
+`imprint=True`, integer shorthand, and dictionaries are not accepted. Use a
+scalar `imprint` mode and the separate `imprint_threads` keyword instead.
+`imprint_threads` is validated even when `imprint=False`; booleans, zero,
+negative integers, floats, and `None` are invalid thread settings.
+
 ## Disabling Imprinting
 
-For geometries that don't need it:
+For geometries that don't need it, use `imprint=False`:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -38,19 +54,74 @@ model.export_dagmc_h5m_file(
 
 ## Limiting the Threads Used by Imprinting
 
-Imprinting runs in parallel and its peak RAM scales with the number of threads. Large models can run out of memory when imprinting on all cores, so a positive int can be passed instead of `True` to imprint with that many threads:
+Imprinting runs in parallel and its peak RAM scales with the number of threads.
+Large models can run out of memory when imprinting on all logical processors.
+Set `imprint_threads` to a positive integer without changing the glue mode:
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint=1,  # imprint on a single thread, the lowest peak RAM
+    imprint_threads=1,  # Lower peak RAM; keeps the default partial glue
 )
 ```
 
-`imprint=1` uses the least memory and is the slowest, `imprint=True` uses all available cores and is the fastest. Values in between trade the two off, for example `imprint=4`.
+One thread generally uses less memory at the cost of speed. Larger positive
+integers trade memory for parallelism, for example `imprint_threads=4`.
 
-Only the imprint is limited. The meshing that follows it keeps all its threads on every backend, and the thread count is restored once the imprint is done so the cadquery operations that follow are not limited either. Note that `imprint=0` is not accepted: `0` cannot be told apart from `False` in Python, so use `imprint=False` to turn imprinting off.
+`imprint_threads="all"` requests all OpenCASCADE logical processors, even if the
+current pool is limited. On both backends, thread settings apply only during
+imprinting; the previous pool size is restored afterwards, including on errors.
+Meshing and later CadQuery operations keep their own thread settings.
+
+## Choosing the Imprint Glue
+
+Set `imprint` according to how the solids meet:
+
+| `imprint` | What it does | Geometry requirement |
+|----------------|--------------|----------|
+| `"partial"` (default) | Glues fully or partly coincident faces | Touching solids without crossing faces or overlaps |
+| `"full"` | Skips edge and face intersections | Shared whole faces must coincide exactly; partly coincident faces are not split |
+| `None` | No glue; runs general intersection checks | Geometry requiring general intersection rather than glue assumptions |
+
+`imprint=None` means **glue off**, not "use the default". Imprinting still runs.
+On CadQuery with selectable glue, omitting its `glue` argument defaults to
+`"partial"`; explicitly passing `glue=None` disables the glue optimisation.
+Likewise, omitting this package's `imprint` argument selects `"partial"`, while
+`imprint=False` disables imprinting entirely.
+
+Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
+overlaps in the CAD model before exporting.
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint=None,      # Glue off; requires selectable CadQuery glue
+    imprint_threads=4,
+)
+```
+
+### CadQuery compatibility
+
+CadQuery's legacy imprint always uses partial glue. On multi-solid
+geometry, `"full"` and `None` raise `RuntimeError`; CadQuery with the
+selectable glue API supports all three modes. Support is detected from the
+installed imprint signature, not the version string.
+
+## Migrating from the Previous API
+
+| Previous call | Replacement |
+|---------------|-------------|
+| `imprint=True` | Omit `imprint` |
+| `imprint=4` | `imprint_threads=4` |
+| `imprint=False` | Unchanged |
+
+Note that `imprint=True` used to leave the OpenCASCADE thread pool as you had
+set it. The default `imprint_threads="all"` now uses every logical processor for
+the imprint, even if you limited the pool beforehand, then restores your pool
+afterwards. To keep a lower limit for the imprint, pass it explicitly, for
+example `imprint_threads=2`.
 
 ## When to Disable Imprinting
 
@@ -68,7 +139,9 @@ Only the imprint is limited. The meshing that follows it keeps all its threads o
 
 Imprinting can be computationally expensive for complex geometries with many touching volumes. Disabling it may speed up mesh generation, but only do so if you're certain volumes don't share surfaces.
 
-Peak RAM is usually the limit rather than time. If imprinting runs out of memory, lower the thread count with `imprint=1` before reaching for `imprint=False`, which changes the resulting geometry.
+Peak RAM is usually the limit rather than time. If imprinting runs out of memory,
+try `imprint_threads=1` before reaching for
+`imprint=False`, which changes the resulting geometry.
 
 ## Imprinting and Material Tag Order
 
@@ -96,14 +169,14 @@ model.add_cadquery_object(assembly, material_tags=["mat1", "mat2"])
 # Imprinting ensures the shared face is meshed consistently
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint=True,  # Important for adjacent volumes
+    imprint="partial",  # Also the default
 )
 ```
 
 ## Meshing Geometry You Imprinted Yourself
 
 If you need more control over the imprint than cad_to_dagmc gives you, for
-example a different glue option, a fuzzy tolerance, or a tool other than
+example a fuzzy tolerance or a tool other than
 CadQuery, you can imprint the geometry yourself, save it as a BREP file, and
 mesh it with `imprint=False`.
 
