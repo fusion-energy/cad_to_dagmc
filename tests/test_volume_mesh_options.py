@@ -312,7 +312,8 @@ def test_volume_options_with_selected_touching_volumes(
     selection = {"volumes": [1]} if exporter == "vtk" else {"unstructured_volumes": ["steel"]}
     _export(
         model, exporter, tmp_path,
-        imprint=True,
+        imprint="partial",
+        imprint_threads="all",
         mesh_algorithm_3d=algorithm,
         volume_mesh_options={
             "Mesh.MeshSizeMax": 1e22,

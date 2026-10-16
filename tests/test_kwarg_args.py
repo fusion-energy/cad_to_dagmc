@@ -1,4 +1,5 @@
 import warnings
+from unittest.mock import Mock
 
 import cadquery as cq
 import pytest
@@ -244,6 +245,21 @@ class TestKwargsExportDagmcH5mFile:
             warning for warning in w if "meshing backend" in str(warning.message)
         ]
 
+    def test_imprint_threads_alone_does_not_select_a_backend(self, tmp_path, monkeypatch, capsys):
+        """A shared imprint option leaves the default mesher choice unchanged."""
+        monkeypatch.setattr("cad_to_dagmc.core._cad_to_dagmc_mesher_is_available", lambda: True)
+        guard = Mock(side_effect=RuntimeError("backend selected"))
+        monkeypatch.setattr("cad_to_dagmc.core.get_ids_from_assembly", guard)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            with pytest.raises(RuntimeError, match="backend selected"):
+                self.my_model.export_dagmc_h5m_file(
+                    filename=str(tmp_path / "shared_imprint_threads.h5m"), imprint_threads=1,
+                )
+        guard.assert_called_once()
+        assert "Using meshing backend: cad-to-dagmc-mesher" in capsys.readouterr().out
+        assert not list(tmp_path.iterdir())
+
     def test_invalid_meshing_backend_raises_error(self, tmp_path):
         """Test that invalid meshing backend raises ValueError"""
         output_file = tmp_path / "test_invalid_backend.h5m"
@@ -316,7 +332,8 @@ class TestKwargsExportDagmcH5mFile:
             mesh_algorithm=1,
             method="file",
             scale_factor=1.5,
-            imprint=True,
+            imprint="partial",
+            imprint_threads="all",
             implicit_complement_material_tag="air",
         )
 
