@@ -4,9 +4,9 @@ This example creates the same geometry and exports it using both available
 h5m backends: 'pymoab' and 'h5py'.
 
 The pymoab backend uses the PyMOAB library (Python bindings to MOAB) to write
-the h5m file. This is the traditional approach and requires MOAB to be installed.
+the h5m file and requires MOAB to be installed.
 
-The h5py backend writes the h5m file directly using h5py, without requiring
+The h5py backend (the default) writes the h5m file directly using h5py, without requiring
 MOAB/PyMOAB. This can be useful when MOAB is difficult to install or when
 you want to avoid the MOAB dependency.
 
@@ -30,7 +30,7 @@ assembly.add(sphere2)
 my_model = CadToDagmc()
 my_model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1", "mat2"])
 
-# Export using the pymoab backend (default)
+# Export using the pymoab backend
 # This requires PyMOAB to be installed
 my_model.export_dagmc_h5m_file(
     filename="dagmc_pymoab.h5m",
@@ -38,7 +38,7 @@ my_model.export_dagmc_h5m_file(
 )
 print("Created dagmc_pymoab.h5m using pymoab backend")
 
-# Export using the h5py backend
+# Export using the h5py backend (default)
 # This only requires h5py (no MOAB/PyMOAB needed)
 my_model.export_dagmc_h5m_file(
     filename="dagmc_h5py.h5m",
