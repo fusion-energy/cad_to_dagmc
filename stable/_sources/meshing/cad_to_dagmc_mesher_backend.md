@@ -110,7 +110,7 @@ memory. Scale the tolerance along with the geometry: for a metre-scale model
 exported with `scale_factor=100`, something like `tolerance=0.5` (5 mm) is a more
 reasonable starting point.
 
-The gmsh and cadquery backends take their linear mesh sizes in scaled-geometry
+The gmsh backend takes its linear mesh sizes in scaled-geometry
 units too, so a given number means the same deflection whichever backend you use.
 `angular_tolerance` is an angle and is unaffected by scaling.
 :::
@@ -120,7 +120,7 @@ units too, so a given number means the same deflection whichever backend you use
 When `meshing_backend` is not given, the tet arguments select this backend automatically:
 
 - `export_unstructured_mesh_file(..., target_edge_length=...)` uses cad-to-dagmc-mesher; without tet arguments it uses gmsh.
-- `export_dagmc_h5m_file(..., tet_volumes=..., target_edge_length=...)` uses cad-to-dagmc-mesher; mixing these with gmsh-specific arguments (for example `min_mesh_size`) raises an error asking for an explicit `meshing_backend`.
+- `export_dagmc_h5m_file(...)` uses cad-to-dagmc-mesher when given any of its arguments (`tolerance`, `angular_tolerance`, `tet_volumes`, `target_edge_length`) or no backend-specific arguments at all; mixing these with gmsh-specific arguments (for example `min_mesh_size`) raises an error asking for an explicit `meshing_backend`. If cad-to-dagmc-mesher is not installed, a call with no backend-specific arguments falls back to gmsh and warns.
 
 ## Advantages
 
@@ -142,6 +142,5 @@ When `meshing_backend` is not given, the tet arguments select this backend autom
 ## See Also
 
 - [GMSH Backend](gmsh_backend.md) - Full-featured meshing backend
-- [CadQuery Backend](cadquery_backend.md) - Surface-only tessellation backend
 - [Unstructured VTK](../outputs/unstructured_vtk.md) - Volume mesh output details
 - [Conformal Meshes](../outputs/conformal_meshes.md) - Matching surface and volume meshes

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Per-Volume Mesh Sizing &#8212; cad_to_dagmc 0.14.4 documentation</title>
+    <title>Per-Volume Mesh Sizing &#8212; cad_to_dagmc 0.15.0 documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=6b1698f2"></script>
+    <script src="../_static/documentation_options.js?v=615d7eff"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -57,10 +57,10 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Advanced Options" href="../advanced/index.html" />
-    <link rel="prev" title="CadQuery Backend" href="cadquery_backend.html" />
+    <link rel="prev" title="GMSH Backend" href="gmsh_backend.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.14.4" />
+  <meta name="docsearch:version" content="0.15.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -189,8 +189,8 @@
       
     
     
-    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
-    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
   
   
 </a></div>
@@ -237,7 +237,6 @@
 <li class="toctree-l1"><a class="reference internal" href="index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -447,7 +446,7 @@
 <p>Control mesh density for different volumes using the <code class="docutils literal notranslate"><span class="pre">set_size</span></code> parameter. This allows finer meshes where detail is needed and coarser meshes elsewhere.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Per-volume mesh sizing only works with the <strong>GMSH backend</strong>. The CadQuery backend ignores <code class="docutils literal notranslate"><span class="pre">set_size</span></code>.</p>
+<p>Per-volume mesh sizing only works with the <strong>GMSH backend</strong>. The cad-to-dagmc-mesher backend does not support <code class="docutils literal notranslate"><span class="pre">set_size</span></code>.</p>
 </div>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
@@ -634,12 +633,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cadquery_backend.html"
+       href="gmsh_backend.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">CadQuery Backend</p>
+        <p class="prev-next-title">GMSH Backend</p>
       </div>
     </a>
     <a class="right-next"

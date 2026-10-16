@@ -158,8 +158,7 @@ gmsh.finalize()
 ## Volume Meshing
 
 The GMSH backend writes tetrahedral volume meshes. The
-[cad-to-dagmc-mesher backend](cad_to_dagmc_mesher_backend.md) does too, the
-CadQuery backend does not:
+[cad-to-dagmc-mesher backend](cad_to_dagmc_mesher_backend.md) does too:
 
 ```python
 import cadquery as cq
@@ -251,6 +250,5 @@ cad-to-dagmc-mesher backends.
 ## See Also
 
 - [Mesh Sizing](mesh_sizing.md) - Per-volume mesh control
-- [CadQuery Backend](cadquery_backend.md) - Alternative meshing backend
 - [cad-to-dagmc-mesher Backend](cad_to_dagmc_mesher_backend.md) - Surface and volume meshing without GMSH
 - [Parallel Processing](../advanced/parallel_processing.md) - Thread control

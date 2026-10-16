@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Imprinting &#8212; cad_to_dagmc 0.15.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=615d7eff"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced/imprinting';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/logo.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Implicit Complement" href="implicit_complement.html" />
+    <link rel="prev" title="Geometry Scaling" href="geometry_scaling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.15.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Inputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../inputs/index.html">Input Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/index.html">Material Tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_scaling.html">Geometry Scaling</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Python API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/fusion-energy/cad_to_dagmc" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/advanced/imprinting.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Imprinting</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-imprinting">What is Imprinting?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-behavior">Default Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-imprinting">Disabling Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-the-threads-used-by-imprinting">Limiting the Threads Used by Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-from-the-previous-api">Migrating from the Previous API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="imprinting">
+<h1>Imprinting<a class="headerlink" href="#imprinting" title="Link to this heading">#</a></h1>
+<p>Imprinting ensures shared surfaces between adjacent volumes are meshed consistently. It’s enabled by default.</p>
+<section id="what-is-imprinting">
+<h2>What is Imprinting?<a class="headerlink" href="#what-is-imprinting" title="Link to this heading">#</a></h2>
+<p>When two volumes share a surface (e.g., two boxes touching), imprinting:</p>
+<ol class="arabic simple">
+<li><p>Identifies the shared surface</p></li>
+<li><p>Creates matching mesh elements on both sides</p></li>
+<li><p>Ensures particles can cross the boundary correctly</p></li>
+</ol>
+<p>Without imprinting, adjacent volumes might have incompatible meshes at their interface, causing particle tracking errors.</p>
+</section>
+<section id="default-behavior">
+<h2>Default Behavior<a class="headerlink" href="#default-behavior" title="Link to this heading">#</a></h2>
+<p>Imprinting is enabled by default for <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file()</span></code>, and <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code>. Omitting the
+options uses <code class="docutils literal notranslate"><span class="pre">imprint=&quot;partial&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code>:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>      <span class="c1"># Default glue mode</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>  <span class="c1"># Default imprint thread count</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">imprint</span></code> selects the glue mode or skips imprinting. The separate
+<code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> argument is keyword-only on all three export methods.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Accepted values</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code> (glue off, imprinting still runs), or <code class="docutils literal notranslate"><span class="pre">False</span></code> (skip imprinting)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or a strictly positive integer (numpy integers work); booleans are not accepted</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">imprint=True</span></code>, integer shorthand, and dictionaries are not accepted. Use a
+scalar <code class="docutils literal notranslate"><span class="pre">imprint</span></code> mode and the separate <code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> keyword instead.
+<code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> is validated even when <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>; booleans, zero,
+negative integers, floats, and <code class="docutils literal notranslate"><span class="pre">None</span></code> are invalid thread settings.</p>
+</section>
+<section id="disabling-imprinting">
+<h2>Disabling Imprinting<a class="headerlink" href="#disabling-imprinting" title="Link to this heading">#</a></h2>
+<p>For geometries that don’t need it, use <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="limiting-the-threads-used-by-imprinting">
+<h2>Limiting the Threads Used by Imprinting<a class="headerlink" href="#limiting-the-threads-used-by-imprinting" title="Link to this heading">#</a></h2>
+<p>Imprinting runs in parallel and its peak RAM scales with the number of threads.
+Large models can run out of memory when imprinting on all logical processors.
+Set <code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> to a positive integer without changing the glue mode:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Lower peak RAM; keeps the default partial glue</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>One thread generally uses less memory at the cost of speed. Larger positive
+integers trade memory for parallelism, for example <code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> requests all OpenCASCADE logical processors, even if the
+current pool is limited. On both backends, thread settings apply only during
+imprinting; the previous pool size is restored afterwards, including on errors.
+Meshing and later CadQuery operations keep their own thread settings.</p>
+</section>
+<section id="choosing-the-imprint-glue">
+<h2>Choosing the Imprint Glue<a class="headerlink" href="#choosing-the-imprint-glue" title="Link to this heading">#</a></h2>
+<p>Set <code class="docutils literal notranslate"><span class="pre">imprint</span></code> according to how the solids meet:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></th>
+<th class="head"><p>What it does</p></th>
+<th class="head"><p>Geometry requirement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code> (default)</p></td>
+<td><p>Glues fully or partly coincident faces</p></td>
+<td><p>Touching solids without crossing faces or overlaps</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code></p></td>
+<td><p>Skips edge and face intersections</p></td>
+<td><p>Shared whole faces must coincide exactly; partly coincident faces are not split</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>No glue; runs general intersection checks</p></td>
+<td><p>Geometry requiring general intersection rather than glue assumptions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">imprint=None</span></code> means <strong>glue off</strong>, not “use the default”. Imprinting still runs.
+On CadQuery with selectable glue, omitting its <code class="docutils literal notranslate"><span class="pre">glue</span></code> argument defaults to
+<code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>; explicitly passing <code class="docutils literal notranslate"><span class="pre">glue=None</span></code> disables the glue optimisation.
+Likewise, omitting this package’s <code class="docutils literal notranslate"><span class="pre">imprint</span></code> argument selects <code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, while
+<code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> disables imprinting entirely.</p>
+<p>Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
+overlaps in the CAD model before exporting.</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>      <span class="c1"># Glue off; requires selectable CadQuery glue</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="cadquery-compatibility">
+<h3>CadQuery compatibility<a class="headerlink" href="#cadquery-compatibility" title="Link to this heading">#</a></h3>
+<p>CadQuery’s legacy imprint always uses partial glue. On multi-solid
+geometry, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">None</span></code> raise <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>; CadQuery with the
+selectable glue API supports all three modes. Support is detected from the
+installed imprint signature, not the version string.</p>
+</section>
+</section>
+<section id="migrating-from-the-previous-api">
+<h2>Migrating from the Previous API<a class="headerlink" href="#migrating-from-the-previous-api" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Previous call</p></th>
+<th class="head"><p>Replacement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=True</span></code></p></td>
+<td><p>Omit <code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=4</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code></p></td>
+<td><p>Unchanged</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">imprint=True</span></code> used to leave the OpenCASCADE thread pool as you had
+set it. The default <code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> now uses every logical processor for
+the imprint, even if you limited the pool beforehand, then restores your pool
+afterwards. To keep a lower limit for the imprint, pass it explicitly, for
+example <code class="docutils literal notranslate"><span class="pre">imprint_threads=2</span></code>.</p>
+</section>
+<section id="when-to-disable-imprinting">
+<h2>When to Disable Imprinting<a class="headerlink" href="#when-to-disable-imprinting" title="Link to this heading">#</a></h2>
+<p><strong>Safe to disable when:</strong></p>
+<ul class="simple">
+<li><p>Single volume geometry</p></li>
+<li><p>Volumes don’t touch (separated in space)</p></li>
+<li><p>All volumes are independent (no shared surfaces)</p></li>
+</ul>
+<p><strong>Keep enabled when:</strong></p>
+<ul class="simple">
+<li><p>Adjacent volumes share surfaces</p></li>
+<li><p>Volumes are in contact</p></li>
+<li><p>You’re unsure</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">#</a></h2>
+<p>Imprinting can be computationally expensive for complex geometries with many touching volumes. Disabling it may speed up mesh generation, but only do so if you’re certain volumes don’t share surfaces.</p>
+<p>Peak RAM is usually the limit rather than time. If imprinting runs out of memory,
+try <code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code> before reaching for
+<code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>, which changes the resulting geometry.</p>
+</section>
+<section id="imprinting-and-material-tag-order">
+<h2>Imprinting and Material Tag Order<a class="headerlink" href="#imprinting-and-material-tag-order" title="Link to this heading">#</a></h2>
+<p>Imprinting may change the internal ordering of volumes. cad_to_dagmc handles this automatically, preserving the correct material tag assignments.</p>
+<p>If you’re using volume IDs in <code class="docutils literal notranslate"><span class="pre">set_size</span></code> or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>, be aware that imprinting may affect the volume numbering. Using material tag names instead of IDs is more robust.</p>
+</section>
+<section id="example-adjacent-boxes">
+<h2>Example: Adjacent Boxes<a class="headerlink" href="#example-adjacent-boxes" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="c1"># Two boxes sharing a face</span>
+<span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Adjacent to box1</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
+
+<span class="c1"># Imprinting ensures the shared face is meshed consistently</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>  <span class="c1"># Also the default</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="meshing-geometry-you-imprinted-yourself">
+<h2>Meshing Geometry You Imprinted Yourself<a class="headerlink" href="#meshing-geometry-you-imprinted-yourself" title="Link to this heading">#</a></h2>
+<p>If you need more control over the imprint than cad_to_dagmc gives you, for
+example a fuzzy tolerance or a tool other than
+CadQuery, you can imprint the geometry yourself, save it as a BREP file, and
+mesh it with <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="c1"># A small box sitting on part of a big box's top face, so imprinting has to</span>
+<span class="c1"># split that face</span>
+<span class="n">big</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">small</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">transformed</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">big</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small</span><span class="p">)</span>
+
+<span class="c1"># Imprint however you like, here with CadQuery's own imprint</span>
+<span class="n">imprinted</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">occ_impl</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">imprint</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+<span class="n">imprinted</span><span class="o">.</span><span class="n">exportBrep</span><span class="p">(</span><span class="s2">"imprinted.brep"</span><span class="p">)</span>
+
+<span class="c1"># Later, possibly in another script, load the imprinted geometry</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
+    <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importBrep</span><span class="p">(</span><span class="s2">"imprinted.brep"</span><span class="p">),</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"big"</span><span class="p">,</span> <span class="s2">"small"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># The geometry is already imprinted, so do not imprint it again</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"pre_imprinted.h5m"</span><span class="p">,</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This works because a BREP file keeps the topology the imprint created: the face
+two solids share is stored once and referenced by both, which is what gives
+the DAGMC surface between them a sense for each volume. Both the
+cad-to-dagmc-mesher and GMSH backends support this, including with
+<code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use BREP, not STEP. A STEP file stores each solid separately, so the shared
+face comes back as two coincident copies, one per solid. With <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>
+these become two one sided DAGMC surfaces rather than one surface shared by
+both volumes, and particles crossing the interface are not handed to the
+neighbouring volume. Nothing reports this, the file is written as normal.</p>
+</div>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Meshing options</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Using material tags vs volume IDs</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geometry_scaling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Geometry Scaling</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="implicit_complement.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Implicit Complement</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-imprinting">What is Imprinting?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-behavior">Default Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-imprinting">Disabling Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-the-threads-used-by-imprinting">Limiting the Threads Used by Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-from-the-previous-api">Migrating from the Previous API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Fusion Energy
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fusion Energy.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

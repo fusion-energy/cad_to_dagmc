@@ -1,6 +1,8 @@
 # Parallel Processing
 
-Both CadQuery and GMSH use parallel processing for operations like imprinting and meshing. By default, they use all available CPU cores.
+Both CadQuery and GMSH use parallel processing for operations like imprinting
+and meshing. By default, imprinting explicitly requests the OpenCASCADE logical
+processor count; meshing has separate thread controls.
 
 ## When to Limit Threads
 
@@ -10,21 +12,26 @@ Both CadQuery and GMSH use parallel processing for operations like imprinting an
 
 ## Limiting Imprinting Threads
 
-Imprinting is usually the most memory hungry parallel step. The export methods take the thread count directly on the `imprint` argument, so there is no need to change any global setting:
+Imprinting is usually the most memory hungry parallel step. Set the keyword-only
+`imprint_threads` argument without changing a global setting:
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint=1,  # imprint on a single thread, the lowest peak RAM
+    imprint_threads=1,  # Lower peak RAM
 )
 ```
 
-Only the imprint is limited, the meshing keeps all its threads on every backend, and the previous thread count is restored once the imprint is done. See [Imprinting](imprinting.md) for details.
+Only imprinting is limited; meshing uses its own settings on both backends. The
+previous pool size is restored afterwards, including on errors. By default,
+`imprint_threads="all"` requests all logical processors, overriding an existing limit.
+See [Imprinting](imprinting.md) for the available options.
 
 ## Limiting CadQuery Threads
 
-To limit every CadQuery operation rather than just the imprint, CadQuery provides a `setThreads` function:
+For other CadQuery operations, use `setThreads` to configure the OpenCASCADE
+thread pool:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -97,8 +104,8 @@ gmsh.option.setNumber("Mesh.MaxNumThreads3D", 4)
 
 | Component | Method | When Applied |
 |-----------|--------|--------------|
-| Imprinting | `imprint=<int>` export argument | For the duration of the imprint only |
-| CadQuery | `setThreads()` | Any time before operations |
+| Imprinting | `imprint_threads=4` | For the duration of the imprint only |
+| CadQuery | `setThreads()` | Before other CadQuery operations |
 | CadQuery | `OSD_ThreadPool.DefaultPool_s()` | Before importing CadQuery |
 | CadQuery | `OMP_NUM_THREADS` env var | Before Python starts |
 | GMSH | `General.NumThreads` | After GMSH initialization |

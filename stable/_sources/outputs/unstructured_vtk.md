@@ -150,7 +150,8 @@ model.export_unstructured_mesh_file(
     set_size=None,            # Per-volume sizes (gmsh backend)
     volumes=None,             # Specific volumes to include (gmsh backend)
     scale_factor=1.0,         # Geometry scaling
-    imprint=True,             # Imprint shared surfaces
+    imprint="partial",        # Imprint shared surfaces
+    imprint_threads="all",    # Keyword-only imprint thread count
     method="file",            # CAD transfer method (gmsh backend)
     meshing_backend=None,     # "gmsh", "cad-to-dagmc-mesher" or auto-select
     target_edge_length=None,  # Tet edge length (cad-to-dagmc-mesher backend)
@@ -171,7 +172,8 @@ model.export_unstructured_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | bool or int | True | Imprint shared surfaces. An int limits the imprint to that many threads |
+| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
+| `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
 | `method` | str | "file" | CAD transfer method (gmsh) |
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
 | `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |

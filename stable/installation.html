@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installation &#8212; cad_to_dagmc 0.14.4 documentation</title>
+    <title>Installation &#8212; cad_to_dagmc 0.15.0 documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=6b1698f2"></script>
+    <script src="_static/documentation_options.js?v=615d7eff"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="CAD to DAGMC" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.14.4" />
+  <meta name="docsearch:version" content="0.15.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -189,8 +189,8 @@
       
     
     
-    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
-    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
+    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
   
   
 </a></div>
@@ -237,7 +237,6 @@
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -445,6 +444,7 @@ with pip or with Conda/Mamba. Both are supported, pip is the more popular route.
 <a class="reference internal" href="#optional-packages">Optional packages</a> below.</p>
 <section id="install-using-pip">
 <h2>Install using pip<a class="headerlink" href="#install-using-pip" title="Link to this heading">#</a></h2>
+<!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>cad_to_dagmc
 </pre></div>
 </div>
@@ -516,7 +516,7 @@ above serves wheels for it so pip installing it is still a one liner.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>cad-to-dagmc-mesher is not on conda-forge. Without it, a call that names no meshing
-backend falls back to the cadquery backend and warns. pip installing it works alongside
+backend falls back to the gmsh backend and warns. pip installing it works alongside
 a Conda/Mamba installation.</p>
 </div>
 </section>

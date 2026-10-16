@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CAD to DAGMC &#8212; cad_to_dagmc 0.14.4 documentation</title>
+    <title>CAD to DAGMC &#8212; cad_to_dagmc 0.15.0 documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=6b1698f2"></script>
+    <script src="_static/documentation_options.js?v=615d7eff"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -59,7 +59,7 @@
     <link rel="next" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.14.4" />
+  <meta name="docsearch:version" content="0.15.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -190,8 +190,8 @@
       
     
     
-    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
-    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.14.4 documentation - Home"/>
+    <img src="_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.0 documentation - Home"/>
   
   
 </a></div>
@@ -238,7 +238,6 @@
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
@@ -451,9 +450,9 @@ to a DAGMC h5m file.</p>
 together with a conformal unstructured mesh vtk file from a single meshing call.
 Pass <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> on the cad-to-dagmc-mesher backend,
 or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the gmsh backend, and it returns both filenames. See <a class="reference internal" href="outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>.</p>
-<a class="only-light reference internal image-reference" href="_images/workflow_light.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-light" src="_images/workflow_light.png" style="width: 100%;" />
+<a class="only-light reference internal image-reference" href="_images/workflow_light.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-light" src="_images/workflow_light.png" style="width: 100%;" />
 </a>
-<a class="only-dark reference internal image-reference" href="_images/workflow_dark.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher, gmsh or cadquery backend. All three write DAGMC h5m files through the h5py or pymoab writer. The cad-to-dagmc-mesher and gmsh backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-dark" src="_images/workflow_dark.png" style="width: 100%;" />
+<a class="only-dark reference internal image-reference" href="_images/workflow_dark.png"><img alt="CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer." class="only-dark" src="_images/workflow_dark.png" style="width: 100%;" />
 </a>
 </section>
 <section id="key-features">
@@ -471,10 +470,10 @@ or <code class="docutils literal notranslate"><span class="pre">unstructured_vol
 <tr class="row-odd"><td><p>- CadQuery objects<br>- STEP files<br>- GMSH mesh files</p></td>
 <td><p>- Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Three Meshing Backends</strong></p></td>
+<tr class="row-even"><td><p><strong>Two Meshing Backends</strong></p></td>
 <td><p><strong>Multiple Output Formats</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p>- cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing)<br>- CadQuery (simpler, direct)</p></td>
+<tr class="row-odd"><td><p>- cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing)</p></td>
 <td><p>- DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Two H5M Backends</strong></p></td>
@@ -700,16 +699,6 @@ or <code class="docutils literal notranslate"><span class="pre">unstructured_vol
 <li class="toctree-l2"><a class="reference internal" href="meshing/gmsh_backend.html#see-also">See Also</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/cadquery_backend.html">CadQuery Backend</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#advantages">Advantages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#limitations">Limitations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#when-to-use-cadquery-backend">When to Use CadQuery Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#comparison-example">Comparison Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meshing/cadquery_backend.html#see-also">See Also</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#basic-usage">Basic Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="meshing/mesh_sizing.html#specifying-volumes">Specifying Volumes</a></li>
@@ -745,6 +734,8 @@ or <code class="docutils literal notranslate"><span class="pre">unstructured_vol
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#default-behavior">Default Behavior</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#disabling-imprinting">Disabling Imprinting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#limiting-the-threads-used-by-imprinting">Limiting the Threads Used by Imprinting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#choosing-the-imprint-glue">Choosing the Imprint Glue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#migrating-from-the-previous-api">Migrating from the Previous API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#when-to-disable-imprinting">When to Disable Imprinting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#performance-considerations">Performance Considerations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced/imprinting.html#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>

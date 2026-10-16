@@ -3,7 +3,7 @@
 Control mesh density for different volumes using the `set_size` parameter. This allows finer meshes where detail is needed and coarser meshes elsewhere.
 
 :::{note}
-Per-volume mesh sizing only works with the **GMSH backend**. The CadQuery backend ignores `set_size`.
+Per-volume mesh sizing only works with the **GMSH backend**. The cad-to-dagmc-mesher backend does not support `set_size`.
 :::
 
 ## Basic Usage
