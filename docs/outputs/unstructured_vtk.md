@@ -172,7 +172,7 @@ model.export_unstructured_mesh_file(
 | `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
 | `volumes` | list | None | Specific volumes to mesh (gmsh) |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | str, None, or False | `"partial"` | Shared-surface imprint mode. See [Imprinting](../advanced/imprinting.md) for options. |
+| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
 | `imprint_threads` | `"all"` or positive Python `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
 | `method` | str | "file" | CAD transfer method (gmsh) |
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |

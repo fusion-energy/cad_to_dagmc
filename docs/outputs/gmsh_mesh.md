@@ -96,7 +96,7 @@ model.export_gmsh_mesh_file(
 | `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `dimensions=3` |
 | `set_size` | dict | None | Per-volume mesh sizes |
 | `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | str, None, or False | `"partial"` | Shared-surface imprint mode. See [Imprinting](../advanced/imprinting.md) for options. |
+| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
 | `imprint_threads` | `"all"` or positive Python `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
 | `method` | str | "file" | CAD transfer method |
 
