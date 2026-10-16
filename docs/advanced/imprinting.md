@@ -115,8 +115,13 @@ installed imprint signature, not the version string.
 |---------------|-------------|
 | `imprint=True` | Omit `imprint` |
 | `imprint=4` | `imprint_threads=4` |
-| `imprint={"threads": 4, "glue": "full"}` | `imprint="full", imprint_threads=4` |
 | `imprint=False` | Unchanged |
+
+Note that `imprint=True` used to leave the OpenCASCADE thread pool as you had
+set it. The default `imprint_threads="all"` now uses every logical processor for
+the imprint, even if you limited the pool beforehand, then restores your pool
+afterwards. To keep a lower limit for the imprint, pass it explicitly, for
+example `imprint_threads=2`.
 
 ## When to Disable Imprinting
 
