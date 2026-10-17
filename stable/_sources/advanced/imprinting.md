@@ -35,8 +35,6 @@ model.export_dagmc_h5m_file(
 | `imprint` | `"partial"`, `"full"`, `None` (glue off, imprinting still runs), or `False` (skip imprinting) | `"partial"` |
 | `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `"all"` |
 
-`imprint=True`, integer shorthand, and dictionaries are not accepted. Use a
-scalar `imprint` mode and the separate `imprint_threads` keyword instead.
 `imprint_threads` is validated even when `imprint=False`; booleans, zero,
 negative integers, floats, and `None` are invalid thread settings.
 
@@ -108,20 +106,6 @@ CadQuery's legacy imprint always uses partial glue. On multi-solid
 geometry, `"full"` and `None` raise `RuntimeError`; CadQuery with the
 selectable glue API supports all three modes. Support is detected from the
 installed imprint signature, not the version string.
-
-## Migrating from the Previous API
-
-| Previous call | Replacement |
-|---------------|-------------|
-| `imprint=True` | Omit `imprint` |
-| `imprint=4` | `imprint_threads=4` |
-| `imprint=False` | Unchanged |
-
-Note that `imprint=True` used to leave the OpenCASCADE thread pool as you had
-set it. The default `imprint_threads="all"` now uses every logical processor for
-the imprint, even if you limited the pool beforehand, then restores your pool
-afterwards. To keep a lower limit for the imprint, pass it explicitly, for
-example `imprint_threads=2`.
 
 ## When to Disable Imprinting
 
