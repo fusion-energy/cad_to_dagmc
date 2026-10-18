@@ -1536,22 +1536,12 @@ class CadToDagmc:
         if material_tags in ("assembly_names", "assembly_materials"):
             assembly = cq.Assembly()
             importStepAssembly(assembly, str(filename))
-            if scale_factor != 1.0:
-                # Scale each part in the assembly
-                scaled_assembly = cq.Assembly()
-                for child in assembly.children:
-                    scaled_shape = child.obj.scale(scale_factor)
-                    scaled_assembly.add(
-                        scaled_shape,
-                        name=child.name,
-                        color=child.color,
-                        loc=child.loc,
-                    )
-                    if hasattr(child, "material") and child.material is not None:
-                        scaled_assembly.children[-1].material = child.material
-                assembly = scaled_assembly
+            # add_cadquery_object scales the solids after placing them at their
+            # assembly locations, so nested parts and part locations scale too
             return self.add_cadquery_object(
-                cadquery_object=assembly, material_tags=material_tags
+                cadquery_object=assembly,
+                material_tags=material_tags,
+                scale_factor=scale_factor,
             )
 
         # Default behavior: load as compound/solid
