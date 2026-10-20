@@ -1938,22 +1938,12 @@
         <span class="k">if</span> <span class="n">material_tags</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"assembly_names"</span><span class="p">,</span> <span class="s2">"assembly_materials"</span><span class="p">):</span>
             <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
             <span class="n">importStepAssembly</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
-                <span class="c1"># Scale each part in the assembly</span>
-                <span class="n">scaled_assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-                    <span class="n">scaled_shape</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span>
-                    <span class="n">scaled_assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                        <span class="n">scaled_shape</span><span class="p">,</span>
-                        <span class="n">name</span><span class="o">=</span><span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">child</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
-                        <span class="n">loc</span><span class="o">=</span><span class="n">child</span><span class="o">.</span><span class="n">loc</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s2">"material"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">material</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">scaled_assembly</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">material</span>
-                <span class="n">assembly</span> <span class="o">=</span> <span class="n">scaled_assembly</span>
+            <span class="c1"># add_cadquery_object scales the solids after placing them at their</span>
+            <span class="c1"># assembly locations, so nested parts and part locations scale too</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
-                <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="n">material_tags</span>
+                <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                <span class="n">material_tags</span><span class="o">=</span><span class="n">material_tags</span><span class="p">,</span>
+                <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="c1"># Default behavior: load as compound/solid</span>
