@@ -152,3 +152,85 @@ def test_stp_file_with_manual_tags_still_works():
         mat_values = set(vol_mats.values())
         assert "mat:custom_mat1" in mat_values
         assert "mat:custom_mat2" in mat_values
+
+
+def _bounds(shapes):
+    bb = cq.Compound.makeCompound(shapes).BoundingBox()
+    return (bb.xmin, bb.ymin, bb.zmin, bb.xmax, bb.ymax, bb.zmax)
+
+
+def test_stp_file_with_assembly_names_scales_part_locations():
+    """A part placed by its assembly location must move when scaled.
+
+    Scaling only the part's shape and not its location left the part at its
+    unscaled position, so the tagged geometry no longer matched the geometry
+    loaded with a list of tags.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        stp_file = Path(tmpdir) / "test_assembly.stp"
+
+        assembly = cq.Assembly()
+        assembly.add(
+            cq.Workplane().box(10, 10, 10),
+            name="steel",
+            loc=cq.Location((100, 0, 0)),
+        )
+        assembly.export(str(stp_file), exportType="STEP")
+
+        named = CadToDagmc()
+        named.add_stp_file(
+            filename=str(stp_file),
+            material_tags="assembly_names",
+            scale_factor=0.1,
+        )
+        listed = CadToDagmc()
+        listed.add_stp_file(
+            filename=str(stp_file),
+            material_tags=["steel"],
+            scale_factor=0.1,
+        )
+
+        assert named.material_tags == ["steel"]
+        assert _bounds(named.parts) == pytest.approx((9.5, -0.5, -0.5, 10.5, 0.5, 0.5))
+        assert _bounds(named.parts) == pytest.approx(_bounds(listed.parts))
+
+
+def test_stp_file_with_nested_assembly_names_and_scale_factor():
+    """Parts inside a sub-assembly keep their tags and positions when scaled."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        stp_file = Path(tmpdir) / "test_assembly.stp"
+
+        blanket = cq.Assembly(name="blanket")
+        blanket.add(cq.Workplane().box(10, 10, 10), name="breeder")
+        blanket.add(
+            cq.Workplane().box(10, 10, 2),
+            name="first_wall",
+            loc=cq.Location((0, 0, 6)),
+        )
+        assembly = cq.Assembly()
+        assembly.add(blanket, loc=cq.Location((100, 0, 0)))
+        assembly.add(cq.Workplane().box(5, 5, 5), name="coil")
+        assembly.export(str(stp_file), exportType="STEP")
+
+        unscaled = CadToDagmc()
+        unscaled.add_stp_file(
+            filename=str(stp_file),
+            material_tags="assembly_names",
+        )
+        scaled = CadToDagmc()
+        scaled.add_stp_file(
+            filename=str(stp_file),
+            material_tags="assembly_names",
+            scale_factor=0.1,
+        )
+
+        assert scaled.material_tags == ["breeder", "first_wall", "coil"]
+        assert scaled.material_tags == unscaled.material_tags
+        # the breeder sits at the sub-assembly's location, x = 100 before scaling
+        assert _bounds([scaled.parts[0]]) == pytest.approx(
+            (9.5, -0.5, -0.5, 10.5, 0.5, 0.5)
+        )
+        assert len(scaled.parts) == len(unscaled.parts) == 3
+        for part, unscaled_part in zip(scaled.parts, unscaled.parts):
+            expected = tuple(0.1 * v for v in _bounds([unscaled_part]))
+            assert _bounds([part]) == pytest.approx(expected)
