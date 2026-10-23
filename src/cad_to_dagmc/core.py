@@ -2166,23 +2166,10 @@ class CadToDagmc:
                   (dagmc_filename, umesh_filename) tuple.
                 - umesh_filename (str): filename for the unstructured volume mesh
                   (default: 'umesh.vtk').
-                - auto_refine (bool): re-mesh solids whose facets fold back,
-                  where DAGMC loses particles, at finer tolerances until they
-                  stop folding (the mesher's default: True). False gives
-                  exactly the mesh the tolerances describe.
-                - memory_budget_gb (float): peak memory a refinement round may
-                  use. With a budget, refinement stops early when a round would
-                  exceed it, and a UserWarning says the mesh is less refined
-                  than the inputs ask for. Without one (the default), the mesh
-                  never depends on how much memory is free. A round that cannot
-                  fit raises instead (cad-to-dagmc-mesher >= the release with
-                  deterministic refinement).
-                - max_refine_rounds (int): cap on refinement rounds (the
-                  mesher's default: 4).
 
-                After meshing, ``self.refinement`` holds the mesher's report
-                (rounds, convergence, remaining folds, whether memory stopped
-                it, final per-solid tolerances), or None if no refinement ran.
+                After meshing, ``self.refinement`` holds the mesher's
+                auto-refine report (rounds, convergence, remaining folds,
+                final per-solid tolerances), or None if no refinement ran.
 
         Returns:
             str: the filename(s) for the files created.
@@ -2206,8 +2193,7 @@ class CadToDagmc:
             "unstructured_volumes",
             "threads",
         }
-        cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length",
-                                    "auto_refine", "memory_budget_gb", "max_refine_rounds"}
+        cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length"}
         all_acceptable_keys = gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
 
         # A report from an earlier export must not outlive it.
@@ -2468,13 +2454,6 @@ class CadToDagmc:
                     names=_solid_names(self.material_tags),
                 )
 
-                # Only what the caller set, so the mesher's own defaults apply
-                # otherwise.
-                refine_options = {
-                    key: kwargs[key]
-                    for key in ("auto_refine", "memory_budget_gb", "max_refine_rounds")
-                    if key in kwargs
-                }
                 vertices, triangles_by_solid_by_face, material_tags_in_brep_order, tet_data = (
                     _mesh_with_cad_to_dagmc_mesher(
                         assembly=mesher_assembly,
@@ -2485,7 +2464,6 @@ class CadToDagmc:
                         target_edge_length=target_edge_length,
                         imprint=imprint,
                         imprint_threads=imprint_threads,
-                        refine_options=refine_options,
                         report=self,
                     )
                 )
@@ -2631,7 +2609,7 @@ def _solid_names(material_tags) -> list[str]:
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
     tet_volumes, target_edge_length, imprint, imprint_threads="all",
-    refine_options=None, report=None,
+    report=None,
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.
 
@@ -2641,9 +2619,8 @@ def _mesh_with_cad_to_dagmc_mesher(
     when no solids were volume-meshed. Volume meshing only happens when both
     ``tet_volumes`` and ``target_edge_length`` are supplied.
 
-    ``refine_options`` is passed to ``mesh_assembly`` (``auto_refine``,
-    ``memory_budget_gb``, ``max_refine_rounds``). When ``report`` is given, its
-    ``refinement`` attribute is set to the mesher's refinement report.
+    When ``report`` is given, its ``refinement`` attribute is set to the
+    mesher's auto-refine report.
     """
     try:
         from cad_to_dagmc_mesher.cad import (
@@ -2688,24 +2665,10 @@ def _mesh_with_cad_to_dagmc_mesher(
             solid_config=configs,
             imprint=imprint,
             imprint_threads=imprint_threads,
-            **(refine_options or {}),
         )
         refinement = result.get("refinement")
         if report is not None:
             report.refinement = refinement
-        if refinement and refinement.get("memory_limited"):
-            # The mesher printed this; a warning is what a script or a test
-            # can actually see. A mesh cut short by memory is less refined
-            # than the inputs ask for, and may lose DAGMC particles.
-            warnings.warn(
-                "Mesh refinement stopped at memory_budget_gb with "
-                f"{refinement.get('remaining_folds')} fold edge(s) left, so "
-                "this mesh is less refined than the inputs ask for and DAGMC "
-                "may lose particles on it. Raise memory_budget_gb, or leave "
-                "it unset so a round that does not fit raises instead.",
-                UserWarning,
-                stacklevel=3,
-            )
         return (
             result["vertices"],
             result["triangles_by_solid_by_face"],
