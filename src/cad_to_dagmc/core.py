@@ -1506,6 +1506,9 @@ class CadToDagmc:
     def __init__(self):
         self.parts = []
         self.material_tags = []
+        # The cad-to-dagmc-mesher refinement report from the last export, or
+        # None when no refinement ran.
+        self.refinement = None
 
     def add_stp_file(
         self,
@@ -2164,6 +2167,10 @@ class CadToDagmc:
                 - umesh_filename (str): filename for the unstructured volume mesh
                   (default: 'umesh.vtk').
 
+                After meshing, ``self.refinement`` holds the mesher's
+                auto-refine report (rounds, convergence, remaining folds,
+                final per-solid tolerances), or None if no refinement ran.
+
         Returns:
             str: the filename(s) for the files created.
 
@@ -2188,6 +2195,9 @@ class CadToDagmc:
         }
         cad_to_dagmc_mesher_keys = {"tolerance", "angular_tolerance", "tet_volumes", "target_edge_length"}
         all_acceptable_keys = gmsh_keys | cad_to_dagmc_mesher_keys | {"meshing_backend", "h5m_backend"}
+
+        # A report from an earlier export must not outlive it.
+        self.refinement = None
 
         # Check for invalid kwargs
         invalid_keys = set(kwargs.keys()) - all_acceptable_keys
@@ -2454,6 +2464,7 @@ class CadToDagmc:
                         target_edge_length=target_edge_length,
                         imprint=imprint,
                         imprint_threads=imprint_threads,
+                        report=self,
                     )
                 )
 
@@ -2598,6 +2609,7 @@ def _solid_names(material_tags) -> list[str]:
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
     tet_volumes, target_edge_length, imprint, imprint_threads="all",
+    report=None,
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.
 
@@ -2606,6 +2618,9 @@ def _mesh_with_cad_to_dagmc_mesher(
     (``{solid_id: {"vertices": ..., "tetrahedra": ..., ...}}``) or ``None``
     when no solids were volume-meshed. Volume meshing only happens when both
     ``tet_volumes`` and ``target_edge_length`` are supplied.
+
+    When ``report`` is given, its ``refinement`` attribute is set to the
+    mesher's auto-refine report.
     """
     try:
         from cad_to_dagmc_mesher.cad import (
@@ -2651,6 +2666,9 @@ def _mesh_with_cad_to_dagmc_mesher(
             imprint=imprint,
             imprint_threads=imprint_threads,
         )
+        refinement = result.get("refinement")
+        if report is not None:
+            report.refinement = refinement
         return (
             result["vertices"],
             result["triangles_by_solid_by_face"],
