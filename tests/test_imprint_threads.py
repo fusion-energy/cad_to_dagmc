@@ -118,7 +118,8 @@ def test_int_like_threads_are_accepted():
 def test_all_uses_logical_processors_not_the_current_pool(monkeypatch, processors):
     monkeypatch.setattr(OSD_Parallel, "NbLogicalProcessors_s", lambda: processors)
     with thread_limit(2):
-        assert resolve_imprint() == max(1, processors)
+        assert resolve_imprint(imprint_threads="all") == max(1, processors)
+        assert resolve_imprint() == 4
         assert _pool_threads() == 2
 
 
@@ -141,7 +142,7 @@ def test_invalid_threads_are_rejected_even_when_imprint_is_disabled(imprint, thr
 def test_public_signatures_have_scalar_defaults_and_keyword_only_threads(method):
     parameters = inspect.signature(getattr(CadToDagmc, method)).parameters
     assert parameters["imprint"].default == "partial"
-    assert parameters["imprint_threads"].default == "all"
+    assert parameters["imprint_threads"].default == 4
     assert parameters["imprint_threads"].kind is inspect.Parameter.KEYWORD_ONLY
     assert not {"glue", "imprint_glue"} & parameters.keys()
 

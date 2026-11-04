@@ -217,5 +217,5 @@ def test_mesher_adapter_forwards_raw_scalar_arguments(monkeypatch, imprint, impr
 def test_mesher_adapter_has_separate_threads_but_no_glue_keyword():
     parameters = inspect.signature(_mesh_with_cad_to_dagmc_mesher).parameters
     assert "imprint" in parameters
-    assert parameters["imprint_threads"].default == "all"
+    assert parameters["imprint_threads"].default == 4
     assert not {"glue", "imprint_glue"} & parameters.keys()

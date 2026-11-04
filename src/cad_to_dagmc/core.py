@@ -161,9 +161,15 @@ def combine_tet_meshes(tet_data):
     return vertices[keep], remap[inverse.reshape(-1)][tetrahedra]
 
 
+# Default imprint threads. The imprint's peak RAM grows with each OpenCASCADE
+# thread while its time stops improving after a few: on a 108-solid assembly,
+# 787, 454 and 292 s on 1, 2 and 4 threads at 4.2, 7.1 and 13.2 GB peak.
+IMPRINT_THREADS = 4
+
+
 def resolve_imprint(
     imprint: Literal["partial", "full", False] | None = "partial",
-    imprint_threads: int | Literal["all"] = "all",
+    imprint_threads: int | Literal["all"] = IMPRINT_THREADS,
 ) -> int:
     """Validate the mode and thread limit, including when imprinting is disabled.
 
@@ -1669,7 +1675,7 @@ class CadToDagmc:
         tolerance: float = 0.01,
         angular_tolerance: float = 0.2,
         *,
-        imprint_threads: int | Literal["all"] = "all",
+        imprint_threads: int | Literal["all"] = IMPRINT_THREADS,
         mesh_algorithm_3d: int = 1,
         volume_mesh_options: dict[str, float | str] | None = None,
     ):
@@ -1722,9 +1728,10 @@ class CadToDagmc:
                 RuntimeError before imprinting multiple solids. A single solid
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
-            imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive int.
-                Fewer threads reduce peak RAM at the cost of speed. The previous
+            imprint_threads: keyword-only thread limit for imprinting: a
+                positive int (default 4) or "all" (all OCC logical processors).
+                Each thread adds to the peak RAM, so "all" on a many-core
+                machine can need several times the memory for little gain. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
             set_size: a dictionary mapping volume IDs (int) or material tag names
@@ -1954,7 +1961,7 @@ class CadToDagmc:
         set_size: dict[int | str, float] | None = None,
         threads: int = 0,
         *,
-        imprint_threads: int | Literal["all"] = "all",
+        imprint_threads: int | Literal["all"] = IMPRINT_THREADS,
         mesh_algorithm_3d: int = 1,
         volume_mesh_options: dict[str, float | str] | None = None,
     ):
@@ -1993,9 +2000,10 @@ class CadToDagmc:
                 RuntimeError before imprinting multiple solids. A single solid
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
-            imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive int.
-                Fewer threads reduce peak RAM at the cost of speed. The previous
+            imprint_threads: keyword-only thread limit for imprinting: a
+                positive int (default 4) or "all" (all OCC logical processors).
+                Each thread adds to the peak RAM, so "all" on a many-core
+                machine can need several times the memory for little gain. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
             set_size: a dictionary mapping volume IDs (int) or material tag names
@@ -2078,7 +2086,7 @@ class CadToDagmc:
         scale_factor: float = 1.0,
         imprint: Literal["partial", "full", False] | None = "partial",
         *,
-        imprint_threads: int | Literal["all"] = "all",
+        imprint_threads: int | Literal["all"] = IMPRINT_THREADS,
         **kwargs,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
@@ -2107,9 +2115,10 @@ class CadToDagmc:
                 RuntimeError before imprinting multiple solids. A single solid
                 skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
-            imprint_threads: keyword-only thread limit for imprinting: "all"
-                (default, all OCC logical processors) or a positive int.
-                Fewer threads reduce peak RAM at the cost of speed. The previous
+            imprint_threads: keyword-only thread limit for imprinting: a
+                positive int (default 4) or "all" (all OCC logical processors).
+                Each thread adds to the peak RAM, so "all" on a many-core
+                machine can need several times the memory for little gain. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
 
@@ -2608,7 +2617,7 @@ def _solid_names(material_tags) -> list[str]:
 
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
-    tet_volumes, target_edge_length, imprint, imprint_threads="all",
+    tet_volumes, target_edge_length, imprint, imprint_threads=IMPRINT_THREADS,
     report=None,
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.

@@ -16,14 +16,14 @@ Without imprinting, adjacent volumes might have incompatible meshes at their int
 
 Imprinting is enabled by default for `export_dagmc_h5m_file()`,
 `export_gmsh_mesh_file()`, and `export_unstructured_mesh_file()`. Omitting the
-options uses `imprint="partial"` and `imprint_threads="all"`:
+options uses `imprint="partial"` and `imprint_threads=4`:
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     imprint="partial",      # Default glue mode
-    imprint_threads="all",  # Default imprint thread count
+    imprint_threads=4,      # Default imprint thread count
 )
 ```
 
@@ -33,7 +33,7 @@ model.export_dagmc_h5m_file(
 | Parameter | Accepted values | Default |
 |-----------|-----------------|---------|
 | `imprint` | `"partial"`, `"full"`, `None` (glue off, imprinting still runs), or `False` (skip imprinting) | `"partial"` |
-| `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `"all"` |
+| `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `4` |
 
 `imprint_threads` is validated even when `imprint=False`; booleans, zero,
 negative integers, floats, and `None` are invalid thread settings.
@@ -68,7 +68,10 @@ One thread generally uses less memory at the cost of speed. Larger positive
 integers trade memory for parallelism, for example `imprint_threads=4`.
 
 `imprint_threads="all"` requests all OpenCASCADE logical processors, even if the
-current pool is limited. On both backends, thread settings apply only during
+current pool is limited. The imprint's peak RAM grows with each thread: on a
+108-solid assembly it peaked at 4.2 GB on one thread and 13.2 GB on four, so
+`"all"` on a many-core machine can need several times the memory of the default
+for little extra speed. On both backends, thread settings apply only during
 imprinting; the previous pool size is restored afterwards, including on errors.
 Meshing and later CadQuery operations keep their own thread settings.
 

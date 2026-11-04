@@ -24,8 +24,9 @@ model.export_dagmc_h5m_file(
 ```
 
 Only imprinting is limited; meshing uses its own settings on both backends. The
-previous pool size is restored afterwards, including on errors. By default,
-`imprint_threads="all"` requests all logical processors, overriding an existing limit.
+previous pool size is restored afterwards, including on errors. By default the
+imprint runs on 4 threads; `imprint_threads="all"` requests all logical
+processors, overriding an existing limit.
 See [Imprinting](imprinting.md) for the available options.
 
 ## Limiting CadQuery Threads
