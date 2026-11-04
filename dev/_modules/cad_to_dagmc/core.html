@@ -1906,6 +1906,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># The cad-to-dagmc-mesher refinement report from the last export, or</span>
+        <span class="c1"># None when no refinement ran.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="CadToDagmc.add_stp_file">
 <a class="viewcode-back" href="../../api.html#cad_to_dagmc.CadToDagmc.add_stp_file">[docs]</a>
@@ -2578,6 +2581,10 @@
 <span class="sd">                - umesh_filename (str): filename for the unstructured volume mesh</span>
 <span class="sd">                  (default: 'umesh.vtk').</span>
 
+<span class="sd">                After meshing, ``self.refinement`` holds the mesher's</span>
+<span class="sd">                auto-refine report (rounds, convergence, remaining folds,</span>
+<span class="sd">                final per-solid tolerances), or None if no refinement ran.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the filename(s) for the files created.</span>
 
@@ -2602,6 +2609,9 @@
         <span class="p">}</span>
         <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="s2">"angular_tolerance"</span><span class="p">,</span> <span class="s2">"tet_volumes"</span><span class="p">,</span> <span class="s2">"target_edge_length"</span><span class="p">}</span>
         <span class="n">all_acceptable_keys</span> <span class="o">=</span> <span class="n">gmsh_keys</span> <span class="o">|</span> <span class="n">cad_to_dagmc_mesher_keys</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"meshing_backend"</span><span class="p">,</span> <span class="s2">"h5m_backend"</span><span class="p">}</span>
+
+        <span class="c1"># A report from an earlier export must not outlive it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Check for invalid kwargs</span>
         <span class="n">invalid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">all_acceptable_keys</span>
@@ -2868,6 +2878,7 @@
                         <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
                         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
                         <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
+                        <span class="n">report</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
@@ -3014,6 +3025,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
     <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
     <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
+    <span class="n">report</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.</span>
 
@@ -3022,6 +3034,9 @@
 <span class="sd">    (``{solid_id: {"vertices": ..., "tetrahedra": ..., ...}}``) or ``None``</span>
 <span class="sd">    when no solids were volume-meshed. Volume meshing only happens when both</span>
 <span class="sd">    ``tet_volumes`` and ``target_edge_length`` are supplied.</span>
+
+<span class="sd">    When ``report`` is given, its ``refinement`` attribute is set to the</span>
+<span class="sd">    mesher's auto-refine report.</span>
 <span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -3067,6 +3082,9 @@
             <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
             <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">refinement</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"refinement"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="n">refinement</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"vertices"</span><span class="p">],</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"triangles_by_solid_by_face"</span><span class="p">],</span>

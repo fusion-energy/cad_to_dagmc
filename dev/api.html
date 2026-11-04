@@ -794,6 +794,9 @@ a volume mesh; when they are, the return value is a
 <li><p>umesh_filename (str): filename for the unstructured volume mesh
 (default: ‘umesh.vtk’).</p></li>
 </ul>
+<p>After meshing, <code class="docutils literal notranslate"><span class="pre">self.refinement</span></code> holds the mesher’s
+auto-refine report (rounds, convergence, remaining folds,
+final per-solid tolerances), or None if no refinement ran.</p>
 </p></li>
 </ul>
 </dd>
