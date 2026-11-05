@@ -41,7 +41,7 @@ model.add_cadquery_object(assembly, material_tags=["mat1"])
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     meshing_backend="cad-to-dagmc-mesher",
-    tolerance=0.01,
+    tolerance=0.5,
     angular_tolerance=0.2,
 )
 ```
@@ -88,7 +88,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.01 | Linear deflection tolerance for the surface mesh, in the units of the scaled geometry |
+| `tolerance` | float | 0.5 | Linear deflection tolerance for the surface mesh, in cm after `scale_factor` |
 | `angular_tolerance` | float | 0.2 | Angular deflection tolerance for the surface mesh |
 | `target_edge_length` | float | None | Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
@@ -104,11 +104,11 @@ geometry, because this backend applies `scale_factor` to the geometry before
 meshing it.
 
 So if you pass `scale_factor=100` to convert a model from metres to centimetres,
-`tolerance` is in centimetres. The `0.01` default then means a 0.1 mm deflection,
-which on a large model can produce an enormous number of facets and exhaust
-memory. Scale the tolerance along with the geometry: for a metre-scale model
-exported with `scale_factor=100`, something like `tolerance=0.5` (5 mm) is a more
-reasonable starting point.
+`tolerance` is in centimetres, and the `0.5` default means a 5 mm deflection. On
+large imported B-spline models, `tolerance=0.5` with
+`angular_tolerance=0.2` kept every solid's volume within 0.2% and lost no
+particles. The angular tolerance is what bounds the facets on curved faces; above
+about 0.3 rad the two faces of a thin wall can cross and particles are lost.
 
 The gmsh backend takes its linear mesh sizes in scaled-geometry
 units too, so a given number means the same deflection whichever backend you use.

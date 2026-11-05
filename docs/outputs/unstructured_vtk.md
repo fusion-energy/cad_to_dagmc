@@ -180,7 +180,7 @@ model.export_unstructured_mesh_file(
 | `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
 | `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |
 | `tet_volumes` | list[str] | None | Material tags of volumes to fill with tets (cad-to-dagmc-mesher) |
-| `tolerance` | float | 0.01 | Surface mesh linear tolerance (cad-to-dagmc-mesher) |
+| `tolerance` | float | 0.5 | Surface mesh linear tolerance (cad-to-dagmc-mesher) |
 | `angular_tolerance` | float | 0.2 | Surface mesh angular tolerance (cad-to-dagmc-mesher) |
 
 ## Using in OpenMC
