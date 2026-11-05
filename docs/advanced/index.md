@@ -35,6 +35,7 @@ model.export_dagmc_h5m_file(
 | `scale_factor` | CAD in different units than simulation |
 | `imprint=False` | Single volume or non-touching geometry |
 | `imprint_threads=1` | Imprinting runs out of RAM on a large model |
+| `mesh_threads=4` | cad-to-dagmc-mesher meshing runs out of RAM on a large model |
 | `imprint=False` with a BREP | Geometry you [imprinted yourself](imprinting.md#meshing-geometry-you-imprinted-yourself) |
 | `implicit_complement_material_tag` | Need to track particles in void |
 | `h5m_backend="pymoab"` | Compatibility with older DAGMC tools |

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import inspect
 import operator
 import tempfile
 import warnings
@@ -176,23 +177,32 @@ def resolve_imprint(
             "imprint must be 'partial', 'full', None or False, "
             f"got {imprint!r}"
         )
-    if imprint_threads == "all":
-        threads = max(1, OSD_Parallel.NbLogicalProcessors_s())
-    else:
-        try:
-            # operator.index accepts int-likes such as numpy integers; bool is
-            # an int subclass but never a meaningful thread count.
-            threads = (
-                None if isinstance(imprint_threads, bool)
-                else operator.index(imprint_threads)
-            )
-        except TypeError:
-            threads = None
-        if threads is None or threads < 1:
-            raise ValueError(
-                "imprint_threads must be 'all' or a positive int, "
-                f"got {imprint_threads!r}"
-            )
+    return _resolve_threads(imprint_threads, "imprint_threads")
+
+
+def resolve_mesh_threads(mesh_threads: int | Literal["all"] = "all") -> None:
+    """Validate the cad-to-dagmc-mesher meshing thread count.
+
+    It is passed to the mesher as given, so this only raises for a value that
+    is neither ``"all"`` nor a positive int, before any work is done.
+    """
+    if mesh_threads != "all":
+        _resolve_threads(mesh_threads, "mesh_threads")
+
+
+def _resolve_threads(value, name: str) -> int:
+    """A thread count from ``"all"`` (every OCC logical processor, at least
+    one) or a positive int; *name* is the argument named in the error."""
+    if value == "all":
+        return max(1, OSD_Parallel.NbLogicalProcessors_s())
+    try:
+        # operator.index accepts int-likes such as numpy integers; bool is
+        # an int subclass but never a meaningful thread count.
+        threads = None if isinstance(value, bool) else operator.index(value)
+    except TypeError:
+        threads = None
+    if threads is None or threads < 1:
+        raise ValueError(f"{name} must be 'all' or a positive int, got {value!r}")
     return threads
 
 
@@ -251,7 +261,6 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
     Returns:
         (imprinted_shape, imprinted_solids_with_original_ids)
     """
-    import inspect
 
     glue = _resolve_glue(glue)
     # Imprinting needs at least two solids to do anything. Skipping it for a
@@ -1670,6 +1679,7 @@ class CadToDagmc:
         angular_tolerance: float = 0.2,
         *,
         imprint_threads: int | Literal["all"] = "all",
+        mesh_threads: int | Literal["all"] = "all",
         mesh_algorithm_3d: int = 1,
         volume_mesh_options: dict[str, float | str] | None = None,
     ):
@@ -1727,6 +1737,11 @@ class CadToDagmc:
                 Fewer threads reduce peak RAM at the cost of speed. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
+            mesh_threads: keyword-only thread count for the cad-to-dagmc-mesher
+                meshing that follows the imprint: "all" (default) or a positive
+                int. Fewer threads reduce peak RAM at the cost of speed, and
+                give the same mesh. Validated with any backend; the gmsh
+                backend warns that it is unused (see threads).
             set_size: a dictionary mapping volume IDs (int) or material tag names
                 (str) to target mesh sizes (floats). Material tags are resolved to
                 all volume IDs that have that tag. Only used by the gmsh backend.
@@ -1769,6 +1784,7 @@ class CadToDagmc:
             raise ValueError("Unstructured mesh filename must have a .vtk extension")
 
         resolved_imprint_threads = resolve_imprint(imprint, imprint_threads)
+        resolve_mesh_threads(mesh_threads)
 
         if meshing_backend is None:
             # Auto-select the backend: the tet arguments are specific to
@@ -1804,7 +1820,14 @@ class CadToDagmc:
                 angular_tolerance=angular_tolerance,
                 imprint=imprint,
                 imprint_threads=imprint_threads,
+                mesh_threads=mesh_threads,
                 scale_factor=scale_factor,
+            )
+
+        if mesh_threads != "all":
+            warnings.warn(
+                "The following parameters are ignored when using GMSH backend: "
+                "mesh_threads (use threads)"
             )
 
         assembly = cq.Assembly()
@@ -1889,6 +1912,7 @@ class CadToDagmc:
         angular_tolerance: float,
         imprint: Literal["partial", "full", False] | None,
         imprint_threads: int | Literal["all"],
+        mesh_threads: int | Literal["all"] = "all",
         scale_factor: float = 1.0,
     ) -> str:
         """Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.
@@ -1923,6 +1947,7 @@ class CadToDagmc:
             target_edge_length=target_edge_length,
             imprint=imprint,
             imprint_threads=imprint_threads,
+            mesh_threads=mesh_threads,
         )
 
         if not tet_data:
@@ -2079,6 +2104,7 @@ class CadToDagmc:
         imprint: Literal["partial", "full", False] | None = "partial",
         *,
         imprint_threads: int | Literal["all"] = "all",
+        mesh_threads: int | Literal["all"] = "all",
         **kwargs,
     ) -> str:
         """Saves a DAGMC h5m file of the geometry
@@ -2112,6 +2138,11 @@ class CadToDagmc:
                 Fewer threads reduce peak RAM at the cost of speed. The previous
                 OCC pool is restored before meshing, including after errors.
                 Validated even when imprint=False; independent of Gmsh threads.
+            mesh_threads: keyword-only thread count for the cad-to-dagmc-mesher
+                meshing that follows the imprint: "all" (default) or a positive
+                int. Fewer threads reduce peak RAM at the cost of speed, and
+                give the same mesh. Validated with any backend; the gmsh
+                backend warns that it is unused (it takes threads instead).
 
             **kwargs: Backend-specific parameters:
 
@@ -2179,6 +2210,7 @@ class CadToDagmc:
         """
 
         resolved_imprint_threads = resolve_imprint(imprint, imprint_threads)
+        resolve_mesh_threads(mesh_threads)
 
         # Define all acceptable kwargs
         gmsh_keys = {
@@ -2324,6 +2356,8 @@ class CadToDagmc:
                 "target_edge_length",
             ]
             unused_params = [param for param in non_gmsh_params if param in kwargs]
+            if mesh_threads != "all":
+                unused_params.append("mesh_threads")
             if unused_params:
                 warnings.warn(
                     f"The following parameters are ignored when using GMSH backend: "
@@ -2464,6 +2498,7 @@ class CadToDagmc:
                         target_edge_length=target_edge_length,
                         imprint=imprint,
                         imprint_threads=imprint_threads,
+                        mesh_threads=mesh_threads,
                         report=self,
                     )
                 )
@@ -2609,7 +2644,7 @@ def _solid_names(material_tags) -> list[str]:
 def _mesh_with_cad_to_dagmc_mesher(
     assembly, material_tags, tolerance, angular_tolerance,
     tet_volumes, target_edge_length, imprint, imprint_threads="all",
-    report=None,
+    report=None, mesh_threads="all",
 ):
     """Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.
 
@@ -2658,13 +2693,27 @@ def _mesh_with_cad_to_dagmc_mesher(
         for name in names
     ]
 
-    # The mesher owns its imprint thread scope; do not limit meshing here.
+    # The mesher owns its imprint and meshing thread scopes; do not limit
+    # anything here. A mesher older than mesh_threads meshes on all threads,
+    # so it is only passed when set, and a version that cannot honour it says
+    # so rather than ignoring it.
+    threads = {}
+    if mesh_threads != "all":
+        if "mesh_threads" not in inspect.signature(mesh_assembly).parameters:
+            raise RuntimeError(
+                "The installed cad-to-dagmc-mesher cannot limit its meshing "
+                f"threads, so mesh_threads={mesh_threads!r} cannot be honoured. "
+                "Leave mesh_threads='all', or upgrade cad-to-dagmc-mesher to a "
+                "version that takes mesh_threads."
+            )
+        threads["mesh_threads"] = mesh_threads
     try:
         result = mesh_assembly(
             assembly,
             solid_config=configs,
             imprint=imprint,
             imprint_threads=imprint_threads,
+            **threads,
         )
         refinement = result.get("refinement")
         if report is not None:
