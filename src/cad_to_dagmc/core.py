@@ -21,8 +21,8 @@ from OCP.TopoDS import TopoDS_Iterator
 from cad_to_dagmc import __version__
 
 # cad-to-dagmc-mesher surface tolerances when the caller sets none: the chordal
-# deflection, a length in the scaled geometry's units, and the angular
-# deflection in radians. 0.5 suits geometry scaled to cm; on large imported
+# deflection in cm (after scale_factor) and the angular deflection in
+# radians. On large imported
 # B-spline models it kept the worst solid's volume within 0.2% and lost no
 # particles, while an angular tolerance of 0.5 let a thin wall's two faces
 # cross.
@@ -2161,11 +2161,8 @@ class CadToDagmc:
 
                 For cad-to-dagmc-mesher backend:
 
-                - tolerance (float): surface meshing tolerance, in scaled-geometry units (default: 0.5),
-                  in the units of the scaled geometry (see scale_factor above).
-                  With scale_factor=100 the 0.01 default is a 0.1 mm deflection,
-                  which on a large model can produce a very fine mesh and
-                  exhaust memory; scale the value with scale_factor.
+                - tolerance (float): surface meshing tolerance in cm, after
+                  scale_factor (default: 0.5, a 5 mm deflection).
                 - angular_tolerance (float): surface angular tolerance (default: 0.2)
                 - tet_volumes (Iterable[str]): material tag names of the volumes to
                   fill with tetrahedra for an unstructured volume mesh.

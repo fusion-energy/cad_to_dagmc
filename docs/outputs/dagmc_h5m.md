@@ -126,7 +126,7 @@ These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.5 | Linear tolerance for the surface mesh, in scaled-geometry units |
+| `tolerance` | float | 0.5 | Linear tolerance for the surface mesh, in cm after `scale_factor` |
 | `angular_tolerance` | float | 0.2 | Angular tolerance for the surface mesh |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
 | `target_edge_length` | float | None | Target tetrahedron edge length, in scaled-geometry units |
@@ -142,12 +142,9 @@ the same deflection on the output mesh whichever backend you use:
 | `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
 | `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
 
-A consequence is that a fixed `tolerance` means a different physical deflection at
-each `scale_factor`. The cad-to-dagmc-mesher default of `0.5` suits geometry scaled
-to centimetres (for example a metre-scale model exported with `scale_factor=100`),
-where it is a 5 mm deflection. For geometry in other units, scale the tolerance
-with it: `0.5` on a model left in metres would be a 0.5 m deflection on flat-ish
-faces, and on a model in millimetres it is finer than needed.
+OpenMC works in centimetres, so set `scale_factor` to bring the CAD to cm (for
+example `scale_factor=100` for a model in metres). The cad-to-dagmc-mesher default
+`tolerance` of `0.5` is then a 5 mm deflection.
 
 `angular_tolerance` is an angle and is unaffected by `scale_factor`.
 :::

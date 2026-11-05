@@ -88,7 +88,7 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.5 | Linear deflection tolerance for the surface mesh, in the units of the scaled geometry |
+| `tolerance` | float | 0.5 | Linear deflection tolerance for the surface mesh, in cm after `scale_factor` |
 | `angular_tolerance` | float | 0.2 | Angular deflection tolerance for the surface mesh |
 | `target_edge_length` | float | None | Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
@@ -105,11 +105,10 @@ meshing it.
 
 So if you pass `scale_factor=100` to convert a model from metres to centimetres,
 `tolerance` is in centimetres, and the `0.5` default means a 5 mm deflection. On
-large imported B-spline models in centimetres, `tolerance=0.5` with
+large imported B-spline models, `tolerance=0.5` with
 `angular_tolerance=0.2` kept every solid's volume within 0.2% and lost no
 particles. The angular tolerance is what bounds the facets on curved faces; above
-about 0.3 rad the two faces of a thin wall can cross and particles are lost. For
-geometry in other units, scale `tolerance` with it.
+about 0.3 rad the two faces of a thin wall can cross and particles are lost.
 
 The gmsh backend takes its linear mesh sizes in scaled-geometry
 units too, so a given number means the same deflection whichever backend you use.
