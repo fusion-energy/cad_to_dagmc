@@ -89,6 +89,7 @@ model.export_dagmc_h5m_file(
 | `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
 | `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
 | `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
+| `mesh_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for cad-to-dagmc-mesher meshing after the imprint. Fewer threads lower peak RAM; the mesh is the same. The gmsh backend warns that it is unused. See [Parallel Processing](../advanced/parallel_processing.md). |
 | `implicit_complement_material_tag` | str | None | Void space material tag |
 
 **Backend Selection:**
