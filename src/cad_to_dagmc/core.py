@@ -162,7 +162,7 @@ def combine_tet_meshes(tet_data):
 
 
 # Default imprint threads. The imprint's peak RAM grows with each OpenCASCADE
-# thread while its time stops improving after a few: on a 108-solid assembly,
+# thread while its time stops improving after a few: on a 64-solid assembly,
 # 787, 454 and 292 s on 1, 2 and 4 threads at 4.2, 7.1 and 13.2 GB peak.
 IMPRINT_THREADS = 4
 

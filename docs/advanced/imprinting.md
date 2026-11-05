@@ -69,7 +69,7 @@ integers trade memory for parallelism, for example `imprint_threads=4`.
 
 `imprint_threads="all"` requests all OpenCASCADE logical processors, even if the
 current pool is limited. The imprint's peak RAM grows with each thread: on a
-108-solid assembly it peaked at 4.2 GB on one thread and 13.2 GB on four, so
+64-solid assembly it peaked at 4.2 GB on one thread and 13.2 GB on four, so
 `"all"` on a many-core machine can need several times the memory of the default
 for little extra speed. On both backends, thread settings apply only during
 imprinting; the previous pool size is restored afterwards, including on errors.
