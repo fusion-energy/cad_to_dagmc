@@ -96,9 +96,34 @@ def test_public_methods_validate_before_side_effects(
 
 
 @pytest.mark.parametrize("method, _suffix", METHODS)
-def test_mesh_threads_reaches_the_mesher(tmp_path, mesher_calls, method, _suffix):
+def test_mesh_threads_reaches_the_mesher(tmp_path, monkeypatch, method, _suffix):
+    # A stand-in that takes mesh_threads, so this checks the forwarding whether
+    # or not the installed mesher has the argument yet. It drops the value
+    # before calling a mesher that does not.
+    mesher = pytest.importorskip("cad_to_dagmc_mesher.cad")
+    real = mesher.mesh_assembly
+    signature = inspect.signature(real)
+    takes = "mesh_threads" in signature.parameters
+    calls = []
+
+    def spy(*args, **kwargs):
+        calls.append(dict(kwargs))
+        if not takes:
+            kwargs.pop("mesh_threads", None)
+        return real(*args, **kwargs)
+
+    if not takes:
+        params = list(signature.parameters.values())
+        extra = inspect.Parameter("mesh_threads", inspect.Parameter.KEYWORD_ONLY,
+                                  default="all")
+        at = next((i for i, q in enumerate(params) if q.kind is q.VAR_KEYWORD),
+                  len(params))
+        signature = signature.replace(parameters=params[:at] + [extra] + params[at:])
+    spy.__signature__ = signature
+    monkeypatch.setattr(mesher, "mesh_assembly", spy)
+
     _mesher_export(method, tmp_path, mesh_threads=2, imprint_threads=1)
-    assert [(c["mesh_threads"], c["imprint_threads"]) for c in mesher_calls] == [(2, 1)]
+    assert [(c["mesh_threads"], c["imprint_threads"]) for c in calls] == [(2, 1)]
 
 
 @pytest.mark.parametrize("method, _suffix", METHODS)
