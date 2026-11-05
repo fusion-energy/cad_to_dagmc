@@ -22,10 +22,9 @@ from cad_to_dagmc import __version__
 
 # cad-to-dagmc-mesher surface tolerances when the caller sets none: the chordal
 # deflection in cm (after scale_factor) and the angular deflection in
-# radians. On large imported
-# B-spline models it kept the worst solid's volume within 0.2% and lost no
-# particles, while an angular tolerance of 0.5 let a thin wall's two faces
-# cross.
+# radians. On large imported B-spline models they kept the worst solid's volume
+# within 0.2% and lost no particles, while an angular tolerance of 0.5 let a
+# thin wall's two faces cross.
 DEFAULT_TOLERANCE = 0.5
 DEFAULT_ANGULAR_TOLERANCE = 0.2
 
