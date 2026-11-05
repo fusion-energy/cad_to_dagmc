@@ -63,7 +63,7 @@ Choose between the cad-to-dagmc-mesher (default) and GMSH meshing backends:
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     meshing_backend="cad-to-dagmc-mesher",
-    tolerance=0.01,
+    tolerance=0.5,
     angular_tolerance=0.2,
 )
 
@@ -126,7 +126,7 @@ These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.01 | Linear tolerance for the surface mesh, in scaled-geometry units |
+| `tolerance` | float | 0.5 | Linear tolerance for the surface mesh, in scaled-geometry units |
 | `angular_tolerance` | float | 0.2 | Angular tolerance for the surface mesh |
 | `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
 | `target_edge_length` | float | None | Target tetrahedron edge length, in scaled-geometry units |
@@ -142,12 +142,12 @@ the same deflection on the output mesh whichever backend you use:
 | `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
 | `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
 
-A consequence is that the defaults get finer as `scale_factor` grows. This matters
-most for the cad-to-dagmc-mesher `tolerance` default of `0.01`: with
-`scale_factor=100` (metres to centimetres) that is a 0.1 mm deflection, which on a
-large model can generate a huge number of facets and exhaust memory. Scale the
-tolerance with the geometry, for example `tolerance=0.5` (5 mm) for a metre-scale
-model exported with `scale_factor=100`.
+A consequence is that a fixed `tolerance` means a different physical deflection at
+each `scale_factor`. The cad-to-dagmc-mesher default of `0.5` suits geometry scaled
+to centimetres (for example a metre-scale model exported with `scale_factor=100`),
+where it is a 5 mm deflection. For geometry in other units, scale the tolerance
+with it: `0.5` on a model left in metres would be a 0.5 m deflection on flat-ish
+faces, and on a model in millimetres it is finer than needed.
 
 `angular_tolerance` is an angle and is unaffected by `scale_factor`.
 :::
