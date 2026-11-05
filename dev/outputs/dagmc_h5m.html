@@ -549,7 +549,12 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
 <td><p>Keyword-only thread count for imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for validation and scope.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or positive <code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+<td><p>Keyword-only thread count for cad-to-dagmc-mesher meshing after the imprint. Fewer threads lower peak RAM; the mesh is the same. The gmsh backend warns that it is unused. See <a class="reference internal" href="../advanced/parallel_processing.html"><span class="std std-doc">Parallel Processing</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
 <td><p>str</p></td>
 <td><p>None</p></td>
 <td><p>Void space material tag</p></td>

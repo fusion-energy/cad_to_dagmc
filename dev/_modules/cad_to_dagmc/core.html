@@ -372,6 +372,7 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -553,23 +554,32 @@
             <span class="s2">"imprint must be 'partial', 'full', None or False, "</span>
             <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">imprint</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">imprint_threads</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
-        <span class="n">threads</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">OSD_Parallel</span><span class="o">.</span><span class="n">NbLogicalProcessors_s</span><span class="p">())</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># operator.index accepts int-likes such as numpy integers; bool is</span>
-            <span class="c1"># an int subclass but never a meaningful thread count.</span>
-            <span class="n">threads</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
-                <span class="k">else</span> <span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="n">threads</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">threads</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">"imprint_threads must be 'all' or a positive int, "</span>
-                <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">imprint_threads</span><span class="si">!r}</span><span class="s2">"</span>
-            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_resolve_threads</span><span class="p">(</span><span class="n">imprint_threads</span><span class="p">,</span> <span class="s2">"imprint_threads"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_mesh_threads</span><span class="p">(</span><span class="n">mesh_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate the cad-to-dagmc-mesher meshing thread count.</span>
+
+<span class="sd">    It is passed to the mesher as given, so this only raises for a value that</span>
+<span class="sd">    is neither ``"all"`` nor a positive int, before any work is done.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">mesh_threads</span> <span class="o">!=</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="n">_resolve_threads</span><span class="p">(</span><span class="n">mesh_threads</span><span class="p">,</span> <span class="s2">"mesh_threads"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_threads</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A thread count from ``"all"`` (every OCC logical processor, at least</span>
+<span class="sd">    one) or a positive int; *name* is the argument named in the error."""</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">OSD_Parallel</span><span class="o">.</span><span class="n">NbLogicalProcessors_s</span><span class="p">())</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># operator.index accepts int-likes such as numpy integers; bool is</span>
+        <span class="c1"># an int subclass but never a meaningful thread count.</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">threads</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be 'all' or a positive int, got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">threads</span>
 
 
@@ -628,7 +638,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        (imprinted_shape, imprinted_solids_with_original_ids)</span>
 <span class="sd">    """</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 
     <span class="n">glue</span> <span class="o">=</span> <span class="n">_resolve_glue</span><span class="p">(</span><span class="n">glue</span><span class="p">)</span>
     <span class="c1"># Imprinting needs at least two solids to do anything. Skipping it for a</span>
@@ -2078,6 +2087,7 @@
         <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
+        <span class="n">mesh_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">mesh_algorithm_3d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">volume_mesh_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2135,6 +2145,11 @@
 <span class="sd">                Fewer threads reduce peak RAM at the cost of speed. The previous</span>
 <span class="sd">                OCC pool is restored before meshing, including after errors.</span>
 <span class="sd">                Validated even when imprint=False; independent of Gmsh threads.</span>
+<span class="sd">            mesh_threads: keyword-only thread count for the cad-to-dagmc-mesher</span>
+<span class="sd">                meshing that follows the imprint: "all" (default) or a positive</span>
+<span class="sd">                int. Fewer threads reduce peak RAM at the cost of speed, and</span>
+<span class="sd">                give the same mesh. Validated with any backend; the gmsh</span>
+<span class="sd">                backend warns that it is unused (see threads).</span>
 <span class="sd">            set_size: a dictionary mapping volume IDs (int) or material tag names</span>
 <span class="sd">                (str) to target mesh sizes (floats). Material tags are resolved to</span>
 <span class="sd">                all volume IDs that have that tag. Only used by the gmsh backend.</span>
@@ -2177,6 +2192,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unstructured mesh filename must have a .vtk extension"</span><span class="p">)</span>
 
         <span class="n">resolved_imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="p">)</span>
+        <span class="n">resolve_mesh_threads</span><span class="p">(</span><span class="n">mesh_threads</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meshing_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Auto-select the backend: the tet arguments are specific to</span>
@@ -2212,7 +2228,14 @@
                 <span class="n">angular_tolerance</span><span class="o">=</span><span class="n">angular_tolerance</span><span class="p">,</span>
                 <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
                 <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
+                <span class="n">mesh_threads</span><span class="o">=</span><span class="n">mesh_threads</span><span class="p">,</span>
                 <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mesh_threads</span> <span class="o">!=</span> <span class="s2">"all"</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"The following parameters are ignored when using GMSH backend: "</span>
+                <span class="s2">"mesh_threads (use threads)"</span>
             <span class="p">)</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
@@ -2298,6 +2321,7 @@
         <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">],</span>
+        <span class="n">mesh_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Write an unstructured .vtk volume mesh using cad-to-dagmc-mesher.</span>
@@ -2332,6 +2356,7 @@
             <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
             <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
             <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
+            <span class="n">mesh_threads</span><span class="o">=</span><span class="n">mesh_threads</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tet_data</span><span class="p">:</span>
@@ -2493,6 +2518,7 @@
         <span class="n">imprint</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">,</span> <span class="s2">"full"</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"partial"</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
+        <span class="n">mesh_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Saves a DAGMC h5m file of the geometry</span>
@@ -2526,6 +2552,11 @@
 <span class="sd">                Fewer threads reduce peak RAM at the cost of speed. The previous</span>
 <span class="sd">                OCC pool is restored before meshing, including after errors.</span>
 <span class="sd">                Validated even when imprint=False; independent of Gmsh threads.</span>
+<span class="sd">            mesh_threads: keyword-only thread count for the cad-to-dagmc-mesher</span>
+<span class="sd">                meshing that follows the imprint: "all" (default) or a positive</span>
+<span class="sd">                int. Fewer threads reduce peak RAM at the cost of speed, and</span>
+<span class="sd">                give the same mesh. Validated with any backend; the gmsh</span>
+<span class="sd">                backend warns that it is unused (it takes threads instead).</span>
 
 <span class="sd">            **kwargs: Backend-specific parameters:</span>
 
@@ -2593,6 +2624,7 @@
 <span class="sd">        """</span>
 
         <span class="n">resolved_imprint_threads</span> <span class="o">=</span> <span class="n">resolve_imprint</span><span class="p">(</span><span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="p">)</span>
+        <span class="n">resolve_mesh_threads</span><span class="p">(</span><span class="n">mesh_threads</span><span class="p">)</span>
 
         <span class="c1"># Define all acceptable kwargs</span>
         <span class="n">gmsh_keys</span> <span class="o">=</span> <span class="p">{</span>
@@ -2738,6 +2770,8 @@
                 <span class="s2">"target_edge_length"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">non_gmsh_params</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">mesh_threads</span> <span class="o">!=</span> <span class="s2">"all"</span><span class="p">:</span>
+                <span class="n">unused_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"mesh_threads"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">unused_params</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"The following parameters are ignored when using GMSH backend: "</span>
@@ -2878,6 +2912,7 @@
                         <span class="n">target_edge_length</span><span class="o">=</span><span class="n">target_edge_length</span><span class="p">,</span>
                         <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
                         <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
+                        <span class="n">mesh_threads</span><span class="o">=</span><span class="n">mesh_threads</span><span class="p">,</span>
                         <span class="n">report</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
@@ -3025,7 +3060,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_with_cad_to_dagmc_mesher</span><span class="p">(</span>
     <span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">angular_tolerance</span><span class="p">,</span>
     <span class="n">tet_volumes</span><span class="p">,</span> <span class="n">target_edge_length</span><span class="p">,</span> <span class="n">imprint</span><span class="p">,</span> <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
-    <span class="n">report</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">report</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mesh_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Mesh using cad-to-dagmc-mesher and return vertices_to_h5m-compatible output.</span>
 
@@ -3074,13 +3109,27 @@
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
     <span class="p">]</span>
 
-    <span class="c1"># The mesher owns its imprint thread scope; do not limit meshing here.</span>
+    <span class="c1"># The mesher owns its imprint and meshing thread scopes; do not limit</span>
+    <span class="c1"># anything here. A mesher older than mesh_threads meshes on all threads,</span>
+    <span class="c1"># so it is only passed when set, and a version that cannot honour it says</span>
+    <span class="c1"># so rather than ignoring it.</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">mesh_threads</span> <span class="o">!=</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"mesh_threads"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">mesh_assembly</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"The installed cad-to-dagmc-mesher cannot limit its meshing "</span>
+                <span class="sa">f</span><span class="s2">"threads, so mesh_threads=</span><span class="si">{</span><span class="n">mesh_threads</span><span class="si">!r}</span><span class="s2"> cannot be honoured. "</span>
+                <span class="s2">"Leave mesh_threads='all', or upgrade cad-to-dagmc-mesher to a "</span>
+                <span class="s2">"version that takes mesh_threads."</span>
+            <span class="p">)</span>
+        <span class="n">threads</span><span class="p">[</span><span class="s2">"mesh_threads"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_threads</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">mesh_assembly</span><span class="p">(</span>
             <span class="n">assembly</span><span class="p">,</span>
             <span class="n">solid_config</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
             <span class="n">imprint</span><span class="o">=</span><span class="n">imprint</span><span class="p">,</span>
             <span class="n">imprint_threads</span><span class="o">=</span><span class="n">imprint_threads</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">threads</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">refinement</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"refinement"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

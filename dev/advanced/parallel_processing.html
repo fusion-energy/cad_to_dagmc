@@ -421,6 +421,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-limit-threads">When to Limit Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-imprinting-threads">Limiting Imprinting Threads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cad-to-dagmc-mesher-meshing-threads">Limiting cad-to-dagmc-mesher Meshing Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cadquery-threads">Limiting CadQuery Threads</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-configure-before-import">Alternative: Configure Before Import</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-environment-variable">Alternative: Environment Variable</a></li>
@@ -470,6 +471,27 @@ processor count; meshing has separate thread controls.</p>
 previous pool size is restored afterwards, including on errors. By default,
 <code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> requests all logical processors, overriding an existing limit.
 See <a class="reference internal" href="imprinting.html"><span class="std std-doc">Imprinting</span></a> for the available options.</p>
+</section>
+<section id="limiting-cad-to-dagmc-mesher-meshing-threads">
+<h2>Limiting cad-to-dagmc-mesher Meshing Threads<a class="headerlink" href="#limiting-cad-to-dagmc-mesher-meshing-threads" title="Link to this heading">#</a></h2>
+<p>The cad-to-dagmc-mesher backend meshes in parallel after the imprint (the
+surface triangulation, the edge discretisation, merging and repair, the mesh
+checks and any tet meshing). Set the keyword-only <code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code> argument to
+run that on fewer threads, for a lower peak RAM at the cost of speed:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">mesh_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The mesh is the same on any number of threads. <code class="docutils literal notranslate"><span class="pre">mesh_threads=&quot;all&quot;</span></code> (the
+default) leaves the mesher’s thread pool as it is. The limit applies for the
+export only and is undone afterwards, including on errors. It is also accepted
+by <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code>. The gmsh backend takes <code class="docutils literal notranslate"><span class="pre">threads</span></code> instead and
+warns that <code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code> is unused. A cad-to-dagmc-mesher too old to take
+<code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code> raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> for anything other than <code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code>.</p>
 </section>
 <section id="limiting-cadquery-threads">
 <h2>Limiting CadQuery Threads<a class="headerlink" href="#limiting-cadquery-threads" title="Link to this heading">#</a></h2>
@@ -553,23 +575,27 @@ python<span class="w"> </span>my_script.py
 <td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code></p></td>
 <td><p>For the duration of the imprint only</p></td>
 </tr>
-<tr class="row-odd"><td><p>CadQuery</p></td>
+<tr class="row-odd"><td><p>cad-to-dagmc-mesher meshing</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads=4</span></code></p></td>
+<td><p>For the meshing after the imprint only</p></td>
+</tr>
+<tr class="row-even"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">setThreads()</span></code></p></td>
 <td><p>Before other CadQuery operations</p></td>
 </tr>
-<tr class="row-even"><td><p>CadQuery</p></td>
+<tr class="row-odd"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OSD_ThreadPool.DefaultPool_s()</span></code></p></td>
 <td><p>Before importing CadQuery</p></td>
 </tr>
-<tr class="row-odd"><td><p>CadQuery</p></td>
+<tr class="row-even"><td><p>CadQuery</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> env var</p></td>
 <td><p>Before Python starts</p></td>
 </tr>
-<tr class="row-even"><td><p>GMSH</p></td>
+<tr class="row-odd"><td><p>GMSH</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">General.NumThreads</span></code></p></td>
 <td><p>After GMSH initialization</p></td>
 </tr>
-<tr class="row-odd"><td><p>GMSH</p></td>
+<tr class="row-even"><td><p>GMSH</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mesh.MaxNumThreads*D</span></code></p></td>
 <td><p>After GMSH initialization</p></td>
 </tr>
@@ -675,6 +701,7 @@ python<span class="w"> </span>my_script.py
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-limit-threads">When to Limit Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-imprinting-threads">Limiting Imprinting Threads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cad-to-dagmc-mesher-meshing-threads">Limiting cad-to-dagmc-mesher Meshing Threads</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-cadquery-threads">Limiting CadQuery Threads</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-configure-before-import">Alternative: Configure Before Import</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-environment-variable">Alternative: Environment Variable</a></li>
