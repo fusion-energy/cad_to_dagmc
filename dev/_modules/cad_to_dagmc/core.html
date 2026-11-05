@@ -392,6 +392,14 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 
+<span class="c1"># cad-to-dagmc-mesher surface tolerances when the caller sets none: the chordal</span>
+<span class="c1"># deflection in cm (after scale_factor) and the angular deflection in</span>
+<span class="c1"># radians. On large imported B-spline models they kept the worst solid's volume</span>
+<span class="c1"># within 0.2% and lost no particles, while an angular tolerance of 0.5 let a</span>
+<span class="c1"># thin wall's two faces cross.</span>
+<span class="n">DEFAULT_TOLERANCE</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">DEFAULT_ANGULAR_TOLERANCE</span> <span class="o">=</span> <span class="mf">0.2</span>
+
 
 <div class="viewcode-block" id="PyMoabNotFoundError">
 <a class="viewcode-back" href="../../api.html#cad_to_dagmc.PyMoabNotFoundError">[docs]</a>
@@ -2083,8 +2091,8 @@
         <span class="n">meshing_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">target_edge_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tet_volumes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
-        <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_TOLERANCE</span><span class="p">,</span>
+        <span class="n">angular_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ANGULAR_TOLERANCE</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">imprint_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">mesh_threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
@@ -2597,11 +2605,8 @@
 
 <span class="sd">                For cad-to-dagmc-mesher backend:</span>
 
-<span class="sd">                - tolerance (float): surface meshing tolerance (default: 0.01),</span>
-<span class="sd">                  in the units of the scaled geometry (see scale_factor above).</span>
-<span class="sd">                  With scale_factor=100 the 0.01 default is a 0.1 mm deflection,</span>
-<span class="sd">                  which on a large model can produce a very fine mesh and</span>
-<span class="sd">                  exhaust memory; scale the value with scale_factor.</span>
+<span class="sd">                - tolerance (float): surface meshing tolerance in cm, after</span>
+<span class="sd">                  scale_factor (default: 0.5, a 5 mm deflection).</span>
 <span class="sd">                - angular_tolerance (float): surface angular tolerance (default: 0.2)</span>
 <span class="sd">                - tet_volumes (Iterable[str]): material tag names of the volumes to</span>
 <span class="sd">                  fill with tetrahedra for an unstructured volume mesh.</span>
@@ -2779,8 +2784,8 @@
                 <span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">meshing_backend</span> <span class="o">==</span> <span class="s2">"cad-to-dagmc-mesher"</span><span class="p">:</span>
-            <span class="n">tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-            <span class="n">angular_tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"angular_tolerance"</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="n">DEFAULT_TOLERANCE</span><span class="p">)</span>
+            <span class="n">angular_tolerance</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"angular_tolerance"</span><span class="p">,</span> <span class="n">DEFAULT_ANGULAR_TOLERANCE</span><span class="p">)</span>
             <span class="n">unused_params</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">param</span>
                 <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"mesh_algorithm_3d"</span><span class="p">,</span> <span class="s2">"volume_mesh_options"</span><span class="p">)</span>
