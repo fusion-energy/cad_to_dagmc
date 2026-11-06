@@ -19,9 +19,7 @@ def _imprinted_boxes():
     assembly = cq.Assembly()
     assembly.add(cq.Workplane().box(10, 10, 10))
     assembly.add(cq.Workplane().transformed(offset=(0, 0, 7)).box(4, 4, 4))
-    imprinted, _ = imprint_assembly(assembly)
-    # newer cadquery returns a plain Shape, which add_cadquery_object does not take
-    return cq.Compound(imprinted.wrapped)
+    return imprint_assembly(assembly)
 
 
 def _unique_faces(shapes):

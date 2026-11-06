@@ -20,7 +20,8 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    "cadquery>=2.8.0",
+    # TODO set to >=2.9.0 once released, needs Assembly.imprint (CadQuery/cadquery#2128)
+    "cadquery>=2.9.0.dev0",
     "numpy",
     "gmsh",
     "h5py",

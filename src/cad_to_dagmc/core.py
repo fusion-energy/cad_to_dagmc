@@ -249,16 +249,15 @@ def thread_limit(threads: int | None):
 
 
 def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "partial"):
-    """Imprint a CadQuery assembly into a connected compound.
+    """Imprint a CadQuery assembly and return it as one connected compound.
 
-    Uses cadquery's BOPAlgo_Builder based imprint (CadQuery/cadquery#2069),
-    passing glue through to it. CadQuery 2.8.0's legacy MakeConnected imprint
-    always uses partial glue (BOPAlgo_GlueShift), so "partial" works without
-    a warning. "full" and None raise RuntimeError with upgrade advice.
-    Glue modes are the same as the export methods' imprint configuration.
+    The assembly is imprinted in place with cadquery's Assembly.imprint, so
+    every part keeps its own place in the assembly and the solids of the
+    returned compound come out in the order the parts were added. Material
+    tags given in that order therefore stay correct without any remapping.
 
     Args:
-        assembly: the cadquery assembly to imprint.
+        assembly: the cadquery assembly to imprint, one solid per part.
         threads: the number of threads to imprint with. Fewer threads lowers
             the peak RAM of the imprint at the cost of speed. Defaults to None
             which leaves the thread count as it is.
@@ -267,36 +266,37 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
             it does not select the default.
 
     Returns:
-        (imprinted_shape, imprinted_solids_with_original_ids)
+        The imprinted compound, one solid per part in assembly order.
+
+    Raises:
+        ValueError: if imprinting split a part into several solids, which
+            happens when solids overlap.
     """
 
     glue = _resolve_glue(glue)
     # Imprinting needs at least two solids to do anything. Skipping it for a
     # single solid is not just an optimization: the BOPAlgo_Builder based
     # imprint returns a Null shape when given fewer than two arguments.
-    id_map = {}
-    for obj, name, loc, _ in assembly:
-        for solid in obj.moved(loc).Solids():
-            id_map[solid] = name
-    if len(id_map) < 2:
-        solids = list(id_map)
-        compound = cq.occ_impl.shapes.Compound.makeCompound(solids)
-        return compound, {s: (id_map[s],) for s in solids}
+    if len(assembly.toCompound().Solids()) < 2:
+        return assembly.toCompound()
 
-    imprint = cq.occ_impl.assembly.imprint
-    if "glue" not in inspect.signature(imprint).parameters:
-        if glue != "partial":
-            raise RuntimeError(
-                f"CadQuery {cq.__version__} cannot honour imprint={glue!r}: "
-                "its legacy imprint always uses partial glue (BOPAlgo_GlueShift). "
-                "Use imprint='partial', "
-                "or upgrade CadQuery to a version "
-                "including CadQuery/cadquery#2069."
-            )
-        with thread_limit(threads):
-            return imprint(assembly)
     with thread_limit(threads):
-        return imprint(assembly, glue=glue)
+        assembly.imprint(glue=glue)
+
+    # A part that overlaps another comes back as its own region plus the
+    # region the two share, and that shared region has no single material.
+    overlapping = [name for obj, name, _, _ in assembly if len(obj.Solids()) > 1]
+    if overlapping:
+        raise ValueError(
+            f"Overlapping solids in the CAD. The parts {overlapping} overlap "
+            "another part. Overlapping geometry is invalid for DAGMC: a region "
+            "inside two volumes has no single material, so transport through "
+            "it is not well defined. Resolve the overlaps before meshing, for "
+            "example by boolean-subtracting the inner solid from the outer one "
+            "(outer = outer.cut(inner)) so the two share a surface instead of a "
+            "volume."
+        )
+    return assembly.toCompound()
 
 
 def define_moab_core_and_tags():
@@ -1225,20 +1225,6 @@ def mesh_to_vertices_and_triangles(
     return vertices, triangles_by_solid_by_face
 
 
-def get_ids_from_assembly(assembly: cq.assembly.Assembly):
-    ids = []
-    for obj, name, loc, _ in assembly:
-        ids.append(name)
-    return ids
-
-
-def get_ids_from_imprinted_assembly(solid_id_dict):
-    ids = []
-    for id in list(solid_id_dict.values()):
-        ids.append(id[0])
-    return ids
-
-
 def check_material_tags(material_tags, iterable_solids):
     if material_tags:
         if len(material_tags) != len(iterable_solids):
@@ -1259,14 +1245,6 @@ def check_material_tags(material_tags, iterable_solids):
                     f"to 28 characters. The resulting tag in the h5m file will be {material_tag[:28]}"
                 )
                 warnings.warn(msg)
-
-
-def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
-    material_tags_in_brep_order = []
-    for brep_id in scrambled_id:
-        id_of_solid_in_org = original_ids.index(brep_id)
-        material_tags_in_brep_order.append(material_tags[id_of_solid_in_org])
-    return material_tags_in_brep_order
 
 
 def resolve_unstructured_volumes(
@@ -1736,9 +1714,8 @@ class CadToDagmc:
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                CadQuery 2.8.0 supports only partial glue; other modes raise
-                RuntimeError before imprinting multiple solids. A single solid
-                skips imprinting, but arguments are always validated. True,
+                A single solid skips imprinting, but arguments are always
+                validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -1844,7 +1821,7 @@ class CadToDagmc:
 
         if imprint is not False:
             print("Imprinting assembly for unstructured mesh generation")
-            imprinted_assembly, _ = imprint_assembly(
+            imprinted_assembly = imprint_assembly(
                 assembly, threads=resolved_imprint_threads, glue=imprint
             )
         else:
@@ -2022,9 +1999,8 @@ class CadToDagmc:
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                CadQuery 2.8.0 supports only partial glue; other modes raise
-                RuntimeError before imprinting multiple solids. A single solid
-                skips imprinting, but arguments are always validated. True,
+                A single solid skips imprinting, but arguments are always
+                validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -2046,7 +2022,7 @@ class CadToDagmc:
 
         if imprint is not False:
             print("Imprinting assembly for mesh generation")
-            imprinted_assembly, _ = imprint_assembly(
+            imprinted_assembly = imprint_assembly(
                 assembly, threads=resolved_imprint_threads, glue=imprint
             )
         else:
@@ -2137,9 +2113,8 @@ class CadToDagmc:
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                CadQuery 2.8.0 supports only partial glue; other modes raise
-                RuntimeError before imprinting multiple solids. A single solid
-                skips imprinting, but arguments are always validated. True,
+                A single solid skips imprinting, but arguments are always
+                validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -2383,16 +2358,8 @@ class CadToDagmc:
                     f"cad-to-dagmc-mesher backend: {', '.join(unused_params)}"
                 )
 
-        assembly = cq.Assembly()
-        for part in self.parts:
-            assembly.add(part)
-
-        original_ids = get_ids_from_assembly(assembly)
-
-        # both id lists should be the same length as each other and the same
-        # length as the self.material_tags
-        if len(original_ids) != len(self.material_tags):
-            msg = f"Number of volumes {len(original_ids)} is not equal to number of material tags {len(self.material_tags)}"
+        if len(self.parts) != len(self.material_tags):
+            msg = f"Number of volumes {len(self.parts)} is not equal to number of material tags {len(self.material_tags)}"
             raise ValueError(msg)
 
         # The gmsh backend opens a gmsh session (gmsh is a global singleton).
@@ -2407,25 +2374,19 @@ class CadToDagmc:
         try:
             # Use gmsh
             if meshing_backend == "gmsh":
-                # If assembly is not to be imprinted, pass through the assembly as-is
+                assembly = cq.Assembly()
+                for part in self.parts:
+                    assembly.add(part)
+
+                # Imprinting keeps the solids in the order of self.parts, so
+                # the material tags need no reordering either way.
+                material_tags_in_brep_order = self.material_tags
                 if imprint is not False:
                     print("Imprinting assembly for mesh generation")
-                    imprinted_assembly, imprinted_solids_with_org_id = (
-                        imprint_assembly(
-                            assembly, threads=resolved_imprint_threads, glue=imprint
-                        )
+                    imprinted_assembly = imprint_assembly(
+                        assembly, threads=resolved_imprint_threads, glue=imprint
                     )
-
-                    scrambled_ids = get_ids_from_imprinted_assembly(
-                        imprinted_solids_with_org_id
-                    )
-
-                    material_tags_in_brep_order = order_material_ids_by_brep_order(
-                        original_ids, scrambled_ids, self.material_tags
-                    )
-
                 else:
-                    material_tags_in_brep_order = self.material_tags
                     imprinted_assembly = assembly
 
                 check_material_tags(material_tags_in_brep_order, self.parts)
