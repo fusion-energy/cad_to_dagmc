@@ -23,7 +23,9 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: '3.x'
+        # Match the CI version. '3.x' picks up new Pythons before cadquery-ocp
+        # has wheels for them, which fails the smoke test and blocks upload.
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
