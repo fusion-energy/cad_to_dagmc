@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Unstructured Mesh VTK Files &#8212; cad_to_dagmc 0.15.1 documentation</title>
+    <title>Unstructured Mesh VTK Files &#8212; cad_to_dagmc 0.16.0 documentation</title>
   
   
   
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=9698604a"></script>
+    <script src="../_static/documentation_options.js?v=c59bce12"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -61,7 +61,7 @@
     <link rel="prev" title="DAGMC H5M Files" href="dagmc_h5m.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.15.1" />
+  <meta name="docsearch:version" content="0.16.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -190,8 +190,8 @@
       
     
     
-    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
-    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
   
   
 </a></div>
@@ -586,6 +586,7 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># Geometry scaling</span>
     <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>        <span class="c1"># Imprint shared surfaces</span>
     <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>    <span class="c1"># Keyword-only imprint thread count</span>
+    <span class="n">mesh_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>       <span class="c1"># Keyword-only meshing thread count (cad-to-dagmc-mesher backend)</span>
     <span class="n">method</span><span class="o">=</span><span class="s2">"file"</span><span class="p">,</span>            <span class="c1"># CAD transfer method (gmsh backend)</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>     <span class="c1"># "gmsh", "cad-to-dagmc-mesher" or auto-select</span>
     <span class="n">target_edge_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Tet edge length (cad-to-dagmc-mesher backend)</span>
@@ -658,32 +659,37 @@ cad-to-dagmc-mesher backend and its <code class="docutils literal notranslate"><
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
 <td><p>Keyword-only thread count for imprinting. See <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for validation and scope.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or positive <code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+<td><p>Keyword-only thread count for cad-to-dagmc-mesher meshing after the imprint. Fewer threads lower peak RAM; the mesh is the same. The gmsh backend warns that it is unused. See <a class="reference internal" href="../advanced/parallel_processing.html"><span class="std std-doc">Parallel Processing</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>str</p></td>
 <td><p>“file”</p></td>
 <td><p>CAD transfer method (gmsh)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code></p></td>
 <td><p>str</p></td>
 <td><p>None</p></td>
 <td><p>“gmsh” or “cad-to-dagmc-mesher”; auto-selected when not set</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
 <td><p>Tetrahedron edge length (cad-to-dagmc-mesher)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
 <td><p>list[str]</p></td>
 <td><p>None</p></td>
 <td><p>Material tags of volumes to fill with tets (cad-to-dagmc-mesher)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
-<td><p>0.01</p></td>
+<td><p>0.5</p></td>
 <td><p>Surface mesh linear tolerance (cad-to-dagmc-mesher)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.2</p></td>
 <td><p>Surface mesh angular tolerance (cad-to-dagmc-mesher)</p></td>

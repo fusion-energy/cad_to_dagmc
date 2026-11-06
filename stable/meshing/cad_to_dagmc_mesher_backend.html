@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cad-to-dagmc-mesher Backend &#8212; cad_to_dagmc 0.15.1 documentation</title>
+    <title>cad-to-dagmc-mesher Backend &#8212; cad_to_dagmc 0.16.0 documentation</title>
   
   
   
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=9698604a"></script>
+    <script src="../_static/documentation_options.js?v=c59bce12"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -61,7 +61,7 @@
     <link rel="prev" title="Meshing Backends" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.15.1" />
+  <meta name="docsearch:version" content="0.16.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -190,8 +190,8 @@
       
     
     
-    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
-    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
   
   
 </a></div>
@@ -474,7 +474,7 @@ results in faster and more accurate simulations.</p>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
-    <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">angular_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -527,8 +527,8 @@ results in faster and more accurate simulations.</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
-<td><p>0.01</p></td>
-<td><p>Linear deflection tolerance for the surface mesh, in the units of the scaled geometry</p></td>
+<td><p>0.5</p></td>
+<td><p>Linear deflection tolerance for the surface mesh, in cm after <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
@@ -560,11 +560,11 @@ results in faster and more accurate simulations.</p>
 geometry, because this backend applies <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to the geometry before
 meshing it.</p>
 <p>So if you pass <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> to convert a model from metres to centimetres,
-<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is in centimetres. The <code class="docutils literal notranslate"><span class="pre">0.01</span></code> default then means a 0.1 mm deflection,
-which on a large model can produce an enormous number of facets and exhaust
-memory. Scale the tolerance along with the geometry: for a metre-scale model
-exported with <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code>, something like <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> (5 mm) is a more
-reasonable starting point.</p>
+<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is in centimetres, and the <code class="docutils literal notranslate"><span class="pre">0.5</span></code> default means a 5 mm deflection. On
+large imported B-spline models, <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> with
+<code class="docutils literal notranslate"><span class="pre">angular_tolerance=0.2</span></code> kept every solid’s volume within 0.2% and lost no
+particles. The angular tolerance is what bounds the facets on curved faces; above
+about 0.3 rad the two faces of a thin wall can cross and particles are lost.</p>
 <p>The gmsh backend takes its linear mesh sizes in scaled-geometry
 units too, so a given number means the same deflection whichever backend you use.
 <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is an angle and is unaffected by scaling.</p>

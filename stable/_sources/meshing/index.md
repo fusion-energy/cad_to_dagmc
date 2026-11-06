@@ -55,7 +55,7 @@ model.add_cadquery_object(assembly, material_tags=["mat1"])
 model.export_dagmc_h5m_file(
     filename="dagmc_mesher.h5m",
     meshing_backend="cad-to-dagmc-mesher",
-    tolerance=0.01,
+    tolerance=0.5,
     angular_tolerance=0.2,
 )
 

@@ -28,6 +28,29 @@ previous pool size is restored afterwards, including on errors. By default,
 `imprint_threads="all"` requests all logical processors, overriding an existing limit.
 See [Imprinting](imprinting.md) for the available options.
 
+## Limiting cad-to-dagmc-mesher Meshing Threads
+
+The cad-to-dagmc-mesher backend meshes in parallel after the imprint (the
+surface triangulation, the edge discretisation, merging and repair, the mesh
+checks and any tet meshing). Set the keyword-only `mesh_threads` argument to
+run that on fewer threads, for a lower peak RAM at the cost of speed:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint_threads=4,
+    mesh_threads=4,
+)
+```
+
+The mesh is the same on any number of threads. `mesh_threads="all"` (the
+default) leaves the mesher's thread pool as it is. The limit applies for the
+export only and is undone afterwards, including on errors. It is also accepted
+by `export_unstructured_mesh_file`. The gmsh backend takes `threads` instead and
+warns that `mesh_threads` is unused. A cad-to-dagmc-mesher too old to take
+`mesh_threads` raises `RuntimeError` for anything other than `"all"`.
+
 ## Limiting CadQuery Threads
 
 For other CadQuery operations, use `setThreads` to configure the OpenCASCADE
@@ -105,6 +128,7 @@ gmsh.option.setNumber("Mesh.MaxNumThreads3D", 4)
 | Component | Method | When Applied |
 |-----------|--------|--------------|
 | Imprinting | `imprint_threads=4` | For the duration of the imprint only |
+| cad-to-dagmc-mesher meshing | `mesh_threads=4` | For the meshing after the imprint only |
 | CadQuery | `setThreads()` | Before other CadQuery operations |
 | CadQuery | `OSD_ThreadPool.DefaultPool_s()` | Before importing CadQuery |
 | CadQuery | `OMP_NUM_THREADS` env var | Before Python starts |

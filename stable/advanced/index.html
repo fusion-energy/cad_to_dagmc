@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Advanced Options &#8212; cad_to_dagmc 0.15.1 documentation</title>
+    <title>Advanced Options &#8212; cad_to_dagmc 0.16.0 documentation</title>
   
   
   
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=9698604a"></script>
+    <script src="../_static/documentation_options.js?v=c59bce12"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -61,7 +61,7 @@
     <link rel="prev" title="Per-Volume Mesh Sizing" href="../meshing/mesh_sizing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.15.1" />
+  <meta name="docsearch:version" content="0.16.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -190,8 +190,8 @@
       
     
     
-    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
-    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.15.1 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-light" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="cad_to_dagmc 0.16.0 documentation - Home"/>
   
   
 </a></div>
@@ -501,16 +501,19 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code></p></td>
 <td><p>Imprinting runs out of RAM on a large model</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> with a BREP</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads=4</span></code></p></td>
+<td><p>cad-to-dagmc-mesher meshing runs out of RAM on a large model</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> with a BREP</p></td>
 <td><p>Geometry you <a class="reference internal" href="imprinting.html#meshing-geometry-you-imprinted-yourself"><span class="std std-ref">imprinted yourself</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
 <td><p>Need to track particles in void</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
 <td><p>Compatibility with older DAGMC tools</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">method=&quot;in</span> <span class="pre">memory&quot;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method=&quot;in</span> <span class="pre">memory&quot;</span></code></p></td>
 <td><p>Large geometry with matching OCC versions</p></td>
 </tr>
 </tbody>
