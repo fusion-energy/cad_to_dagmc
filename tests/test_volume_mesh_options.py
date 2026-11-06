@@ -406,7 +406,7 @@ def test_new_options_reject_ambiguous_backend(model, kwargs, tmp_path):
 def test_non_gmsh_backend_warns_about_volume_options(model, backend, tmp_path, monkeypatch):
     # Stop before either backend runs, after argument handling and warnings.
     monkeypatch.setattr(
-        "cad_to_dagmc.core.get_ids_from_assembly",
+        "cad_to_dagmc.core._build_assembly",
         Mock(side_effect=RuntimeError("arguments handled")),
     )
     with pytest.warns(

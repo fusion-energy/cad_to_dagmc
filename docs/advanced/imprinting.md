@@ -83,10 +83,10 @@ Set `imprint` according to how the solids meet:
 | `None` | No glue; runs general intersection checks | Geometry requiring general intersection rather than glue assumptions |
 
 `imprint=None` means **glue off**, not "use the default". Imprinting still runs.
-On CadQuery with selectable glue, omitting its `glue` argument defaults to
-`"partial"`; explicitly passing `glue=None` disables the glue optimisation.
-Likewise, omitting this package's `imprint` argument selects `"partial"`, while
-`imprint=False` disables imprinting entirely.
+Omitting CadQuery's `glue` argument defaults to `"partial"`; explicitly
+passing `glue=None` disables the glue optimisation. Likewise, omitting this
+package's `imprint` argument selects `"partial"`, while `imprint=False`
+disables imprinting entirely.
 
 Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
 overlaps in the CAD model before exporting.
@@ -95,17 +95,10 @@ overlaps in the CAD model before exporting.
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint=None,      # Glue off; requires selectable CadQuery glue
+    imprint=None,      # Glue off
     imprint_threads=4,
 )
 ```
-
-### CadQuery compatibility
-
-CadQuery's legacy imprint always uses partial glue. On multi-solid
-geometry, `"full"` and `None` raise `RuntimeError`; CadQuery with the
-selectable glue API supports all three modes. Support is detected from the
-installed imprint signature, not the version string.
 
 ## When to Disable Imprinting
 
@@ -129,9 +122,12 @@ try `imprint_threads=1` before reaching for
 
 ## Imprinting and Material Tag Order
 
-Imprinting may change the internal ordering of volumes. cad_to_dagmc handles this automatically, preserving the correct material tag assignments.
+Imprinting changes each part of the assembly in place, so volumes keep the
+order the solids were added in and each material tag stays on its own volume.
 
-If you're using volume IDs in `set_size` or `unstructured_volumes`, be aware that imprinting may affect the volume numbering. Using material tag names instead of IDs is more robust.
+Using material tag names rather than volume IDs in `set_size` or
+`unstructured_volumes` is still more robust, as the IDs change whenever solids
+are added or removed.
 
 ## Example: Adjacent Boxes
 
@@ -178,8 +174,8 @@ assembly.add(big)
 assembly.add(small)
 
 # Imprint however you like, here with CadQuery's own imprint
-imprinted, _ = cq.occ_impl.assembly.imprint(assembly)
-imprinted.exportBrep("imprinted.brep")
+assembly.imprint()
+assembly.toCompound().exportBrep("imprinted.brep")
 
 # Later, possibly in another script, load the imprinted geometry
 model = CadToDagmc()

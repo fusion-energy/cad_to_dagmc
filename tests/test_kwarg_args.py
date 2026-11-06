@@ -236,7 +236,7 @@ class TestKwargsExportDagmcH5mFile:
         """A shared imprint option leaves the default mesher choice unchanged."""
         monkeypatch.setattr("cad_to_dagmc.core._cad_to_dagmc_mesher_is_available", lambda: True)
         guard = Mock(side_effect=RuntimeError("backend selected"))
-        monkeypatch.setattr("cad_to_dagmc.core.get_ids_from_assembly", guard)
+        monkeypatch.setattr("cad_to_dagmc.core._build_assembly", guard)
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             with pytest.raises(RuntimeError, match="backend selected"):
