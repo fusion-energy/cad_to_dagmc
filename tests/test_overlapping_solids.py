@@ -23,6 +23,10 @@ di = pytest.importorskip("dagmc_h5m_file_inspector")
 
 # The volume, extent and contact-surface wording come from the mesher; older
 # releases report only the pair and its volume (in mm^3).
+# TODO: once a cad-to-dagmc-mesher release includes
+# fusion-energy/cad-to-dagmc-mesher#234, raise the cad-to-dagmc-mesher pin in
+# pyproject.toml to that release and remove this skip (and the import of
+# _mesher_assembly above, which only it uses), so the tests below always run.
 needs_overlap_detail = pytest.mark.skipif(
     not hasattr(_mesher_assembly, "_Overlap"),
     reason="the installed cad-to-dagmc-mesher does not describe the overlap",
