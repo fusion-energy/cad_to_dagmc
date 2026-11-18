@@ -2730,35 +2730,32 @@ def _mesh_with_cad_to_dagmc_mesher(
             result.get("tet_data"),
         )
     except OverlappingSolidsError as e:
-        # Imprinting fused two or more solids together, which means they overlap.
-        # That geometry cannot be written as valid DAGMC: a region inside two
-        # volumes has no single material, and a DAGMC surface separates at most
-        # two volumes. It is better to say so than to mesh it, because the result
-        # is silently wrong rather than obviously broken -- it is watertight, it
-        # transports, and the material in the shared region is whichever volume
-        # DAGMC happens to resolve first.
+        # The input solids overlap. That geometry cannot be written as valid
+        # DAGMC: a region inside two volumes has no single material, and a DAGMC
+        # surface separates at most two volumes. It is better to say so than to
+        # mesh it, because the result is silently wrong rather than obviously
+        # broken -- it is watertight, it transports, and the material in the
+        # shared region is whichever volume DAGMC happens to resolve first.
         #
-        # The mesher names the solids it could not find, but those are the
-        # synthetic per-solid names from _solid_names, so they are re-expressed
-        # here as the material tags the caller actually supplied.
-        fused = sorted({
-            tag_by_name[name]
-            for name in names
-            if name in str(e) and name in tag_by_name
-        })
-        detail = (
-            f" The solids tagged {fused} could not be told apart after imprinting."
-            if fused else ""
-        )
-        raise ValueError(
-            "Overlapping solids in the CAD." + detail + " Overlapping geometry is "
-            "invalid for DAGMC: a region inside two volumes has no single "
-            "material, so transport through it is not well defined. Resolve the "
-            "overlaps before meshing, for example by boolean-subtracting the "
-            "inner solid from the outer one "
-            "(outer = outer.cut(inner)) so the two share a surface instead of a "
-            "volume."
-        ) from e
+        # The mesher's message says which solids overlap, by how much, where,
+        # and what to do about it, so it is passed on whole. Only its names
+        # change, from the synthetic per-solid names of _solid_names to the
+        # caller's material tags, with the solid's position in the input at
+        # its first mention on each line.
+        lines = []
+        for line in str(e).splitlines():
+            for index, name in enumerate(names):
+                line = line.replace(
+                    repr(name), f"{tag_by_name[name]!r} (solid {index})", 1
+                ).replace(repr(name), repr(tag_by_name[name]))
+            lines.append(line)
+        detail = "\n".join(lines)
+        header = "Overlapping solids in the input CAD:"
+        if detail.startswith(header):
+            message = "Overlapping solids in the CAD:" + detail[len(header):]
+        else:
+            message = "Overlapping solids in the CAD. " + detail
+        raise ValueError(message) from e
 
 
 def _get_all_leaf_children(assembly):
