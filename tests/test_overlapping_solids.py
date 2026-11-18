@@ -18,15 +18,8 @@ import pytest
 
 from cad_to_dagmc import CadToDagmc
 
-_mesher_assembly = pytest.importorskip("cad_to_dagmc_mesher.cad._assembly")
+pytest.importorskip("cad_to_dagmc_mesher")
 di = pytest.importorskip("dagmc_h5m_file_inspector")
-
-# The volume, extent and contact-surface wording come from the mesher; older
-# releases report only the pair and its volume (in mm^3).
-needs_overlap_detail = pytest.mark.skipif(
-    not hasattr(_mesher_assembly, "_Overlap"),
-    reason="the installed cad-to-dagmc-mesher does not describe the overlap",
-)
 
 
 def _sphere_in_box():
@@ -103,7 +96,6 @@ def test_touching_solids_are_still_fine(tmp_path):
     assert sorted(di.get_volumes_and_materials(h5m).values()) == ["steel", "water"]
 
 
-@needs_overlap_detail
 def test_the_error_says_how_much_and_where(tmp_path):
     """Each overlapping pair is named, with the volume they share and its place.
 
@@ -124,7 +116,6 @@ def test_the_error_says_how_much_and_where(tmp_path):
     assert "contact surface" not in message
 
 
-@needs_overlap_detail
 def test_a_face_pressed_into_its_neighbour_is_described_as_such(tmp_path):
     """Two solids meant to touch, one face modelled 0.01 cm into the other.
 
