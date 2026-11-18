@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
@@ -48,7 +48,7 @@
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/thebelab-helper.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cad_to_dagmc/core';</script>
@@ -3146,35 +3146,32 @@
             <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tet_data"</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="n">OverlappingSolidsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="c1"># Imprinting fused two or more solids together, which means they overlap.</span>
-        <span class="c1"># That geometry cannot be written as valid DAGMC: a region inside two</span>
-        <span class="c1"># volumes has no single material, and a DAGMC surface separates at most</span>
-        <span class="c1"># two volumes. It is better to say so than to mesh it, because the result</span>
-        <span class="c1"># is silently wrong rather than obviously broken -- it is watertight, it</span>
-        <span class="c1"># transports, and the material in the shared region is whichever volume</span>
-        <span class="c1"># DAGMC happens to resolve first.</span>
+        <span class="c1"># The input solids overlap. That geometry cannot be written as valid</span>
+        <span class="c1"># DAGMC: a region inside two volumes has no single material, and a DAGMC</span>
+        <span class="c1"># surface separates at most two volumes. It is better to say so than to</span>
+        <span class="c1"># mesh it, because the result is silently wrong rather than obviously</span>
+        <span class="c1"># broken -- it is watertight, it transports, and the material in the</span>
+        <span class="c1"># shared region is whichever volume DAGMC happens to resolve first.</span>
         <span class="c1">#</span>
-        <span class="c1"># The mesher names the solids it could not find, but those are the</span>
-        <span class="c1"># synthetic per-solid names from _solid_names, so they are re-expressed</span>
-        <span class="c1"># here as the material tags the caller actually supplied.</span>
-        <span class="n">fused</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span>
-            <span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tag_by_name</span>
-        <span class="p">})</span>
-        <span class="n">detail</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">" The solids tagged </span><span class="si">{</span><span class="n">fused</span><span class="si">}</span><span class="s2"> could not be told apart after imprinting."</span>
-            <span class="k">if</span> <span class="n">fused</span> <span class="k">else</span> <span class="s2">""</span>
-        <span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">"Overlapping solids in the CAD."</span> <span class="o">+</span> <span class="n">detail</span> <span class="o">+</span> <span class="s2">" Overlapping geometry is "</span>
-            <span class="s2">"invalid for DAGMC: a region inside two volumes has no single "</span>
-            <span class="s2">"material, so transport through it is not well defined. Resolve the "</span>
-            <span class="s2">"overlaps before meshing, for example by boolean-subtracting the "</span>
-            <span class="s2">"inner solid from the outer one "</span>
-            <span class="s2">"(outer = outer.cut(inner)) so the two share a surface instead of a "</span>
-            <span class="s2">"volume."</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="c1"># The mesher's message says which solids overlap, by how much, where,</span>
+        <span class="c1"># and what to do about it, so it is passed on whole. Only its names</span>
+        <span class="c1"># change, from the synthetic per-solid names of _solid_names to the</span>
+        <span class="c1"># caller's material tags, with the solid's position in the input at</span>
+        <span class="c1"># its first mention on each line.</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> (solid </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the input CAD:"</span>
+        <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the CAD:"</span> <span class="o">+</span> <span class="n">detail</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">):]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the CAD. "</span> <span class="o">+</span> <span class="n">detail</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_leaf_children</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>

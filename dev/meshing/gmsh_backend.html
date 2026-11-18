@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2a74fa0" />
   
   <!-- So that users can add custom icons -->
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/thebelab-helper.js"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'meshing/gmsh_backend';</script>
@@ -654,7 +654,7 @@ meshing algorithms:</p>
 </pre></div>
 </div>
 <section id="d-algorithms-and-volume-only-options">
-<h3>3D Algorithms and Volume-Only Options<a class="headerlink" href="#d-algorithms-and-volume-only-options" title="Link to this heading">#</a></h3>
+<span id="3d-algorithms-and-volume-only-options"></span><h3>3D Algorithms and Volume-Only Options<a class="headerlink" href="#d-algorithms-and-volume-only-options" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> to set <code class="docutils literal notranslate"><span class="pre">Mesh.Algorithm3D</span></code> independently of the surface
 algorithm. The default is <code class="docutils literal notranslate"><span class="pre">1</span></code> (Delaunay); <code class="docutils literal notranslate"><span class="pre">10</span></code> selects HXT, which supports
 multithreaded volume meshing. The <code class="docutils literal notranslate"><span class="pre">threads</span></code> argument controls GMSH’s thread
