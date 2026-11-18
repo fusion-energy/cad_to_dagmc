@@ -10,8 +10,12 @@ That is not hypothetical. The docs quickstart put a sphere inside a box for a lo
 time and passed CI throughout, so anyone following it built a model with an
 ambiguous region and no way to notice.
 
-The imprint is what detects this: fusing overlapping solids means the per-solid
-names no longer exist in the imprinted compound.
+Exporting runs the overlap checks that cost nothing: the imprint records what it
+split where faces coincide, and fusing overlapping solids means the per-solid
+names no longer exist in the imprinted compound. Neither sees every overlap (two
+intersecting spheres pass both), and the exact check that does,
+``CadToDagmc.check_overlaps``, can take hours on a large model, so it is the
+user's to run rather than part of every export.
 """
 import cadquery as cq
 import pytest
@@ -96,24 +100,69 @@ def test_touching_solids_are_still_fine(tmp_path):
     assert sorted(di.get_volumes_and_materials(h5m).values()) == ["steel", "water"]
 
 
-def test_the_error_says_how_much_and_where(tmp_path):
-    """Each overlapping pair is named, with the volume they share and its place.
-
-    A whole sphere sunk in a box is a bulk overlap: all of the sphere.
-    """
+def test_check_overlaps_says_how_much_and_where():
+    """Each overlapping pair is named by material tag and position, with the
+    volume they share and its place. A whole sphere sunk in a box is a bulk
+    overlap: all of the sphere."""
     model = CadToDagmc()
     model.add_cadquery_object(cadquery_object=_sphere_in_box(),
                               material_tags="assembly_names")
-    with pytest.raises(ValueError) as excinfo:
-        model.export_dagmc_h5m_file(filename=str(tmp_path / "overlapping.h5m"),
-                                    meshing_backend="cad-to-dagmc-mesher")
-    message = str(excinfo.value)
-    assert (
-        "'tungsten' (solid 0) and 'steel' (solid 1) overlap by 4,189 cm³ "
-        "(100.0% of 'tungsten', 15.5% of 'steel'), spanning 20 x 20 x 20 cm "
-        "around (0, 0, 0)"
-    ) in message, message
-    assert "contact surface" not in message
+    report = model.check_overlaps(progress=False)
+    assert not report.clean
+    assert [str(overlap) for overlap in report.overlaps] == [(
+        "'tungsten (solid 0)' and 'steel (solid 1)' overlap by 4,189 cm³ "
+        "(100.0% of 'tungsten (solid 0)', 15.5% of 'steel (solid 1)'), "
+        "spanning 20 x 20 x 20 cm around (0, 0, 0)"
+    )]
+
+
+def _intersecting_spheres():
+    model = CadToDagmc()
+    model.add_cadquery_object(cq.Workplane().sphere(5), material_tags=["steel"])
+    model.add_cadquery_object(
+        cq.Workplane().transformed(offset=(5, 0, 0)).sphere(5), material_tags=["water"]
+    )
+    return model
+
+
+def test_check_overlaps_finds_what_exporting_does_not(tmp_path):
+    """Two intersecting spheres: no coincident faces for the imprint to split,
+    and no solid swallowed, so the free checks exporting runs let them through
+    (with the mesher's warning). The exact check names them."""
+    model = _intersecting_spheres()
+    model.export_dagmc_h5m_file(filename=str(tmp_path / "spheres.h5m"),
+                                meshing_backend="cad-to-dagmc-mesher")
+    report = model.check_overlaps(progress=False)
+    assert [(o.name_a, o.name_b) for o in report.overlaps] == [
+        ("steel (solid 0)", "water (solid 1)")
+    ]
+    # Two spheres of radius r with centres r apart share 5*pi*r^3/12.
+    assert report.overlaps[0].shared == pytest.approx(5 * 3.14159265 * 5**3 / 12, rel=1e-3)
+
+
+def test_check_overlaps_reports_at_the_export_scale():
+    """Volumes and lengths are those of the exported geometry."""
+    report = _intersecting_spheres().check_overlaps(scale_factor=10, progress=False)
+    assert report.overlaps[0].shared == pytest.approx(1000 * 5 * 3.14159265 * 5**3 / 12, rel=1e-3)
+
+
+def test_check_overlaps_can_look_at_some_material_tags_only():
+    model = _intersecting_spheres()
+    model.add_cadquery_object(
+        cq.Workplane().transformed(offset=(50, 0, 0)).box(1, 1, 1), material_tags=["air"]
+    )
+    assert model.check_overlaps(material_tags=["air"], progress=False).clean
+    assert len(model.check_overlaps(material_tags=["water"], progress=False).overlaps) == 1
+    with pytest.raises(ValueError, match=r"No solid has the material tag\(s\) \['nope'\]"):
+        model.check_overlaps(material_tags=["nope"], progress=False)
+
+
+def test_check_overlaps_passes_touching_solids():
+    model = CadToDagmc()
+    model.add_cadquery_object(cq.Workplane().box(10, 10, 10), material_tags=["steel"])
+    model.add_cadquery_object(cq.Workplane().moveTo(10, 0).box(10, 10, 10), material_tags=["water"])
+    report = model.check_overlaps(progress=False)
+    assert report.clean and report.pairs == 1
 
 
 def test_a_face_pressed_into_its_neighbour_is_described_as_such(tmp_path):
@@ -137,6 +186,8 @@ def test_a_face_pressed_into_its_neighbour_is_described_as_such(tmp_path):
         "contact surface (0.020% of 'steel', 0.1% of 'water'): a layer about "
         "0.01 cm thick, spanning 100 x 100 x 0.01 cm around (0, 0, -0.005)"
     ) in message, message
+    # The error points to the method that checks every pair.
+    assert "model.check_overlaps()" in message
 
 
 def test_the_mesher_message_is_passed_on_in_the_callers_names(monkeypatch, tmp_path):
