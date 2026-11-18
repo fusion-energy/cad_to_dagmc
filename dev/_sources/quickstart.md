@@ -41,8 +41,10 @@ well defined material and transport through it is not meaningful.
 Note the `.cut(sphere)` above. Without it the sphere would be inside the box, both
 solids would claim the same region, and the resulting file would be quietly wrong:
 watertight, transportable, and using whichever material DAGMC happened to resolve
-first. Overlapping solids are rejected with an error naming the material tags
-involved, rather than meshed.
+first. Exporting refuses the overlaps it can find without extra cost, such as
+this one, with an error naming the solids involved. `model.check_overlaps()`
+checks every pair of solids exactly; see
+[Checking for Overlaps](advanced/overlaps.md).
 
 Solids that *touch* are fine and normal — they share a surface, not a volume.
 :::

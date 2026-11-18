@@ -245,6 +245,7 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/geometry_scaling.html">Geometry Scaling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/imprinting.html">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a></li>
@@ -474,8 +475,10 @@ well defined material and transport through it is not meaningful.</p>
 <p>Note the <code class="docutils literal notranslate"><span class="pre">.cut(sphere)</span></code> above. Without it the sphere would be inside the box, both
 solids would claim the same region, and the resulting file would be quietly wrong:
 watertight, transportable, and using whichever material DAGMC happened to resolve
-first. Overlapping solids are rejected with an error naming the material tags
-involved, rather than meshed.</p>
+first. Exporting refuses the overlaps it can find without extra cost, such as
+this one, with an error naming the solids involved. <code class="docutils literal notranslate"><span class="pre">model.check_overlaps()</span></code>
+checks every pair of solids exactly; see
+<a class="reference internal" href="advanced/overlaps.html"><span class="std std-doc">Checking for Overlaps</span></a>.</p>
 <p>Solids that <em>touch</em> are fine and normal — they share a surface, not a volume.</p>
 </div>
 </section>

@@ -99,6 +99,7 @@ meshing/mesh_sizing
 advanced/index
 advanced/geometry_scaling
 advanced/imprinting
+advanced/overlaps
 advanced/implicit_complement
 advanced/parallel_processing
 advanced/h5m_backends

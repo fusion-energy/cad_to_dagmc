@@ -244,6 +244,7 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/geometry_scaling.html">Geometry Scaling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/imprinting.html">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a></li>
@@ -422,6 +423,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc"><code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_stp_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_stp_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_cadquery_object"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_cadquery_object()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.check_overlaps"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.check_overlaps()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_unstructured_mesh_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_gmsh_mesh_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_dagmc_h5m_file()</span></code></a></li>
@@ -525,6 +527,41 @@ simulations.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cad_to_dagmc.CadToDagmc.check_overlaps">
+<span class="sig-name descname"><span class="pre">check_overlaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cad_to_dagmc/core.html#CadToDagmc.check_overlaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cad_to_dagmc.CadToDagmc.check_overlaps" title="Link to this definition">#</a></dt>
+<dd><p>Finds every pair of solids that share volume, exactly.</p>
+<p>Intersects each pair of solids whose bounding boxes overlap and reports
+the material they share: how much, where, and whether it is a thin
+layer along a contact surface. Run it on CAD you have not checked
+before exporting. Exporting does not run it, because on a large model it
+can take hours; the overlap checks exporting does run cost nothing but
+do not see every overlap (two intersecting spheres, for instance).</p>
+<p>Needs cad-to-dagmc-mesher.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale_factor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – the scale_factor you will export with, so the volumes
+and lengths reported are those of the exported geometry.</p></li>
+<li><p><strong>material_tags</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span>) – check only the pairs involving solids with these
+material tags, against every solid. None (the default) checks
+every pair.</p></li>
+<li><p><strong>max_seconds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – stop starting new pairs after this many seconds and
+report the rest as unchecked. None (the default) checks every
+pair.</p></li>
+<li><p><strong>progress</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print each overlap as it is found, and a progress line
+about once a minute.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The mesher’s CadOverlapReport, with solids named by material tag and
+their position in the model, as in <code class="docutils literal notranslate"><span class="pre">'steel</span> <span class="pre">(solid</span> <span class="pre">0)'</span></code>.
+<code class="docutils literal notranslate"><span class="pre">report.clean</span></code> is True only when every pair was checked and none
+overlaps; <code class="docutils literal notranslate"><span class="pre">print(report)</span></code> gives the details and what to do.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1026,6 +1063,7 @@ all available cores (default), 1 uses a single thread.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc"><code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_stp_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_stp_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.add_cadquery_object"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.add_cadquery_object()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.check_overlaps"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.check_overlaps()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_unstructured_mesh_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_gmsh_mesh_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_gmsh_mesh_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cad_to_dagmc.CadToDagmc.export_dagmc_h5m_file"><code class="docutils literal notranslate"><span class="pre">CadToDagmc.export_dagmc_h5m_file()</span></code></a></li>

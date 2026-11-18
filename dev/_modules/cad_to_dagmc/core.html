@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/index.html">Advanced Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/geometry_scaling.html">Geometry Scaling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/imprinting.html">Imprinting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/parallel_processing.html">Parallel Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced/h5m_backends.html">H5M File Backends</a></li>
@@ -2074,6 +2075,72 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">scaled_iterable_solids</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="CadToDagmc.check_overlaps">
+<a class="viewcode-back" href="../../api.html#cad_to_dagmc.CadToDagmc.check_overlaps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_overlaps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">material_tags</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Finds every pair of solids that share volume, exactly.</span>
+
+<span class="sd">        Intersects each pair of solids whose bounding boxes overlap and reports</span>
+<span class="sd">        the material they share: how much, where, and whether it is a thin</span>
+<span class="sd">        layer along a contact surface. Run it on CAD you have not checked</span>
+<span class="sd">        before exporting. Exporting does not run it, because on a large model it</span>
+<span class="sd">        can take hours; the overlap checks exporting does run cost nothing but</span>
+<span class="sd">        do not see every overlap (two intersecting spheres, for instance).</span>
+
+<span class="sd">        Needs cad-to-dagmc-mesher.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scale_factor: the scale_factor you will export with, so the volumes</span>
+<span class="sd">                and lengths reported are those of the exported geometry.</span>
+<span class="sd">            material_tags: check only the pairs involving solids with these</span>
+<span class="sd">                material tags, against every solid. None (the default) checks</span>
+<span class="sd">                every pair.</span>
+<span class="sd">            max_seconds: stop starting new pairs after this many seconds and</span>
+<span class="sd">                report the rest as unchecked. None (the default) checks every</span>
+<span class="sd">                pair.</span>
+<span class="sd">            progress: print each overlap as it is found, and a progress line</span>
+<span class="sd">                about once a minute.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mesher's CadOverlapReport, with solids named by material tag and</span>
+<span class="sd">            their position in the model, as in ``'steel (solid 0)'``.</span>
+<span class="sd">            ``report.clean`` is True only when every pair was checked and none</span>
+<span class="sd">            overlaps; ``print(report)`` gives the details and what to do.</span>
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc_mesher.cad</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cad_overlaps</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CadToDagmcMesherNotFoundError</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="c1"># Named as the report should read, so the progress lines printed as it</span>
+        <span class="c1"># runs and the report it returns both say 'steel (solid 0)'.</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> (solid </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">solids</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">material_tags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span>
+            <span class="n">unknown</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">wanted</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No solid has the material tag(s) </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">solids</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span> <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">wanted</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">check_cad_overlaps</span><span class="p">(</span>
+            <span class="n">_build_assembly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">),</span>
+            <span class="n">solids</span><span class="o">=</span><span class="n">solids</span><span class="p">,</span>
+            <span class="n">max_seconds</span><span class="o">=</span><span class="n">max_seconds</span><span class="p">,</span>
+            <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="CadToDagmc.export_unstructured_mesh_file">
 <a class="viewcode-back" href="../../api.html#cad_to_dagmc.CadToDagmc.export_unstructured_mesh_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">export_unstructured_mesh_file</span><span class="p">(</span>
@@ -3165,7 +3232,10 @@
                     <span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> (solid </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="mi">1</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">tag_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="n">detail</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="c1"># Pointed at the method a cad_to_dagmc user calls, with the same check.</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s2">"check_cad_overlaps(assembly)"</span><span class="p">,</span> <span class="s2">"model.check_overlaps()"</span>
+        <span class="p">)</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the input CAD:"</span>
         <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
             <span class="n">message</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the CAD:"</span> <span class="o">+</span> <span class="n">detail</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">):]</span>
