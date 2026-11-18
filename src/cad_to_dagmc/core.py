@@ -1668,6 +1668,69 @@ class CadToDagmc:
 
         return len(scaled_iterable_solids)
 
+    def check_overlaps(
+        self,
+        scale_factor: float = 1.0,
+        *,
+        material_tags: Iterable[str] | None = None,
+        max_seconds: float | None = None,
+        progress: bool = True,
+    ):
+        """Finds every pair of solids that share volume, exactly.
+
+        Intersects each pair of solids whose bounding boxes overlap and reports
+        the material they share: how much, where, and whether it is a thin
+        layer along a contact surface. Run it on CAD you have not checked
+        before exporting. Exporting does not run it, because on a large model it
+        can take hours; the overlap checks exporting does run cost nothing but
+        do not see every overlap (two intersecting spheres, for instance).
+
+        Needs cad-to-dagmc-mesher.
+
+        Args:
+            scale_factor: the scale_factor you will export with, so the volumes
+                and lengths reported are those of the exported geometry.
+            material_tags: check only the pairs involving solids with these
+                material tags, against every solid. None (the default) checks
+                every pair.
+            max_seconds: stop starting new pairs after this many seconds and
+                report the rest as unchecked. None (the default) checks every
+                pair.
+            progress: print each overlap as it is found, and a progress line
+                about once a minute.
+
+        Returns:
+            The mesher's CadOverlapReport, with solids named by material tag and
+            their position in the model, as in ``'steel (solid 0)'``.
+            ``report.clean`` is True only when every pair was checked and none
+            overlaps; ``print(report)`` gives the details and what to do.
+        """
+        try:
+            from cad_to_dagmc_mesher.cad import check_cad_overlaps
+        except ImportError as e:
+            raise CadToDagmcMesherNotFoundError() from e
+
+        # Named as the report should read, so the progress lines printed as it
+        # runs and the report it returns both say 'steel (solid 0)'.
+        names = [
+            f"{tag} (solid {index})" for index, tag in enumerate(self.material_tags)
+        ]
+        solids = None
+        if material_tags is not None:
+            wanted = set(material_tags)
+            unknown = sorted(wanted - set(self.material_tags))
+            if unknown:
+                raise ValueError(f"No solid has the material tag(s) {unknown}")
+            solids = [
+                name for name, tag in zip(names, self.material_tags) if tag in wanted
+            ]
+        return check_cad_overlaps(
+            _build_assembly(self.parts, scale_factor, names=names),
+            solids=solids,
+            max_seconds=max_seconds,
+            progress=progress,
+        )
+
     def export_unstructured_mesh_file(
         self,
         filename: str = "umesh.vtk",
@@ -2749,7 +2812,10 @@ def _mesh_with_cad_to_dagmc_mesher(
                     repr(name), f"{tag_by_name[name]!r} (solid {index})", 1
                 ).replace(repr(name), repr(tag_by_name[name]))
             lines.append(line)
-        detail = "\n".join(lines)
+        # Pointed at the method a cad_to_dagmc user calls, with the same check.
+        detail = "\n".join(lines).replace(
+            "check_cad_overlaps(assembly)", "model.check_overlaps()"
+        )
         header = "Overlapping solids in the input CAD:"
         if detail.startswith(header):
             message = "Overlapping solids in the CAD:" + detail[len(header):]

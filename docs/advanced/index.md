@@ -8,6 +8,7 @@ This section covers advanced configuration options for fine-tuning your CAD to D
 |-------|-------------|
 | [Geometry Scaling](geometry_scaling.md) | Unit conversion with `scale_factor` |
 | [Imprinting](imprinting.md) | Shared surface handling |
+| [Checking for Overlaps](overlaps.md) | Finding solids that share volume |
 | [Implicit Complement](implicit_complement.md) | Void/air region tagging |
 | [Parallel Processing](parallel_processing.md) | Thread control for performance |
 | [H5M Backends](h5m_backends.md) | h5py vs pymoab comparison |
