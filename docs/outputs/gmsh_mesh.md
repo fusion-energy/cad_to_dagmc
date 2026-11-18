@@ -1,6 +1,7 @@
-# GMSH Mesh Files
+# Gmsh Mesh Files
 
-Export meshes in GMSH's native format for inspection, debugging, or further processing.
+`export_gmsh_mesh_file()` meshes the geometry with Gmsh and saves the mesh in
+Gmsh's own `.msh` format, for inspection, debugging or converting to h5m later.
 
 ## Basic Export
 
@@ -31,136 +32,46 @@ model.export_gmsh_mesh_file(
 )
 ```
 
-## With Per-Volume Mesh Sizing
+`set_size` gives a target size per volume, keyed by material tag or volume ID;
+see [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md).
 
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
+## Viewing and Converting the Mesh
 
-coarse_box = cq.Workplane().box(1, 1, 2)
-fine_box = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
-default_box = cq.Workplane().moveTo(2, 1).box(1, 1, 1)
+Open the file in the Gmsh GUI to check element sizes and quality, and that the
+geometry came through the import intact. The pip `gmsh` package installs the
+`gmsh` command:
 
-assembly = cq.Assembly()
-assembly.add(coarse_box, name="coarse")
-assembly.add(fine_box, name="fine")
-assembly.add(default_box, name="global")
-
-model = CadToDagmc()
-model.add_cadquery_object(assembly, material_tags="assembly_names")
-
-model.export_gmsh_mesh_file(
-    filename="different_resolution_meshes.msh",
-    dimensions=2,
-    min_mesh_size=0.01,
-    max_mesh_size=10,
-    set_size={
-        "coarse": 0.9,
-        "fine": 0.1,
-    },
-)
+<!--pytest-codeblocks:skip-->
+```bash
+gmsh surface_mesh.msh
 ```
+
+The file has no physical groups, so to convert it to a DAGMC h5m file later,
+pass `material_tags` to `export_gmsh_file_to_dagmc_h5m_file()`; see
+[Gmsh Files](../inputs/gmsh_files.md).
 
 ## API Reference
 
 ### `export_gmsh_mesh_file()`
 
-<!--pytest-codeblocks:skip-->
-```python
-model.export_gmsh_mesh_file(
-    filename="mesh.msh",      # Output file path
-    dimensions=2,             # 2 for surface, 3 for volume
-    min_mesh_size=1.0,        # Minimum element size
-    max_mesh_size=10.0,       # Maximum element size
-    mesh_algorithm=1,         # GMSH 2D surface algorithm
-    mesh_algorithm_3d=1,      # GMSH 3D algorithm (1=Delaunay, 10=HXT)
-    volume_mesh_options=None, # GMSH options applied only after surface meshing
-    set_size=None,            # Per-volume sizes
-    scale_factor=1.0,         # Geometry scaling
-    imprint="partial",        # Imprint shared surfaces
-    imprint_threads="all",    # Keyword-only imprint thread count
-    method="file",            # CAD transfer method
-)
-```
-
-**Parameters:**
-
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `filename` | str | "mesh.msh" | Output GMSH file path |
-| `dimensions` | int | 2 | Mesh dimensions (2=surface, 3=volume) |
-| `min_mesh_size` | float | None | Minimum mesh element size |
-| `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
-| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
-| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `dimensions=3` |
-| `set_size` | dict | None | Per-volume mesh sizes |
-| `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
-| `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
-| `method` | str | "file" | CAD transfer method |
+| `filename` | str | `"mesh.msh"` | Output file path |
+| `dimensions` | int | `2` | `2` for a surface mesh of triangles, `3` for a volume mesh of tetrahedra |
+| `scale_factor` | float | `1.0` | Scales the geometry before meshing. Mesh sizes are in the scaled units; see [Geometry Scaling](../advanced/geometry_scaling.md#mesh-size-and-scaling) |
+| `imprint` | str, `None` or `False` | `"partial"` | `"partial"` (default), `"full"`, `None` (imprints without glue) or `False` (no imprint); see [Imprinting](../advanced/imprinting.md) |
+| `imprint_threads` | `"all"` or int | `"all"` | `"all"` (default) or a positive int; see [Parallel Processing](../advanced/parallel_processing.md#limiting-imprinting-threads) |
 
-For `dimensions=3`, `mesh_algorithm_3d` selects the volume algorithm independently
-of the surface algorithm. A non-empty `volume_mesh_options` dictionary causes
-surface generation first, followed by the option overrides and volume
-generation. `dimensions=2` ignores these volume overrides. See
-[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
-for examples and precedence rules.
+The Gmsh arguments `min_mesh_size`, `max_mesh_size`, `mesh_algorithm`,
+`mesh_algorithm_3d`, `volume_mesh_options`, `set_size`, `method` and `threads`
+are described under [Gmsh backend parameters](../meshing/gmsh_backend.md#parameters).
+`mesh_algorithm_3d` and `volume_mesh_options` only act when `dimensions=3`; see
+[3D Algorithms and Volume-Only Options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options).
+The [API Reference](../api.md) page has the exact signature.
 
-## Use Cases
-
-### Debugging Mesh Quality
-
-Export to GMSH format and open in the GMSH GUI:
-
-<!--pytest-codeblocks:skip-->
-```bash
-gmsh mesh.msh
-```
-
-This allows you to:
-- Visually inspect mesh quality
-- Check element sizes
-- Verify geometry import
-
-### Creating Pre-meshed Files
-
-Create a mesh file that can be converted to DAGMC later:
-
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-import cad_to_dagmc
-
-# First, create GMSH mesh
-result1 = cq.Workplane("XY").box(10.0, 10.0, 5.0)
-result2 = cq.Workplane("XY").moveTo(10, 0).box(10.0, 10.0, 5.0)
-assembly = cq.Assembly()
-assembly.add(result1)
-assembly.add(result2)
-assembly.save("geometry.stp", exportType="STEP")
-
-geometry = CadToDagmc()
-geometry.add_stp_file("geometry.stp")
-geometry.export_gmsh_mesh_file(filename="mesh.msh")
-
-# Later, convert to DAGMC
-cad_to_dagmc.export_gmsh_file_to_dagmc_h5m_file(
-    gmsh_filename="mesh.msh",
-    material_tags=["mat1", "mat2"],
-    dagmc_filename="dagmc.h5m",
-)
-```
-
-### 2D vs 3D Meshes
-
-| Dimension | Mesh Type | Use Case |
-|-----------|-----------|----------|
-| `dimensions=2` | Triangular surface | DAGMC geometry input |
-| `dimensions=3` | Tetrahedral volume | Volume mesh / analysis |
+The method writes the file and returns `None`.
 
 ## See Also
 
-- [GMSH Files Input](../inputs/gmsh_files.md) - Loading GMSH files back
-- [GMSH Backend](../meshing/gmsh_backend.md) - Meshing parameters
-- [GMSH Documentation](https://gmsh.info/doc/texinfo/gmsh.html) - Official GMSH docs
+- [Gmsh Files](../inputs/gmsh_files.md): converting a Gmsh mesh file to h5m
+- [Gmsh documentation](https://gmsh.info/doc/texinfo/gmsh.html): the Gmsh reference manual

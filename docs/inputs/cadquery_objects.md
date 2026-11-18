@@ -1,12 +1,12 @@
 # CadQuery Objects
 
-CadQuery objects are the most flexible input option. Create geometry programmatically in Python and convert directly to DAGMC format.
+Geometry built in Python with CadQuery is added to the model with `add_cadquery_object()`.
 
 ## Supported Object Types
 
-- **Workplane results** (Solid) - Single solid shapes
-- **Compound** - Multiple solids grouped together
-- **Assembly** - See [CadQuery Assemblies](cadquery_assemblies.md) for assembly-specific features
+- `cq.Workplane`. Only the first object on its stack (`workplane.val()`) is used. That is normally the whole result, even when it holds several solids, as `text()` does. After `combine=False` each solid is its own object, so only the first would be added.
+- `cq.Solid` or `cq.Compound`. Each solid becomes one volume.
+- `cq.Assembly`. Its tags can also come from its part names or `cq.Material` objects; see [CadQuery Assemblies](cadquery_assemblies.md).
 
 ## Basic Example
 
@@ -16,10 +16,8 @@ Create a simple shape and convert it:
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-# Create a sphere
 sphere = cq.Workplane("XY").sphere(5)
 
-# Convert to DAGMC
 model = CadToDagmc()
 model.add_cadquery_object(cadquery_object=sphere, material_tags=["mat1"])
 model.export_dagmc_h5m_file()
@@ -27,100 +25,53 @@ model.export_dagmc_h5m_file()
 
 ## Multiple Objects
 
-Add multiple CadQuery objects separately:
+Call `add_cadquery_object()` once per object, each with its own tags. Volumes, and their material tags, keep the order they were added in, and `add_stp_file()` calls can be mixed in.
 
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-# Create two separate shapes
 box = cq.Workplane("XY").moveTo(2, 0).box(2, 2, 2)
-cylinder = cq.Workplane("XY").box(2, 1, 1)
+small_box = cq.Workplane("XY").box(2, 1, 1)
 
-# Add each with its own material tag
 model = CadToDagmc()
 model.add_cadquery_object(cadquery_object=box, material_tags=["mat1"])
-model.add_cadquery_object(cadquery_object=cylinder, material_tags=["mat2"])
+model.add_cadquery_object(cadquery_object=small_box, material_tags=["mat2"])
 model.export_dagmc_h5m_file()
 ```
 
 ## Using Compounds
 
-A Compound groups multiple solids into a single object:
+A Compound groups several solids into one object, and takes one tag per solid:
 
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
 box = cq.Workplane("XY").moveTo(2, 0).box(2, 2, 2)
-cylinder = cq.Workplane("XY").box(2, 1, 1)
+small_box = cq.Workplane("XY").box(2, 1, 1)
 
-# Create a compound from both shapes
-compound = cq.Compound.makeCompound([box.val(), cylinder.val()])
+compound = cq.Compound.makeCompound([box.val(), small_box.val()])
 
-# Add compound - needs one tag per solid in the compound
 model = CadToDagmc()
 model.add_cadquery_object(cadquery_object=compound, material_tags=["mat1", "mat2"])
-model.export_dagmc_h5m_file(max_mesh_size=0.2, min_mesh_size=0.1)
-```
-
-## Using Assemblies
-
-Assemblies allow you to name parts and use those names as material tags:
-
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-# Create shapes
-sphere = cq.Workplane().sphere(5)
-box = cq.Workplane().moveTo(15, 0).box(5, 5, 5)
-
-# Create assembly with named parts
-assembly = cq.Assembly()
-assembly.add(sphere, name="tungsten")
-assembly.add(box, name="steel")
-
-# Use assembly names as material tags
-model = CadToDagmc()
-model.add_cadquery_object(
-    cadquery_object=assembly,
-    material_tags="assembly_names"  # Names become material tags
-)
 model.export_dagmc_h5m_file()
 ```
-
-See [CadQuery Assemblies](cadquery_assemblies.md) for more assembly features including nested assemblies and using `cq.Material` objects.
 
 ## API Reference
 
 ### `add_cadquery_object()`
 
-<!--pytest-codeblocks:skip-->
-```python
-model.add_cadquery_object(
-    cadquery_object,      # CadQuery Solid, Compound, or Assembly
-    material_tags,        # List of tags, or "assembly_names"/"assembly_materials"
-    scale_factor=1.0,     # Optional geometry scaling
-)
-```
-
-**Parameters:**
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `cadquery_object` | Solid, Compound, Assembly | The CadQuery geometry to add |
-| `material_tags` | list[str] or str | Material tag(s) for each volume |
-| `scale_factor` | float | Scale geometry by this factor (default: 1.0) |
+| `cadquery_object` | Workplane, Solid, Compound or Assembly | The CadQuery geometry to add |
+| `material_tags` | list[str] or str | A list with one tag per volume, or `"assembly_names"` / `"assembly_materials"` for an assembly; see [Material Tagging](../material_tagging/index.md) |
+| `scale_factor` | float | Scales the geometry as it is added (default 1.0); see [Geometry Scaling](../advanced/geometry_scaling.md) |
 
-**Material tags options:**
-
-- `["mat1", "mat2", ...]` - Explicit list (one per volume)
-- `"assembly_names"` - Use assembly part names as tags
-- `"assembly_materials"` - Use `cq.Material` objects as tags (CadQuery > 2.6.1)
+It returns the number of volumes added. Exact signatures are on the [API Reference](../api.md) page.
 
 ## See Also
 
-- [CadQuery Assemblies](cadquery_assemblies.md) - For multi-part assemblies with automatic tagging
-- [Manual Tags](../material_tagging/manual_tags.md) - Detailed material tagging guide
-- [CadQuery Documentation](https://cadquery.readthedocs.io/) - Official CadQuery docs
+- [CadQuery Assemblies](cadquery_assemblies.md): tags from part names or `cq.Material` objects
+- [Manual Tags](../material_tagging/manual_tags.md): lists of material tags in detail
+- [CadQuery Documentation](https://cadquery.readthedocs.io/): building the geometry

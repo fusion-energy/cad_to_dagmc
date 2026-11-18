@@ -1,10 +1,8 @@
 # Unstructured Mesh VTK Files
 
-Creates tetrahedral volume meshes for use with OpenMC's `UnstructuredMesh` tally.
+`export_unstructured_mesh_file()` writes a volume mesh of tetrahedra to a VTK file, for unstructured mesh tallies in OpenMC.
 
-:::{note}
-Volume mesh output requires the **cad-to-dagmc-mesher** or **GMSH** backend. The CadQuery meshing backend cannot create volume meshes.
-:::
+Both meshing backends can write it. Unless `meshing_backend` is set, passing `target_edge_length` or `tet_volumes` selects cad-to-dagmc-mesher and any other call runs Gmsh. This differs from `export_dagmc_h5m_file()`, which defaults to cad-to-dagmc-mesher; see [How the Backend Is Chosen](../meshing/index.md#how-the-backend-is-chosen).
 
 ## Basic Export
 
@@ -24,9 +22,7 @@ model.export_unstructured_mesh_file(
 )
 ```
 
-This uses the [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md), which writes the vtk file without GMSH. The tetrahedra size is controlled with a single `target_edge_length` argument, which also selects the backend automatically.
-
-Optionally restrict which volumes are filled with tetrahedra using their material tag names:
+`target_edge_length` sizes the tetrahedra and selects the [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md). Every volume is filled unless `tet_volumes` lists the material tags of the volumes to fill:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -37,9 +33,13 @@ model.export_unstructured_mesh_file(
 )
 ```
 
-## Using the GMSH Backend
+`tet_volumes` without `target_edge_length` raises `ValueError`.
 
-The [GMSH backend](../meshing/gmsh_backend.md) sizes the tetrahedra with `min_mesh_size` and `max_mesh_size`:
+`tolerance` and `angular_tolerance` have no effect when every volume is filled, which is the default. When `tet_volumes` leaves some volumes out, the two tolerances also size the surfaces of the filled volumes, and so their tetrahedra.
+
+## Using the Gmsh Backend
+
+Without `target_edge_length` or `tet_volumes` the [Gmsh backend](../meshing/gmsh_backend.md) runs, and sizes the tetrahedra with `min_mesh_size` and `max_mesh_size`. Here they default to 1 and 5, whereas `export_dagmc_h5m_file()` leaves the sizes to Gmsh. `volumes` limits the mesh to the listed volume IDs:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -47,154 +47,41 @@ model.export_unstructured_mesh_file(
     filename="umesh.vtk",
     min_mesh_size=1.0,
     max_mesh_size=5.0,
+    volumes=[1, 3],  # omit to mesh every volume
 )
 ```
 
-`mesh_algorithm` controls only the surface mesh. Use `mesh_algorithm_3d=10`
-to select HXT for the tetrahedra, or keep the default `1` (Delaunay). Advanced
-`volume_mesh_options` are applied only after the surfaces have been meshed,
-allowing a coarser interior without changing the surface sizing. See
-[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
-for an example and caveats.
+`volumes` accepts volume IDs only, and cad-to-dagmc-mesher ignores it without a warning. To select volumes by material tag, use `tet_volumes` with the cad-to-dagmc-mesher backend, as above.
 
-## Complex Geometry Example
-
-Volume meshes work with complex curved geometries:
-
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-from math import sin, cos, pi, floor
-
-def hypocycloid(t, r1, r2):
-    return (
-        (r1 - r2) * cos(t) + r2 * cos(r1 / r2 * t - t),
-        (r1 - r2) * sin(t) + r2 * sin(-(r1 / r2 * t - t)),
-    )
-
-def epicycloid(t, r1, r2):
-    return (
-        (r1 + r2) * cos(t) - r2 * cos(r1 / r2 * t + t),
-        (r1 + r2) * sin(t) - r2 * sin(r1 / r2 * t + t),
-    )
-
-def gear(t, r1=4, r2=1):
-    if (-1) ** (1 + floor(t / 2 / pi * (r1 / r2))) < 0:
-        return epicycloid(t, r1, r2)
-    else:
-        return hypocycloid(t, r1, r2)
-
-# Create gear with twist
-gear_shape = (
-    cq.Workplane("XY")
-    .parametricCurve(lambda t: gear(t * 2 * pi, 6, 1))
-    .twistExtrude(15, 90)
-    .faces(">Z")
-    .workplane()
-    .circle(2)
-    .cutThruAll()
-)
-
-# Create spline extrusion
-spline_points = [
-    (2.75, 1.5), (2.5, 1.75), (2.0, 1.5),
-    (1.5, 1.0), (1.0, 1.25), (0.5, 1.0), (0, 1.0),
-]
-s = cq.Workplane("XY")
-r = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(spline_points, includeCurrent=True).close()
-spline_shape = r.extrude(-20)
-
-model = CadToDagmc()
-model.add_cadquery_object(gear_shape, material_tags=["mat1"])
-model.add_cadquery_object(spline_shape, material_tags=["mat2"])
-
-model.export_unstructured_mesh_file(
-    filename="umesh.vtk",
-    max_mesh_size=1,
-    min_mesh_size=0.1,
-)
-```
-
-## Selecting Specific Volumes
-
-Export only certain volumes to the VTK file:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_unstructured_mesh_file(
-    filename="partial_mesh.vtk",
-    volumes=[1, 3],  # Only include volumes 1 and 3
-    min_mesh_size=1.0,
-    max_mesh_size=5.0,
-)
-```
-
-:::{note}
-`volumes` accepts volume IDs only. To select volumes by material tag name use the
-cad-to-dagmc-mesher backend and its `tet_volumes` argument, shown above.
-:::
+`mesh_algorithm_3d` and `volume_mesh_options` control how Gmsh fills the volumes; see [3D Algorithms and Volume-Only Options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options).
 
 ## API Reference
 
 ### `export_unstructured_mesh_file()`
 
-<!--pytest-codeblocks:skip-->
-```python
-model.export_unstructured_mesh_file(
-    filename="umesh.vtk",     # Output file path
-    min_mesh_size=1.0,        # Minimum element size (gmsh backend)
-    max_mesh_size=10.0,       # Maximum element size (gmsh backend)
-    mesh_algorithm=1,         # GMSH 2D surface algorithm
-    mesh_algorithm_3d=1,      # GMSH 3D algorithm (1=Delaunay, 10=HXT)
-    volume_mesh_options=None, # GMSH options applied only after surface meshing
-    set_size=None,            # Per-volume sizes (gmsh backend)
-    volumes=None,             # Specific volumes to include (gmsh backend)
-    scale_factor=1.0,         # Geometry scaling
-    imprint="partial",        # Imprint shared surfaces
-    imprint_threads="all",    # Keyword-only imprint thread count
-    mesh_threads="all",       # Keyword-only meshing thread count (cad-to-dagmc-mesher backend)
-    method="file",            # CAD transfer method (gmsh backend)
-    meshing_backend=None,     # "gmsh", "cad-to-dagmc-mesher" or auto-select
-    target_edge_length=None,  # Tet edge length (cad-to-dagmc-mesher backend)
-    tet_volumes=None,         # Volumes to fill with tets (cad-to-dagmc-mesher backend)
-)
-```
-
-**Parameters:**
-
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `filename` | str | "umesh.vtk" | Output VTK file path |
-| `min_mesh_size` | float | None | Minimum mesh element size (gmsh) |
-| `max_mesh_size` | float | None | Maximum mesh element size (gmsh) |
-| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
-| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
-| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing |
-| `set_size` | dict | None | Per-volume mesh sizes (gmsh) |
-| `volumes` | list | None | Specific volumes to mesh (gmsh) |
-| `scale_factor` | float | 1.0 | Geometry scale factor |
-| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
-| `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
-| `mesh_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for cad-to-dagmc-mesher meshing after the imprint. Fewer threads lower peak RAM; the mesh is the same. The gmsh backend warns that it is unused. See [Parallel Processing](../advanced/parallel_processing.md). |
-| `method` | str | "file" | CAD transfer method (gmsh) |
-| `meshing_backend` | str | None | "gmsh" or "cad-to-dagmc-mesher"; auto-selected when not set |
-| `target_edge_length` | float | None | Tetrahedron edge length (cad-to-dagmc-mesher) |
-| `tet_volumes` | list[str] | None | Material tags of volumes to fill with tets (cad-to-dagmc-mesher) |
-| `tolerance` | float | 0.5 | Surface mesh linear tolerance (cad-to-dagmc-mesher) |
-| `angular_tolerance` | float | 0.2 | Surface mesh angular tolerance (cad-to-dagmc-mesher) |
+| `filename` | str | `"umesh.vtk"` | Output file. Must end in `.vtk`, otherwise `ValueError` is raised |
+| `scale_factor` | float | `1.0` | Scales the geometry before meshing, so mesh sizes are in scaled units; see [Geometry Scaling](../advanced/geometry_scaling.md#mesh-size-and-scaling) |
+| `imprint` | str, `None` or `False` | `"partial"` | `"partial"` (default), `"full"`, `None` (imprints without glue) or `False` (no imprint); see [Imprinting](../advanced/imprinting.md) |
+| `imprint_threads` | `"all"` or int | `"all"` | `"all"` (default) or a positive int; see [Parallel Processing](../advanced/parallel_processing.md#limiting-imprinting-threads) |
+| `meshing_backend` | str | `None` | `"cad-to-dagmc-mesher"` or `"gmsh"`. When not set, cad-to-dagmc-mesher if `target_edge_length` or `tet_volumes` is given, otherwise Gmsh |
+| `target_edge_length` | float | `None` | Target edge length of the tetrahedra (cad-to-dagmc-mesher, which requires it) |
+| `tet_volumes` | list of str | `None` | Material tags of the volumes to fill (cad-to-dagmc-mesher). `None` fills every volume |
+| `volumes` | list of int | `None` | Volume IDs to mesh (Gmsh). `None` meshes every volume |
+
+The method returns `filename`. The other meshing arguments are listed on each backend's page: `tolerance`, `angular_tolerance` and `mesh_threads` in the [cad-to-dagmc-mesher table](../meshing/cad_to_dagmc_mesher_backend.md#parameters), and `min_mesh_size`, `max_mesh_size`, `mesh_algorithm`, `mesh_algorithm_3d`, `volume_mesh_options`, `set_size`, `method` and `threads` in the [Gmsh table](../meshing/gmsh_backend.md#parameters). The [API Reference](../api.md) page has the exact signature.
 
 ## Using in OpenMC
 
-Load the unstructured mesh for tallies:
+Load the VTK file as an OpenMC unstructured mesh and tally on it:
 
 <!--pytest-codeblocks:skip-->
 ```python
 import openmc
 
-# Create mesh from VTK file
 mesh = openmc.UnstructuredMesh(filename="umesh.vtk", library="moab")
 
-# Create tally with mesh filter
 mesh_filter = openmc.MeshFilter(mesh)
 tally = openmc.Tally()
 tally.filters = [mesh_filter]
@@ -203,58 +90,11 @@ tally.scores = ["flux", "heating"]
 tallies = openmc.Tallies([tally])
 ```
 
-## Complete OpenMC Workflow
-
-<!--pytest-codeblocks:skip-->
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-import openmc
-
-# Create geometry
-sphere = cq.Workplane("XY").sphere(10)
-assembly = cq.Assembly()
-assembly.add(sphere, name="sphere")
-
-# Export both surface and volume mesh
-model = CadToDagmc()
-model.add_cadquery_object(assembly, material_tags=["mat1"])
-
-model.export_dagmc_h5m_file(filename="dagmc.h5m")
-model.export_unstructured_mesh_file(filename="umesh.vtk")
-
-# Set up OpenMC
-mat1 = openmc.Material(name="mat1")
-mat1.add_nuclide("H1", 1, percent_type="ao")
-mat1.set_density("g/cm3", 0.001)
-materials = openmc.Materials([mat1])
-
-# Geometry from DAGMC
-universe = openmc.DAGMCUniverse("dagmc.h5m").bounded_universe()
-geometry = openmc.Geometry(universe)
-
-# Unstructured mesh tally
-umesh = openmc.UnstructuredMesh("umesh.vtk", library="moab")
-mesh_filter = openmc.MeshFilter(umesh)
-tally = openmc.Tally(name="mesh_tally")
-tally.filters = [mesh_filter]
-tally.scores = ["flux"]
-tallies = openmc.Tallies([tally])
-
-# Settings
-settings = openmc.Settings()
-settings.batches = 10
-settings.particles = 5000
-settings.run_mode = "fixed source"
-
-# Run
-model = openmc.Model(geometry, materials, settings, tallies)
-model.run()
-```
+[Complete Example with OpenMC](conformal_meshes.md#complete-example-with-openmc) builds a whole model around such a tally, with materials, a source and the run.
 
 ## See Also
 
-- [Conformal Meshes](conformal_meshes.md) - When you need matching surface and volume meshes
-- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md) - Control mesh density
-- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md) - Volume meshes without GMSH
-- [GMSH Backend](../meshing/gmsh_backend.md) - Meshing options
+- [Conformal Meshes](conformal_meshes.md): an h5m file and a VTK file from one meshing run
+- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md): `set_size` on the Gmsh backend
+- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md): how the mesher builds the surfaces and tetrahedra
+- [Gmsh Backend](../meshing/gmsh_backend.md): Gmsh meshing options

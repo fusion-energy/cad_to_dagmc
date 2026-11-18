@@ -1,6 +1,8 @@
-# DAGMC H5M Files
+# DAGMC h5m Files
 
-The primary output format. Creates triangular surface meshes for use with DAGMC-enabled transport codes (OpenMC, MCNP, FLUKA, etc.).
+`export_dagmc_h5m_file()` writes the geometry as a DAGMC h5m file, a triangle
+surface mesh with a material tag on every volume. DAGMC-enabled transport codes
+(OpenMC, MCNP, FLUKA and others) track particles through it.
 
 ## Basic Export
 
@@ -8,169 +10,67 @@ The primary output format. Creates triangular surface meshes for use with DAGMC-
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-assembly = cq.Assembly()
-assembly.add(cq.Workplane("XY").sphere(10), name="sphere")
-
-model = CadToDagmc()
-model.add_cadquery_object(assembly, material_tags=["tungsten"])
-
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    min_mesh_size=0.5,
-    max_mesh_size=10.0,
-)
-```
-
-## With Different Backends
-
-Choose between h5py (default) and pymoab backends:
-
-<!--pytest-codeblocks:skip-->
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-sphere1 = cq.Workplane().sphere(5)
-sphere2 = cq.Workplane().moveTo(10, 0).sphere(2)
+sphere = cq.Workplane("XY").sphere(10)
+box = cq.Workplane("XY").box(30, 30, 30).cut(sphere)
 
 assembly = cq.Assembly()
-assembly.add(sphere1)
-assembly.add(sphere2)
+assembly.add(sphere, name="sphere")
+assembly.add(box, name="box")
 
 model = CadToDagmc()
-model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1", "mat2"])
+model.add_cadquery_object(assembly, material_tags=["tungsten", "steel"])
 
-# Export using h5py backend (default, no MOAB needed)
-model.export_dagmc_h5m_file(
-    filename="dagmc_h5py.h5m",
-    h5m_backend="h5py",
-)
-
-# Export using pymoab backend (requires MOAB installation)
-model.export_dagmc_h5m_file(
-    filename="dagmc_pymoab.h5m",
-    h5m_backend="pymoab",
-)
+model.export_dagmc_h5m_file(filename="dagmc.h5m")
 ```
 
-## With Meshing Backends
-
-Choose between the cad-to-dagmc-mesher (default) and GMSH meshing backends:
-
-<!--pytest-codeblocks:skip-->
-```python
-# cad-to-dagmc-mesher backend (default) - surface and volume meshing
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    meshing_backend="cad-to-dagmc-mesher",
-    tolerance=0.5,
-    angular_tolerance=0.2,
-)
-
-# GMSH backend - full control over mesh parameters
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    meshing_backend="gmsh",
-    min_mesh_size=0.5,
-    max_mesh_size=10.0,
-    mesh_algorithm=1,
-)
-```
+With no meshing arguments, the cad-to-dagmc-mesher backend meshes the geometry
+and the h5py backend writes the file. Any Gmsh argument, such as
+`max_mesh_size`, switches meshing to Gmsh; see
+[How the Backend Is Chosen](../meshing/index.md#how-the-backend-is-chosen).
+To write the file with MOAB's own library instead, install pymoab and pass
+`h5m_backend="pymoab"`; see [h5m Backends](../advanced/h5m_backends.md).
 
 ## API Reference
 
 ### `export_dagmc_h5m_file()`
 
-**Common Parameters:**
-
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `filename` | str | "dagmc.h5m" | Output file path |
-| `scale_factor` | float | 1.0 | Geometry scale factor. See the note below on how it affects the units of the linear mesh sizing parameters |
-| `imprint` | `"partial"`, `"full"`, `None`, or `False` | `"partial"` | Shared-surface imprint mode. `None` still imprints, with glue disabled; only `False` skips imprinting. See [Imprinting](../advanced/imprinting.md) for options. |
-| `imprint_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for imprinting. See [Imprinting](../advanced/imprinting.md) for validation and scope. |
-| `mesh_threads` | `"all"` or positive `int` | `"all"` | Keyword-only thread count for cad-to-dagmc-mesher meshing after the imprint. Fewer threads lower peak RAM; the mesh is the same. The gmsh backend warns that it is unused. See [Parallel Processing](../advanced/parallel_processing.md). |
-| `implicit_complement_material_tag` | str | None | Void space material tag |
+| `filename` | str | `"dagmc.h5m"` | Output file path |
+| `implicit_complement_material_tag` | str | `None` | Material for the implicit complement, the space between and around the volumes. See [Implicit Complement](../advanced/implicit_complement.md) |
+| `scale_factor` | float | `1.0` | Scales the geometry before meshing. Linear mesh sizes are in the scaled units; see [Geometry Scaling](../advanced/geometry_scaling.md#mesh-size-and-scaling) |
+| `imprint` | str, `None` or `False` | `"partial"` | `"partial"` (default), `"full"`, `None` (imprints without glue) or `False` (no imprint); see [Imprinting](../advanced/imprinting.md) |
+| `imprint_threads` | `"all"` or int | `"all"` | `"all"` (default) or a positive int; see [Parallel Processing](../advanced/parallel_processing.md#limiting-imprinting-threads) |
+| `meshing_backend` | str | chosen from the other arguments | `"cad-to-dagmc-mesher"` or `"gmsh"`; see [How the Backend Is Chosen](../meshing/index.md#how-the-backend-is-chosen) |
+| `h5m_backend` | str | `"h5py"` | `"h5py"` or `"pymoab"`; see [h5m Backends](../advanced/h5m_backends.md) |
+| `tet_volumes` | list of str | `None` | cad-to-dagmc-mesher: material tags of the volumes to fill with tetrahedra. Needs `target_edge_length` |
+| `target_edge_length` | float | `None` | cad-to-dagmc-mesher: target tetrahedron edge length, in scaled units. Needs `tet_volumes` |
+| `unstructured_volumes` | list of int or str | `None` | Gmsh: volume IDs or material tags of the volumes to fill with tetrahedra |
+| `umesh_filename` | str | `"umesh.vtk"` | Path of the VTK volume mesh |
 
-**Backend Selection:**
+Passing `tet_volumes` and `target_edge_length`, or `unstructured_volumes`, also
+writes a VTK volume mesh to `umesh_filename` that shares its surfaces with the
+h5m file; see [Conformal Meshes](conformal_meshes.md). On the
+cad-to-dagmc-mesher backend, `tet_volumes` or `target_edge_length` without the
+other raises `ValueError`, and so does `umesh_filename` without both.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `meshing_backend` | str | auto | `"cad-to-dagmc-mesher"` or `"gmsh"`. Auto-selected from the other arguments provided. Defaults to `"cad-to-dagmc-mesher"` when no backend-specific arguments are given, falling back to `"gmsh"` if cad-to-dagmc-mesher is not installed. |
-| `h5m_backend` | str | "h5py" | `"h5py"` or `"pymoab"` for writing h5m files |
+The other meshing arguments are described on the backend pages:
+[cad-to-dagmc-mesher parameters](../meshing/cad_to_dagmc_mesher_backend.md#parameters)
+(`tolerance`, `angular_tolerance`, `mesh_threads`) and
+[Gmsh parameters](../meshing/gmsh_backend.md#parameters) (`min_mesh_size`,
+`max_mesh_size`, `set_size`, `threads` and others). The
+[API Reference](../api.md) page has the exact signature.
 
-**GMSH Backend Parameters:**
-
-These parameters only apply when using `meshing_backend="gmsh"` (or when auto-selected):
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `min_mesh_size` | float | None | Minimum mesh element size |
-| `max_mesh_size` | float | None | Maximum mesh element size |
-| `mesh_algorithm` | int | 1 | GMSH 2D surface meshing algorithm |
-| `mesh_algorithm_3d` | int | 1 | GMSH 3D volume algorithm: 1 = Delaunay, 10 = HXT |
-| `volume_mesh_options` | dict | None | Numeric/string GMSH options applied after surface meshing, before volume meshing; only used with `unstructured_volumes` |
-| `method` | str | "file" | CAD transfer method: `"file"` or `"in memory"` |
-| `set_size` | dict | None | Per-volume mesh sizes. Keys can be volume IDs (int) or material tag names (str). |
-| `unstructured_volumes` | list | None | Volume IDs (int) or material tags (str) for conformal volume mesh |
-| `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
-
-`mesh_algorithm_3d` and `volume_mesh_options` configure the volume step without
-changing how the DAGMC surfaces are initially meshed. See
-[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
-for HXT and relaxed interior sizing. The existing surface mesh is reused for
-the unstructured output.
-
-**cad-to-dagmc-mesher Backend Parameters:**
-
-These parameters only apply when using `meshing_backend="cad-to-dagmc-mesher"`:
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `tolerance` | float | 0.5 | Linear tolerance for the surface mesh, in cm after `scale_factor` |
-| `angular_tolerance` | float | 0.2 | Angular tolerance for the surface mesh |
-| `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
-| `target_edge_length` | float | None | Target tetrahedron edge length, in scaled-geometry units |
-| `umesh_filename` | str | "umesh.vtk" | Output filename for unstructured volume mesh |
-
-:::{important}
-**`scale_factor` and the units of linear mesh sizes.** All the linear mesh sizing
-parameters are in the units of the **scaled** geometry, so the same number means
-the same deflection on the output mesh whichever backend you use:
-
-| Backend | Linear sizing parameters |
-|---------|--------------------------|
-| `gmsh` | `min_mesh_size`, `max_mesh_size`, `set_size` |
-| `cad-to-dagmc-mesher` | `tolerance`, `target_edge_length` |
-
-OpenMC works in centimetres, so set `scale_factor` to bring the CAD to cm (for
-example `scale_factor=100` for a model in metres). The cad-to-dagmc-mesher default
-`tolerance` of `0.5` is then a 5 mm deflection.
-
-`angular_tolerance` is an angle and is unaffected by `scale_factor`.
-:::
-
-`tet_volumes` and `target_edge_length` must be given together to write a volume mesh.
-
-:::{warning}
-Do not mix GMSH and cad-to-dagmc-mesher backend parameters in the same call. If you provide parameters from both backends without explicitly setting `meshing_backend`, an error will be raised.
-:::
-
-**Returns:**
-- `str` - Path to the created h5m file
-- Or `tuple[str, str]` - (h5m_path, vtk_path) when a volume mesh is also written, which is
-  when `unstructured_volumes` is set on the GMSH backend, or when `tet_volumes` and
-  `target_edge_length` are set on the cad-to-dagmc-mesher backend
+`export_dagmc_h5m_file()` returns the h5m filename, or a
+`(filename, umesh_filename)` tuple when it also writes a volume mesh.
 
 ## Using in OpenMC
-
-Load the DAGMC geometry in OpenMC:
 
 <!--pytest-codeblocks:skip-->
 ```python
 import openmc
 
-# Define materials (names must match material tags)
+# Material names must match the material tags
 tungsten = openmc.Material(name="tungsten")
 tungsten.add_element("W", 1.0)
 tungsten.set_density("g/cm3", 19.3)
@@ -181,23 +81,29 @@ steel.set_density("g/cm3", 7.8)
 
 materials = openmc.Materials([tungsten, steel])
 
-# Load the DAGMC geometry
+# cad_to_dagmc writes no graveyard, so bounded_universe() puts the geometry
+# inside a box with a vacuum boundary
 dag_universe = openmc.DAGMCUniverse(filename="dagmc.h5m")
 geometry = openmc.Geometry(root=dag_universe.bounded_universe())
 
-# Set up settings
 settings = openmc.Settings()
 settings.batches = 10
 settings.particles = 1000
 settings.run_mode = "fixed source"
+# Set settings.source here. Without one, OpenMC starts particles from a point
+# at the origin with a Watt fission spectrum.
 
 model = openmc.Model(geometry=geometry, materials=materials, settings=settings)
 model.run()
 ```
 
+This loads the file from [Basic Export](#basic-export). For a complete run with
+a source and an unstructured mesh tally, see
+[Complete Example with OpenMC](conformal_meshes.md#complete-example-with-openmc).
+
 ## See Also
 
-- [H5M Backends](../advanced/h5m_backends.md) - h5py vs pymoab comparison
-- [GMSH Backend](../meshing/gmsh_backend.md) - GMSH meshing options
-- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md) - cad-to-dagmc-mesher meshing options
-- [Conformal Meshes](conformal_meshes.md) - Combined surface and volume output
+- [h5m Backends](../advanced/h5m_backends.md): writing with h5py or pymoab
+- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md): the default meshing backend
+- [Gmsh Backend](../meshing/gmsh_backend.md): Gmsh meshing options
+- [Checking for Overlaps](../advanced/overlaps.md): the overlaps an export refuses, and finding the rest
