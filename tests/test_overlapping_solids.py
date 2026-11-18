@@ -18,10 +18,8 @@ import pytest
 
 from cad_to_dagmc import CadToDagmc
 
-pytest.importorskip("cad_to_dagmc_mesher")
+_mesher_assembly = pytest.importorskip("cad_to_dagmc_mesher.cad._assembly")
 di = pytest.importorskip("dagmc_h5m_file_inspector")
-
-from cad_to_dagmc_mesher.cad import _assembly as _mesher_assembly  # noqa: E402
 
 # The volume, extent and contact-surface wording come from the mesher; older
 # releases report only the pair and its volume (in mm^3).
