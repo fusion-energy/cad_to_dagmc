@@ -1253,12 +1253,45 @@ def check_material_tags(material_tags, iterable_solids):
             if not isinstance(material_tag, str):
                 msg = "material_tags should be an iterable of strings."
                 raise TypeError(msg)
-            if len(material_tag) > 28:
-                msg = (
-                    f"Material tag {material_tag} is too long. DAGMC will truncate this material tag "
-                    f"to 28 characters. The resulting tag in the h5m file will be {material_tag[:28]}"
-                )
-                warnings.warn(msg)
+        _check_tag_lengths(material_tags)
+
+
+# The h5m writers store each group name in 32 bytes and DAGMC reads it as a
+# null-terminated string, so "mat:", the tag and the null byte must fit in 32
+# bytes. The implicit complement group name also carries a "_comp" suffix.
+_MAX_MATERIAL_TAG_LENGTH = 32 - len("mat:") - 1
+_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH = _MAX_MATERIAL_TAG_LENGTH - len("_comp")
+
+
+def _check_tag_lengths(
+    material_tags=(), implicit_complement_material_tag: str | None = None
+) -> None:
+    """Warns about tags too long for the 32-byte group names in the h5m file.
+
+    A longer tag leaves no room for the null byte that ends the name, or is
+    cut short, and OpenMC then does not find the material.
+    """
+    for material_tag in material_tags:
+        if len(material_tag) > _MAX_MATERIAL_TAG_LENGTH:
+            warnings.warn(
+                f"Material tag {material_tag} is too long. It has "
+                f"{len(material_tag)} characters and must have "
+                f"{_MAX_MATERIAL_TAG_LENGTH} or fewer to fit in the h5m file, "
+                "otherwise DAGMC misreads it and OpenMC does not find the "
+                "material."
+            )
+    if (
+        implicit_complement_material_tag
+        and len(implicit_complement_material_tag) > _MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH
+    ):
+        warnings.warn(
+            "Implicit complement material tag "
+            f"{implicit_complement_material_tag} is too long. It has "
+            f"{len(implicit_complement_material_tag)} characters and must have "
+            f"{_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH} or fewer, because the h5m "
+            "file stores it with a _comp suffix. Otherwise DAGMC misreads it "
+            "and OpenMC does not find the material."
+        )
 
 
 def order_material_ids_by_brep_order(original_ids, scrambled_id, material_tags):
@@ -1424,6 +1457,8 @@ def export_gmsh_object_to_dagmc_h5m_file(
         msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
         raise ValueError(msg)
 
+    _check_tag_lengths(material_tags, implicit_complement_material_tag)
+
     vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
         dims_and_vol_ids=dims_and_vol_ids
     )
@@ -1498,6 +1533,8 @@ def export_gmsh_file_to_dagmc_h5m_file(
     if len(dims_and_vol_ids) != len(material_tags):
         msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
         raise ValueError(msg)
+
+    _check_tag_lengths(material_tags, implicit_complement_material_tag)
 
     vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
         dims_and_vol_ids=dims_and_vol_ids
@@ -2445,6 +2482,10 @@ class CadToDagmc:
                     "The following parameters are ignored when using "
                     f"cad-to-dagmc-mesher backend: {', '.join(unused_params)}"
                 )
+
+        _check_tag_lengths(
+            implicit_complement_material_tag=implicit_complement_material_tag
+        )
 
         assembly = cq.Assembly()
         for part in self.parts:

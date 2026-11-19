@@ -32,7 +32,7 @@ implicit complement with the material named `air`.
 
 Keep the tag to 22 characters or fewer. Each group name in the h5m file gets 32
 bytes, and `mat:`, `_comp` and the null byte that ends the name take 10 of
-them. cad_to_dagmc does not check the length. With 23 characters there is no
+them. cad_to_dagmc warns about a longer tag. With 23 characters there is no
 room for the null byte, so DAGMC can misread the name and then not find the
 material. A longer tag is cut to fit and loses its `_comp` suffix, and DAGMC
 stops while loading the file with "More than one material for volume ...". The
