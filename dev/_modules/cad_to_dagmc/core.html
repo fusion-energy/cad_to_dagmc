@@ -1646,12 +1646,45 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">material_tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s2">"material_tags should be an iterable of strings."</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">material_tag</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">28</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Material tag </span><span class="si">{</span><span class="n">material_tag</span><span class="si">}</span><span class="s2"> is too long. DAGMC will truncate this material tag "</span>
-                    <span class="sa">f</span><span class="s2">"to 28 characters. The resulting tag in the h5m file will be </span><span class="si">{</span><span class="n">material_tag</span><span class="p">[:</span><span class="mi">28</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
-                <span class="p">)</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">_check_tag_lengths</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span>
+
+
+<span class="c1"># The h5m writers store each group name in 32 bytes and DAGMC reads it as a</span>
+<span class="c1"># null-terminated string, so "mat:", the tag and the null byte must fit in 32</span>
+<span class="c1"># bytes. The implicit complement group name also carries a "_comp" suffix.</span>
+<span class="n">_MAX_MATERIAL_TAG_LENGTH</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="s2">"mat:"</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH</span> <span class="o">=</span> <span class="n">_MAX_MATERIAL_TAG_LENGTH</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="s2">"_comp"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_tag_lengths</span><span class="p">(</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">(),</span> <span class="n">implicit_complement_material_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Warns about tags too long for the 32-byte group names in the h5m file.</span>
+
+<span class="sd">    A longer tag leaves no room for the null byte that ends the name, or is</span>
+<span class="sd">    cut short, and OpenMC then does not find the material.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">material_tag</span> <span class="ow">in</span> <span class="n">material_tags</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">material_tag</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_MATERIAL_TAG_LENGTH</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Material tag </span><span class="si">{</span><span class="n">material_tag</span><span class="si">}</span><span class="s2"> is too long. It has "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">material_tag</span><span class="p">)</span><span class="si">}</span><span class="s2"> characters and must have "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_MAX_MATERIAL_TAG_LENGTH</span><span class="si">}</span><span class="s2"> or fewer to fit in the h5m file, "</span>
+                <span class="s2">"otherwise DAGMC misreads it and OpenMC does not find the "</span>
+                <span class="s2">"material."</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">implicit_complement_material_tag</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">implicit_complement_material_tag</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH</span>
+    <span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"Implicit complement material tag "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">implicit_complement_material_tag</span><span class="si">}</span><span class="s2"> is too long. It has "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">implicit_complement_material_tag</span><span class="p">)</span><span class="si">}</span><span class="s2"> characters and must have "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH</span><span class="si">}</span><span class="s2"> or fewer, because the h5m "</span>
+            <span class="s2">"file stores it with a _comp suffix. Otherwise DAGMC misreads it "</span>
+            <span class="s2">"and OpenMC does not find the material."</span>
+        <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">order_material_ids_by_brep_order</span><span class="p">(</span><span class="n">original_ids</span><span class="p">,</span> <span class="n">scrambled_id</span><span class="p">,</span> <span class="n">material_tags</span><span class="p">):</span>
@@ -1819,6 +1852,8 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Number of volumes </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not equal to number of material tags </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+    <span class="n">_check_tag_lengths</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="n">implicit_complement_material_tag</span><span class="p">)</span>
+
     <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
         <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">dims_and_vol_ids</span>
     <span class="p">)</span>
@@ -1896,6 +1931,8 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">):</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Number of volumes </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not equal to number of material tags </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">_check_tag_lengths</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="n">implicit_complement_material_tag</span><span class="p">)</span>
 
     <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
         <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">dims_and_vol_ids</span>
@@ -2865,6 +2902,10 @@
                     <span class="s2">"The following parameters are ignored when using "</span>
                     <span class="sa">f</span><span class="s2">"cad-to-dagmc-mesher backend: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unused_params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
+
+        <span class="n">_check_tag_lengths</span><span class="p">(</span>
+            <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="n">implicit_complement_material_tag</span>
+        <span class="p">)</span>
 
         <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
