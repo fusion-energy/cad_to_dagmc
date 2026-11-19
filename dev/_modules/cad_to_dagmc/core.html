@@ -1921,24 +1921,27 @@
 <span class="sd">    """</span>
 
     <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">gmsh_filename</span><span class="p">)</span>
+    <span class="c1"># finalize in a finally so a bad file or a tag count mismatch does not</span>
+    <span class="c1"># leave the gmsh session open</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">gmsh_filename</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">material_tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">material_tags</span> <span class="o">=</span> <span class="n">_get_material_tags_from_gmsh</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">material_tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">material_tags</span> <span class="o">=</span> <span class="n">_get_material_tags_from_gmsh</span><span class="p">()</span>
 
-    <span class="n">dims_and_vol_ids</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntities</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">dims_and_vol_ids</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntities</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">):</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Number of volumes </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not equal to number of material tags </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Number of volumes </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dims_and_vol_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not equal to number of material tags </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">material_tags</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="n">_check_tag_lengths</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="n">implicit_complement_material_tag</span><span class="p">)</span>
+        <span class="n">_check_tag_lengths</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="n">implicit_complement_material_tag</span><span class="p">)</span>
 
-    <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
-        <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">dims_and_vol_ids</span>
-    <span class="p">)</span>
-
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">triangles_by_solid_by_face</span> <span class="o">=</span> <span class="n">mesh_to_vertices_and_triangles</span><span class="p">(</span>
+            <span class="n">dims_and_vol_ids</span><span class="o">=</span><span class="n">dims_and_vol_ids</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 
     <span class="n">h5m_filename</span> <span class="o">=</span> <span class="n">vertices_to_h5m</span><span class="p">(</span>
         <span class="n">vertices</span><span class="o">=</span><span class="n">vertices</span><span class="p">,</span>
