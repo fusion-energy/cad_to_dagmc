@@ -1939,7 +1939,7 @@
 <span class="w">        </span><span class="sd">"""Loads the parts from stp file into the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filename: the filename used to save the html graph.</span>
+<span class="sd">            filename: the path of the STEP file to load.</span>
 <span class="sd">            material_tags: the names of the DAGMC material tags to assign.</span>
 <span class="sd">                Can be a list of strings (one per volume), or one of the</span>
 <span class="sd">                special strings "assembly_names" or "assembly_materials" to</span>
@@ -2007,7 +2007,7 @@
 <span class="sd">                simulations.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int: number of volumes in the stp file.</span>
+<span class="sd">            int: number of volumes added from the CadQuery object.</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">material_tags</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">material_tags</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
@@ -2246,10 +2246,11 @@
 <span class="sd">            tolerance: linear deflection tolerance for the surface mesh, used by</span>
 <span class="sd">                the cad-to-dagmc-mesher backend. This is in the units of the</span>
 <span class="sd">                SCALED geometry, since scale_factor is applied before meshing,</span>
-<span class="sd">                so scale it alongside scale_factor. With scale_factor=100 the</span>
-<span class="sd">                0.01 default is a 0.1 mm deflection, which on a large model can</span>
-<span class="sd">                produce a very fine mesh and exhaust memory. The same applies to</span>
-<span class="sd">                min_mesh_size/max_mesh_size/set_size for the gmsh backend.</span>
+<span class="sd">                so scale it alongside scale_factor. The 0.5 default is a 5 mm</span>
+<span class="sd">                deflection when the scaled geometry is in cm. A small tolerance</span>
+<span class="sd">                on a large model can produce a very fine mesh and exhaust</span>
+<span class="sd">                memory. The same applies to min_mesh_size/max_mesh_size/set_size</span>
+<span class="sd">                for the gmsh backend.</span>
 <span class="sd">            angular_tolerance: angular deflection tolerance for the surface mesh,</span>
 <span class="sd">                used by the cad-to-dagmc-mesher backend. An angle, so unaffected</span>
 <span class="sd">                by scale_factor.</span>
@@ -2609,12 +2610,13 @@
 <span class="sd">                the SCALED geometry, so the same number means the same thing on</span>
 <span class="sd">                the output mesh whichever backend is used. For example with</span>
 <span class="sd">                scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm</span>
-<span class="sd">                deflection. Note this means the defaults get finer as</span>
-<span class="sd">                scale_factor grows: the cad-to-dagmc-mesher tolerance default of</span>
-<span class="sd">                0.01 is a 0.1 mm deflection at scale_factor=100, which on a large</span>
-<span class="sd">                model can produce a very fine mesh and exhaust memory, so scale</span>
-<span class="sd">                the tolerance along with the geometry. angular_tolerance is an</span>
-<span class="sd">                angle and so is unaffected by scaling.</span>
+<span class="sd">                deflection. Note this means the defaults get finer, relative to</span>
+<span class="sd">                the geometry, as scale_factor grows: the cad-to-dagmc-mesher</span>
+<span class="sd">                tolerance default of 0.5 is a 5 mm deflection on geometry</span>
+<span class="sd">                scaled to cm, whatever the scale_factor. A small tolerance on a</span>
+<span class="sd">                large model can produce a very fine mesh and exhaust memory, so</span>
+<span class="sd">                scale the tolerance along with the geometry. angular_tolerance is an angle and so is</span>
+<span class="sd">                unaffected by scaling.</span>
 <span class="sd">            imprint: "partial" (default) for non-overlapping contact, "full" for</span>
 <span class="sd">                exactly coincident whole faces, None to imprint without glue, or</span>
 <span class="sd">                False to skip imprinting entirely. None does not mean the default.</span>

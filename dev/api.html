@@ -479,7 +479,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – the filename used to save the html graph.</p></li>
+<li><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – the path of the STEP file to load.</p></li>
 <li><p><strong>material_tags</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – the names of the DAGMC material tags to assign.
 Can be a list of strings (one per volume), or one of the
 special strings “assembly_names” or “assembly_materials” to
@@ -523,7 +523,7 @@ simulations.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>number of volumes in the stp file.</p>
+<dd class="field-even"><p>number of volumes added from the CadQuery object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
@@ -647,10 +647,11 @@ cad-to-dagmc-mesher backend. Defaults to all volumes.</p>
 </dd>
 <dt>tolerance: linear deflection tolerance for the surface mesh, used by</dt><dd><p>the cad-to-dagmc-mesher backend. This is in the units of the
 SCALED geometry, since scale_factor is applied before meshing,
-so scale it alongside scale_factor. With scale_factor=100 the
-0.01 default is a 0.1 mm deflection, which on a large model can
-produce a very fine mesh and exhaust memory. The same applies to
-min_mesh_size/max_mesh_size/set_size for the gmsh backend.</p>
+so scale it alongside scale_factor. The 0.5 default is a 5 mm
+deflection when the scaled geometry is in cm. A small tolerance
+on a large model can produce a very fine mesh and exhaust
+memory. The same applies to min_mesh_size/max_mesh_size/set_size
+for the gmsh backend.</p>
 </dd>
 <dt>angular_tolerance: angular deflection tolerance for the surface mesh,</dt><dd><p>used by the cad-to-dagmc-mesher backend. An angle, so unaffected
 by scale_factor.</p>
@@ -766,12 +767,13 @@ cad-to-dagmc-mesher) are in the units of
 the SCALED geometry, so the same number means the same thing on
 the output mesh whichever backend is used. For example with
 scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
-deflection. Note this means the defaults get finer as
-scale_factor grows: the cad-to-dagmc-mesher tolerance default of
-0.01 is a 0.1 mm deflection at scale_factor=100, which on a large
-model can produce a very fine mesh and exhaust memory, so scale
-the tolerance along with the geometry. angular_tolerance is an
-angle and so is unaffected by scaling.</p></li>
+deflection. Note this means the defaults get finer, relative to
+the geometry, as scale_factor grows: the cad-to-dagmc-mesher
+tolerance default of 0.5 is a 5 mm deflection on geometry
+scaled to cm, whatever the scale_factor. A small tolerance on a
+large model can produce a very fine mesh and exhaust memory, so
+scale the tolerance along with the geometry. angular_tolerance is an angle and so is
+unaffected by scaling.</p></li>
 <li><p><strong>imprint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'partial'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'full'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#False" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="kc"><span class="pre">False</span></span></code></a></span>]]</span>) – “partial” (default) for non-overlapping contact, “full” for
 exactly coincident whole faces, None to imprint without glue, or
 False to skip imprinting entirely. None does not mean the default.
