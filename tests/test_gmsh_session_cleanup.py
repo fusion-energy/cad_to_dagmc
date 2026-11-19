@@ -157,3 +157,19 @@ def test_init_gmsh_clears_leaked_session():
     finally:
         if gmsh.isInitialized():
             gmsh.finalize()
+
+
+def test_export_gmsh_file_to_dagmc_h5m_file_finalizes_on_tag_count_error(
+    tmp_path,
+):
+    """A material tag count that does not match the volumes in the file
+    raises, and the session the function opened must still be finalized."""
+    from cad_to_dagmc import export_gmsh_file_to_dagmc_h5m_file
+
+    with pytest.raises(ValueError, match="not equal to number of material tags"):
+        export_gmsh_file_to_dagmc_h5m_file(
+            gmsh_filename="tests/tagged_mesh.msh",
+            material_tags=["only_one_tag"],
+            dagmc_filename=str(tmp_path / "dagmc.h5m"),
+        )
+    assert not gmsh.isInitialized()

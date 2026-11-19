@@ -1523,24 +1523,27 @@ def export_gmsh_file_to_dagmc_h5m_file(
     """
 
     gmsh.initialize()
-    gmsh.open(gmsh_filename)
+    # finalize in a finally so a bad file or a tag count mismatch does not
+    # leave the gmsh session open
+    try:
+        gmsh.open(gmsh_filename)
 
-    if material_tags is None:
-        material_tags = _get_material_tags_from_gmsh()
+        if material_tags is None:
+            material_tags = _get_material_tags_from_gmsh()
 
-    dims_and_vol_ids = gmsh.model.getEntities(3)
+        dims_and_vol_ids = gmsh.model.getEntities(3)
 
-    if len(dims_and_vol_ids) != len(material_tags):
-        msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
-        raise ValueError(msg)
+        if len(dims_and_vol_ids) != len(material_tags):
+            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
 
-    _check_tag_lengths(material_tags, implicit_complement_material_tag)
+        _check_tag_lengths(material_tags, implicit_complement_material_tag)
 
-    vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-        dims_and_vol_ids=dims_and_vol_ids
-    )
-
-    gmsh.finalize()
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+            dims_and_vol_ids=dims_and_vol_ids
+        )
+    finally:
+        gmsh.finalize()
 
     h5m_filename = vertices_to_h5m(
         vertices=vertices,
