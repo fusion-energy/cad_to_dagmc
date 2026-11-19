@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -420,12 +420,9 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-implicit-complement">What is the Implicit Complement?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-in-openmc">Using in OpenMC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-gmsh-files">With GMSH Files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-use-cases">Common Use Cases</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use">When to Use</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-gmsh-files">With Gmsh Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -440,22 +437,17 @@
                   
   <section id="implicit-complement">
 <h1>Implicit Complement<a class="headerlink" href="#implicit-complement" title="Link to this heading">#</a></h1>
-<p>Set a material tag for DAGMC’s implicit complement - the void space outside/between your defined volumes.</p>
-<section id="what-is-the-implicit-complement">
-<h2>What is the Implicit Complement?<a class="headerlink" href="#what-is-the-implicit-complement" title="Link to this heading">#</a></h2>
-<p>In DAGMC, the implicit complement is the region of space not occupied by any explicitly defined volume. By default, particles entering this region are “lost” (void). Setting an implicit complement material tag allows you to:</p>
-<ul class="simple">
-<li><p>Track particles in the void space</p></li>
-<li><p>Assign a material (like air) to the surrounding environment</p></li>
-<li><p>Score tallies in regions between components</p></li>
-</ul>
-</section>
+<p>The implicit complement is the space that no volume occupies: the gaps between
+volumes and the space around them, out to the boundary of the model. With no
+tag, DAGMC treats it as vacuum, so particles cross it without interacting and
+none are lost. If that space holds air, water, helium or another material, name
+the material with <code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code>.</p>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create some boxes (with void space between them)</span>
+<span class="c1"># Two boxes with a gap between them</span>
 <span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
 <span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
 
@@ -466,41 +458,44 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">,</span>  <span class="c1"># Tag the void as "air"</span>
-<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The tag is stored as a group named <code class="docutils literal notranslate"><span class="pre">mat:air_comp</span></code>. DAGMC reads the <code class="docutils literal notranslate"><span class="pre">_comp</span></code>
+suffix as marking the implicit complement material, so OpenMC fills the
+implicit complement with the material named <code class="docutils literal notranslate"><span class="pre">air</span></code>.</p>
+<p>Keep the tag to 22 characters or fewer. Each group name in the h5m file gets 32
+bytes, and <code class="docutils literal notranslate"><span class="pre">mat:</span></code>, <code class="docutils literal notranslate"><span class="pre">_comp</span></code> and the null byte that ends the name take 10 of
+them. cad_to_dagmc does not check the length. With 23 characters there is no
+room for the null byte, so DAGMC can misread the name and then not find the
+material. A longer tag is cut to fit and loses its <code class="docutils literal notranslate"><span class="pre">_comp</span></code> suffix, and DAGMC
+stops while loading the file with “More than one material for volume …”. The
+other naming rules are in <a class="reference internal" href="../material_tagging/index.html#tag-name-guidelines"><span class="std std-ref">Tag Name Guidelines</span></a>.</p>
 </section>
 <section id="using-in-openmc">
 <h2>Using in OpenMC<a class="headerlink" href="#using-in-openmc" title="Link to this heading">#</a></h2>
-<p>When using implicit complement in OpenMC, define a material with the matching name:</p>
+<p>Define a material with the same name as the tag:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
-<span class="c1"># Define the implicit complement material</span>
+<span class="c1"># Fills the implicit complement</span>
 <span class="n">air</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"air"</span><span class="p">)</span>
 <span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"N"</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">)</span>
 <span class="n">air</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"O"</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">)</span>
 <span class="n">air</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001225</span><span class="p">)</span>
 
-<span class="c1"># Other materials...</span>
-<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"mat1"</span><span class="p">)</span>
-<span class="c1"># ...</span>
+<span class="c1"># mat1 and mat2, named after the volume tags, are defined as usual</span>
+<span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">air</span><span class="p">,</span> <span class="n">mat1</span><span class="p">,</span> <span class="n">mat2</span><span class="p">])</span>
 
-<span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">air</span><span class="p">,</span> <span class="n">mat1</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
-
-<span class="c1"># Load DAGMC geometry</span>
 <span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="with-gmsh-files">
-<h2>With GMSH Files<a class="headerlink" href="#with-gmsh-files" title="Link to this heading">#</a></h2>
-<p>Also works with GMSH file conversion:</p>
+<h2>With Gmsh Files<a class="headerlink" href="#with-gmsh-files" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">export_gmsh_file_to_dagmc_h5m_file</span></code> and <code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file</span></code>
+take the same argument:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
 
@@ -508,57 +503,16 @@
     <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">,</span>
     <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">],</span>
-    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"void"</span><span class="p">,</span>
+    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="common-use-cases">
-<h2>Common Use Cases<a class="headerlink" href="#common-use-cases" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Material Tag</p></th>
-<th class="head"><p>Use Case</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;air&quot;</span></code></p></td>
-<td><p>Atmospheric environment</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;void&quot;</span></code></p></td>
-<td><p>Vacuum or placeholder</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;helium&quot;</span></code></p></td>
-<td><p>Helium-cooled systems</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;water&quot;</span></code></p></td>
-<td><p>Submerged components</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="when-to-use">
-<h2>When to Use<a class="headerlink" href="#when-to-use" title="Link to this heading">#</a></h2>
-<p><strong>Use implicit complement when:</strong></p>
-<ul class="simple">
-<li><p>You need to track particles in the void</p></li>
-<li><p>The surrounding medium affects particle transport</p></li>
-<li><p>You want tallies in the void region</p></li>
-<li><p>Components are separated and the space between matters</p></li>
-</ul>
-<p><strong>Skip implicit complement when:</strong></p>
-<ul class="simple">
-<li><p>Void is truly vacuum (particle loss is acceptable)</p></li>
-<li><p>All space is filled by defined volumes</p></li>
-<li><p>You’re only interested in the defined components</p></li>
-</ul>
-</section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../outputs/dagmc_h5m.html"><span class="std std-doc">DAGMC H5M Output</span></a> - Full export options</p></li>
-<li><p><a class="reference internal" href="../inputs/gmsh_files.html"><span class="std std-doc">GMSH Files Input</span></a> - GMSH file conversion</p></li>
+<li><p><a class="reference internal" href="../outputs/dagmc_h5m.html"><span class="std std-doc">DAGMC h5m Files</span></a>: the other export options</p></li>
+<li><p><a class="reference internal" href="../inputs/gmsh_files.html"><span class="std std-doc">Gmsh Files</span></a>: converting a Gmsh mesh to DAGMC</p></li>
 </ul>
 </section>
 </section>
@@ -610,12 +564,9 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-implicit-complement">What is the Implicit Complement?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-in-openmc">Using in OpenMC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-gmsh-files">With GMSH Files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-use-cases">Common Use Cases</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use">When to Use</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-gmsh-files">With Gmsh Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

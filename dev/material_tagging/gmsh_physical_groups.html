@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>GMSH Physical Groups &#8212; cad_to_dagmc 0.1 documentation</title>
+    <title>Gmsh Physical Groups &#8212; cad_to_dagmc 0.1 documentation</title>
   
   
   
@@ -57,7 +57,7 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Output Formats" href="../outputs/index.html" />
+    <link rel="next" title="Meshing Backends" href="../meshing/index.html" />
     <link rel="prev" title="Assembly Materials as Tags" href="assembly_materials.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="current nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -410,7 +410,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>GMSH Physical Groups</h1>
+    <h1>Gmsh Physical Groups</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -421,13 +421,12 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-physical-groups">Creating Physical Groups</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-mesh-plugin">Using assembly-mesh-plugin</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overriding-physical-groups">Overriding Physical Groups</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-physical-groups-in-gmsh">Creating Physical Groups in GMSH</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-a-mesh-file">Converting a Mesh File</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-physical-groups">Checking Physical Groups</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overriding-physical-groups">Overriding Physical Groups</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#materials-in-openmc">Materials in OpenMC</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -441,173 +440,139 @@
                 <article class="bd-article">
                   
   <section id="gmsh-physical-groups">
-<h1>GMSH Physical Groups<a class="headerlink" href="#gmsh-physical-groups" title="Link to this heading">#</a></h1>
-<p>When importing from GMSH mesh files, physical group names become material tags automatically.</p>
+<h1>Gmsh Physical Groups<a class="headerlink" href="#gmsh-physical-groups" title="Link to this heading">#</a></h1>
+<p>When a Gmsh mesh is converted without <code class="docutils literal notranslate"><span class="pre">material_tags</span></code>, cad_to_dagmc takes the material tags from the names of its 3D physical groups. Both <code class="docutils literal notranslate"><span class="pre">export_gmsh_file_to_dagmc_h5m_file</span></code> (a <code class="docutils literal notranslate"><span class="pre">.msh</span></code> file) and <code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file</span></code> (the model in the current gmsh session) do this.</p>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
-<p>GMSH physical groups are named collections of mesh entities. For DAGMC, 3D volume physical groups are used as material tags:</p>
-<ol class="arabic simple">
-<li><p>GMSH mesh has physical groups: <code class="docutils literal notranslate"><span class="pre">&quot;shell&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;insert&quot;</span></code></p></li>
-<li><p>Conversion extracts these names</p></li>
-<li><p>DAGMC volumes get tagged: <code class="docutils literal notranslate"><span class="pre">mat:shell</span></code>, <code class="docutils literal notranslate"><span class="pre">mat:insert</span></code></p></li>
-</ol>
+<p>The names of the 3D physical groups are read in order of group tag and paired with the volumes in order of volume tag. Which volumes a group contains is never checked. So make exactly one 3D group per volume, and create the groups in volume order or give them tags in that order.</p>
+<p>A group that holds two volumes leaves fewer names than volumes, and the conversion raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> such as “Number of volumes 3 is not equal to number of material tags 2”. Groups created in a different order from the volumes swap the tags without any error. Groups of other dimensions are ignored. Group names become tags unchanged and must follow the <a class="reference internal" href="index.html#tag-name-guidelines"><span class="std std-ref">tag name guidelines</span></a>.</p>
 </section>
-<section id="basic-usage">
-<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
-<p>If your GMSH file already has physical groups:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+<section id="creating-physical-groups">
+<h2>Creating Physical Groups<a class="headerlink" href="#creating-physical-groups" title="Link to this heading">#</a></h2>
+<p>A sphere inside a box, with one group per volume:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
 
-<span class="c1"># Physical groups become material tags automatically</span>
-<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh_with_physical_groups.msh"</span><span class="p">,</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="c1"># No material_tags needed!</span>
-<span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+<span class="c1"># fragment keeps both volumes and gives them one shared surface</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">addSphere</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">addBox</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">fragment</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+<span class="c1"># one 3D group per volume, in volume order</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"water"</span><span class="p">)</span>
+
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># the surface triangles belong to no physical group, so save them explicitly</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.SaveAll"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"mesh_with_groups.msh"</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 </pre></div>
 </div>
-</section>
-<section id="complete-example-with-openmc">
-<h2>Complete Example with OpenMC<a class="headerlink" href="#complete-example-with-openmc" title="Link to this heading">#</a></h2>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
-
-<span class="c1"># Convert GMSH file - physical groups become material tags</span>
-<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"tagged_mesh.msh"</span><span class="p">,</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Material names must match physical group names</span>
-<span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"shell"</span><span class="p">)</span>  <span class="c1"># Matches physical group</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
-<span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
-
-<span class="n">mat2</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"insert"</span><span class="p">)</span>  <span class="c1"># Matches physical group</span>
-<span class="n">mat2</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
-<span class="n">mat2</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">)</span>
-
-<span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">mat1</span><span class="p">,</span> <span class="n">mat2</span><span class="p">])</span>
-
-<span class="n">universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">()</span>
-<span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
-
-<span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"fixed source"</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div>
+<p>Once a model has physical groups, Gmsh saves only the elements that belong to one. Without <code class="docutils literal notranslate"><span class="pre">Mesh.SaveAll</span></code>, the file above would hold no surface triangles and the conversion would fail with an <code class="docutils literal notranslate"><span class="pre">IndexError</span></code>.</p>
 </section>
 <section id="using-assembly-mesh-plugin">
 <h2>Using assembly-mesh-plugin<a class="headerlink" href="#using-assembly-mesh-plugin" title="Link to this heading">#</a></h2>
-<p>The <a class="reference external" href="https://github.com/CadQuery/assembly-mesh-plugin">assembly-mesh-plugin</a> creates physical groups from CadQuery assembly names:</p>
-<!--pytest-codeblocks:skip-->
+<p>The <a class="reference external" href="https://github.com/CadQuery/assembly-mesh-plugin">assembly-mesh-plugin</a> adds <code class="docutils literal notranslate"><span class="pre">getTaggedGmsh()</span></code> to CadQuery assemblies. It initialises gmsh and loads the assembly, with a 3D group for each solid named after its part:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">assembly_mesh_plugin</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">assembly_mesh_plugin</span>  <span class="c1"># adds getTaggedGmsh to cq.Assembly</span>
 
-<span class="c1"># Create assembly with named parts</span>
 <span class="n">box1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="n">box2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"first_material"</span><span class="p">)</span>   <span class="c1"># Becomes physical group</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"second_material"</span><span class="p">)</span>  <span class="c1"># Becomes physical group</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"first_material"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"second_material"</span><span class="p">)</span>
 
-<span class="c1"># getTaggedGmsh creates mesh with physical groups from names</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">getTaggedGmsh</span><span class="p">()</span>
 
 <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">"Mesh.MeshSizeMax"</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">)</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="c1"># Export - physical groups become material tags</span>
-<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span>
-<span class="p">)</span>
+<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_object_to_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 
 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>The plugin also adds a 3D group named <code class="docutils literal notranslate"><span class="pre">mat:&lt;material&gt;</span></code> for every part that has a <code class="docutils literal notranslate"><span class="pre">cq.Material</span></code>. That gives more names than volumes: with materials on both parts above, the conversion raises “Number of volumes 2 is not equal to number of material tags 4”. Leave materials off the parts, or pass <code class="docutils literal notranslate"><span class="pre">material_tags</span></code>.</p>
+<p>Each part goes into gmsh separately, so parts that touch, like the two boxes above, keep separate copies of the face where they meet instead of sharing one surface; see <a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> for why that matters. <code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code> with <a class="reference internal" href="assembly_names.html"><span class="std std-doc">assembly names</span></a> gives the same tags and imprints the parts when it exports.</p>
 </section>
-<section id="overriding-physical-groups">
-<h2>Overriding Physical Groups<a class="headerlink" href="#overriding-physical-groups" title="Link to this heading">#</a></h2>
-<p>You can override physical groups with manual tags:</p>
+<section id="converting-a-mesh-file">
+<h2>Converting a Mesh File<a class="headerlink" href="#converting-a-mesh-file" title="Link to this heading">#</a></h2>
+<p>With the groups in place, <code class="docutils literal notranslate"><span class="pre">material_tags</span></code> can be left out:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
 
-<span class="c1"># Override physical groups with custom tags</span>
 <span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">,</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh_with_groups.msh"</span><span class="p">,</span>
     <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"new_tag1"</span><span class="p">,</span> <span class="s2">"new_tag2"</span><span class="p">],</span>  <span class="c1"># Overrides physical groups</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The conversion prints the names it found, in the order it applies them.</p>
+</section>
+<section id="checking-physical-groups">
+<h2>Checking Physical Groups<a class="headerlink" href="#checking-physical-groups" title="Link to this heading">#</a></h2>
+<p>To see which volumes each group holds before converting:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
+
+<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"mesh_with_groups.msh"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"volumes:"</span><span class="p">,</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntities</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+<span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalGroups</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalName</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+    <span class="n">volumes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntitiesForPhysicalGroup</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">tag</span><span class="p">)]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"group </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, volumes </span><span class="si">{</span><span class="n">volumes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The tags are right when the first group holds only the first volume, the second group only the second, and so on.</p>
+</section>
+<section id="overriding-physical-groups">
+<h2>Overriding Physical Groups<a class="headerlink" href="#overriding-physical-groups" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">material_tags</span></code>, when given, is used instead of the groups, one tag per volume in volume order. This also fixes groups that are out of order or hold several volumes:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cad_to_dagmc</span>
+
+<span class="n">cad_to_dagmc</span><span class="o">.</span><span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
+    <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh_with_groups.msh"</span><span class="p">,</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"lead"</span><span class="p">,</span> <span class="s2">"water"</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="creating-physical-groups-in-gmsh">
-<h2>Creating Physical Groups in GMSH<a class="headerlink" href="#creating-physical-groups-in-gmsh" title="Link to this heading">#</a></h2>
-<p>If you’re creating GMSH files manually:</p>
+<section id="materials-in-openmc">
+<h2>Materials in OpenMC<a class="headerlink" href="#materials-in-openmc" title="Link to this heading">#</a></h2>
+<p>Name the OpenMC materials after the groups:</p>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
-<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
+<span class="n">tungsten</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"W"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">tungsten</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">19.3</span><span class="p">)</span>
 
-<span class="c1"># Create geometry</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">addSphere</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">addBox</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">cut</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">tag</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
-
-<span class="c1"># Create physical groups (3D = dimension 3)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere_material"</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box_material"</span><span class="p">)</span>
-
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"mesh_with_groups.msh"</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+<span class="n">water</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"water"</span><span class="p">)</span>
+<span class="n">water</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"H"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="n">water</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"O"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">water</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="checking-physical-groups">
-<h2>Checking Physical Groups<a class="headerlink" href="#checking-physical-groups" title="Link to this heading">#</a></h2>
-<p>To inspect physical groups in a GMSH file:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
-
-<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"mesh.msh"</span><span class="p">)</span>
-
-<span class="c1"># Get 3D physical groups (dimension 3)</span>
-<span class="n">groups</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalGroups</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getPhysicalName</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Physical group </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-<section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
-<p>For physical groups to work as material tags:</p>
-<ul class="simple">
-<li><p>Groups must be 3D (volume groups, dimension 3)</p></li>
-<li><p>Each volume should belong to exactly one physical group</p></li>
-<li><p>Group names should be valid material identifiers</p></li>
-</ul>
+<p>The rest of the model is set up as in <a class="reference internal" href="../outputs/dagmc_h5m.html#using-in-openmc"><span class="std std-ref">Using in OpenMC</span></a>.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../inputs/gmsh_files.html"><span class="std std-doc">GMSH Files Input</span></a> - Loading GMSH files</p></li>
-<li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Creating meshes with GMSH</p></li>
-<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html#Physical-groups">GMSH Documentation</a> - Official GMSH physical groups docs</p></li>
+<li><p><a class="reference internal" href="../inputs/gmsh_files.html"><span class="std std-doc">Gmsh Files</span></a>: converting a Gmsh mesh, with or without physical groups</p></li>
+<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html#Physical-groups">Gmsh physical groups</a>: the Gmsh documentation</p></li>
 </ul>
 </section>
 </section>
@@ -633,11 +598,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="../outputs/index.html"
+       href="../meshing/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Output Formats</p>
+        <p class="prev-next-title">Meshing Backends</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -660,13 +625,12 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-physical-groups">Creating Physical Groups</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-assembly-mesh-plugin">Using assembly-mesh-plugin</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overriding-physical-groups">Overriding Physical Groups</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-physical-groups-in-gmsh">Creating Physical Groups in GMSH</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-a-mesh-file">Converting a Mesh File</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-physical-groups">Checking Physical Groups</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overriding-physical-groups">Overriding Physical Groups</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#materials-in-openmc">Materials in OpenMC</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

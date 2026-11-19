@@ -57,7 +57,7 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="GMSH Backend" href="gmsh_backend.html" />
+    <link rel="next" title="Gmsh Backend" href="gmsh_backend.html" />
     <link rel="prev" title="Meshing Backends" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Meshing Backends</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -422,11 +422,11 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-a-neutronics-specific-mesh">Why a Neutronics-Specific Mesh?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backend-auto-selection">Backend Auto-Selection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advantages">Advantages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (VTK)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-tolerances">Choosing Tolerances</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
@@ -442,27 +442,28 @@
                   
   <section id="cad-to-dagmc-mesher-backend">
 <h1>cad-to-dagmc-mesher Backend<a class="headerlink" href="#cad-to-dagmc-mesher-backend" title="Link to this heading">#</a></h1>
-<p>The <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a> backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code> to use it. See <a class="reference internal" href="../installation.html#optional-packages"><span class="std std-ref">Installation</span></a>.</p>
+<p>The <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a> backend, the default, is a mesher written for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it produces both the DAGMC h5m file and a VTK volume mesh. It is installed by pip with cad_to_dagmc, but conda-forge does not have it; see <a class="reference internal" href="../installation.html#optional-packages"><span class="std std-ref">Optional packages</span></a>.</p>
 <section id="why-a-neutronics-specific-mesh">
 <h2>Why a Neutronics-Specific Mesh?<a class="headerlink" href="#why-a-neutronics-specific-mesh" title="Link to this heading">#</a></h2>
-<p>Finite-element meshes generally aims for regularly sized, near-equilateral
-elements throughout every surface because element shape and size affect the
+<p>Finite-element meshes generally aim for regularly sized, near-equilateral
+elements throughout every surface, because element shape and size affect the
 accuracy of field interpolation.</p>
 <p>DAGMC surface meshes serve a different purpose: particle tracking only needs
-a conforming, watertight representation of each boundary. A purpose-built
-neutronics mesh can therefore preserve curved geometry to the requested
-tolerance while representing large planar regions with very few triangles.
-Fewer triangles mean fewer candidate intersections during tracking and can
-improve particle throughput as shown by the plot on the right hand side of the diagram.</p>
-<p>The comparison below uses a simple cube with an embedded sphere to demonstrate that
-a neutronics specific mesh can get better volume accuracy with less triangles which
-results in faster and more accurate simulations.</p>
+a conforming, watertight representation of each boundary. A neutronics mesh
+can therefore preserve curved geometry to the requested tolerance while
+representing large planar regions with very few triangles. Fewer triangles
+mean fewer candidate intersections during tracking.</p>
+<p>The comparison below meshes a cube with an embedded sphere both ways. The
+neutronics mesh gets closer to the true volumes with about half the triangles,
+and the right-hand panel shows OpenMC tracking speed falling as the triangle
+count grows.</p>
 <a class="reference internal image-reference" href="../_images/mesher_comparison.png"><img alt="Three-panel comparison. A uniformly triangulated FEM mesh with box and sphere volume accuracy is on the left, a curvature-adaptive neutronics mesh with minimally triangulated planar cube faces and volume accuracy is in the middle, and measured OpenMC particle throughput versus triangle count is on the right." src="../_images/mesher_comparison.png" style="width: 100%;" />
 </a>
 </section>
 <section id="surface-mesh-h5m">
 <h2>Surface Mesh (h5m)<a class="headerlink" href="#surface-mesh-h5m" title="Link to this heading">#</a></h2>
-<!--pytest-codeblocks:skip-->
+<p>This backend and both tolerances below are the defaults, so
+<code class="docutils literal notranslate"><span class="pre">model.export_dagmc_h5m_file(filename=&quot;dagmc.h5m&quot;)</span></code> gives the same mesh.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -482,18 +483,12 @@ results in faster and more accurate simulations.</p>
 </div>
 </section>
 <section id="volume-mesh-vtk">
-<h2>Volume Mesh (vtk)<a class="headerlink" href="#volume-mesh-vtk" title="Link to this heading">#</a></h2>
-<p>The backend can write a tetrahedral unstructured volume mesh for use with
-<code class="docutils literal notranslate"><span class="pre">openmc.UnstructuredMesh(filename,</span> <span class="pre">library=&quot;moab&quot;)</span></code>:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"cad-to-dagmc-mesher"</span><span class="p">,</span>
-    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>Passing <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> (or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>) selects this backend automatically, so <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code> can be omitted:</p>
+<h2>Volume Mesh (VTK)<a class="headerlink" href="#volume-mesh-vtk" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code> writes the tetrahedra to a VTK file for
+<code class="docutils literal notranslate"><span class="pre">openmc.UnstructuredMesh(filename,</span> <span class="pre">library=&quot;moab&quot;)</span></code>. <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> is
+required and selects this backend. <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> limits the mesh to the volumes
+with those material tags (default: every volume). Passing it without
+<code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
@@ -501,19 +496,10 @@ results in faster and more accurate simulations.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="surface-and-volume-mesh-in-one-call">
-<h2>Surface and Volume Mesh in One Call<a class="headerlink" href="#surface-and-volume-mesh-in-one-call" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> can write the DAGMC h5m file and the unstructured volume mesh vtk file from a single meshing call. The two meshes are conformal: for tet-meshed volumes the surface is remeshed to near-equilateral triangles at <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, that surface is used as the DAGMC tracking surface, and the volume mesher fills it with tetrahedra whose boundary follows that surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Provide both <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> and the export returns a <code class="docutils literal notranslate"><span class="pre">(dagmc_filename,</span> <span class="pre">umesh_filename)</span></code> tuple:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">],</span>       <span class="c1"># material tag names of volumes to fill with tets</span>
-    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
+<p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> writes the h5m file and a conformal volume mesh from
+one meshing pass when given both <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and
+then returns a <code class="docutils literal notranslate"><span class="pre">(dagmc_filename,</span> <span class="pre">umesh_filename)</span></code> tuple. See
+<a class="reference internal" href="../outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>.</p>
 </section>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
@@ -529,80 +515,55 @@ results in faster and more accurate simulations.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.5</p></td>
-<td><p>Linear deflection tolerance for the surface mesh, in cm after <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
+<td><p>Largest distance between the surface mesh and the CAD surface (linear deflection), in the units of the scaled geometry</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code></p></td>
 <td><p>float</p></td>
 <td><p>0.2</p></td>
-<td><p>Angular deflection tolerance for the surface mesh</p></td>
+<td><p>Largest angle, in radians, between the normals of neighbouring facets on a curved face (angular deflection)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code></p></td>
 <td><p>float</p></td>
 <td><p>None</p></td>
-<td><p>Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry</p></td>
+<td><p>Target edge length of the tetrahedra, in the units of the scaled geometry. Needed for a volume mesh. A length that would put more than 20 million points inside one solid raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code></p></td>
-<td><p>Iterable[str]</p></td>
+<td><p>list of str</p></td>
 <td><p>None</p></td>
-<td><p>Material tag names of the volumes to fill with tetrahedra</p></td>
+<td><p>Material tags of the volumes to fill with tetrahedra. Their surfaces are remeshed for <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> affect them only when some volumes are left unfilled. None means every volume in <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code>. In <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> None means no volume mesh, and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> without <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads</span></code></p></td>
+<td><p>int or “all”</p></td>
+<td><p>“all”</p></td>
+<td><p>Threads for the meshing after the imprint; fewer threads lower the peak RAM. See <a class="reference internal" href="../advanced/parallel_processing.html#limiting-cad-to-dagmc-mesher-meshing-threads"><span class="std std-ref">Parallel Processing</span></a></p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>Tolerance explanation:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code> controls how far the surface mesh can deviate from the true surface (linear distance)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> controls the maximum angle between adjacent facet normals</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> controls the size of the tetrahedra in the volume mesh</p></li>
-</ul>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> are lengths in the units of the <strong>scaled</strong>
-geometry, because this backend applies <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to the geometry before
-meshing it.</p>
-<p>So if you pass <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> to convert a model from metres to centimetres,
-<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is in centimetres, and the <code class="docutils literal notranslate"><span class="pre">0.5</span></code> default means a 5 mm deflection. On
-large imported B-spline models, <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> with
-<code class="docutils literal notranslate"><span class="pre">angular_tolerance=0.2</span></code> kept every solid’s volume within 0.2% and lost no
-particles. The angular tolerance is what bounds the facets on curved faces; above
-about 0.3 rad the two faces of a thin wall can cross and particles are lost.</p>
-<p>The gmsh backend takes its linear mesh sizes in scaled-geometry
-units too, so a given number means the same deflection whichever backend you use.
-<code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is an angle and is unaffected by scaling.</p>
-</div>
+<p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> is applied before meshing, so with <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> (metres
+to centimetres) the default <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> of 0.5 is 5 mm.
+<a class="reference internal" href="../advanced/geometry_scaling.html#mesh-size-and-scaling"><span class="std std-ref">Mesh Size and Scaling</span></a>
+has the details.</p>
+<p>Passing <code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>
+makes <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> use this backend. <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code>
+switches to it only for <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>. See
+<a class="reference internal" href="index.html#how-the-backend-is-chosen"><span class="std std-ref">How the Backend Is Chosen</span></a>.</p>
+<section id="choosing-tolerances">
+<h3>Choosing Tolerances<a class="headerlink" href="#choosing-tolerances" title="Link to this heading">#</a></h3>
+<p>The defaults, <code class="docutils literal notranslate"><span class="pre">tolerance=0.5</span></code> and <code class="docutils literal notranslate"><span class="pre">angular_tolerance=0.2</span></code>, kept every solid’s
+volume within 0.2% and lost no particles on large imported B-spline models. On
+curved faces it is the angular tolerance that limits the facets. Set it too
+loose and the two faces of a thin wall can be meshed through each other: at
+0.5 rad, a 0.7 cm wall’s faces crossed. The mesher finds such solids and
+refines them, but a smaller angular tolerance avoids the extra rounds.</p>
+<p>After meshing, any solid whose facets fold back, or whose surface crosses
+itself, is meshed again at a finer tolerance, up to four more times, and the
+best mesh is kept. If a round would not fit in the free memory, the export
+raises <code class="docutils literal notranslate"><span class="pre">RefinementMemoryError</span></code> rather than return a less refined mesh.
+<code class="docutils literal notranslate"><span class="pre">model.refinement</span></code> holds the report of the last <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> call:
+the rounds used, whether it converged, and each solid’s final tolerances. It is
+None after a Gmsh export.</p>
 </section>
-<section id="backend-auto-selection">
-<h2>Backend Auto-Selection<a class="headerlink" href="#backend-auto-selection" title="Link to this heading">#</a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code> is not given, the tet arguments select this backend automatically:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file(...,</span> <span class="pre">target_edge_length=...)</span></code> uses cad-to-dagmc-mesher; without tet arguments it uses gmsh.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file(...)</span></code> uses cad-to-dagmc-mesher when given any of its arguments (<code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>, <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>) or no backend-specific arguments at all; mixing these with gmsh-specific arguments (for example <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>) raises an error asking for an explicit <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code>. If cad-to-dagmc-mesher is not installed, a call with no backend-specific arguments falls back to gmsh and warns.</p></li>
-</ul>
-</section>
-<section id="advantages">
-<h2>Advantages<a class="headerlink" href="#advantages" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Advantage</p></th>
-<th class="head"><p>Explanation</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Volume meshes without GMSH</p></td>
-<td><p>Writes the vtk file directly</p></td>
-</tr>
-<tr class="row-odd"><td><p>One meshing call for both outputs</p></td>
-<td><p>h5m and vtk come from the same mesh</p></td>
-</tr>
-<tr class="row-even"><td><p>Simple configuration</p></td>
-<td><p>Two surface tolerances plus one tet edge length</p></td>
-</tr>
-<tr class="row-odd"><td><p>Installed with cad_to_dagmc</p></td>
-<td><p>No extra dependency to install</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 </section>
 <section id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h2>
@@ -614,9 +575,9 @@ units too, so a given number means the same deflection whichever backend you use
 </thead>
 <tbody>
 <tr class="row-even"><td><p>No per-volume sizing</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> parameter is not supported</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> is not supported; the tolerances apply to every solid</p></td>
 </tr>
-<tr class="row-odd"><td><p>Single tet size</p></td>
+<tr class="row-odd"><td><p>Single tetrahedron size</p></td>
 <td><p>One <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> for all volumes</p></td>
 </tr>
 <tr class="row-even"><td><p>No mesh algorithm choice</p></td>
@@ -629,9 +590,9 @@ units too, so a given number means the same deflection whichever backend you use
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Full-featured meshing backend</p></li>
-<li><p><a class="reference internal" href="../outputs/unstructured_vtk.html"><span class="std std-doc">Unstructured VTK</span></a> - Volume mesh output details</p></li>
-<li><p><a class="reference internal" href="../outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a> - Matching surface and volume meshes</p></li>
+<li><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">Gmsh Backend</span></a>: the other meshing backend</p></li>
+<li><p><a class="reference internal" href="../outputs/unstructured_vtk.html"><span class="std std-doc">Unstructured Mesh VTK Files</span></a>: writing and using the volume mesh</p></li>
+<li><p><a class="reference internal" href="../outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>: surface and volume meshes from one call</p></li>
 </ul>
 </section>
 </section>
@@ -661,7 +622,7 @@ units too, so a given number means the same deflection whichever backend you use
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">GMSH Backend</p>
+        <p class="prev-next-title">Gmsh Backend</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -685,11 +646,11 @@ units too, so a given number means the same deflection whichever backend you use
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-a-neutronics-specific-mesh">Why a Neutronics-Specific Mesh?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-mesh-h5m">Surface Mesh (h5m)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (vtk)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#surface-and-volume-mesh-in-one-call">Surface and Volume Mesh in One Call</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backend-auto-selection">Backend Auto-Selection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advantages">Advantages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#volume-mesh-vtk">Volume Mesh (VTK)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-tolerances">Choosing Tolerances</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>

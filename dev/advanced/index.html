@@ -58,7 +58,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Geometry Scaling" href="geometry_scaling.html" />
-    <link rel="prev" title="Per-Volume Mesh Sizing" href="../meshing/mesh_sizing.html" />
+    <link rel="prev" title="Gmsh Mesh Files" href="../outputs/gmsh_mesh.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,11 +421,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#topics">Topics</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">Quick Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-options">Common Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-each">When to Use Each</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">Quick Reference</a></li>
 </ul>
             </nav>
         </div>
@@ -439,7 +435,10 @@
                   
   <section id="advanced-options">
 <h1>Advanced Options<a class="headerlink" href="#advanced-options" title="Link to this heading">#</a></h1>
-<p>This section covers advanced configuration options for fine-tuning your CAD to DAGMC workflow.</p>
+<p>Two of these pages apply to most imported CAD:
+<a class="reference internal" href="geometry_scaling.html"><span class="std std-doc">Geometry Scaling</span></a>, because CadQuery reads STEP files in
+millimetres, and <a class="reference internal" href="overlaps.html"><span class="std std-doc">Checking for Overlaps</span></a>, for CAD you have not
+checked yourself.</p>
 <section id="topics">
 <h2>Topics<a class="headerlink" href="#topics" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -450,22 +449,22 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="geometry_scaling.html"><span class="std std-doc">Geometry Scaling</span></a></p></td>
-<td><p>Unit conversion with <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
+<td><p>Unit conversion with <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>, and the units of mesh sizes</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="imprinting.html"><span class="std std-doc">Imprinting</span></a></p></td>
-<td><p>Shared surface handling</p></td>
+<td><p>Shared surfaces between touching solids</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="overlaps.html"><span class="std std-doc">Checking for Overlaps</span></a></p></td>
-<td><p>Finding solids that share volume</p></td>
+<td><p>Finding solids that occupy the same space</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="implicit_complement.html"><span class="std std-doc">Implicit Complement</span></a></p></td>
-<td><p>Void/air region tagging</p></td>
+<td><p>Material for the space between volumes</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="parallel_processing.html"><span class="std std-doc">Parallel Processing</span></a></p></td>
-<td><p>Thread control for performance</p></td>
+<td><p>Thread counts and peak RAM</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="h5m_backends.html"><span class="std std-doc">H5M Backends</span></a></p></td>
-<td><p>h5py vs pymoab comparison</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="h5m_backends.html"><span class="std std-doc">h5m Backends</span></a></p></td>
+<td><p>Writing the h5m file with h5py or pymoab</p></td>
 </tr>
 </tbody>
 </table>
@@ -473,57 +472,50 @@
 </section>
 <section id="quick-reference">
 <h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading">#</a></h2>
-<section id="common-options">
-<h3>Common Options<a class="headerlink" href="#common-options" title="Link to this heading">#</a></h3>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>                      <span class="c1"># mm to cm conversion</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>                     <span class="c1"># Handle shared surfaces</span>
-    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">,</span> <span class="c1"># Tag for void space</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>                    <span class="c1"># H5M writing backend</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">"file"</span><span class="p">,</span>                         <span class="c1"># CAD transfer method, gmsh backend only</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>                        <span class="c1"># mm to cm</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>                       <span class="c1"># the default glue mode</span>
+    <span class="n">implicit_complement_material_tag</span><span class="o">=</span><span class="s2">"air"</span><span class="p">,</span>  <span class="c1"># material between and around the volumes</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>                      <span class="c1"># the default h5m backend</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="when-to-use-each">
-<h3>When to Use Each<a class="headerlink" href="#when-to-use-each" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Option</p></th>
-<th class="head"><p>When to Use</p></th>
+<th class="head"><p>When to use it</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p></td>
-<td><p>CAD in different units than simulation</p></td>
+<td><p>The CAD is in different units from the simulation</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code></p></td>
-<td><p>Single volume or non-touching geometry</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code></p></td>
-<td><p>Imprinting runs out of RAM on a large model</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads=4</span></code></p></td>
-<td><p>cad-to-dagmc-mesher meshing runs out of RAM on a large model</p></td>
+<td><p>Solids that do not touch (this also skips the overlap checks that come with the imprint). A single solid is never imprinted anyway.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> with a BREP</p></td>
 <td><p>Geometry you <a class="reference internal" href="imprinting.html#meshing-geometry-you-imprinted-yourself"><span class="std std-ref">imprinted yourself</span></a></p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code></p></td>
+<td><p>Imprinting runs out of RAM on a large model</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mesh_threads=4</span></code></p></td>
+<td><p>cad-to-dagmc-mesher meshing runs out of RAM on a large model</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">implicit_complement_material_tag</span></code></p></td>
-<td><p>Need to track particles in void</p></td>
+<td><p>The space between and around the volumes is not vacuum (air, water)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
-<td><p>Compatibility with older DAGMC tools</p></td>
+<td><p>Write the file with MOAB’s own library (needs pymoab)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method=&quot;in</span> <span class="pre">memory&quot;</span></code></p></td>
-<td><p>Large geometry with matching OCC versions</p></td>
+<td><p>Large geometry on the Gmsh backend, when Gmsh and CadQuery use the same OpenCASCADE version. Passing <code class="docutils literal notranslate"><span class="pre">method</span></code> selects the Gmsh backend.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
 </section>
 </section>
 
@@ -539,12 +531,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../meshing/mesh_sizing.html"
+       href="../outputs/gmsh_mesh.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Per-Volume Mesh Sizing</p>
+        <p class="prev-next-title">Gmsh Mesh Files</p>
       </div>
     </a>
     <a class="right-next"
@@ -575,11 +567,7 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#topics">Topics</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">Quick Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-options">Common Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-each">When to Use Each</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">Quick Reference</a></li>
 </ul>
   </nav></div>
 

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>H5M File Backends &#8212; cad_to_dagmc 0.1 documentation</title>
+    <title>h5m Backends &#8212; cad_to_dagmc 0.1 documentation</title>
   
   
   
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">H5M File Backends</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -410,7 +410,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>H5M File Backends</h1>
+    <h1>h5m Backends</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -422,11 +422,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#h5py-backend-default">h5py Backend (Default)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pymoab-backend">pymoab Backend</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-pymoab">Installing pymoab</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-backends">Comparing Backends</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-compatibility">File Compatibility</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-table">Comparison Table</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -439,178 +435,58 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="h5m-file-backends">
-<h1>H5M File Backends<a class="headerlink" href="#h5m-file-backends" title="Link to this heading">#</a></h1>
-<p>cad_to_dagmc supports two backends for writing DAGMC h5m files: h5py (default) and pymoab.</p>
+  <section id="h5m-backends">
+<h1>h5m Backends<a class="headerlink" href="#h5m-backends" title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">h5m_backend</span></code> argument chooses how the DAGMC h5m file is written: with h5py
+(the default) or with pymoab. <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> takes it, and so do the
+Gmsh conversion functions <code class="docutils literal notranslate"><span class="pre">export_gmsh_file_to_dagmc_h5m_file</span></code> and
+<code class="docutils literal notranslate"><span class="pre">export_gmsh_object_to_dagmc_h5m_file</span></code>. The two backends do not write
+byte-for-byte identical files, but both load in DAGMC.</p>
 <section id="h5py-backend-default">
 <h2>h5py Backend (Default)<a class="headerlink" href="#h5py-backend-default" title="Link to this heading">#</a></h2>
-<p>The h5py backend writes h5m files using the h5py library directly. This is the default because it doesn’t require MOAB to be installed.</p>
+<p>cad_to_dagmc writes the file itself with h5py, which is installed with it, so
+MOAB is not needed.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>  <span class="c1"># Default</span>
+    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>  <span class="c1"># the default</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Advantages:</strong></p>
-<ul class="simple">
-<li><p>No MOAB/pymoab installation required</p></li>
-<li><p>Available via simple <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad_to_dagmc</span></code></p></li>
-<li><p>Produces DAGMC-compatible h5m files</p></li>
-</ul>
-<p><strong>When to use:</strong></p>
-<ul class="simple">
-<li><p>When you can’t or don’t want to install MOAB</p></li>
-<li><p>For most standard use cases</p></li>
-<li><p>When deploying in environments without MOAB</p></li>
-</ul>
 </section>
 <section id="pymoab-backend">
 <h2>pymoab Backend<a class="headerlink" href="#pymoab-backend" title="Link to this heading">#</a></h2>
-<p>The pymoab backend uses the official MOAB library to write h5m files.</p>
+<p>MOAB’s own library writes the file, through its Python package pymoab. pymoab
+is not on PyPI, so it is not installed with cad_to_dagmc. The install commands
+are under <a class="reference internal" href="../installation.html#optional-packages"><span class="std std-ref">Optional packages</span></a>. If DAGMC
+has trouble with a file, writing the same model with pymoab shows whether the
+h5py backend is the cause.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">,</span>
 <span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Advantages:</strong></p>
-<ul class="simple">
-<li><p>Uses the official MOAB library</p></li>
-<li><p>May have better compatibility with some DAGMC tools</p></li>
-</ul>
-<p><strong>When to use:</strong></p>
-<ul class="simple">
-<li><p>When you need guaranteed MOAB compatibility</p></li>
-<li><p>When working with legacy DAGMC workflows</p></li>
-<li><p>When pymoab is already installed</p></li>
-</ul>
-</section>
-<section id="installing-pymoab">
-<h2>Installing pymoab<a class="headerlink" href="#installing-pymoab" title="Link to this heading">#</a></h2>
-<p>pymoab/MOAB is not on PyPI itself, so it is not a dependency of the pip package and has
-to be installed separately. Both of the first two options below are one liners:</p>
-<p><strong>Option 1: Conda</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>moab
-</pre></div>
-</div>
-<p><strong>Option 2: pip, from an extra index</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://shimwell.github.io/wheels<span class="w"> </span>moab
-</pre></div>
-</div>
-<p><strong>Option 3: From source</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://bitbucket.org/fathomteam/moab/
 </pre></div>
 </div>
 </section>
 <section id="error-handling">
 <h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
-<p>If you request pymoab but it’s not installed:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">)</span>
-<span class="go">PyMoabNotFoundError: pymoab is not installed. pymoab/MOAB is not available</span>
-<span class="go">on PyPI so it cannot be included as a dependency of cad-to-dagmc.</span>
-
-<span class="go">You can install pymoab via one of these methods:</span>
-<span class="go">  1. From conda-forge: conda install -c conda-forge moab</span>
-<span class="go">  2. From extra index: pip install --extra-index-url https://shimwell.github.io/wheels moab</span>
-<span class="go">  3. From source: https://bitbucket.org/fathomteam/moab</span>
-
-<span class="go">Alternatively, use the h5py backend (the default) which does not require pymoab:</span>
-<span class="go">  export_dagmc_h5m_file(..., h5m_backend='h5py')</span>
+<p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code> without pymoab installed raises <code class="docutils literal notranslate"><span class="pre">PyMoabNotFoundError</span></code>, a
+subclass of <code class="docutils literal notranslate"><span class="pre">ImportError</span></code>. Its message begins as follows, then lists the
+install commands:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PyMoabNotFoundError: pymoab is not installed. pymoab/MOAB is not available
+on PyPI so it cannot be included as a dependency of cad-to-dagmc.
 </pre></div>
 </div>
-</section>
-<section id="comparing-backends">
-<h2>Comparing Backends<a class="headerlink" href="#comparing-backends" title="Link to this heading">#</a></h2>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="n">sphere1</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">sphere2</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere1</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere2</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
-
-<span class="c1"># Export using h5py backend</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_h5py.h5m"</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"h5py"</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Created dagmc_h5py.h5m using h5py backend"</span><span class="p">)</span>
-
-<span class="c1"># Export using pymoab backend (requires MOAB)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc_pymoab.h5m"</span><span class="p">,</span>
-    <span class="n">h5m_backend</span><span class="o">=</span><span class="s2">"pymoab"</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Created dagmc_pymoab.h5m using pymoab backend"</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="file-compatibility">
-<h2>File Compatibility<a class="headerlink" href="#file-compatibility" title="Link to this heading">#</a></h2>
-<p>Both backends produce semantically equivalent h5m files that work with DAGMC. The files may not be byte-for-byte identical due to:</p>
-<ul class="simple">
-<li><p>Different HDF5 compression settings</p></li>
-<li><p>Different internal data ordering</p></li>
-<li><p>Different metadata</p></li>
-</ul>
-<p>However, both will work correctly with:</p>
-<ul class="simple">
-<li><p>OpenMC with DAGMC</p></li>
-<li><p>MCNP with DAGMC</p></li>
-<li><p>Other DAGMC-enabled transport codes</p></li>
-</ul>
-</section>
-<section id="comparison-table">
-<h2>Comparison Table<a class="headerlink" href="#comparison-table" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Feature</p></th>
-<th class="head"><p>h5py Backend</p></th>
-<th class="head"><p>pymoab Backend</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Installation</p></td>
-<td><p>Included with pip install</p></td>
-<td><p>Requires separate MOAB install</p></td>
-</tr>
-<tr class="row-odd"><td><p>PyPI availability</p></td>
-<td><p>Yes</p></td>
-<td><p>No (conda or source)</p></td>
-</tr>
-<tr class="row-even"><td><p>DAGMC compatibility</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>File size</p></td>
-<td><p>Similar</p></td>
-<td><p>Similar</p></td>
-</tr>
-<tr class="row-even"><td><p>Performance</p></td>
-<td><p>Similar</p></td>
-<td><p>Similar</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Any value other than <code class="docutils literal notranslate"><span class="pre">&quot;h5py&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pymoab&quot;</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> (“method must be
+‘pymoab’ or ‘h5py’”). Both errors come when the file is written, after meshing
+has finished, so on a large model check that <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pymoab</span></code> works before
+starting a long export.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../installation.html"><span class="std std-doc">Installation</span></a> - Installing cad_to_dagmc and optional dependencies</p></li>
-<li><p><a class="reference internal" href="../outputs/dagmc_h5m.html"><span class="std std-doc">DAGMC H5M Output</span></a> - Full export options</p></li>
+<li><p><a class="reference internal" href="../outputs/dagmc_h5m.html"><span class="std std-doc">DAGMC h5m Files</span></a>: the other export options</p></li>
 </ul>
 </section>
 </section>
@@ -664,11 +540,7 @@ to be installed separately. Both of the first two options below are one liners:<
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#h5py-backend-default">h5py Backend (Default)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pymoab-backend">pymoab Backend</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-pymoab">Installing pymoab</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-backends">Comparing Backends</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-compatibility">File Compatibility</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-table">Comparison Table</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

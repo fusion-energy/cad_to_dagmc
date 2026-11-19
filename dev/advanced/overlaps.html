@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -437,33 +437,39 @@
                   
   <section id="checking-for-overlaps">
 <h1>Checking for Overlaps<a class="headerlink" href="#checking-for-overlaps" title="Link to this heading">#</a></h1>
-<p>DAGMC gives every region exactly one material, so two solids that share
-material are invalid however well they mesh. A region claimed by two solids
-transports through whichever volume DAGMC resolves first: the file is
+<p>DAGMC gives every region exactly one material, so two solids that occupy the
+same space are invalid however well they mesh. A region claimed by two solids
+transports through whichever volume DAGMC resolves first. The file is
 watertight and nothing looks wrong, but tallies there are scored in the wrong
 material, and particles can be lost.</p>
 <section id="what-exporting-checks">
 <h2>What exporting checks<a class="headerlink" href="#what-exporting-checks" title="Link to this heading">#</a></h2>
-<p>With the cad-to-dagmc-mesher backend, exporting runs the overlap checks that
-cost nothing, and refuses what they find with an error naming the solids:</p>
+<p>With the cad-to-dagmc-mesher backend (the default for
+<code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code>), exporting runs the overlap checks that cost nothing
+and refuses two kinds of overlap with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> that names the solids:</p>
 <ul class="simple">
 <li><p>overlaps along coincident faces, which the imprint splits and records, such
 as a face pressed slightly into its neighbour or two boxes overlapping;</p></li>
 <li><p>solids the imprint swallows into another, such as a sphere left inside a box
-that should have had it cut out;</p></li>
-<li><p>and, after meshing, a warning where two solids’ meshes penetrate each other.</p></li>
+that should have had it cut out.</p></li>
 </ul>
-<p>These do not see every overlap. Two intersecting spheres, or a rod pushed
-through a box, have no coincident faces and neither swallows the other, so they
-export with only the warning.</p>
+<p>After meshing it also prints a warning where the meshes of two solids
+penetrate each other.</p>
+<p>These checks do not see every overlap. Two intersecting spheres, or a rod
+pushed through a box, have no coincident faces and neither swallows the other,
+so they export with only the warning. Both refusals come from the imprint, so
+with <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> only the warning is left. The Gmsh backend runs none of
+these checks and writes overlapping solids without an error.</p>
 </section>
 <section id="checking-every-pair">
 <h2>Checking every pair<a class="headerlink" href="#checking-every-pair" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">check_overlaps</span></code> intersects every pair of solids whose bounding boxes overlap,
 exactly, and reports what each pair shares: how much, where, and whether it is
 a thin layer along a contact surface. Exporting does not run it, because on a
-large model it can take hours. Run it yourself on CAD you have not checked,
-with the <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> you will export with:</p>
+large model it can take hours. It needs cad-to-dagmc-mesher, whichever meshing
+backend you export with, and raises <code class="docutils literal notranslate"><span class="pre">CadToDagmcMesherNotFoundError</span></code> without it.</p>
+<p>Run it yourself on CAD you have not checked, with the <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> you will
+export with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -482,18 +488,23 @@ with the <code class="docutils literal notranslate"><span class="pre">scale_fact
 <span class="k">assert</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">clean</span>
 </pre></div>
 </div>
-<p>It prints each overlap as it finds it, then the report:</p>
+<p>It prints each overlap as it finds it:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Checking 2 solid pair(s) whose bounding boxes overlap...
   found: 'steel (solid 0)' and 'water (solid 1)' overlap by 100 cm³ along a contact surface (0.020% of 'steel (solid 0)', 0.1% of 'water (solid 1)'): a layer about 0.01 cm thick, spanning 100 x 100 x 0.01 cm around (0, 0, -0.005)
   found: 'water (solid 1)' and 'tungsten (solid 2)' overlap by 112 cm³ (0.1% of 'water (solid 1)', 21.5% of 'tungsten (solid 2)'), spanning 9.16 x 9.16 x 2.99 cm around (0, 0, 8.495)
 Done in 0.0 min: 2 overlapping, 0 failed, 0 unchecked.
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">report.overlaps</span></code> lists the pairs, largest first. Each has <code class="docutils literal notranslate"><span class="pre">name_a</span></code> and
+<p><code class="docutils literal notranslate"><span class="pre">print(report)</span></code> then lists the overlaps again, with advice on fixing them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">report.overlaps</span></code> holds the pairs, largest first. Each has <code class="docutils literal notranslate"><span class="pre">name_a</span></code> and
 <code class="docutils literal notranslate"><span class="pre">name_b</span></code> (the material tag and the solid’s position in the model), <code class="docutils literal notranslate"><span class="pre">shared</span></code> (the
 shared volume, in cm³ after <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>), <code class="docutils literal notranslate"><span class="pre">thickness</span></code>, <code class="docutils literal notranslate"><span class="pre">box</span></code> (the shared
 region’s bounding box) and <code class="docutils literal notranslate"><span class="pre">is_contact_layer</span></code>. <code class="docutils literal notranslate"><span class="pre">report.clean</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> only
-when every pair was checked and none overlaps.</p>
+when every pair was checked and none overlaps. Pairs OpenCASCADE could not
+intersect are listed in <code class="docutils literal notranslate"><span class="pre">report.failed</span></code>, and <code class="docutils literal notranslate"><span class="pre">report.unchecked</span></code> counts the pairs
+that <code class="docutils literal notranslate"><span class="pre">max_seconds</span></code> left out.</p>
+<p>The full signature is <code class="docutils literal notranslate"><span class="pre">check_overlaps(scale_factor=1.0,</span> <span class="pre">*,</span> <span class="pre">material_tags=None,</span> <span class="pre">max_seconds=None,</span> <span class="pre">progress=True)</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">progress=False</span></code> to turn the printing
+off.</p>
 </section>
 <section id="fixing-what-it-finds">
 <h2>Fixing what it finds<a class="headerlink" href="#fixing-what-it-finds" title="Link to this heading">#</a></h2>
@@ -513,10 +524,9 @@ overlapping pair.</p>
 <h2>How long it takes<a class="headerlink" href="#how-long-it-takes" title="Link to this heading">#</a></h2>
 <p>Each pair costs from well under a second (boxes and other simple shapes) to
 over an hour (large imported B-spline solids that touch). GEOUNED’s 153-solid
-<code class="docutils literal notranslate"><span class="pre">SCDR.stp</span></code> takes 26 s for its 522 pairs. On a 108-solid imported model, 1,408
-pairs survive the bounding-box cull, disjoint pairs take about 15 s each, and
-one pair of touching solids took 1 h 44 min. To spend that time where it
-matters:</p>
+<code class="docutils literal notranslate"><span class="pre">SCDR.stp</span></code> takes 26 s for its 522 pairs. On a 108-solid imported model, 1,408 pairs
+survive the bounding-box cull, disjoint pairs take about 15 s each, and one
+pair of touching solids took 1 h 44 min. To spend that time where it matters:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># only the pairs involving solids tagged "blanket", against every solid</span>
 <span class="n">report</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">check_overlaps</span><span class="p">(</span><span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"blanket"</span><span class="p">])</span>
@@ -525,6 +535,7 @@ matters:</p>
 <span class="n">report</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">check_overlaps</span><span class="p">(</span><span class="n">max_seconds</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>A tag in <code class="docutils literal notranslate"><span class="pre">material_tags</span></code> that no solid has raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 </section>
 </section>
 

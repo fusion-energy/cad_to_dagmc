@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="current nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,14 +421,9 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-volume">Single Volume</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-volumes-with-same-material">Multiple Volumes with Same Material</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-step-files">With STEP Files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reserved-tag-names">Reserved Tag Names</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-additions">Multiple Additions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determining-volume-count">Determining Volume Count</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-tags-with-set-size">Using Tags with set_size</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -443,10 +438,9 @@
                   
   <section id="manual-material-tags">
 <h1>Manual Material Tags<a class="headerlink" href="#manual-material-tags" title="Link to this heading">#</a></h1>
-<p>The most explicit method - provide a list of material names matching the order of volumes.</p>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">material_tags</span></code> a list of strings, one tag per volume, in the order of the volumes.</p>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
-<p>Specify tags as a list of strings:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -460,38 +454,23 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">]</span>  <span class="c1"># Order matters!</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># the sphere, then the box</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The first tag is assigned to the first volume, second to second, and so on.</p>
-</section>
-<section id="single-volume">
-<h2>Single Volume<a class="headerlink" href="#single-volume" title="Link to this heading">#</a></h2>
-<p>For a single volume, use a list with one element:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">sphere</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
-</pre></div>
-</div>
+<p>The first tag goes to the first volume, the second to the second, and so on. A single volume still needs a list, such as <code class="docutils literal notranslate"><span class="pre">[&quot;steel&quot;]</span></code>. When you call <code class="docutils literal notranslate"><span class="pre">add_cadquery_object</span></code> or <code class="docutils literal notranslate"><span class="pre">add_stp_file</span></code> more than once, each call takes the tags for its own volumes and the model keeps them in call order; see <a class="reference internal" href="../inputs/cadquery_objects.html#multiple-objects"><span class="std std-ref">Multiple Objects</span></a>.</p>
 </section>
 <section id="multiple-volumes-with-same-material">
 <h2>Multiple Volumes with Same Material<a class="headerlink" href="#multiple-volumes-with-same-material" title="Link to this heading">#</a></h2>
-<p>Use the same tag for multiple volumes:</p>
+<p>Repeat a tag to give several volumes the same material:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create 5-letter text (5 volumes)</span>
+<span class="c1"># the text "DAGMC" is five solids, one per letter</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">"DAGMC"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="c1"># All letters get the same material</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"letter"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
 </pre></div>
@@ -499,114 +478,42 @@
 </section>
 <section id="with-step-files">
 <h2>With STEP Files<a class="headerlink" href="#with-step-files" title="Link to this heading">#</a></h2>
-<p>STEP files can use manual tags or automatic tagging from assembly structure:</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_stp_file</span></code> takes the same list. Pass it by keyword, because the second positional argument is <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-
-<span class="c1"># Option 1: Manual tags</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry.step"</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">,</span> <span class="s2">"mat3"</span><span class="p">]</span>  <span class="c1"># Must match volume count</span>
-<span class="p">)</span>
-
-<span class="c1"># Option 2: If STEP was saved from a named assembly</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry.step"</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span>  <span class="c1"># Extract names from STEP structure</span>
-<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"geometry.step"</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">,</span> <span class="s2">"mat3"</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="../inputs/step_files.html"><span class="std std-doc">STEP Files</span></a> for more details on using assembly names with STEP files.</p>
-</section>
-<section id="reserved-tag-names">
-<h2>Reserved Tag Names<a class="headerlink" href="#reserved-tag-names" title="Link to this heading">#</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><strong>Do not use <code class="docutils literal notranslate"><span class="pre">&quot;vacuum&quot;</span></code> as a material tag.</strong> DAGMC and OpenMC treat volumes tagged with <code class="docutils literal notranslate"><span class="pre">&quot;vacuum&quot;</span></code> as true vacuum (void space). Particles entering a vacuum region will be lost. If you need to model low-density gas, use a different name like <code class="docutils literal notranslate"><span class="pre">&quot;air&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;helium&quot;</span></code>.</p>
-</div>
-</section>
-<section id="multiple-additions">
-<h2>Multiple Additions<a class="headerlink" href="#multiple-additions" title="Link to this heading">#</a></h2>
-<p>When adding multiple objects separately, each needs its own tags:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">cylinder</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">box</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">cylinder</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat2"</span><span class="p">])</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
-</pre></div>
-</div>
+<p>If the parts in the STEP file have useful names, <a class="reference internal" href="assembly_names.html"><span class="std std-doc">assembly names</span></a> can tag them by name instead.</p>
 </section>
 <section id="determining-volume-count">
 <h2>Determining Volume Count<a class="headerlink" href="#determining-volume-count" title="Link to this heading">#</a></h2>
-<p>If you’re unsure how many volumes are in your geometry:</p>
+<p>The number of tags must equal the number of volumes. Otherwise <code class="docutils literal notranslate"><span class="pre">add_cadquery_object</span></code> and <code class="docutils literal notranslate"><span class="pre">add_stp_file</span></code> raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> that gives both counts, and a tag that is not a string raises a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>. CadQuery can count the solids before you write the list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">"HELLO"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">()))</span>  <span class="c1"># 5</span>
+</pre></div>
+</div>
+<p>For an assembly, count <code class="docutils literal notranslate"><span class="pre">assembly.toCompound().Solids()</span></code>. For a STEP file, count the solids of the imported shape. They come out in the order the tags are applied, so printing their centres shows which tag lands on which solid:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 
-<span class="c1"># For CadQuery objects</span>
-<span class="n">shape</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">"HELLO"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">num_volumes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Shape has </span><span class="si">{</span><span class="n">num_volumes</span><span class="si">}</span><span class="s2"> volumes"</span><span class="p">)</span>
-
-<span class="c1"># For STEP files</span>
-<span class="n">imported</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importStep</span><span class="p">(</span><span class="s2">"geometry.step"</span><span class="p">)</span>
-<span class="n">num_volumes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">imported</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"STEP file has </span><span class="si">{</span><span class="n">num_volumes</span><span class="si">}</span><span class="s2"> volumes"</span><span class="p">)</span>
+<span class="n">solids</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">importStep</span><span class="p">(</span><span class="s2">"geometry.step"</span><span class="p">)</span><span class="o">.</span><span class="n">val</span><span class="p">()</span><span class="o">.</span><span class="n">Solids</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solids</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">solid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solids</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solid</span><span class="o">.</span><span class="n">Center</span><span class="p">())</span>
 </pre></div>
-</div>
-</section>
-<section id="using-tags-with-set-size">
-<span id="using-tags-with-set_size"></span><h2>Using Tags with set_size<a class="headerlink" href="#using-tags-with-set-size" title="Link to this heading">#</a></h2>
-<p>Material tag names can be used in the <code class="docutils literal notranslate"><span class="pre">set_size</span></code> parameter for per-volume mesh sizing:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="n">coarse_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">fine_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
-
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"coarse_mat"</span><span class="p">,</span> <span class="s2">"fine_mat"</span><span class="p">])</span>
-
-<span class="c1"># Reference material tags in set_size</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"coarse_mat"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Use tag name</span>
-        <span class="s2">"fine_mat"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Use tag name</span>
-    <span class="p">},</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="error-handling">
-<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The number of material tags must exactly match the number of volumes:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This will raise an error - 2 volumes but only 1 tag</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">])</span>
-<span class="c1"># ValueError: Number of material tags (1) does not match number of volumes (2)</span>
-</pre></div>
-</div>
 </div>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="assembly_names.html"><span class="std std-doc">Assembly Names</span></a> - Automatic tagging from part names</p></li>
-<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Using tags for mesh control</p></li>
+<li><p><a class="reference internal" href="index.html#tag-name-guidelines"><span class="std std-ref">Tag Name Guidelines</span></a>: reserved names and the length limit</p></li>
+<li><p><a class="reference internal" href="assembly_names.html"><span class="std std-doc">Assembly Names</span></a>: tags from part names, with no list to keep in order</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a>: <code class="docutils literal notranslate"><span class="pre">set_size</span></code> gives a target mesh size per volume, keyed by material tag or volume ID (Gmsh backend only)</p></li>
 </ul>
 </section>
 </section>
@@ -659,14 +566,9 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-volume">Single Volume</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-volumes-with-same-material">Multiple Volumes with Same Material</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-step-files">With STEP Files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reserved-tag-names">Reserved Tag Names</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-additions">Multiple Additions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determining-volume-count">Determining Volume Count</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-tags-with-set-size">Using Tags with set_size</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

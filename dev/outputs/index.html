@@ -57,8 +57,8 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="DAGMC H5M Files" href="dagmc_h5m.html" />
-    <link rel="prev" title="GMSH Physical Groups" href="../material_tagging/gmsh_physical_groups.html" />
+    <link rel="next" title="DAGMC h5m Files" href="dagmc_h5m.html" />
+    <link rel="prev" title="Per-Volume Mesh Sizing" href="../meshing/mesh_sizing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,7 +421,6 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-types">Output Types</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-comparison">Quick Comparison</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export-pattern">Basic Export Pattern</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-an-output-format">Choosing an Output Format</a></li>
 </ul>
@@ -437,73 +436,38 @@
                   
   <section id="output-formats">
 <h1>Output Formats<a class="headerlink" href="#output-formats" title="Link to this heading">#</a></h1>
-<p>cad_to_dagmc can create three types of output file for neutronics simulations, and can
-write a conformal surface and volume mesh pair in a single call.</p>
+<p>cad_to_dagmc can create three types of output file, and can write a conformal
+surface and volume mesh pair in a single call.</p>
 <section id="output-types">
 <h2>Output Types<a class="headerlink" href="#output-types" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Format</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Use Case</p></th>
+<tr class="row-odd"><th class="head"><p>Output</p></th>
+<th class="head"><p>Method</p></th>
+<th class="head"><p>Mesh and file</p></th>
+<th class="head"><p>Use</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="dagmc_h5m.html"><span class="std std-doc">DAGMC H5M</span></a></p></td>
-<td><p>Triangular surface mesh</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="dagmc_h5m.html"><span class="std std-doc">DAGMC h5m Files</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code></p></td>
+<td><p>Surface mesh of triangles, <code class="docutils literal notranslate"><span class="pre">.h5m</span></code></p></td>
 <td><p>Geometry for particle transport</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="unstructured_vtk.html"><span class="std std-doc">Unstructured VTK</span></a></p></td>
-<td><p>Tetrahedral volume mesh</p></td>
-<td><p>Mesh tallies in OpenMC</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="unstructured_vtk.html"><span class="std std-doc">Unstructured Mesh VTK Files</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code></p></td>
+<td><p>Volume mesh of tetrahedra, <code class="docutils literal notranslate"><span class="pre">.vtk</span></code></p></td>
+<td><p>Unstructured mesh tallies in OpenMC</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gmsh_mesh.html"><span class="std std-doc">GMSH Mesh</span></a></p></td>
-<td><p>GMSH native format</p></td>
-<td><p>Debugging, further processing</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code></p></td>
+<td><p>Both of the above, sharing their surfaces</p></td>
+<td><p>Transport and mesh tallies on matching meshes</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a></p></td>
-<td><p>Combined surface + volume</p></td>
-<td><p>When you need both</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="quick-comparison">
-<h2>Quick Comparison<a class="headerlink" href="#quick-comparison" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Feature</p></th>
-<th class="head"><p>DAGMC H5M</p></th>
-<th class="head"><p>Unstructured VTK</p></th>
-<th class="head"><p>GMSH Mesh</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Surface mesh</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes (2D)</p></td>
-</tr>
-<tr class="row-odd"><td><p>Volume mesh</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes (3D)</p></td>
-</tr>
-<tr class="row-even"><td><p>For geometry</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Intermediate</p></td>
-</tr>
-<tr class="row-odd"><td><p>For tallies</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>File extension</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">.h5m</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">.vtk</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">.msh</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_mesh.html"><span class="std std-doc">Gmsh Mesh Files</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file()</span></code></p></td>
+<td><p>Gmsh surface or volume mesh, <code class="docutils literal notranslate"><span class="pre">.msh</span></code></p></td>
+<td><p>Inspecting the mesh, converting to h5m later</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,46 +478,37 @@ write a conformal surface and volume mesh pair in a single call.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create geometry</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 
-<span class="c1"># Initialize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
-<span class="c1"># Export to different formats</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>           <span class="c1"># Surface mesh</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">)</span>    <span class="c1"># Volume mesh</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">)</span>             <span class="c1"># GMSH format</span>
+<span class="c1"># Surface mesh, from the default cad-to-dagmc-mesher backend</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
+
+<span class="c1"># Volume mesh. Without target_edge_length this runs on Gmsh, with</span>
+<span class="c1"># min_mesh_size=1 and max_mesh_size=5</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">)</span>
+
+<span class="c1"># Gmsh's own format, a surface mesh unless dimensions=3</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The meshing arguments you pass decide the backend of the first two calls; see
+<a class="reference internal" href="../meshing/index.html#how-the-backend-is-chosen"><span class="std std-ref">How the Backend Is Chosen</span></a>.
+<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file()</span></code> always uses Gmsh.</p>
 </section>
 <section id="choosing-an-output-format">
 <h2>Choosing an Output Format<a class="headerlink" href="#choosing-an-output-format" title="Link to this heading">#</a></h2>
-<p><strong>Use DAGMC H5M when:</strong></p>
-<ul class="simple">
-<li><p>Running DAGMC-enabled transport (OpenMC, MCNP, FLUKA)</p></li>
-<li><p>You need geometry definition for particle tracking</p></li>
-<li><p>Surface mesh is sufficient</p></li>
-</ul>
-<p><strong>Use Unstructured VTK when:</strong></p>
-<ul class="simple">
-<li><p>Creating mesh tallies in OpenMC</p></li>
-<li><p>Need volumetric mesh for post-processing</p></li>
-<li><p>Doing CFD coupling</p></li>
-</ul>
-<p><strong>Use GMSH Mesh when:</strong></p>
-<ul class="simple">
-<li><p>Debugging mesh quality</p></li>
-<li><p>Using GMSH visualization (Gmsh GUI)</p></li>
-<li><p>Further mesh processing needed</p></li>
-</ul>
-<p><strong>Use Conformal Meshes when:</strong></p>
-<ul class="simple">
-<li><p>Running both transport and mesh tallies</p></li>
-<li><p>Surface and volume mesh boundaries must match exactly</p></li>
-</ul>
+<p>Every DAGMC simulation needs the h5m file, whichever DAGMC-enabled code runs it
+(OpenMC, MCNP, FLUKA). Add a VTK volume mesh when you tally on an unstructured
+mesh in OpenMC, or need a volume mesh for another tool. Separate export calls
+each mesh the geometry, so the h5m and VTK files above are not conformal. When
+the tally mesh has to match the geometry, write both from one call as
+<a class="reference internal" href="conformal_meshes.html"><span class="std std-doc">conformal meshes</span></a>.</p>
+<p>A DAGMC simulation does not need the Gmsh mesh file. Write one to look at a mesh
+in the Gmsh GUI, or to mesh once and convert to h5m later.</p>
 </section>
 </section>
 
@@ -569,12 +524,12 @@ write a conformal surface and volume mesh pair in a single call.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../material_tagging/gmsh_physical_groups.html"
+       href="../meshing/mesh_sizing.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">GMSH Physical Groups</p>
+        <p class="prev-next-title">Per-Volume Mesh Sizing</p>
       </div>
     </a>
     <a class="right-next"
@@ -582,7 +537,7 @@ write a conformal surface and volume mesh pair in a single call.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">DAGMC H5M Files</p>
+        <p class="prev-next-title">DAGMC h5m Files</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -605,7 +560,6 @@ write a conformal surface and volume mesh pair in a single call.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-types">Output Types</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-comparison">Quick Comparison</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-export-pattern">Basic Export Pattern</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-an-output-format">Choosing an Output Format</a></li>
 </ul>

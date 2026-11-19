@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -438,48 +438,42 @@
                   
   <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">#</a></h1>
-<p>This page shows the simplest way to create a DAGMC h5m file from a CadQuery object.</p>
+<p>The first example converts a CadQuery assembly to a DAGMC h5m file. The later
+sections start from a STEP file instead, write a volume mesh on its own or
+conformal with the h5m file, and load the results in OpenMC.</p>
 <section id="basic-example">
 <h2>Basic Example<a class="headerlink" href="#basic-example" title="Link to this heading">#</a></h2>
-<p>Create a simple geometry and convert it to DAGMC format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create some geometry with CadQuery. Solids must not overlap: a region that is</span>
-<span class="c1"># inside two volumes has no single material, so DAGMC cannot transport through it.</span>
-<span class="c1"># Cut the sphere out of the box rather than leaving one sitting inside the other.</span>
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># cut the sphere out of the box so the two solids do not overlap</span>
 <span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
 
-<span class="c1"># Create an assembly</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>
 
-<span class="c1"># Convert to DAGMC</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span>  <span class="c1"># there are a few ways to set the material tags, here we refer to the names used in the assembly</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">,</span>  <span class="c1"># tag each solid with its part name</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This creates a <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> file with two volumes tagged with materials
-<code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code> and <code class="docutils literal notranslate"><span class="pre">mat:steel</span></code>.</p>
+<p>This writes <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> with two volumes tagged <code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mat:steel</span></code>. Tags can also be given as a list, one per volume, or taken from
+<code class="docutils literal notranslate"><span class="pre">cq.Material</span></code>; see <a class="reference internal" href="material_tagging/index.html"><span class="std std-doc">Material Tagging</span></a>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p><strong>Solids must not overlap.</strong> DAGMC gives every region exactly one material and
-every surface at most two volumes, so a region sitting inside two solids has no
-well defined material and transport through it is not meaningful.</p>
-<p>Note the <code class="docutils literal notranslate"><span class="pre">.cut(sphere)</span></code> above. Without it the sphere would be inside the box, both
-solids would claim the same region, and the resulting file would be quietly wrong:
-watertight, transportable, and using whichever material DAGMC happened to resolve
-first. Exporting refuses the overlaps it can find without extra cost, such as
-this one, with an error naming the solids involved. <code class="docutils literal notranslate"><span class="pre">model.check_overlaps()</span></code>
-checks every pair of solids exactly; see
-<a class="reference internal" href="advanced/overlaps.html"><span class="std std-doc">Checking for Overlaps</span></a>.</p>
-<p>Solids that <em>touch</em> are fine and normal — they share a surface, not a volume.</p>
+<p>Solids can touch but must not overlap, because DAGMC gives each region exactly
+one material. That is why the example cuts the sphere out of the box. The
+default cad-to-dagmc-mesher backend refuses to export the overlaps it can find
+at no extra cost, such as an uncut sphere inside a box, and names the solids
+involved. It does not catch every overlap, and the Gmsh backend checks none,
+so run <code class="docutils literal notranslate"><span class="pre">model.check_overlaps()</span></code> for an exact test of every pair; see
+<a class="reference internal" href="advanced/overlaps.html#checking-every-pair"><span class="std std-ref">Checking for Overlaps</span></a>.</p>
 </div>
 </section>
 <section id="from-a-step-file">
@@ -490,27 +484,29 @@ checks every pair of solids exactly; see
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry.step"</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">,</span> <span class="s2">"mat3"</span><span class="p">]</span>  <span class="c1"># there are a few ways to set the material tags, here we know the step file has 3 volumes and we know their oder.</span>
+    <span class="c1"># one tag per volume, in the order of the volumes in the file</span>
+    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">,</span> <span class="s2">"mat3"</span><span class="p">],</span>
+    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>CadQuery reads a STEP file in millimetres, whatever unit it was saved in, so
+<code class="docutils literal notranslate"><span class="pre">scale_factor=0.1</span></code> gives the centimetres OpenMC uses; see
+<a class="reference internal" href="advanced/geometry_scaling.html"><span class="std std-doc">Geometry Scaling</span></a>. To tag a STEP file by its
+part names instead, see <a class="reference internal" href="inputs/step_files.html"><span class="std std-doc">STEP Files</span></a>.</p>
 </section>
 <section id="creating-a-volume-mesh">
 <h2>Creating a Volume Mesh<a class="headerlink" href="#creating-a-volume-mesh" title="Link to this heading">#</a></h2>
-<p>Create a tetrahedral volume mesh (VTK format) for use with OpenMC’s unstructured mesh tallies:</p>
+<p><code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code> writes a volume mesh of tetrahedra as a VTK
+file, for unstructured mesh tallies in OpenMC:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create geometry</span>
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
-
-<span class="c1"># Convert to unstructured mesh</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 
 <span class="c1"># target_edge_length selects the cad-to-dagmc-mesher backend</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
@@ -519,33 +515,18 @@ checks every pair of solids exactly; see
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The volume mesh can also be produced with the <a class="reference internal" href="meshing/gmsh_backend.html"><span class="std std-doc">GMSH backend</span></a>,
-sized with <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code>:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Volume mesh export works with both the cad-to-dagmc-mesher and the GMSH meshing
-backends.</p>
-</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> the method meshes with Gmsh
+instead, sized by <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code>; see
+<a class="reference internal" href="outputs/unstructured_vtk.html"><span class="std std-doc">Unstructured Mesh VTK Files</span></a>.</p>
 </section>
 <section id="creating-conformal-surface-and-volume-meshes">
 <h2>Creating Conformal Surface and Volume Meshes<a class="headerlink" href="#creating-conformal-surface-and-volume-meshes" title="Link to this heading">#</a></h2>
-<p>For neutronics simulations that use both DAGMC geometry and unstructured mesh tallies,
-you can create conformal meshes where the surface and volume meshes share the same
-boundary coordinates. This is done in a single export call using the <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>
-and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> parameters:</p>
-<!--pytest-codeblocks:skip-->
+<p>If you use DAGMC geometry and unstructured mesh tallies together, write both
+meshes from one <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> call so that they are conformal. Pass
+<code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and the call returns both filenames:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="c1"># Create geometry</span>
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
 
@@ -553,12 +534,9 @@ and <code class="docutils literal notranslate"><span class="pre">target_edge_len
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
 
-<span class="c1"># Convert to DAGMC</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">])</span>
 
-<span class="c1"># Export both surface mesh and volume mesh in one call</span>
-<span class="c1"># This ensures the meshes are conformal (share the same boundary)</span>
 <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
     <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># material tags of the volumes to fill with tetrahedra</span>
@@ -570,40 +548,16 @@ and <code class="docutils literal notranslate"><span class="pre">target_edge_len
 <p><code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> takes material tag names. For every listed volume the surface is
 remeshed at <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and that surface is both the DAGMC tracking
 surface and the boundary of the tetrahedra.</p>
-<p>The GMSH backend can do the same with the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>  <span class="c1"># volume IDs to create volume mesh for</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Alternatively, use material tag names instead of volume IDs:</span>
-<span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># selects all volumes with "steel" material</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>On the GMSH backend, the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter specifies which volumes should
-have a tetrahedral volume mesh created. It accepts volume IDs (int) or material tag names (str). Material
-tags are resolved to all volumes that have that tag. By exporting both meshes in a
-single call, the surface triangles of the DAGMC geometry will exactly match the
-boundary faces of the volume mesh.</p>
-</div>
+<p>The Gmsh backend does the same with <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>, which takes volume
+IDs or material tags; see <a class="reference internal" href="outputs/conformal_meshes.html"><span class="std std-doc">Conformal Meshes</span></a>.</p>
 </section>
 <section id="using-in-openmc">
 <h2>Using in OpenMC<a class="headerlink" href="#using-in-openmc" title="Link to this heading">#</a></h2>
-<p>Once you have a DAGMC h5m file, you can use it in OpenMC:</p>
+<p>OpenMC gives each volume the material whose name matches its tag without the
+<code class="docutils literal notranslate"><span class="pre">mat:</span></code> prefix, here <code class="docutils literal notranslate"><span class="pre">tungsten</span></code> and <code class="docutils literal notranslate"><span class="pre">steel</span></code>:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
-<span class="c1"># Define materials (names must match material tags)</span>
 <span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
 <span class="n">tungsten</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"W"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="n">tungsten</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">19.3</span><span class="p">)</span>
@@ -614,35 +568,14 @@ boundary faces of the volume mesh.</p>
 
 <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="p">([</span><span class="n">tungsten</span><span class="p">,</span> <span class="n">steel</span><span class="p">])</span>
 
-<span class="c1"># Load the DAGMC geometry</span>
 <span class="n">dag_universe</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
-<span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dag_universe</span><span class="p">)</span>
-
-<span class="c1"># Set up settings</span>
-<span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">settings</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"fixed source"</span>
-
-<span class="c1"># ... continue with source definition, tallies, etc.</span>
+<span class="c1"># cad_to_dagmc writes no graveyard, so bound the geometry with a vacuum box</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dag_universe</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>Using unstructured mesh tallies:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
-
-<span class="c1"># Create mesh from VTK file</span>
-<span class="n">mesh</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">UnstructuredMesh</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s2">"moab"</span><span class="p">)</span>
-
-<span class="c1"># Create tally with mesh filter</span>
-<span class="n">mesh_filter</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">MeshFilter</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
-<span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">()</span>
-<span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh_filter</span><span class="p">]</span>
-<span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"flux"</span><span class="p">,</span> <span class="s2">"heating"</span><span class="p">]</span>
-
-<span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
-</pre></div>
-</div>
+<p><a class="reference internal" href="outputs/dagmc_h5m.html#using-in-openmc"><span class="std std-ref">DAGMC h5m Files</span></a> continues this example
+with settings and a run. For a tally on the volume mesh, see
+<a class="reference internal" href="outputs/unstructured_vtk.html#using-in-openmc"><span class="std std-ref">Unstructured Mesh VTK Files</span></a>.</p>
 </section>
 </section>
 

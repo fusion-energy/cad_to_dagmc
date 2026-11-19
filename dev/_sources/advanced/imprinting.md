@@ -1,137 +1,15 @@
 # Imprinting
 
-Imprinting ensures shared surfaces between adjacent volumes are meshed consistently. It's enabled by default.
+Imprinting splits the faces of touching solids so that each contact region
+becomes one face shared by both solids. That face is meshed once and written
+to the h5m file as one DAGMC surface with a sense for each volume, so a
+particle crossing it moves into the neighbouring volume. Without imprinting,
+each solid keeps its own copy of the contact face, and the h5m file gets two
+coincident one-sided surfaces that do not hand particles to the neighbour.
 
-## What is Imprinting?
-
-When two volumes share a surface (e.g., two boxes touching), imprinting:
-
-1. Identifies the shared surface
-2. Creates matching mesh elements on both sides
-3. Ensures particles can cross the boundary correctly
-
-Without imprinting, adjacent volumes might have incompatible meshes at their interface, causing particle tracking errors.
-
-## Default Behavior
-
-Imprinting is enabled by default for `export_dagmc_h5m_file()`,
-`export_gmsh_mesh_file()`, and `export_unstructured_mesh_file()`. Omitting the
-options uses `imprint="partial"` and `imprint_threads="all"`:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    imprint="partial",      # Default glue mode
-    imprint_threads="all",  # Default imprint thread count
-)
-```
-
-`imprint` selects the glue mode or skips imprinting. The separate
-`imprint_threads` argument is keyword-only on all three export methods.
-
-| Parameter | Accepted values | Default |
-|-----------|-----------------|---------|
-| `imprint` | `"partial"`, `"full"`, `None` (glue off, imprinting still runs), or `False` (skip imprinting) | `"partial"` |
-| `imprint_threads` | `"all"` or a strictly positive integer (numpy integers work); booleans are not accepted | `"all"` |
-
-`imprint_threads` is validated even when `imprint=False`; booleans, zero,
-negative integers, floats, and `None` are invalid thread settings.
-
-## Disabling Imprinting
-
-For geometries that don't need it, use `imprint=False`:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    imprint=False,
-)
-```
-
-## Limiting the Threads Used by Imprinting
-
-Imprinting runs in parallel and its peak RAM scales with the number of threads.
-Large models can run out of memory when imprinting on all logical processors.
-Set `imprint_threads` to a positive integer without changing the glue mode:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    imprint_threads=1,  # Lower peak RAM; keeps the default partial glue
-)
-```
-
-One thread generally uses less memory at the cost of speed. Larger positive
-integers trade memory for parallelism, for example `imprint_threads=4`.
-
-`imprint_threads="all"` requests all OpenCASCADE logical processors, even if the
-current pool is limited. On both backends, thread settings apply only during
-imprinting; the previous pool size is restored afterwards, including on errors.
-Meshing and later CadQuery operations keep their own thread settings.
-
-## Choosing the Imprint Glue
-
-Set `imprint` according to how the solids meet:
-
-| `imprint` | What it does | Geometry requirement |
-|----------------|--------------|----------|
-| `"partial"` (default) | Glues fully or partly coincident faces | Touching solids without crossing faces or overlaps |
-| `"full"` | Skips edge and face intersections | Shared whole faces must coincide exactly; partly coincident faces are not split |
-| `None` | No glue; runs general intersection checks | Geometry requiring general intersection rather than glue assumptions |
-
-`imprint=None` means **glue off**, not "use the default". Imprinting still runs.
-On CadQuery with selectable glue, omitting its `glue` argument defaults to
-`"partial"`; explicitly passing `glue=None` disables the glue optimisation.
-Likewise, omitting this package's `imprint` argument selects `"partial"`, while
-`imprint=False` disables imprinting entirely.
-
-Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
-overlaps in the CAD model before exporting.
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    imprint=None,      # Glue off; requires selectable CadQuery glue
-    imprint_threads=4,
-)
-```
-
-### CadQuery compatibility
-
-CadQuery's legacy imprint always uses partial glue. On multi-solid
-geometry, `"full"` and `None` raise `RuntimeError`; CadQuery with the
-selectable glue API supports all three modes. Support is detected from the
-installed imprint signature, not the version string.
-
-## When to Disable Imprinting
-
-**Safe to disable when:**
-- Single volume geometry
-- Volumes don't touch (separated in space)
-- All volumes are independent (no shared surfaces)
-
-**Keep enabled when:**
-- Adjacent volumes share surfaces
-- Volumes are in contact
-- You're unsure
-
-## Performance Considerations
-
-Imprinting can be computationally expensive for complex geometries with many touching volumes. Disabling it may speed up mesh generation, but only do so if you're certain volumes don't share surfaces.
-
-Peak RAM is usually the limit rather than time. If imprinting runs out of memory,
-try `imprint_threads=1` before reaching for
-`imprint=False`, which changes the resulting geometry.
-
-## Imprinting and Material Tag Order
-
-Imprinting may change the internal ordering of volumes. cad_to_dagmc handles this automatically, preserving the correct material tag assignments.
-
-If you're using volume IDs in `set_size` or `unstructured_volumes`, be aware that imprinting may affect the volume numbering. Using material tag names instead of IDs is more robust.
+`export_dagmc_h5m_file()`, `export_unstructured_mesh_file()` and
+`export_gmsh_mesh_file()` all imprint by default, whichever meshing backend
+they use.
 
 ## Example: Adjacent Boxes
 
@@ -150,12 +28,58 @@ assembly.add(box2)
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2"])
 
-# Imprinting ensures the shared face is meshed consistently
+# The shared face becomes one surface with a sense for each box
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    imprint="partial",  # Also the default
+    imprint="partial",  # the default
 )
 ```
+
+## Defaults and Disabling
+
+| Argument | Values | Default |
+|----------|--------|---------|
+| `imprint` | `"partial"`, `"full"`, `None` (imprint with the glue off) or `False` (do not imprint) | `"partial"` |
+| `imprint_threads` | `"all"` or a positive int; keyword-only | `"all"` |
+
+`imprint=None` is not the default. It still imprints, with the glue turned off
+(see [Choosing the Imprint Glue](#choosing-the-imprint-glue)). Only `False`
+skips imprinting:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(filename="dagmc.h5m", imprint=False)
+```
+
+Turn it off only when no two solids touch, or when you have imprinted the
+geometry yourself (below). A single solid is never imprinted, so it does not
+need `imprint=False`. Turning imprinting off also turns off the
+[overlap checks](overlaps.md#what-exporting-checks) that come with it.
+
+Imprinting runs in parallel, and its peak RAM grows with the number of threads.
+If it runs out of memory, try `imprint_threads=1` before `imprint=False`, which
+changes the geometry; see
+[Limiting Imprinting Threads](parallel_processing.md#limiting-imprinting-threads).
+
+## Choosing the Imprint Glue
+
+The glue mode tells OpenCASCADE how the solids meet, so it can skip
+intersection work the geometry does not need.
+
+| `imprint` | Use it when the solids | Notes |
+|-----------|------------------------|-------|
+| `"partial"` (default) | touch or share faces, fully or in part, with no faces crossing and no overlaps | Splits faces that coincide only in part |
+| `"full"` | share faces that coincide exactly | Intersects no edges or faces, so it does less work than `"partial"` but does not split a face that coincides only in part |
+| `None` | have faces that cross | Glue off, so a full general intersection. The slowest mode |
+
+cad_to_dagmc needs CadQuery 2.8.0 or newer, and CadQuery 2.8.0 imprints with
+partial glue only. On several solids, `"full"` and `None` raise `RuntimeError`
+on both meshing backends. They need a CadQuery that includes
+[cadquery#2069](https://github.com/CadQuery/cadquery/pull/2069); cad_to_dagmc
+detects it from CadQuery's imprint function, not from the version number.
+
+Turning the glue off does not make overlapping solids valid DAGMC geometry.
+Fix overlaps in the CAD; see [Checking for Overlaps](overlaps.md).
 
 ## Meshing Geometry You Imprinted Yourself
 
@@ -197,21 +121,32 @@ model.export_dagmc_h5m_file(
 )
 ```
 
-This works because a BREP file keeps the topology the imprint created: the face
-two solids share is stored once and referenced by both, which is what gives
-the DAGMC surface between them a sense for each volume. Both the
-cad-to-dagmc-mesher and GMSH backends support this, including with
+This works because a BREP file keeps the topology the imprint created. The
+face two solids share is stored once and referenced by both, which is what
+gives the DAGMC surface between them a sense for each volume. Both the
+cad-to-dagmc-mesher and Gmsh backends support this, including with
 `scale_factor`.
 
 :::{warning}
 Use BREP, not STEP. A STEP file stores each solid separately, so the shared
 face comes back as two coincident copies, one per solid. With `imprint=False`
-these become two one sided DAGMC surfaces rather than one surface shared by
+these become two one-sided DAGMC surfaces rather than one surface shared by
 both volumes, and particles crossing the interface are not handed to the
-neighbouring volume. Nothing reports this, the file is written as normal.
+neighbouring volume. Nothing reports this. The file is written as normal.
 :::
+
+`imprint=False` also skips the overlap checks that come with the export's
+imprint, so run `model.check_overlaps()` on the imprinted geometry first; see
+[Checking every pair](overlaps.md#checking-every-pair).
+
+## Imprinting and Material Tag Order
+
+Imprinting can change the order of the volumes. cad_to_dagmc reorders the
+material tags to match, so each tag stays with its solid. Volume IDs given to
+`set_size` or `unstructured_volumes` are the IDs after imprinting, which may not
+follow the order you added the solids in, so give material tags there instead.
 
 ## See Also
 
-- [GMSH Backend](../meshing/gmsh_backend.md) - Meshing options
-- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md) - Using material tags vs volume IDs
+- [Gmsh Backend](../meshing/gmsh_backend.md): meshing options
+- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md): sizing by material tag or volume ID

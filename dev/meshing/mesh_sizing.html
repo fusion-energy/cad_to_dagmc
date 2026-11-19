@@ -57,8 +57,8 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Advanced Options" href="../advanced/index.html" />
-    <link rel="prev" title="GMSH Backend" href="gmsh_backend.html" />
+    <link rel="next" title="Output Formats" href="../outputs/index.html" />
+    <link rel="prev" title="Gmsh Backend" href="gmsh_backend.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,16 +421,9 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-volumes">Specifying Volumes</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mixed">Mixed</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-volumes">Specifying Volumes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-with-volume-meshes">Using with Volume Meshes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -445,14 +438,18 @@
                   
   <section id="per-volume-mesh-sizing">
 <h1>Per-Volume Mesh Sizing<a class="headerlink" href="#per-volume-mesh-sizing" title="Link to this heading">#</a></h1>
-<p>Control mesh density for different volumes using the <code class="docutils literal notranslate"><span class="pre">set_size</span></code> parameter. This allows finer meshes where detail is needed and coarser meshes elsewhere.</p>
+<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> gives individual volumes their own target mesh size, so the mesh can
+be fine where detail matters and coarse elsewhere.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Per-volume mesh sizing only works with the <strong>GMSH backend</strong>. The cad-to-dagmc-mesher backend does not support <code class="docutils literal notranslate"><span class="pre">set_size</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> is a Gmsh backend argument. Passing it to <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code>
+selects Gmsh, so <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code> is not needed. The cad-to-dagmc-mesher
+backend ignores it without a warning. That backend runs when <code class="docutils literal notranslate"><span class="pre">meshing_backend</span></code>
+names it, and in <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code> whenever <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>
+or <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> is given.</p>
 </div>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
-<p>Specify mesh sizes for specific volumes:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -479,7 +476,7 @@
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for this volume</span>
         <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>    <span class="c1"># Fine mesh for this volume</span>
-        <span class="c1"># "global" not specified - uses min/max only</span>
+        <span class="c1"># "global" is not listed, so it has no size of its own</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -487,87 +484,37 @@
 </section>
 <section id="specifying-volumes">
 <h2>Specifying Volumes<a class="headerlink" href="#specifying-volumes" title="Link to this heading">#</a></h2>
-<section id="by-material-tag-name">
-<h3>By Material Tag Name<a class="headerlink" href="#by-material-tag-name" title="Link to this heading">#</a></h3>
-<p>Use material tag names (recommended):</p>
+<p>Keys are material tags, each meaning every volume with that tag, or integer
+volume IDs. They can be mixed:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">"fuel"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># All volumes with "fuel" tag</span>
-    <span class="s2">"coolant"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All volumes with "coolant" tag</span>
+    <span class="s2">"coolant"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># every volume tagged "coolant"</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>          <span class="c1"># volume 1</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<section id="by-volume-id">
-<h3>By Volume ID<a class="headerlink" href="#by-volume-id" title="Link to this heading">#</a></h3>
-<p>Use integer volume IDs:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="c1"># Volume 1</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>  <span class="c1"># Volume 2</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Volume 3</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</section>
-<section id="mixed">
-<h3>Mixed<a class="headerlink" href="#mixed" title="Link to this heading">#</a></h3>
-<p>Combine both approaches:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>           <span class="c1"># Volume 1 specifically</span>
-    <span class="s2">"coolant"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="c1"># All coolant volumes</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</section>
 </section>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
-<ol class="arabic simple">
-<li><p>Volumes not in <code class="docutils literal notranslate"><span class="pre">set_size</span></code> use <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> only</p></li>
-<li><p>Volumes in <code class="docutils literal notranslate"><span class="pre">set_size</span></code> get their specified target size</p></li>
-<li><p>Material tag names are resolved to all volumes with that tag</p></li>
-<li><p>The mesh size applies to all surfaces of the volume</p></li>
-</ol>
-</section>
-<section id="complete-example">
-<h2>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="c1"># Create geometry with different mesh requirements</span>
-<span class="n">shield_inner</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">shield_outer</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">casing</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
-
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_inner</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"shield_inner"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">shield_outer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"shield_outer"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">casing</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"casing"</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
-
-<span class="c1"># Fine mesh on inner shield (where neutrons interact most)</span>
-<span class="c1"># Coarse mesh on casing (less important)</span>
-<span class="c1"># Default mesh on outer shield</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"shielding.h5m"</span><span class="p">,</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
-    <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"shield_inner"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># Fine mesh</span>
-        <span class="s2">"casing"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>        <span class="c1"># Coarse mesh</span>
-        <span class="c1"># "shield_outer" uses global min/max</span>
-    <span class="p">},</span>
-<span class="p">)</span>
-</pre></div>
-</div>
+<p>cad_to_dagmc sets the size on the points of each listed volume’s boundary (its
+CAD vertices), and Gmsh grades the element size along the curves and surfaces
+between them. A point shared by two listed volumes takes the smaller size, so a
+surface between a coarse and a fine volume is meshed at the fine size. Volumes
+not in <code class="docutils literal notranslate"><span class="pre">set_size</span></code> get no size of their own. <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> bound their mesh, which grades towards the size of any listed
+neighbour.</p>
+<p>A size outside the range <code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> to <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> is clamped to it,
+with a warning. A volume given two different sizes (once by ID and once by tag,
+say), a tag that no volume has and a volume ID that does not exist all raise
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>Volume IDs are Gmsh’s volume numbers, starting at 1, after imprinting.
+<a class="reference internal" href="../advanced/imprinting.html"><span class="std std-doc">Imprinting</span></a> can change the order of the volumes,
+so an ID does not always match the order in which the solids were added. Tags
+do not have this problem, so prefer them.</p>
 </section>
 <section id="using-with-volume-meshes">
 <h2>Using with Volume Meshes<a class="headerlink" href="#using-with-volume-meshes" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> also works with volume mesh export:</p>
+<p><code class="docutils literal notranslate"><span class="pre">set_size</span></code> works the same way in <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -583,10 +530,8 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
-<span class="c1"># GMSH mesh file with per-volume sizing</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_gmsh_mesh_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.msh"</span><span class="p">,</span>
-    <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_unstructured_mesh_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"different_resolution_meshes.vtk"</span><span class="p">,</span>
     <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
     <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
@@ -596,29 +541,14 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="tips">
-<h2>Tips<a class="headerlink" href="#tips" title="Link to this heading">#</a></h2>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><strong>Finding volume IDs</strong>: If using volume IDs instead of tag names, the order depends on how volumes were added. Using material tag names is more robust.</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><strong>Checking tags</strong>: After adding geometry, check <code class="docutils literal notranslate"><span class="pre">model.material_tags</span></code> to see available tag names:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
+<p><code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file</span></code> takes it too. In <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> it also sizes
+the conformal volume mesh written with <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Full meshing backend documentation</p></li>
-<li><p><a class="reference internal" href="../material_tagging/assembly_names.html"><span class="std std-doc">Assembly Names</span></a> - Using assembly names for tags</p></li>
+<li><p><a class="reference internal" href="gmsh_backend.html"><span class="std std-doc">Gmsh Backend</span></a>: the other Gmsh sizing arguments</p></li>
+<li><p><a class="reference internal" href="../material_tagging/assembly_names.html"><span class="std std-doc">Assembly Names</span></a>: tagging volumes with assembly part names, as in these examples</p></li>
 </ul>
 </section>
 </section>
@@ -640,15 +570,15 @@
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">GMSH Backend</p>
+        <p class="prev-next-title">Gmsh Backend</p>
       </div>
     </a>
     <a class="right-next"
-       href="../advanced/index.html"
+       href="../outputs/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Advanced Options</p>
+        <p class="prev-next-title">Output Formats</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -671,16 +601,9 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-volumes">Specifying Volumes</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mixed">Mixed</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-volumes">Specifying Volumes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-with-volume-meshes">Using with Volume Meshes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

@@ -1,179 +1,114 @@
 # Parallel Processing
 
-Both CadQuery and GMSH use parallel processing for operations like imprinting
-and meshing. By default, imprinting explicitly requests the OpenCASCADE logical
-processor count; meshing has separate thread controls.
+Imprinting and meshing run on several threads, and the peak RAM of each step
+grows with its thread count. Each step has its own limit:
 
-## When to Limit Threads
+| Step | Argument | Default |
+|------|----------|---------|
+| Imprinting (OpenCASCADE) | `imprint_threads` | `"all"`: every logical processor |
+| Meshing with cad-to-dagmc-mesher | `mesh_threads` | `"all"`: every logical processor, unless `RAYON_NUM_THREADS` is set |
+| Meshing with Gmsh | `threads` | `0`: every logical processor, unless `OMP_NUM_THREADS` is set |
 
-- **Shared servers**: Avoid monopolizing all cores
-- **Memory constraints**: Each thread requires memory; fewer threads = lower peak memory
-- **Debugging**: Single-threaded execution can make errors easier to diagnose
+All three are arguments of `export_dagmc_h5m_file` and
+`export_unstructured_mesh_file`. `export_gmsh_mesh_file`, which always meshes
+with Gmsh, takes `imprint_threads` and `threads`. A limit applies to its own
+step only and is undone afterwards. Fewer threads lower the peak RAM at the
+cost of speed, which helps on a shared machine or when an export runs out of
+memory.
 
-## Limiting Imprinting Threads
+To run every step on four threads, with each meshing backend:
 
-Imprinting is usually the most memory hungry parallel step. Set the keyword-only
-`imprint_threads` argument without changing a global setting:
-
-<!--pytest-codeblocks:skip-->
 ```python
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    imprint_threads=1,  # Lower peak RAM
-)
-```
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
 
-Only imprinting is limited; meshing uses its own settings on both backends. The
-previous pool size is restored afterwards, including on errors. By default,
-`imprint_threads="all"` requests all logical processors, overriding an existing limit.
-See [Imprinting](imprinting.md) for the available options.
+box = cq.Workplane().box(10, 10, 10)
+lid = cq.Workplane().box(10, 10, 2).translate((0, 0, 6))
 
-## Limiting cad-to-dagmc-mesher Meshing Threads
+model = CadToDagmc()
+model.add_cadquery_object(box, material_tags=["steel"])
+model.add_cadquery_object(lid, material_tags=["copper"])
 
-The cad-to-dagmc-mesher backend meshes in parallel after the imprint (the
-surface triangulation, the edge discretisation, merging and repair, the mesh
-checks and any tet meshing). Set the keyword-only `mesh_threads` argument to
-run that on fewer threads, for a lower peak RAM at the cost of speed:
-
-<!--pytest-codeblocks:skip-->
-```python
+# cad-to-dagmc-mesher backend, the default
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     imprint_threads=4,
     mesh_threads=4,
 )
+
+# Gmsh backend
+model.export_dagmc_h5m_file(
+    filename="dagmc_gmsh.h5m",
+    meshing_backend="gmsh",
+    imprint_threads=4,
+    threads=4,
+)
 ```
 
-The mesh is the same on any number of threads. `mesh_threads="all"` (the
-default) leaves the mesher's thread pool as it is. The limit applies for the
-export only and is undone afterwards, including on errors. It is also accepted
-by `export_unstructured_mesh_file`. The gmsh backend takes `threads` instead and
-warns that `mesh_threads` is unused. A cad-to-dagmc-mesher too old to take
-`mesh_threads` raises `RuntimeError` for anything other than `"all"`.
+## Limiting Imprinting Threads
+
+Imprinting is usually the step that needs the most memory. `imprint_threads`
+sets the size of the OpenCASCADE thread pool for the imprint only, with either
+meshing backend:
+
+<!--pytest-codeblocks:skip-->
+```python
+model.export_dagmc_h5m_file(
+    filename="dagmc.h5m",
+    imprint_threads=1,  # lowest peak RAM, slowest imprint
+)
+```
+
+It takes `"all"` (the default) or a positive int. `"all"` asks for every
+logical processor, even if you limited the pool earlier with `setThreads`. The
+previous pool size is restored after the imprint, including when it raises.
+[Imprinting](imprinting.md) covers the imprint itself.
+
+## Limiting cad-to-dagmc-mesher Meshing Threads
+
+After the imprint, the cad-to-dagmc-mesher backend meshes in parallel: the
+surface triangulation, the edge discretisation, merging and repair, the mesh
+checks and any tetrahedral meshing. `mesh_threads` runs all of that on a pool
+of the given size. It takes `"all"` (the default) or a positive int, and the
+mesh is the same on any number of threads.
+
+With `"all"` the mesher keeps its default thread pool, which has one thread per
+logical processor unless the `RAYON_NUM_THREADS` environment variable is set.
+The Gmsh backend ignores `mesh_threads` with a warning.
+
+## Limiting Gmsh Threads
+
+The Gmsh backend takes `threads`, which sets Gmsh's `General.NumThreads`
+option. The default, 0, uses `OMP_NUM_THREADS` if it is set and otherwise every
+logical processor.
+
+`threads` is a Gmsh argument, so passing it to `export_dagmc_h5m_file` selects
+the Gmsh backend, as described in
+[How the Backend Is Chosen](../meshing/index.md#how-the-backend-is-chosen). To
+limit the default backend, use `mesh_threads`.
+
+Each export that meshes with Gmsh starts a new gmsh session, so a
+`General.NumThreads` set with `gmsh.option.setNumber` before the call is lost.
+Pass `threads` instead.
 
 ## Limiting CadQuery Threads
 
-For other CadQuery operations, use `setThreads` to configure the OpenCASCADE
-thread pool:
+Your own CadQuery operations, such as the booleans that build a model, run on
+the same OpenCASCADE pool as the imprint. `setThreads` sets its size until you
+change it again:
 
 <!--pytest-codeblocks:skip-->
 ```python
 from cadquery.occ_impl.shapes import setThreads
 
-setThreads(4)  # Limit to 4 threads
-
-# Now run your geometry operations
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-# ...
-```
-
-### Alternative: Configure Before Import
-
-<!--pytest-codeblocks:skip-->
-```python
-import OCP
-OCP.OSD.OSD_ThreadPool.DefaultPool_s(4)  # Limit to 4 threads
-
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-# ...
-```
-
-### Alternative: Environment Variable
-
-<!--pytest-codeblocks:skip-->
-```bash
-export OMP_NUM_THREADS=4
-python my_script.py
-```
-
-Or in Python:
-
-<!--pytest-codeblocks:skip-->
-```python
-import os
-os.environ["OMP_NUM_THREADS"] = "4"
-
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-# ...
-```
-
-## Limiting GMSH Threads
-
-GMSH parallelism is controlled through its own options:
-
-<!--pytest-codeblocks:skip-->
-```python
-import gmsh
-import cad_to_dagmc
-
-gmsh_obj = cad_to_dagmc.init_gmsh()
-
-# Limit parallel meshing to 4 threads
-gmsh.option.setNumber("General.NumThreads", 4)
-gmsh.option.setNumber("Mesh.MaxNumThreads1D", 4)
-gmsh.option.setNumber("Mesh.MaxNumThreads2D", 4)
-gmsh.option.setNumber("Mesh.MaxNumThreads3D", 4)
-
-# ... continue with meshing ...
-```
-
-## Thread Options Summary
-
-| Component | Method | When Applied |
-|-----------|--------|--------------|
-| Imprinting | `imprint_threads=4` | For the duration of the imprint only |
-| cad-to-dagmc-mesher meshing | `mesh_threads=4` | For the meshing after the imprint only |
-| CadQuery | `setThreads()` | Before other CadQuery operations |
-| CadQuery | `OSD_ThreadPool.DefaultPool_s()` | Before importing CadQuery |
-| CadQuery | `OMP_NUM_THREADS` env var | Before Python starts |
-| GMSH | `General.NumThreads` | After GMSH initialization |
-| GMSH | `Mesh.MaxNumThreads*D` | After GMSH initialization |
-
-## Complete Example
-
-<!--pytest-codeblocks:skip-->
-```python
-import os
-os.environ["OMP_NUM_THREADS"] = "4"  # For CadQuery
-
-import cadquery as cq
-from cadquery.occ_impl.shapes import setThreads
-import gmsh
-import cad_to_dagmc
-
-# Limit CadQuery threads
 setThreads(4)
-
-# Create geometry
-assembly = cq.Assembly()
-assembly.add(cq.Workplane("XY").sphere(10))
-
-# Initialize model
-model = cad_to_dagmc.CadToDagmc()
-model.add_cadquery_object(assembly, material_tags=["mat1"])
-
-# For advanced GMSH control
-gmsh_obj = cad_to_dagmc.init_gmsh()
-gmsh.option.setNumber("General.NumThreads", 4)
-gmsh.option.setNumber("Mesh.MaxNumThreads2D", 4)
-
-# ... continue with export ...
 ```
 
-## Performance Considerations
-
-- More threads generally = faster for large models
-- Memory usage scales with thread count
-- On small models, threading overhead may negate benefits
-- I/O bound operations don't benefit much from parallelism
+This does not limit the imprint inside an export, which `imprint_threads`
+controls. `OMP_NUM_THREADS` does not change this pool.
 
 ## See Also
 
-- [GMSH Backend](../meshing/gmsh_backend.md) - GMSH meshing options
-- [Imprinting](imprinting.md) - Imprinting uses parallel processing
+- [Imprinting](imprinting.md): what the imprint does and how to configure it
+- [cad-to-dagmc-mesher Backend](../meshing/cad_to_dagmc_mesher_backend.md): the mesher's other arguments
+- [Gmsh Backend](../meshing/gmsh_backend.md): the other Gmsh arguments

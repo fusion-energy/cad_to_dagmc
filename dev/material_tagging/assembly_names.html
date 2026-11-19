@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="current nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,11 +421,8 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-use-assembly-names">Why Use Assembly Names?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-names-with-mesh-sizing">Using Names with Mesh Sizing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unnamed-parts">Unnamed Parts</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming Conventions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-colors-for-visualization">Using Colors for Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repeated-names-and-nested-assemblies">Repeated Names and Nested Assemblies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -440,10 +437,9 @@
                   
   <section id="assembly-names-as-material-tags">
 <h1>Assembly Names as Material Tags<a class="headerlink" href="#assembly-names-as-material-tags" title="Link to this heading">#</a></h1>
-<p>Use CadQuery assembly part names automatically as material tags. This avoids manual tag ordering.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">material_tags=&quot;assembly_names&quot;</span></code>, each part of a CadQuery assembly is tagged with its name, so there is no list to keep in the order of the volumes. <code class="docutils literal notranslate"><span class="pre">add_stp_file</span></code> takes it too and reads the part names stored in a STEP file; <a class="reference internal" href="../inputs/step_files.html#tags-from-named-step-parts"><span class="std std-ref">Tags from Named STEP Parts</span></a> has an example and a warning about part names that end in <code class="docutils literal notranslate"><span class="pre">_part</span></code>.</p>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
-<p>Name your assembly parts, then use <code class="docutils literal notranslate"><span class="pre">material_tags=&quot;assembly_names&quot;</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -451,151 +447,67 @@
 <span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>      <span class="c1"># Name becomes material tag</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>   <span class="c1"># Name becomes material tag</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
-    <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span>  <span class="c1"># Use names as tags</span>
-<span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This creates volumes tagged with <code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code> and <code class="docutils literal notranslate"><span class="pre">mat:steel</span></code>.</p>
-</section>
-<section id="why-use-assembly-names">
-<h2>Why Use Assembly Names?<a class="headerlink" href="#why-use-assembly-names" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Advantage</p></th>
-<th class="head"><p>Explanation</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>No ordering issues</p></td>
-<td><p>Tags come from the part, not position in a list</p></td>
-</tr>
-<tr class="row-odd"><td><p>Self-documenting</p></td>
-<td><p>Code shows what each part is</p></td>
-</tr>
-<tr class="row-even"><td><p>Works with set_size</p></td>
-<td><p>Tag names can reference mesh sizing</p></td>
-</tr>
-<tr class="row-odd"><td><p>Refactoring safe</p></td>
-<td><p>Adding/removing parts won’t break tag assignment</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="using-names-with-mesh-sizing">
-<h2>Using Names with Mesh Sizing<a class="headerlink" href="#using-names-with-mesh-sizing" title="Link to this heading">#</a></h2>
-<p>Assembly names work seamlessly with the <code class="docutils literal notranslate"><span class="pre">set_size</span></code> parameter:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-
-<span class="n">coarse_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">fine_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
-<span class="n">default_box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coarse_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fine_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">default_box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"global"</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
-
-<span class="c1"># Check available material tags</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Material tags:"</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
-<span class="c1"># Output: Material tags: ['coarse', 'fine', 'global']</span>
-
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Reference by name</span>
-        <span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-        <span class="c1"># "global" uses default min/max</span>
-    <span class="p">},</span>
-<span class="p">)</span>
-</pre></div>
-</div>
+<p>This writes volumes tagged <code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code> and <code class="docutils literal notranslate"><span class="pre">mat:steel</span></code>. Because the tag travels with the part, adding or removing parts cannot shift the other tags, and the code shows what each part is made of. Only the name is read; a part’s <code class="docutils literal notranslate"><span class="pre">color</span></code> or <code class="docutils literal notranslate"><span class="pre">material</span></code> does not change its tag. Names become tags unchanged and must follow the <a class="reference internal" href="index.html#tag-name-guidelines"><span class="std std-ref">tag name guidelines</span></a>.</p>
 </section>
 <section id="unnamed-parts">
 <h2>Unnamed Parts<a class="headerlink" href="#unnamed-parts" title="Link to this heading">#</a></h2>
-<p>Parts without explicit names receive auto-generated UUIDs:</p>
+<p>CadQuery names a part added without <code class="docutils literal notranslate"><span class="pre">name</span></code> with a UUID:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"named_part"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
 <span class="c1"># cut the sphere out of the box so the two solids do not overlap</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">))</span>  <span class="c1"># No name!</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">))</span>  <span class="c1"># no name</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>
-<span class="c1"># Output: ['named_part', 'a1b2c3d4-e5f6-...']  # UUID for unnamed part</span>
+<span class="c1"># ['sphere', '&lt;a new UUID&gt;']</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Always name your assembly parts to ensure meaningful, predictable material tags. UUID tags are hard to reference in simulations.</p>
-</div>
+<p>The UUID changes every time the assembly is built. At 36 characters it is also over the length limit, so cad_to_dagmc warns and the h5m file keeps only its first 28 characters. Name every part.</p>
 </section>
-<section id="naming-conventions">
-<h2>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading">#</a></h2>
-<p>Recommended naming practices:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good names - descriptive, match OpenMC materials</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">inner_wall</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cooling_channel</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"water"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outer_shell</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"steel"</span><span class="p">)</span>
-
-<span class="c1"># Avoid - too generic</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"part1"</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"part2"</span><span class="p">)</span>
-
-<span class="c1"># Avoid - too long (may be truncated)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"plasma_facing_component_tungsten_armor"</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="using-colors-for-visualization">
-<h2>Using Colors for Visualization<a class="headerlink" href="#using-colors-for-visualization" title="Link to this heading">#</a></h2>
-<p>You can add colors without affecting material tags:</p>
+<section id="repeated-names-and-nested-assemblies">
+<h2>Repeated Names and Nested Assemblies<a class="headerlink" href="#repeated-names-and-nested-assemblies" title="Link to this heading">#</a></h2>
+<p>Parts added to the same assembly need different names. CadQuery rejects a repeat with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> that starts “Unique name is required”. To give several solids one tag, put them in one part (every solid in a part gets the part’s name) or tag them with <a class="reference internal" href="assembly_materials.html"><span class="std std-doc">assembly materials</span></a>.</p>
+<p>In a nested assembly, each part is tagged with its own name and the sub-assembly names are not used. Parts in different sub-assemblies can therefore share a name, and a tag:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-    <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">"coarse"</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Blue - for visualization only</span>
-<span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-    <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">"fine"</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">cq</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># Green</span>
-<span class="p">)</span>
+<span class="n">left</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+<span class="n">left</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pin"</span><span class="p">)</span>
 
-<span class="c1"># Material tags are still "coarse" and "fine"</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+<span class="n">right</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pin"</span><span class="p">)</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="s2">"assembly_names"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">material_tags</span><span class="p">)</span>  <span class="c1"># ['pin', 'pin']</span>
 </pre></div>
 </div>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="assembly_materials.html"><span class="std std-doc">Assembly Materials</span></a> - Alternative: use cq.Material objects</p></li>
-<li><p><a class="reference internal" href="../inputs/cadquery_assemblies.html"><span class="std std-doc">CadQuery Assemblies</span></a> - Assembly input guide</p></li>
-<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Using tag names for mesh control</p></li>
+<li><p><a class="reference internal" href="assembly_materials.html"><span class="std std-doc">Assembly Materials</span></a>: tags from <code class="docutils literal notranslate"><span class="pre">cq.Material</span></code>, for parts that share a material</p></li>
+<li><p><a class="reference internal" href="../inputs/cadquery_assemblies.html"><span class="std std-doc">CadQuery Assemblies</span></a>: adding assemblies to a model</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a>: <code class="docutils literal notranslate"><span class="pre">set_size</span></code> gives a target mesh size per volume, keyed by material tag or volume ID (Gmsh backend only)</p></li>
 </ul>
 </section>
 </section>
@@ -648,11 +560,8 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-use-assembly-names">Why Use Assembly Names?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-names-with-mesh-sizing">Using Names with Mesh Sizing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unnamed-parts">Unnamed Parts</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming Conventions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-colors-for-visualization">Using Colors for Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repeated-names-and-nested-assemblies">Repeated Names and Nested Assemblies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

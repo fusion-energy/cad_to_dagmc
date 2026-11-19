@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -420,12 +420,10 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-pip">Install using pip</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-mamba">Install using Mamba</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-conda">Install using Conda</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-with-pip">Install with pip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-with-conda-or-mamba">Install with conda or mamba</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-packages">Optional packages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-pymoab">Optional: Installing pymoab</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-openmc">Optional: Installing OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-openmc">Install OpenMC</a></li>
 </ul>
             </nav>
         </div>
@@ -439,66 +437,43 @@
                   
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<p>cad_to_dagmc is on both <a class="reference external" href="https://pypi.org/project/cad_to_dagmc/">PyPI</a> and
-<a class="reference external" href="https://anaconda.org/conda-forge/cad_to_dagmc">conda-forge</a>, so it can be installed
-with pip or with Conda/Mamba. Both are supported, pip is the more popular route.</p>
-<p>The two routes differ in which optional packages come along with them, see
-<a class="reference internal" href="#optional-packages">Optional packages</a> below.</p>
-<section id="install-using-pip">
-<h2>Install using pip<a class="headerlink" href="#install-using-pip" title="Link to this heading">#</a></h2>
+<p>cad_to_dagmc is on <a class="reference external" href="https://pypi.org/project/cad_to_dagmc/">PyPI</a> and
+<a class="reference external" href="https://anaconda.org/conda-forge/cad_to_dagmc">conda-forge</a>. Installing with
+pip also brings cad-to-dagmc-mesher, the default meshing backend, which is not
+on conda-forge.</p>
+<section id="install-with-pip">
+<h2>Install with pip<a class="headerlink" href="#install-with-pip" title="Link to this heading">#</a></h2>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>cad_to_dagmc
 </pre></div>
 </div>
-<p>This also installs <a class="reference external" href="https://github.com/fusion-energy/cad-to-dagmc-mesher">cad-to-dagmc-mesher</a>,
-the default meshing backend.</p>
 </section>
-<section id="install-using-mamba">
-<h2>Install using Mamba<a class="headerlink" href="#install-using-mamba" title="Link to this heading">#</a></h2>
-<p>Mamba resolves environments faster than Conda.</p>
+<section id="install-with-conda-or-mamba">
+<h2>Install with conda or mamba<a class="headerlink" href="#install-with-conda-or-mamba" title="Link to this heading">#</a></h2>
 <!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new environment</span>
-mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cad_to_dagmc_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span>-y
-
-<span class="c1"># Activate the environment</span>
-mamba<span class="w"> </span>activate<span class="w"> </span>cad_to_dagmc_env
-
-<span class="c1"># Install cad_to_dagmc</span>
-mamba<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cad_to_dagmc
-</pre></div>
-</div>
-</section>
-<section id="install-using-conda">
-<h2>Install using Conda<a class="headerlink" href="#install-using-conda" title="Link to this heading">#</a></h2>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new environment</span>
-conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cad_to_dagmc_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span>-y
-
-<span class="c1"># Activate the environment</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cad_to_dagmc_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span>-y
 conda<span class="w"> </span>activate<span class="w"> </span>cad_to_dagmc_env
-
-<span class="c1"># Install cad_to_dagmc</span>
 conda<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cad_to_dagmc
 </pre></div>
 </div>
+<p>The same commands work with mamba, which resolves environments faster. To add
+cad-to-dagmc-mesher, see <a class="reference internal" href="#optional-packages">Optional packages</a>.</p>
 </section>
 <section id="optional-packages">
 <h2>Optional packages<a class="headerlink" href="#optional-packages" title="Link to this heading">#</a></h2>
-<p>Two packages are optional, and which one is easy to add depends on how you installed
-cad_to_dagmc.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Package</p></th>
 <th class="head"><p>Needed for</p></th>
 <th class="head"><p>With pip</p></th>
-<th class="head"><p>With Conda/Mamba</p></th>
+<th class="head"><p>With conda or mamba</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher</span></a></p></td>
-<td><p>the default meshing backend</p></td>
+<td><p>the default meshing backend and <code class="docutils literal notranslate"><span class="pre">check_overlaps()</span></code></p></td>
 <td><p>installed as a dependency</p></td>
-<td><p>not on conda-forge, add with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code></p></td>
+<td><p>not on conda-forge, but <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cad-to-dagmc-mesher</span></code> works in the conda environment</p></td>
 </tr>
 <tr class="row-odd"><td><p>pymoab</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code></p></td>
@@ -508,56 +483,32 @@ cad_to_dagmc.</p>
 </tbody>
 </table>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The h5py h5m backend is the default and does not need MOAB, so pymoab is only worth
-installing if you specifically want <code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code>. pymoab is not on PyPI
-itself, which is why it is not a dependency of the pip package, but the extra index
-above serves wheels for it so pip installing it is still a one liner.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>cad-to-dagmc-mesher is not on conda-forge. Without it, a call that names no meshing
-backend falls back to the gmsh backend and warns. pip installing it works alongside
-a Conda/Mamba installation.</p>
-</div>
+<p>If cad-to-dagmc-mesher is not installed, <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file</span></code> with no meshing
+arguments falls back to the Gmsh backend and warns. Asking for the mesher, with
+<code class="docutils literal notranslate"><span class="pre">meshing_backend=&quot;cad-to-dagmc-mesher&quot;</span></code> or one of its arguments such as
+<code class="docutils literal notranslate"><span class="pre">tolerance</span></code> or <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, raises <code class="docutils literal notranslate"><span class="pre">CadToDagmcMesherNotFoundError</span></code>, and
+so does <code class="docutils literal notranslate"><span class="pre">check_overlaps()</span></code>.</p>
+<p>The default h5py h5m backend does not need MOAB, so pymoab is only needed for
+<code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code>. It is not on PyPI, which is why the pip command uses an
+extra index. To build it from source, run
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://bitbucket.org/fathomteam/moab/</span></code>.</p>
 </section>
-<section id="optional-installing-pymoab">
-<h2>Optional: Installing pymoab<a class="headerlink" href="#optional-installing-pymoab" title="Link to this heading">#</a></h2>
-<p>pymoab is optional and only needed if you want to use the <code class="docutils literal notranslate"><span class="pre">h5m_backend=&quot;pymoab&quot;</span></code> option.</p>
-<p><strong>Option 1: Via Conda</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>moab
-</pre></div>
-</div>
-<p><strong>Option 2: Via extra index</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://shimwell.github.io/wheels<span class="w"> </span>moab
-</pre></div>
-</div>
-<p><strong>Option 3: From source</strong></p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://bitbucket.org/fathomteam/moab/
-</pre></div>
-</div>
-</section>
-<section id="optional-installing-openmc">
-<h2>Optional: Installing OpenMC<a class="headerlink" href="#optional-installing-openmc" title="Link to this heading">#</a></h2>
-<p>To use the generated h5m files in neutronics simulations, you’ll need a DAGMC-enabled
-transport code like OpenMC.</p>
-<p><strong>Option 1: Via Conda</strong></p>
+<section id="install-openmc">
+<h2>Install OpenMC<a class="headerlink" href="#install-openmc" title="Link to this heading">#</a></h2>
+<p>To use the h5m files in a simulation you need a transport code built with DAGMC,
+such as OpenMC. From conda-forge, the <code class="docutils literal notranslate"><span class="pre">dagmc*</span></code> build string picks a build with
+DAGMC. The version is only an example:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-y<span class="w"> </span><span class="s2">"openmc=0.15.2=dagmc*"</span>
 </pre></div>
 </div>
-<p><strong>Option 2: Via extra index</strong></p>
+<p>With pip, from the same extra index as pymoab:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://shimwell.github.io/wheels<span class="w"> </span>openmc
 </pre></div>
 </div>
-<p><strong>Option 3: From source</strong></p>
-<p>Alternatively, see the <a class="reference external" href="https://docs.openmc.org/en/stable/quickinstall.html">OpenMC installation guide</a>
-for building from source.</p>
+<p>To build from source, see the
+<a class="reference external" href="https://docs.openmc.org/en/stable/quickinstall.html">OpenMC installation guide</a>.</p>
 </section>
 </section>
 
@@ -608,12 +559,10 @@ for building from source.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-pip">Install using pip</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-mamba">Install using Mamba</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-conda">Install using Conda</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-with-pip">Install with pip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-with-conda-or-mamba">Install with conda or mamba</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-packages">Optional packages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-pymoab">Optional: Installing pymoab</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-installing-openmc">Optional: Installing OpenMC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-openmc">Install OpenMC</a></li>
 </ul>
   </nav></div>
 

@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -421,14 +421,9 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-at-different-stages">Scaling at Different Stages</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-adding-geometry">When Adding Geometry</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-exporting">When Exporting</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-scale-factors">Common Scale Factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-at-different-stages">Scaling at Different Stages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#different-scales-for-different-parts">Different Scales for Different Parts</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#neutronics-unit-conventions">Neutronics Unit Conventions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-size-and-scaling">Mesh Size and Scaling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
@@ -444,14 +439,19 @@
                   
   <section id="geometry-scaling">
 <h1>Geometry Scaling<a class="headerlink" href="#geometry-scaling" title="Link to this heading">#</a></h1>
-<p>Scale geometry using the <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> parameter. Useful when converting between units (e.g., mm to cm for neutronics).</p>
+<p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> scales the geometry about the origin. OpenMC and most other
+neutronics codes work in centimetres, while CAD tools usually save in
+millimetres, so the most common value is 0.1. CadQuery reads a STEP file in
+millimetres whatever unit it was saved in, so 0.1 gives centimetres for any
+STEP file.</p>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
-<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Modelled in mm</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">small_sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
@@ -460,49 +460,10 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
-<span class="c1"># Scale geometry 10x (e.g., mm to cm)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">,</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="c1"># mm to cm, so the spheres have radii of 5 cm and 2 cm in the h5m file</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="scaling-at-different-stages">
-<h2>Scaling at Different Stages<a class="headerlink" href="#scaling-at-different-stages" title="Link to this heading">#</a></h2>
-<section id="when-adding-geometry">
-<h3>When Adding Geometry<a class="headerlink" href="#when-adding-geometry" title="Link to this heading">#</a></h3>
-<p>Scale when adding CadQuery objects or STEP files:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Scale CadQuery object</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
-    <span class="n">cadquery_object</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">],</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Scale down (mm to cm)</span>
-<span class="p">)</span>
-
-<span class="c1"># Scale STEP file</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_stp_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"geometry_in_mm.step"</span><span class="p">,</span>
-    <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">],</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Scale down (mm to cm)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="when-exporting">
-<h3>When Exporting<a class="headerlink" href="#when-exporting" title="Link to this heading">#</a></h3>
-<p>Scale at export time:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Scale at export</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
 </section>
 <section id="common-scale-factors">
 <h2>Common Scale Factors<a class="headerlink" href="#common-scale-factors" title="Link to this heading">#</a></h2>
@@ -542,12 +503,27 @@
 </table>
 </div>
 </section>
+<section id="scaling-at-different-stages">
+<h2>Scaling at Different Stages<a class="headerlink" href="#scaling-at-different-stages" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_stp_file()</span></code> take a <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>, and so do
+the three export methods. The two multiply. Adding scales the stored solids
+and exporting scales them again, so a box added with <code class="docutils literal notranslate"><span class="pre">scale_factor=0.1</span></code> and
+exported with <code class="docutils literal notranslate"><span class="pre">scale_factor=10</span></code> comes out at its original size.</p>
+<p>Use one or the other. Scaling as you add suits sources in different units
+(next section). Scaling at export, as in Basic Usage, applies one factor to
+everything.</p>
+<p><a class="reference internal" href="overlaps.html#checking-every-pair"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">check_overlaps()</span></code></span></a> scales the stored solids
+in the same way, so give it the <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> you export with, not the one you
+added with.</p>
+</section>
 <section id="different-scales-for-different-parts">
 <h2>Different Scales for Different Parts<a class="headerlink" href="#different-scales-for-different-parts" title="Link to this heading">#</a></h2>
-<p>When combining geometry from different sources with different units:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<p>Sources in different units each take their own <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> when added:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="c1"># Stands in for a STEP file from a CAD tool, in mm</span>
+<span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"component_in_mm.step"</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 
@@ -558,8 +534,8 @@
     <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Convert mm to cm</span>
 <span class="p">)</span>
 
-<span class="c1"># CadQuery object in cm (no scaling needed)</span>
-<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 10 cm radius</span>
+<span class="c1"># CadQuery object in cm (no scaling needed), beside the 30 cm box</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># 10 cm radius</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span>
     <span class="n">cadquery_object</span><span class="o">=</span><span class="n">sphere</span><span class="p">,</span>
     <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">],</span>
@@ -570,33 +546,30 @@
 </pre></div>
 </div>
 </section>
-<section id="neutronics-unit-conventions">
-<h2>Neutronics Unit Conventions<a class="headerlink" href="#neutronics-unit-conventions" title="Link to this heading">#</a></h2>
-<p>Most neutronics codes (OpenMC, MCNP, etc.) work in <strong>centimeters</strong>. If your CAD software uses millimeters (common in mechanical engineering), apply a scale factor of 0.1:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CAD created in mm, simulation needs cm</span>
-<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># mm to cm</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
 <section id="mesh-size-and-scaling">
 <h2>Mesh Size and Scaling<a class="headerlink" href="#mesh-size-and-scaling" title="Link to this heading">#</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Mesh size parameters (<code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">set_size</span></code>) are applied <strong>after</strong> scaling. Set them in the <strong>output units</strong>, not the input units.</p>
-</div>
-<p>Example:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Geometry is 100mm sphere, scaling to cm</span>
-<span class="c1"># Want 0.5 cm mesh size (not 5 mm)</span>
+<p>The geometry is scaled before it is meshed, so every linear sizing argument is
+in the units of the scaled geometry. On the Gmsh backend these are
+<code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> and <code class="docutils literal notranslate"><span class="pre">set_size</span></code>. On the cad-to-dagmc-mesher
+backend they are <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>. <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> is
+an angle, in radians, and does not change with scaling.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">scale_factor=100</span></code> (a model built in metres), the default <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> of
+0.5 is a 5 mm deflection on the output, not 0.5 m. So a fixed size gets finer
+relative to the CAD as <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> grows, and on a large model the mesh may
+not fit in RAM. Scale the sizes along with the geometry.</p>
+<p>For CAD in millimetres exported in centimetres:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">])</span>  <span class="c1"># mm</span>
+
+<span class="c1"># cad-to-dagmc-mesher backend: a 0.1 cm (1 mm) chordal deflection</span>
+<span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"mesher.h5m"</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Gmsh backend: elements between 0.5 cm and 2 cm</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># mm to cm</span>
-    <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>     <span class="c1"># 0.5 cm (in output units)</span>
-    <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>     <span class="c1"># 2.0 cm (in output units)</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"gmsh.h5m"</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">min_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_mesh_size</span><span class="o">=</span><span class="mf">2.0</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -604,8 +577,8 @@
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../inputs/step_files.html"><span class="std std-doc">STEP Files</span></a> - Scaling STEP file input</p></li>
-<li><p><a class="reference internal" href="../inputs/cadquery_objects.html"><span class="std std-doc">CadQuery Objects</span></a> - Scaling CadQuery input</p></li>
+<li><p><a class="reference internal" href="../inputs/step_files.html"><span class="std std-doc">STEP Files</span></a>: <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> on <code class="docutils literal notranslate"><span class="pre">add_stp_file()</span></code></p></li>
+<li><p><a class="reference internal" href="../inputs/cadquery_objects.html"><span class="std std-doc">CadQuery Objects</span></a>: <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> on <code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -658,14 +631,9 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-at-different-stages">Scaling at Different Stages</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-adding-geometry">When Adding Geometry</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-exporting">When Exporting</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-scale-factors">Common Scale Factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-at-different-stages">Scaling at Different Stages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#different-scales-for-different-parts">Different Scales for Different Parts</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#neutronics-unit-conventions">Neutronics Unit Conventions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-size-and-scaling">Mesh Size and Scaling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>

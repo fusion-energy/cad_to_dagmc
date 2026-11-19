@@ -58,7 +58,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Manual Material Tags" href="manual_tags.html" />
-    <link rel="prev" title="GMSH Files" href="../inputs/gmsh_files.html" />
+    <link rel="prev" title="Gmsh Files" href="../inputs/gmsh_files.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="current nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -437,7 +437,7 @@
                   
   <section id="material-tagging">
 <h1>Material Tagging<a class="headerlink" href="#material-tagging" title="Link to this heading">#</a></h1>
-<p>Material tags identify each volume in the DAGMC geometry. They connect your CAD geometry to materials in your neutronics simulation.</p>
+<p>Every volume in the DAGMC file carries a material tag, which OpenMC matches to a material by name.</p>
 <section id="tagging-methods">
 <h2>Tagging Methods<a class="headerlink" href="#tagging-methods" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -449,20 +449,20 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="manual_tags.html"><span class="std std-doc">Manual Tags</span></a></p></td>
-<td><p>Explicit list of tag strings</p></td>
+<td><p>A list, one tag per volume</p></td>
 <td><p>Simple models, STEP files</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="assembly_names.html"><span class="std std-doc">Assembly Names</span></a></p></td>
-<td><p>Use CadQuery assembly part names</p></td>
-<td><p>CadQuery assemblies</p></td>
+<td><p>Assembly part names</p></td>
+<td><p>CadQuery assemblies, STEP files with named parts</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="assembly_materials.html"><span class="std std-doc">Assembly Materials</span></a></p></td>
-<td><p>Use <code class="docutils literal notranslate"><span class="pre">cq.Material</span></code> objects</p></td>
-<td><p>CadQuery 2.6.1+</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">cq.Material</span></code> of each assembly part</p></td>
+<td><p>Names that describe geometry; several parts sharing a material</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_physical_groups.html"><span class="std std-doc">GMSH Physical Groups</span></a></p></td>
-<td><p>Extract from GMSH mesh</p></td>
-<td><p>Pre-existing meshes</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_physical_groups.html"><span class="std std-doc">Gmsh Physical Groups</span></a></p></td>
+<td><p>Names of the 3D physical groups in a Gmsh mesh</p></td>
+<td><p>Existing Gmsh meshes</p></td>
 </tr>
 </tbody>
 </table>
@@ -476,7 +476,7 @@
 <th class="head"><p>Manual Tags</p></th>
 <th class="head"><p>Assembly Names</p></th>
 <th class="head"><p>Assembly Materials</p></th>
-<th class="head"><p>GMSH Groups</p></th>
+<th class="head"><p>Gmsh Groups</p></th>
 </tr>
 </thead>
 <tbody>
@@ -484,25 +484,19 @@
 <td><p>Yes</p></td>
 <td><p>No</p></td>
 <td><p>No</p></td>
-<td><p>No</p></td>
+<td><p>Yes: groups pair with volumes by position</p></td>
 </tr>
-<tr class="row-odd"><td><p>Auto from geometry</p></td>
+<tr class="row-odd"><td><p>Tags read from the input</p></td>
 <td><p>No</p></td>
 <td><p>Yes</p></td>
 <td><p>Yes</p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p>Works with STEP</p></td>
+<tr class="row-even"><td><p>Works with STEP files</p></td>
 <td><p>Yes</p></td>
 <td><p>Yes</p></td>
 <td><p>Yes</p></td>
 <td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>CadQuery version</p></td>
-<td><p>Any</p></td>
-<td><p>Any</p></td>
-<td><p>&gt; 2.6.1</p></td>
-<td><p>Any</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,40 +504,26 @@
 </section>
 <section id="how-tags-are-stored">
 <h2>How Tags Are Stored<a class="headerlink" href="#how-tags-are-stored" title="Link to this heading">#</a></h2>
-<p>Material tags are stored in the h5m file with a <code class="docutils literal notranslate"><span class="pre">mat:</span></code> prefix:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;tungsten&quot;</span></code> becomes <code class="docutils literal notranslate"><span class="pre">&quot;mat:tungsten&quot;</span></code> in the h5m file</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;steel&quot;</span></code> becomes <code class="docutils literal notranslate"><span class="pre">&quot;mat:steel&quot;</span></code> in the h5m file</p></li>
-</ul>
-<p>When using in OpenMC, reference materials without the prefix:</p>
+<p>cad_to_dagmc writes each tag to the h5m file with a <code class="docutils literal notranslate"><span class="pre">mat:</span></code> prefix, so <code class="docutils literal notranslate"><span class="pre">tungsten</span></code> is stored as <code class="docutils literal notranslate"><span class="pre">mat:tungsten</span></code>. OpenMC reads the tag without the prefix and looks for a material with that name:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmc</span>
 
-<span class="c1"># Material name matches the tag (without "mat:" prefix)</span>
 <span class="n">tungsten</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tungsten"</span><span class="p">)</span>
 <span class="n">tungsten</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">"W"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="n">tungsten</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">19.3</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>If no material has the name, OpenMC stops with an error that names the tag. <a class="reference internal" href="../outputs/dagmc_h5m.html#using-in-openmc"><span class="std std-ref">Using in OpenMC</span></a> has the full setup.</p>
 </section>
 <section id="tag-name-guidelines">
 <h2>Tag Name Guidelines<a class="headerlink" href="#tag-name-guidelines" title="Link to this heading">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>Reserved name:</strong> Do not use <code class="docutils literal notranslate"><span class="pre">&quot;vacuum&quot;</span></code> as a material tag. DAGMC and OpenMC treat volumes tagged with <code class="docutils literal notranslate"><span class="pre">&quot;vacuum&quot;</span></code> as true vacuum (void space with no material). Particles entering a vacuum region will be lost. If you need to model low-density gas, use a different name like <code class="docutils literal notranslate"><span class="pre">&quot;air&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;helium&quot;</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">vacuum</span></code>, <code class="docutils literal notranslate"><span class="pre">void</span></code> and <code class="docutils literal notranslate"><span class="pre">graveyard</span></code> are reserved names. Case does not matter, so <code class="docutils literal notranslate"><span class="pre">Vacuum</span></code> and <code class="docutils literal notranslate"><span class="pre">VOID</span></code> are reserved too. OpenMC gives a volume with one of these tags no material, so particles cross it without interacting, and particles that reach the surface of a <code class="docutils literal notranslate"><span class="pre">graveyard</span></code> volume are killed. Tag a low-density gas <code class="docutils literal notranslate"><span class="pre">air</span></code> or <code class="docutils literal notranslate"><span class="pre">helium</span></code>, not <code class="docutils literal notranslate"><span class="pre">vacuum</span></code>, and define that material.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>DAGMC truncates material tag names longer than 28 characters. Keep your tags concise.</p>
-</div>
-<p>Recommended practices:</p>
-<ul class="simple">
-<li><p>Use descriptive but short names: <code class="docutils literal notranslate"><span class="pre">&quot;fuel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;coolant&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;shield&quot;</span></code></p></li>
-<li><p>Avoid special characters</p></li>
-<li><p>Avoid using <code class="docutils literal notranslate"><span class="pre">&quot;vacuum&quot;</span></code> (reserved for true void)</p></li>
-<li><p>Use lowercase for consistency</p></li>
-<li><p>Match names to your OpenMC material definitions</p></li>
-</ul>
+<p>Keep tags to 27 characters or fewer. Each group name in the h5m file gets 32 bytes, and <code class="docutils literal notranslate"><span class="pre">mat:</span></code> and the null byte that ends the name take 5 of them. A 28-character tag leaves no room for the null byte, so DAGMC can read past the end of the name and OpenMC then stops because no material matches. A longer tag is cut to its first 28 characters, with the same result. <code class="docutils literal notranslate"><span class="pre">add_cadquery_object</span></code> and <code class="docutils literal notranslate"><span class="pre">add_stp_file</span></code> warn only about tags longer than 28 characters, and the Gmsh conversion functions do not warn at all. The <a class="reference internal" href="../advanced/implicit_complement.html"><span class="std std-doc">implicit complement</span></a> tag also gets <code class="docutils literal notranslate"><span class="pre">_comp</span></code> appended, so keep it to 22 characters.</p>
+<p>OpenMC ignores case when it matches tags to material names, so the tag <code class="docutils literal notranslate"><span class="pre">Steel</span></code> finds a material named <code class="docutils literal notranslate"><span class="pre">steel</span></code>. A tag that matches two materials whose names differ only in case stops OpenMC with “More than one material found”.</p>
+<p>Do not use <code class="docutils literal notranslate"><span class="pre">:</span></code> or <code class="docutils literal notranslate"><span class="pre">/</span></code> in a tag. DAGMC splits group names at these characters and would read only the part of the tag before them.</p>
 </section>
 </section>
 
@@ -564,7 +544,7 @@
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">GMSH Files</p>
+        <p class="prev-next-title">Gmsh Files</p>
       </div>
     </a>
     <a class="right-next"

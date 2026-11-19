@@ -1,12 +1,11 @@
 # Assembly Materials as Tags
 
-CadQuery 2.6.1+ supports `cq.Material` objects for assembly parts. Use these as material tags for cleaner separation between part identity (name) and material assignment.
+With `material_tags="assembly_materials"`, each part of a CadQuery assembly is tagged with the name of its `cq.Material`. Use it when the part names describe the geometry rather than the material, and whenever sibling parts share a material. CadQuery rejects a repeated name among the parts of one assembly, so [assembly names](assembly_names.md) cannot give them one tag.
+
+`add_stp_file` takes `material_tags="assembly_materials"` too, for STEP files that store materials; [Tags from Named STEP Parts](../inputs/step_files.md#tags-from-named-step-parts) has a warning about part names that end in `_part`.
 
 ## Basic Usage
 
-Assign materials to assembly parts, then use `material_tags="assembly_materials"`:
-
-<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
@@ -19,114 +18,37 @@ assembly.add(sphere, name="large_sphere", material=cq.Material("tungsten"))
 assembly.add(small_sphere, name="small_sphere", material=cq.Material("steel"))
 
 model = CadToDagmc()
-model.add_cadquery_object(
-    cadquery_object=assembly,
-    material_tags="assembly_materials"  # Use Material objects as tags
-)
-model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_materials")
+model.export_dagmc_h5m_file()
 ```
 
-This creates volumes tagged with `mat:tungsten` and `mat:steel`.
+This writes volumes tagged `mat:tungsten` and `mat:steel`. CadQuery also accepts a plain string, `material="tungsten"`.
 
-## When to Use Assembly Materials
+Every part needs a material. If one has none, adding the assembly raises a `ValueError` that starts "Not all parts in the assembly have materials assigned". This is stricter than `assembly_names`, which gives an unnamed part a UUID tag.
 
-| Use Case | Recommendation |
-|----------|----------------|
-| Part names describe geometry | Use `assembly_materials` |
-| Part names describe materials | Use `assembly_names` |
-| Multiple parts, same material | Use `assembly_materials` |
-| Need CadQuery < 2.6.1 | Use `assembly_names` or manual |
+## Several Parts, One Material
 
-## Example: Names vs Materials
+Parts with the same material share a tag, while their names stay distinct:
 
-<!--pytest-codeblocks:skip-->
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-assembly = cq.Assembly()
+inner = cq.Workplane().sphere(5)
+outer = cq.Workplane().sphere(10).cut(inner)
+coolant = cq.Workplane().box(30, 30, 30).cut(cq.Workplane().sphere(10))
 
-# Name describes geometry, material describes composition
-assembly.add(
-    cq.Workplane().sphere(5),
-    name="inner_shield",           # Geometric description
-    material=cq.Material("tungsten")  # Material composition
-)
-assembly.add(
-    cq.Workplane().sphere(10).cut(cq.Workplane().sphere(5)),
-    name="outer_shield",           # Geometric description
-    material=cq.Material("tungsten")  # Same material!
-)
-assembly.add(
-    cq.Workplane().box(30, 30, 30),
-    name="coolant_channel",
-    material=cq.Material("water")
-)
+assembly = cq.Assembly()
+assembly.add(inner, name="inner_shield", material=cq.Material("tungsten"))
+assembly.add(outer, name="outer_shield", material=cq.Material("tungsten"))
+assembly.add(coolant, name="coolant", material=cq.Material("water"))
 
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_materials")
-
-print(model.material_tags)
-# Output: ['tungsten', 'tungsten', 'water']
+print(model.material_tags)  # ['tungsten', 'tungsten', 'water']
 ```
-
-## Multiple Parts, Same Material
-
-The material tag is reused for parts with the same material:
-
-<!--pytest-codeblocks:skip-->
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-assembly = cq.Assembly()
-
-# Multiple fuel pins, all tungsten
-for i in range(5):
-    assembly.add(
-        cq.Workplane().moveTo(i * 3, 0).cylinder(10, 0.5),
-        name=f"fuel_pin_{i}",
-        material=cq.Material("tungsten")  # All share same material
-    )
-
-model = CadToDagmc()
-model.add_cadquery_object(assembly, material_tags="assembly_materials")
-# All 5 volumes tagged with "tungsten"
-```
-
-## Requirements and Errors
-
-:::{warning}
-**CadQuery version**: This feature requires CadQuery > 2.6.1.
-
-**All parts need materials**: Every part must have a material assigned, or you'll get an error:
-
-<!--pytest-codeblocks:skip-->
-```python
-assembly.add(sphere, name="sphere")  # No material!
-model.add_cadquery_object(assembly, material_tags="assembly_materials")
-# ValueError: Part 'sphere' has no material assigned
-```
-:::
-
-Check your CadQuery version:
-
-```python
-import cadquery
-print(cadquery.__version__)
-```
-
-## Comparison with Assembly Names
-
-| Feature | `assembly_names` | `assembly_materials` |
-|---------|------------------|---------------------|
-| Tag source | `name="..."` | `material=cq.Material("...")` |
-| CadQuery version | Any | > 2.6.1 |
-| Unnamed parts | Gets UUID | Error |
-| Same tag for multiple parts | Must use same name | Use same Material |
 
 ## See Also
 
-- [Assembly Names](assembly_names.md) - Alternative: use part names as tags
-- [CadQuery Assemblies](../inputs/cadquery_assemblies.md) - Assembly input guide
-- [CadQuery Material Documentation](https://cadquery.readthedocs.io/) - Official CadQuery docs
+- [CadQuery Assemblies](../inputs/cadquery_assemblies.md): adding assemblies to a model
+- [CadQuery documentation](https://cadquery.readthedocs.io/): `cq.Assembly` and `cq.Material`

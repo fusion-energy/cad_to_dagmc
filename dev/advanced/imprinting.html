@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -420,19 +420,11 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-imprinting">What is Imprinting?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-behavior">Default Behavior</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-imprinting">Disabling Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-the-threads-used-by-imprinting">Limiting the Threads Used by Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defaults-and-disabling">Defaults and Disabling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -447,160 +439,15 @@
                   
   <section id="imprinting">
 <h1>Imprinting<a class="headerlink" href="#imprinting" title="Link to this heading">#</a></h1>
-<p>Imprinting ensures shared surfaces between adjacent volumes are meshed consistently. It’s enabled by default.</p>
-<section id="what-is-imprinting">
-<h2>What is Imprinting?<a class="headerlink" href="#what-is-imprinting" title="Link to this heading">#</a></h2>
-<p>When two volumes share a surface (e.g., two boxes touching), imprinting:</p>
-<ol class="arabic simple">
-<li><p>Identifies the shared surface</p></li>
-<li><p>Creates matching mesh elements on both sides</p></li>
-<li><p>Ensures particles can cross the boundary correctly</p></li>
-</ol>
-<p>Without imprinting, adjacent volumes might have incompatible meshes at their interface, causing particle tracking errors.</p>
-</section>
-<section id="default-behavior">
-<h2>Default Behavior<a class="headerlink" href="#default-behavior" title="Link to this heading">#</a></h2>
-<p>Imprinting is enabled by default for <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file()</span></code>, and <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code>. Omitting the
-options uses <code class="docutils literal notranslate"><span class="pre">imprint=&quot;partial&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code>:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>      <span class="c1"># Default glue mode</span>
-    <span class="n">imprint_threads</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>  <span class="c1"># Default imprint thread count</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">imprint</span></code> selects the glue mode or skips imprinting. The separate
-<code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> argument is keyword-only on all three export methods.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Accepted values</p></th>
-<th class="head"><p>Default</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code> (glue off, imprinting still runs), or <code class="docutils literal notranslate"><span class="pre">False</span></code> (skip imprinting)</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or a strictly positive integer (numpy integers work); booleans are not accepted</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> is validated even when <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>; booleans, zero,
-negative integers, floats, and <code class="docutils literal notranslate"><span class="pre">None</span></code> are invalid thread settings.</p>
-</section>
-<section id="disabling-imprinting">
-<h2>Disabling Imprinting<a class="headerlink" href="#disabling-imprinting" title="Link to this heading">#</a></h2>
-<p>For geometries that don’t need it, use <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="limiting-the-threads-used-by-imprinting">
-<h2>Limiting the Threads Used by Imprinting<a class="headerlink" href="#limiting-the-threads-used-by-imprinting" title="Link to this heading">#</a></h2>
-<p>Imprinting runs in parallel and its peak RAM scales with the number of threads.
-Large models can run out of memory when imprinting on all logical processors.
-Set <code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code> to a positive integer without changing the glue mode:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Lower peak RAM; keeps the default partial glue</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>One thread generally uses less memory at the cost of speed. Larger positive
-integers trade memory for parallelism, for example <code class="docutils literal notranslate"><span class="pre">imprint_threads=4</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">imprint_threads=&quot;all&quot;</span></code> requests all OpenCASCADE logical processors, even if the
-current pool is limited. On both backends, thread settings apply only during
-imprinting; the previous pool size is restored afterwards, including on errors.
-Meshing and later CadQuery operations keep their own thread settings.</p>
-</section>
-<section id="choosing-the-imprint-glue">
-<h2>Choosing the Imprint Glue<a class="headerlink" href="#choosing-the-imprint-glue" title="Link to this heading">#</a></h2>
-<p>Set <code class="docutils literal notranslate"><span class="pre">imprint</span></code> according to how the solids meet:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></th>
-<th class="head"><p>What it does</p></th>
-<th class="head"><p>Geometry requirement</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code> (default)</p></td>
-<td><p>Glues fully or partly coincident faces</p></td>
-<td><p>Touching solids without crossing faces or overlaps</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code></p></td>
-<td><p>Skips edge and face intersections</p></td>
-<td><p>Shared whole faces must coincide exactly; partly coincident faces are not split</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
-<td><p>No glue; runs general intersection checks</p></td>
-<td><p>Geometry requiring general intersection rather than glue assumptions</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">imprint=None</span></code> means <strong>glue off</strong>, not “use the default”. Imprinting still runs.
-On CadQuery with selectable glue, omitting its <code class="docutils literal notranslate"><span class="pre">glue</span></code> argument defaults to
-<code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>; explicitly passing <code class="docutils literal notranslate"><span class="pre">glue=None</span></code> disables the glue optimisation.
-Likewise, omitting this package’s <code class="docutils literal notranslate"><span class="pre">imprint</span></code> argument selects <code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, while
-<code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> disables imprinting entirely.</p>
-<p>Disabling glue does not make overlapping solids valid DAGMC geometry. Repair
-overlaps in the CAD model before exporting.</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>      <span class="c1"># Glue off; requires selectable CadQuery glue</span>
-    <span class="n">imprint_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<section id="cadquery-compatibility">
-<h3>CadQuery compatibility<a class="headerlink" href="#cadquery-compatibility" title="Link to this heading">#</a></h3>
-<p>CadQuery’s legacy imprint always uses partial glue. On multi-solid
-geometry, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">None</span></code> raise <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>; CadQuery with the
-selectable glue API supports all three modes. Support is detected from the
-installed imprint signature, not the version string.</p>
-</section>
-</section>
-<section id="when-to-disable-imprinting">
-<h2>When to Disable Imprinting<a class="headerlink" href="#when-to-disable-imprinting" title="Link to this heading">#</a></h2>
-<p><strong>Safe to disable when:</strong></p>
-<ul class="simple">
-<li><p>Single volume geometry</p></li>
-<li><p>Volumes don’t touch (separated in space)</p></li>
-<li><p>All volumes are independent (no shared surfaces)</p></li>
-</ul>
-<p><strong>Keep enabled when:</strong></p>
-<ul class="simple">
-<li><p>Adjacent volumes share surfaces</p></li>
-<li><p>Volumes are in contact</p></li>
-<li><p>You’re unsure</p></li>
-</ul>
-</section>
-<section id="performance-considerations">
-<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">#</a></h2>
-<p>Imprinting can be computationally expensive for complex geometries with many touching volumes. Disabling it may speed up mesh generation, but only do so if you’re certain volumes don’t share surfaces.</p>
-<p>Peak RAM is usually the limit rather than time. If imprinting runs out of memory,
-try <code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code> before reaching for
-<code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>, which changes the resulting geometry.</p>
-</section>
-<section id="imprinting-and-material-tag-order">
-<h2>Imprinting and Material Tag Order<a class="headerlink" href="#imprinting-and-material-tag-order" title="Link to this heading">#</a></h2>
-<p>Imprinting may change the internal ordering of volumes. cad_to_dagmc handles this automatically, preserving the correct material tag assignments.</p>
-<p>If you’re using volume IDs in <code class="docutils literal notranslate"><span class="pre">set_size</span></code> or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>, be aware that imprinting may affect the volume numbering. Using material tag names instead of IDs is more robust.</p>
-</section>
+<p>Imprinting splits the faces of touching solids so that each contact region
+becomes one face shared by both solids. That face is meshed once and written
+to the h5m file as one DAGMC surface with a sense for each volume, so a
+particle crossing it moves into the neighbouring volume. Without imprinting,
+each solid keeps its own copy of the contact face, and the h5m file gets two
+coincident one-sided surfaces that do not hand particles to the neighbour.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code>, <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file()</span></code> all imprint by default, whichever meshing backend
+they use.</p>
 <section id="example-adjacent-boxes">
 <h2>Example: Adjacent Boxes<a class="headerlink" href="#example-adjacent-boxes" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
@@ -617,13 +464,85 @@ try <code class="docutils literal notranslate"><span class="pre">imprint_threads
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">])</span>
 
-<span class="c1"># Imprinting ensures the shared face is meshed consistently</span>
+<span class="c1"># The shared face becomes one surface with a sense for each box</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>  <span class="c1"># Also the default</span>
+    <span class="n">imprint</span><span class="o">=</span><span class="s2">"partial"</span><span class="p">,</span>  <span class="c1"># the default</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="defaults-and-disabling">
+<h2>Defaults and Disabling<a class="headerlink" href="#defaults-and-disabling" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code> (imprint with the glue off) or <code class="docutils literal notranslate"><span class="pre">False</span></code> (do not imprint)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imprint_threads</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> or a positive int; keyword-only</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">imprint=None</span></code> is not the default. It still imprints, with the glue turned off
+(see <a class="reference internal" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a>). Only <code class="docutils literal notranslate"><span class="pre">False</span></code>
+skips imprinting:</p>
+<!--pytest-codeblocks:skip-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span> <span class="n">imprint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Turn it off only when no two solids touch, or when you have imprinted the
+geometry yourself (below). A single solid is never imprinted, so it does not
+need <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>. Turning imprinting off also turns off the
+<a class="reference internal" href="overlaps.html#what-exporting-checks"><span class="std std-ref">overlap checks</span></a> that come with it.</p>
+<p>Imprinting runs in parallel, and its peak RAM grows with the number of threads.
+If it runs out of memory, try <code class="docutils literal notranslate"><span class="pre">imprint_threads=1</span></code> before <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>, which
+changes the geometry; see
+<a class="reference internal" href="parallel_processing.html#limiting-imprinting-threads"><span class="std std-ref">Limiting Imprinting Threads</span></a>.</p>
+</section>
+<section id="choosing-the-imprint-glue">
+<h2>Choosing the Imprint Glue<a class="headerlink" href="#choosing-the-imprint-glue" title="Link to this heading">#</a></h2>
+<p>The glue mode tells OpenCASCADE how the solids meet, so it can skip
+intersection work the geometry does not need.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">imprint</span></code></p></th>
+<th class="head"><p>Use it when the solids</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code> (default)</p></td>
+<td><p>touch or share faces, fully or in part, with no faces crossing and no overlaps</p></td>
+<td><p>Splits faces that coincide only in part</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code></p></td>
+<td><p>share faces that coincide exactly</p></td>
+<td><p>Intersects no edges or faces, so it does less work than <code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code> but does not split a face that coincides only in part</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>have faces that cross</p></td>
+<td><p>Glue off, so a full general intersection. The slowest mode</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>cad_to_dagmc needs CadQuery 2.8.0 or newer, and CadQuery 2.8.0 imprints with
+partial glue only. On several solids, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">None</span></code> raise <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>
+on both meshing backends. They need a CadQuery that includes
+<a class="reference external" href="https://github.com/CadQuery/cadquery/pull/2069">cadquery#2069</a>; cad_to_dagmc
+detects it from CadQuery’s imprint function, not from the version number.</p>
+<p>Turning the glue off does not make overlapping solids valid DAGMC geometry.
+Fix overlaps in the CAD; see <a class="reference internal" href="overlaps.html"><span class="std std-doc">Checking for Overlaps</span></a>.</p>
 </section>
 <section id="meshing-geometry-you-imprinted-yourself">
 <h2>Meshing Geometry You Imprinted Yourself<a class="headerlink" href="#meshing-geometry-you-imprinted-yourself" title="Link to this heading">#</a></h2>
@@ -663,25 +582,35 @@ mesh it with <code class="docutils literal notranslate"><span class="pre">imprin
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>This works because a BREP file keeps the topology the imprint created: the face
-two solids share is stored once and referenced by both, which is what gives
-the DAGMC surface between them a sense for each volume. Both the
-cad-to-dagmc-mesher and GMSH backends support this, including with
+<p>This works because a BREP file keeps the topology the imprint created. The
+face two solids share is stored once and referenced by both, which is what
+gives the DAGMC surface between them a sense for each volume. Both the
+cad-to-dagmc-mesher and Gmsh backends support this, including with
 <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use BREP, not STEP. A STEP file stores each solid separately, so the shared
 face comes back as two coincident copies, one per solid. With <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>
-these become two one sided DAGMC surfaces rather than one surface shared by
+these become two one-sided DAGMC surfaces rather than one surface shared by
 both volumes, and particles crossing the interface are not handed to the
-neighbouring volume. Nothing reports this, the file is written as normal.</p>
+neighbouring volume. Nothing reports this. The file is written as normal.</p>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> also skips the overlap checks that come with the export’s
+imprint, so run <code class="docutils literal notranslate"><span class="pre">model.check_overlaps()</span></code> on the imprinted geometry first; see
+<a class="reference internal" href="overlaps.html#checking-every-pair"><span class="std std-ref">Checking every pair</span></a>.</p>
+</section>
+<section id="imprinting-and-material-tag-order">
+<h2>Imprinting and Material Tag Order<a class="headerlink" href="#imprinting-and-material-tag-order" title="Link to this heading">#</a></h2>
+<p>Imprinting can change the order of the volumes. cad_to_dagmc reorders the
+material tags to match, so each tag stays with its solid. Volume IDs given to
+<code class="docutils literal notranslate"><span class="pre">set_size</span></code> or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> are the IDs after imprinting, which may not
+follow the order you added the solids in, so give material tags there instead.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH Backend</span></a> - Meshing options</p></li>
-<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Using material tags vs volume IDs</p></li>
+<li><p><a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">Gmsh Backend</span></a>: meshing options</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a>: sizing by material tag or volume ID</p></li>
 </ul>
 </section>
 </section>
@@ -733,19 +662,11 @@ neighbouring volume. Nothing reports this, the file is written as normal.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-imprinting">What is Imprinting?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-behavior">Default Behavior</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-imprinting">Disabling Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limiting-the-threads-used-by-imprinting">Limiting the Threads Used by Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cadquery-compatibility">CadQuery compatibility</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-disable-imprinting">When to Disable Imprinting</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-adjacent-boxes">Example: Adjacent Boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defaults-and-disabling">Defaults and Disabling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-imprint-glue">Choosing the Imprint Glue</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meshing-geometry-you-imprinted-yourself">Meshing Geometry You Imprinted Yourself</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imprinting-and-material-tag-order">Imprinting and Material Tag Order</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

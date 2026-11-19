@@ -57,8 +57,8 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Meshing Backends" href="../meshing/index.html" />
-    <link rel="prev" title="GMSH Mesh Files" href="gmsh_mesh.html" />
+    <link rel="next" title="Gmsh Mesh Files" href="gmsh_mesh.html" />
+    <link rel="prev" title="Unstructured Mesh VTK Files" href="unstructured_vtk.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inputs/step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs/gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -420,21 +420,13 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-conformal-meshes">Why Conformal Meshes?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the GMSH Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mixed-ids-and-names">Mixed IDs and Names</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the Gmsh Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-notes">API Notes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
             </nav>
@@ -449,24 +441,11 @@
                   
   <section id="conformal-meshes">
 <h1>Conformal Meshes<a class="headerlink" href="#conformal-meshes" title="Link to this heading">#</a></h1>
-<p>Create both surface (h5m) and volume (vtk) meshes that share the same surface coordinates. This ensures the surface triangles exactly match the volume mesh boundaries.</p>
-<section id="why-conformal-meshes">
-<h2>Why Conformal Meshes?<a class="headerlink" href="#why-conformal-meshes" title="Link to this heading">#</a></h2>
-<p>When running neutronics simulations with both:</p>
-<ul class="simple">
-<li><p>DAGMC geometry (surface mesh for particle tracking)</p></li>
-<li><p>Unstructured mesh tallies (volume mesh for scoring)</p></li>
-</ul>
-<p>The meshes should be <strong>conformal</strong> - the surface triangles of the DAGMC geometry should exactly match the boundary faces of the volume mesh. This avoids:</p>
-<ul class="simple">
-<li><p>Particles crossing mesh boundaries incorrectly</p></li>
-<li><p>Numerical artifacts at interfaces</p></li>
-<li><p>Inconsistent tallying near surfaces</p></li>
-</ul>
-</section>
+<p><code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code> can write a VTK volume mesh along with the DAGMC h5m file, from one meshing run, so that the tetrahedra share the surfaces that particles are tracked on.</p>
+<p>OpenMC scores an unstructured mesh tally on the tetrahedra, independently of the DAGMC geometry. When the two meshes share their surfaces, each tetrahedron lies in one DAGMC volume and its result comes from one material. Separate <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code> calls mesh the geometry twice and nothing makes their surfaces match, so tetrahedra near curved boundaries can straddle two volumes.</p>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
-<p>Export both meshes in a single call with the cad-to-dagmc-mesher backend (the default) using <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>, <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> and <code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code>:</p>
+<p>With the default cad-to-dagmc-mesher backend, pass <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and name the VTK file with <code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code> (default <code class="docutils literal notranslate"><span class="pre">umesh.vtk</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
@@ -489,25 +468,50 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>For each volume listed in <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> the surface is remeshed to near-equilateral triangles at <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, and that surface becomes both the DAGMC tracking surface and the tetrahedra boundary, so the two meshes share the same surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Volumes not listed keep the curvature-adaptive surface mesh and get no tetrahedra. See the <a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html"><span class="std std-doc">cad-to-dagmc-mesher backend</span></a> for the other options.</p>
+<p>Given <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>, the call returns a <code class="docutils literal notranslate"><span class="pre">(dagmc_filename,</span> <span class="pre">umesh_filename)</span></code> tuple. Without them it writes only the h5m file and returns its filename. One without the other raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, and so does <code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code> without both.</p>
+<p>For each volume in <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> the surface is remeshed at a size based on <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code>. That surface is written to the h5m file and is also the boundary of the tetrahedra. The volume mesher may split some of its triangles, and on strongly curved faces the tetrahedra can deviate locally from it by up to the chordal error at the tetrahedron edge length. Volumes not in <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> keep the curvature-adaptive surface mesh and get no tetrahedra.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">angular_tolerance</span></code> have no effect when every volume is in <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code>. When some volumes are left out, the two tolerances also size the surfaces of the filled volumes, and so their tetrahedra. The backend’s arguments are listed under <a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html#parameters"><span class="std std-ref">cad-to-dagmc-mesher Parameters</span></a>.</p>
 </section>
 <section id="using-the-gmsh-backend">
-<h2>Using the GMSH Backend<a class="headerlink" href="#using-the-gmsh-backend" title="Link to this heading">#</a></h2>
-<p>The <a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">GMSH backend</span></a> produces conformal meshes with the <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> parameter instead:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
+<h2>Using the Gmsh Backend<a class="headerlink" href="#using-the-gmsh-backend" title="Link to this heading">#</a></h2>
+<p>With the <a class="reference internal" href="../meshing/gmsh_backend.html"><span class="std std-doc">Gmsh backend</span></a>, pass <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> instead. It takes volume IDs, material tags or a mix, and a tag selects every volume that has it. Prefer tags, because <a class="reference internal" href="../advanced/imprinting.html#imprinting-and-material-tag-order"><span class="std std-ref">imprinting</span></a> can renumber the volumes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">(</span><span class="s2">"XY"</span><span class="p">)</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">cq</span><span class="o">.</span><span class="n">Assembly</span><span class="p">()</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"sphere"</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">])</span>
+
+<span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>  <span class="c1"># Volumes to include in VTK mesh</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># volume 1 and every volume tagged steel</span>
     <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code>, Gmsh writes no VTK file and the call returns only the h5m filename. A call whose only meshing argument is <code class="docutils literal notranslate"><span class="pre">umesh_filename</span></code> runs Gmsh, so it writes no VTK file either.</p>
+<section id="how-it-works">
+<h3>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h3>
+<p>When you use <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the Gmsh backend:</p>
+<ol class="arabic simple">
+<li><p>Gmsh generates the surface mesh for all volumes, including shared interfaces</p></li>
+<li><p>Surface triangles are extracted and written to the DAGMC h5m file</p></li>
+<li><p>Any <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> are applied, then Gmsh generates tetrahedra for the
+selected volumes using the existing surface mesh as their boundary</p></li>
+<li><p>The tetrahedra are written to the VTK file, sharing the surface triangulation
+with the DAGMC geometry</p></li>
+</ol>
+</section>
 <section id="controlling-the-conformal-3d-mesh">
 <h3>Controlling the Conformal 3D Mesh<a class="headerlink" href="#controlling-the-conformal-3d-mesh" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> and <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> apply to this combined export as
-well as standalone <code class="docutils literal notranslate"><span class="pre">export_unstructured_mesh_file()</span></code> and
-<code class="docutils literal notranslate"><span class="pre">export_gmsh_mesh_file(dimensions=3)</span></code> calls:</p>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_algorithm_3d</span></code> and <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> work in the combined export too:</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
@@ -525,82 +529,12 @@ well as standalone <code class="docutils literal notranslate"><span class="pre">
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The DAGMC surface is generated first with the normal surface sizing, then the
-overrides are applied before filling the selected volumes with tetrahedra.
-The existing surface triangulation is reused, not independently regenerated.
-These settings allow a coarser interior; they do not guarantee zero refinement.
-Avoid options that change element order, recombine elements or force remeshing
-when you need the first-order tetrahedral boundary to match the DAGMC triangles.</p>
-<p>Separate surface and volume export calls do not share mesh state, even when
-their sizes are identical. Use the combined export when matching the tracking
-and tally boundaries is required. See
-<a class="reference internal" href="../meshing/gmsh_backend.html#d-algorithms-and-volume-only-options"><span class="std std-ref">3D algorithms and volume-only options</span></a>
-for defaults and precedence rules.</p>
-</section>
-<section id="selecting-volumes-for-volume-mesh">
-<h3>Selecting Volumes for Volume Mesh<a class="headerlink" href="#selecting-volumes-for-volume-mesh" title="Link to this heading">#</a></h3>
-<section id="by-volume-id">
-<h4>By Volume ID<a class="headerlink" href="#by-volume-id" title="Link to this heading">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> accepts volume IDs, material tag names, or a mix of both. Specify which volumes should have a volume mesh:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>  <span class="c1"># Only volume 2 gets volume mesh</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="by-material-tag-name">
-<h4>By Material Tag Name<a class="headerlink" href="#by-material-tag-name" title="Link to this heading">#</a></h4>
-<p>Use material tag names instead of IDs:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>  <span class="c1"># All volumes with "steel" tag</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="mixed-ids-and-names">
-<h4>Mixed IDs and Names<a class="headerlink" href="#mixed-ids-and-names" title="Link to this heading">#</a></h4>
-<p>Combine volume IDs and material tag names:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"tungsten"</span><span class="p">],</span>  <span class="c1"># Volume 1 and all tungsten volumes</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-    <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="how-it-works">
-<h3>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h3>
-<p>When you use <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the GMSH backend:</p>
-<ol class="arabic simple">
-<li><p>GMSH generates the surface mesh for all volumes, including shared interfaces</p></li>
-<li><p>Surface triangles are extracted and written to the DAGMC h5m file</p></li>
-<li><p>Any <code class="docutils literal notranslate"><span class="pre">volume_mesh_options</span></code> are applied, then GMSH generates tetrahedra for the
-selected volumes using the existing surface mesh as their boundary</p></li>
-<li><p>The tetrahedra are written to the VTK file, sharing the surface triangulation
-with the DAGMC geometry</p></li>
-</ol>
-<p>This guarantees:</p>
-<ul class="simple">
-<li><p>Surface triangles match volume mesh boundaries</p></li>
-<li><p>No gaps or overlaps between meshes</p></li>
-<li><p>Consistent particle tracking and tallying</p></li>
-</ul>
+<p>The surface mesh written to the h5m file is reused, not regenerated, so the options change only the tetrahedra inside it. Avoid options that change the element order, recombine elements or force a remesh, because the tetrahedra would then no longer match the DAGMC triangles. What each option does, and which settings take precedence, is described under <a class="reference internal" href="../meshing/gmsh_backend.html#d-algorithms-and-volume-only-options"><span class="std std-ref">3D Algorithms and Volume-Only Options</span></a>.</p>
 </section>
 </section>
 <section id="complete-example-with-openmc">
 <h2>Complete Example with OpenMC<a class="headerlink" href="#complete-example-with-openmc" title="Link to this heading">#</a></h2>
-<p>This example uses the GMSH backend so that <code class="docutils literal notranslate"><span class="pre">set_size</span></code> can give the middle sphere a finer mesh than its neighbours.</p>
+<p>This example uses the Gmsh backend so that <code class="docutils literal notranslate"><span class="pre">set_size</span></code> can give the middle sphere a finer mesh than its neighbours. Only the middle sphere gets tetrahedra.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
@@ -619,18 +553,18 @@ with the DAGMC geometry</p></li>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">middle_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"middle_sphere"</span><span class="p">)</span>
 <span class="n">assembly</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outer_sphere</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"outer_sphere"</span><span class="p">)</span>
 
-<span class="c1"># Create conformal meshes - only middle sphere gets volume mesh</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat1"</span><span class="p">,</span> <span class="s2">"mat2"</span><span class="p">,</span> <span class="s2">"mat3"</span><span class="p">])</span>
 
+<span class="c1"># Conformal meshes: only the middle sphere gets a volume mesh</span>
 <span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s2">"surface_mesh.h5m"</span><span class="p">,</span>
     <span class="n">set_size</span><span class="o">=</span><span class="p">{</span>
-        <span class="mi">1</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for inner</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Fine mesh for middle (where we want detailed tallies)</span>
-        <span class="mi">3</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># Coarse mesh for outer</span>
+        <span class="s2">"mat1"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># coarse mesh for the inner sphere</span>
+        <span class="s2">"mat2"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># fine mesh for the middle sphere, which is tallied</span>
+        <span class="s2">"mat3"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># coarse mesh for the outer sphere</span>
     <span class="p">},</span>
-    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>  <span class="c1"># Only middle sphere in volume mesh</span>
+    <span class="n">unstructured_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"mat2"</span><span class="p">],</span>
     <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"volume_mesh.vtk"</span><span class="p">,</span>
     <span class="n">meshing_backend</span><span class="o">=</span><span class="s2">"gmsh"</span><span class="p">,</span>
 <span class="p">)</span>
@@ -643,7 +577,7 @@ with the DAGMC geometry</p></li>
 <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"flux"</span><span class="p">]</span>
 <span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">([</span><span class="n">tally</span><span class="p">])</span>
 
-<span class="c1"># Materials</span>
+<span class="c1"># Materials, named after the material tags</span>
 <span class="n">mat1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"mat1"</span><span class="p">)</span>
 <span class="n">mat1</span><span class="o">.</span><span class="n">add_nuclide</span><span class="p">(</span><span class="s2">"H1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s2">"ao"</span><span class="p">)</span>
 <span class="n">mat1</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s2">"g/cm3"</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
@@ -662,7 +596,7 @@ with the DAGMC geometry</p></li>
 <span class="n">dag_univ</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">DAGMCUniverse</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">dagmc_filename</span><span class="p">)</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dag_univ</span><span class="o">.</span><span class="n">bounded_universe</span><span class="p">())</span>
 
-<span class="c1"># Settings</span>
+<span class="c1"># Settings, with a 14 MeV point source at the centre of the bounding box</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="mi">5000</span>
@@ -680,30 +614,12 @@ with the DAGMC geometry</p></li>
 </pre></div>
 </div>
 </section>
-<section id="api-notes">
-<h2>API Notes<a class="headerlink" href="#api-notes" title="Link to this heading">#</a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">tet_volumes</span></code> and <code class="docutils literal notranslate"><span class="pre">target_edge_length</span></code> (or <code class="docutils literal notranslate"><span class="pre">unstructured_volumes</span></code> on the GMSH backend) are specified, <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code> returns a tuple:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span><span class="p">,</span> <span class="n">umesh_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
-    <span class="n">tet_volumes</span><span class="o">=</span><span class="p">[</span><span class="s2">"steel"</span><span class="p">],</span>
-    <span class="n">target_edge_length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">umesh_filename</span><span class="o">=</span><span class="s2">"umesh.vtk"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>Without them, it returns just the filename:</p>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dagmc_filename</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="dagmc_h5m.html"><span class="std std-doc">DAGMC H5M</span></a> - Surface mesh output details</p></li>
-<li><p><a class="reference internal" href="unstructured_vtk.html"><span class="std std-doc">Unstructured VTK</span></a> - Volume mesh output details</p></li>
-<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a> - Control mesh density</p></li>
+<li><p><a class="reference internal" href="dagmc_h5m.html"><span class="std std-doc">DAGMC h5m Files</span></a>: the arguments and return value of <code class="docutils literal notranslate"><span class="pre">export_dagmc_h5m_file()</span></code></p></li>
+<li><p><a class="reference internal" href="unstructured_vtk.html"><span class="std std-doc">Unstructured Mesh VTK Files</span></a>: a volume mesh on its own, and the OpenMC tally</p></li>
+<li><p><a class="reference internal" href="../meshing/mesh_sizing.html"><span class="std std-doc">Per-Volume Mesh Sizing</span></a>: <code class="docutils literal notranslate"><span class="pre">set_size</span></code> on the Gmsh backend</p></li>
 </ul>
 </section>
 </section>
@@ -720,20 +636,20 @@ with the DAGMC geometry</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="gmsh_mesh.html"
+       href="unstructured_vtk.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">GMSH Mesh Files</p>
+        <p class="prev-next-title">Unstructured Mesh VTK Files</p>
       </div>
     </a>
     <a class="right-next"
-       href="../meshing/index.html"
+       href="gmsh_mesh.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Meshing Backends</p>
+        <p class="prev-next-title">Gmsh Mesh Files</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -755,21 +671,13 @@ with the DAGMC geometry</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-conformal-meshes">Why Conformal Meshes?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the GMSH Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-volumes-for-volume-mesh">Selecting Volumes for Volume Mesh</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-volume-id">By Volume ID</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#by-material-tag-name">By Material Tag Name</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mixed-ids-and-names">Mixed IDs and Names</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-gmsh-backend">Using the Gmsh Backend</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#controlling-the-conformal-3d-mesh">Controlling the Conformal 3D Mesh</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example-with-openmc">Complete Example with OpenMC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-notes">API Notes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>

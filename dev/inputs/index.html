@@ -215,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cadquery_objects.html">CadQuery Objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cadquery_assemblies.html">CadQuery Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="step_files.html">STEP Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gmsh_files.html">GMSH Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_files.html">Gmsh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Material Tagging</span></p>
 <ul class="nav bd-sidenav">
@@ -223,22 +223,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/manual_tags.html">Manual Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_names.html">Assembly Names as Material Tags</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../material_tagging/assembly_materials.html">Assembly Materials as Tags</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">GMSH Physical Groups</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC H5M Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">GMSH Mesh Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../material_tagging/gmsh_physical_groups.html">Gmsh Physical Groups</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Meshing</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../meshing/index.html">Meshing Backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/cad_to_dagmc_mesher_backend.html">cad-to-dagmc-mesher Backend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">GMSH Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing/gmsh_backend.html">Gmsh Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meshing/mesh_sizing.html">Per-Volume Mesh Sizing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Outputs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/dagmc_h5m.html">DAGMC h5m Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/unstructured_vtk.html">Unstructured Mesh VTK Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/conformal_meshes.html">Conformal Meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/gmsh_mesh.html">Gmsh Mesh Files</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="nav bd-sidenav">
@@ -248,7 +248,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/overlaps.html">Checking for Overlaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/implicit_complement.html">Implicit Complement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/parallel_processing.html">Parallel Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">H5M File Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/h5m_backends.html">h5m Backends</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -449,14 +449,14 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="cadquery_assemblies.html"><span class="std std-doc">CadQuery Assemblies</span></a></p></td>
 <td><p>Multi-part CadQuery assemblies</p></td>
-<td><p>Complex models with multiple components</p></td>
+<td><p>Tags taken from part names or materials</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="step_files.html"><span class="std std-doc">STEP Files</span></a></p></td>
-<td><p>Industry-standard CAD format can also contain assemblies</p></td>
+<td><p>Industry-standard CAD exchange format</p></td>
 <td><p>Importing from CAD software</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_files.html"><span class="std std-doc">GMSH Files</span></a></p></td>
-<td><p>Pre-existing mesh files</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gmsh_files.html"><span class="std std-doc">Gmsh Files</span></a></p></td>
+<td><p>Existing Gmsh meshes, from a <code class="docutils literal notranslate"><span class="pre">.msh</span></code> file or the gmsh session</p></td>
 <td><p>When you already have a mesh</p></td>
 </tr>
 </tbody>
@@ -464,27 +464,28 @@
 </div>
 <section id="basic-pattern">
 <h2>Basic Pattern<a class="headerlink" href="#basic-pattern" title="Link to this heading">#</a></h2>
-<p>All input methods follow the same pattern:</p>
+<p>CadQuery objects and STEP files follow the same pattern:</p>
 <ol class="arabic simple">
-<li><p>Create a <code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code> model</p></li>
-<li><p>Add geometry using <code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code> or <code class="docutils literal notranslate"><span class="pre">add_stp_file()</span></code></p></li>
-<li><p>Export to desired format</p></li>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code> model.</p></li>
+<li><p>Add geometry with <code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code> or <code class="docutils literal notranslate"><span class="pre">add_stp_file()</span></code>.</p></li>
+<li><p>Export to one of the <a class="reference internal" href="../outputs/index.html"><span class="std std-doc">output formats</span></a>.</p></li>
 </ol>
-<!--pytest-codeblocks:skip-->
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cadquery</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">CadToDagmc</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">CadToDagmc</span><span class="p">()</span>
-<span class="c1"># Add geometry here...</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_cadquery_object</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Workplane</span><span class="p">()</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">material_tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"tungsten"</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">export_dagmc_h5m_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For GMSH files, use the standalone function:</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_stp_file()</span></code> can be called several times and mixed. Volumes, and their material tags, keep the order they were added in; see <a class="reference internal" href="cadquery_objects.html#multiple-objects"><span class="std std-ref">Multiple Objects</span></a>.</p>
+<p>A Gmsh mesh does not go through <code class="docutils literal notranslate"><span class="pre">CadToDagmc</span></code>. A standalone function converts it to an h5m file, taking the tags from <code class="docutils literal notranslate"><span class="pre">material_tags</span></code> or from the mesh’s physical groups; see <a class="reference internal" href="gmsh_files.html"><span class="std std-doc">Gmsh Files</span></a>.</p>
 <!--pytest-codeblocks:skip-->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">export_gmsh_file_to_dagmc_h5m_file</span>
 
 <span class="n">export_gmsh_file_to_dagmc_h5m_file</span><span class="p">(</span>
     <span class="n">gmsh_filename</span><span class="o">=</span><span class="s2">"mesh.msh"</span><span class="p">,</span>
-    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span>
+    <span class="n">dagmc_filename</span><span class="o">=</span><span class="s2">"dagmc.h5m"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
