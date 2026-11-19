@@ -1536,7 +1536,7 @@ class CadToDagmc:
         """Loads the parts from stp file into the model.
 
         Args:
-            filename: the filename used to save the html graph.
+            filename: the path of the STEP file to load.
             material_tags: the names of the DAGMC material tags to assign.
                 Can be a list of strings (one per volume), or one of the
                 special strings "assembly_names" or "assembly_materials" to
@@ -1601,7 +1601,7 @@ class CadToDagmc:
                 simulations.
 
         Returns:
-            int: number of volumes in the stp file.
+            int: number of volumes added from the CadQuery object.
         """
 
         if isinstance(material_tags, str) and material_tags not in [
@@ -1834,10 +1834,11 @@ class CadToDagmc:
             tolerance: linear deflection tolerance for the surface mesh, used by
                 the cad-to-dagmc-mesher backend. This is in the units of the
                 SCALED geometry, since scale_factor is applied before meshing,
-                so scale it alongside scale_factor. With scale_factor=100 the
-                0.01 default is a 0.1 mm deflection, which on a large model can
-                produce a very fine mesh and exhaust memory. The same applies to
-                min_mesh_size/max_mesh_size/set_size for the gmsh backend.
+                so scale it alongside scale_factor. The 0.5 default is a 5 mm
+                deflection when the scaled geometry is in cm. A small tolerance
+                on a large model can produce a very fine mesh and exhaust
+                memory. The same applies to min_mesh_size/max_mesh_size/set_size
+                for the gmsh backend.
             angular_tolerance: angular deflection tolerance for the surface mesh,
                 used by the cad-to-dagmc-mesher backend. An angle, so unaffected
                 by scale_factor.
@@ -2191,12 +2192,13 @@ class CadToDagmc:
                 the SCALED geometry, so the same number means the same thing on
                 the output mesh whichever backend is used. For example with
                 scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
-                deflection. Note this means the defaults get finer as
-                scale_factor grows: the cad-to-dagmc-mesher tolerance default of
-                0.01 is a 0.1 mm deflection at scale_factor=100, which on a large
-                model can produce a very fine mesh and exhaust memory, so scale
-                the tolerance along with the geometry. angular_tolerance is an
-                angle and so is unaffected by scaling.
+                deflection. Note this means the defaults get finer, relative to
+                the geometry, as scale_factor grows: the cad-to-dagmc-mesher
+                tolerance default of 0.5 is a 5 mm deflection on geometry
+                scaled to cm, whatever the scale_factor. A small tolerance on a
+                large model can produce a very fine mesh and exhaust memory, so
+                scale the tolerance along with the geometry. angular_tolerance is an angle and so is
+                unaffected by scaling.
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
