@@ -17,6 +17,8 @@ from cadquery.occ_impl.geom import Vector
 from cadquery.occ_impl.importers.assembly import importStep as importStepAssembly
 from cadquery.occ_impl.shapes import setThreads
 from OCP.OSD import OSD_Parallel, OSD_ThreadPool
+from OCP.TopAbs import TopAbs_SOLID
+from OCP.TopExp import TopExp_Explorer
 from OCP.TopoDS import TopoDS_Iterator
 
 from cad_to_dagmc import __version__
@@ -1652,6 +1654,8 @@ class CadToDagmc:
                 f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
             )
 
+        _check_no_repeated_solids(cadquery_object)
+
         if isinstance(cadquery_object, cq.assembly.Assembly):
             # look for materials in each part of the assembly
             if material_tags == "assembly_materials":
@@ -2868,6 +2872,66 @@ def _mesh_with_cad_to_dagmc_mesher(
         else:
             message = "Overlapping solids in the CAD. " + detail
         raise ValueError(message) from e
+
+
+def _check_no_repeated_solids(cadquery_object) -> None:
+    """Raises a ValueError if the same solid is in the CadQuery object twice.
+
+    A solid held by two parts is a region both parts claim, so it is an
+    overlap whatever the geometry looks like. Assembly.imprint leaves
+    overlapping parts this way, with the region they share in both of them,
+    and exporting such an assembly with imprint=False skips the overlap
+    checks that come with the export's own imprint. CadQuery's Solids() drops
+    repeats, so without this check the result is a confusing mismatch
+    between the number of volumes and the number of material tags.
+
+    The same shape placed at two locations is two different solids, so
+    reusing one part several times in an assembly is fine.
+    """
+    if isinstance(cadquery_object, cq.assembly.Assembly):
+        placed = [
+            (obj.moved(loc), name.rsplit("/", 1)[-1])
+            for obj, name, loc, _ in cadquery_object
+        ]
+    elif isinstance(cadquery_object, cq.Shape):
+        placed = [(cadquery_object, None)]
+    else:
+        placed = [(cadquery_object.val(), None)]
+
+    # Every occurrence of every solid, which Solids() would deduplicate
+    owners: dict[cq.Shape, list[str | None]] = {}
+    for shape, name in placed:
+        explorer = TopExp_Explorer(shape.wrapped, TopAbs_SOLID)
+        while explorer.More():
+            owners.setdefault(cq.Shape.cast(explorer.Current()), []).append(name)
+            explorer.Next()
+    repeated = [names for names in owners.values() if len(names) > 1]
+    if not repeated:
+        return
+
+    if placed[0][1] is None:
+        where = "The CadQuery object holds the same solid more than once"
+    else:
+        groups = []
+        for names in repeated:
+            unique = [repr(name) for name in dict.fromkeys(names)]
+            if len(unique) == 1:
+                groups.append(f"Part {unique[0]} holds the same solid more than once")
+            else:
+                listed = ", ".join(unique[:-1]) + " and " + unique[-1]
+                groups.append(f"Parts {listed} hold the same solid")
+        where = "; ".join(dict.fromkeys(groups))
+    raise ValueError(
+        f"Overlapping solids in the CAD. {where}, so more than one volume "
+        "claims the same region. Overlapping geometry is invalid for DAGMC: a "
+        "region inside two volumes has no single material, so transport "
+        "through it is not well defined. An assembly of overlapping parts "
+        "imprinted with Assembly.imprint is left like this, with the region "
+        "the parts share in each of them. Resolve the overlaps before "
+        "imprinting, for example by boolean-subtracting the inner solid from "
+        "the outer one (outer = outer.cut(inner)) so the two share a surface "
+        "instead of a volume, and run model.check_overlaps() to find others."
+    )
 
 
 def _get_all_leaf_children(assembly):
