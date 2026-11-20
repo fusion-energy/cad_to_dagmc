@@ -389,6 +389,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.importers.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">importStep</span> <span class="k">as</span> <span class="n">importStepAssembly</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cadquery.occ_impl.shapes</span><span class="w"> </span><span class="kn">import</span> <span class="n">setThreads</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">OCP.OSD</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSD_Parallel</span><span class="p">,</span> <span class="n">OSD_ThreadPool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.TopAbs</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopAbs_SOLID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">OCP.TopExp</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopExp_Explorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">OCP.TopoDS</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopoDS_Iterator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cad_to_dagmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
@@ -1964,6 +1966,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># The solids given to add_cadquery_object, before scaling, so that a</span>
+        <span class="c1"># solid added again by a later call is caught as an overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_added_solids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">cq</span><span class="o">.</span><span class="n">Shape</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="c1"># The cad-to-dagmc-mesher refinement report from the last export, or</span>
         <span class="c1"># None when no refinement ran.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2058,6 +2063,8 @@
                 <span class="sa">f</span><span class="s2">"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got </span><span class="si">{</span><span class="n">material_tags</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
+        <span class="n">added_solids</span> <span class="o">=</span> <span class="n">_check_no_repeated_solids</span><span class="p">(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_added_solids</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="n">cq</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">Assembly</span><span class="p">):</span>
             <span class="c1"># look for materials in each part of the assembly</span>
             <span class="k">if</span> <span class="n">material_tags</span> <span class="o">==</span> <span class="s2">"assembly_materials"</span><span class="p">:</span>
@@ -2111,6 +2118,7 @@
         <span class="k">if</span> <span class="n">material_tags</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_tags</span> <span class="o">+</span> <span class="n">material_tags</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span> <span class="o">+</span> <span class="n">scaled_iterable_solids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_added_solids</span> <span class="o">|=</span> <span class="n">added_solids</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">scaled_iterable_solids</span><span class="p">)</span></div>
 
@@ -3288,6 +3296,93 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">message</span> <span class="o">=</span> <span class="s2">"Overlapping solids in the CAD. "</span> <span class="o">+</span> <span class="n">detail</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+
+<span class="n">_REPEATED_SOLID_ADVICE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"so more than one volume claims the same region. Overlapping geometry is "</span>
+    <span class="s2">"invalid for DAGMC: a region inside two volumes has no single material, so "</span>
+    <span class="s2">"transport through it is not well defined. An assembly of overlapping parts "</span>
+    <span class="s2">"imprinted with Assembly.imprint is left like this, with the region the "</span>
+    <span class="s2">"parts share in each of them. Resolve the overlaps before imprinting, for "</span>
+    <span class="s2">"example by boolean-subtracting the inner solid from the outer one "</span>
+    <span class="s2">"(outer = outer.cut(inner)) so the two share a surface instead of a "</span>
+    <span class="s2">"volume, and run model.check_overlaps() to find others."</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_no_repeated_solids</span><span class="p">(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="n">already_added</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raises a ValueError if a solid is in the CadQuery object twice, or was</span>
+<span class="sd">    already added to the model.</span>
+
+<span class="sd">    A solid held by two parts is a region both parts claim, so it is an</span>
+<span class="sd">    overlap whatever the geometry looks like. Assembly.imprint leaves</span>
+<span class="sd">    overlapping parts this way, with the region they share in both of them,</span>
+<span class="sd">    and exporting such an assembly with imprint=False skips the overlap</span>
+<span class="sd">    checks that come with the export's own imprint. CadQuery's Solids() drops</span>
+<span class="sd">    repeats, so without this check the result is a confusing mismatch</span>
+<span class="sd">    between the number of volumes and the number of material tags.</span>
+
+<span class="sd">    The same shape placed at two locations is two different solids, so</span>
+<span class="sd">    reusing one part several times in an assembly is fine.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cadquery_object: the object being added to the model.</span>
+<span class="sd">        already_added: the solids added to the model by earlier calls.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The solids in the object, to add to already_added once it is added.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="n">cq</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">Assembly</span><span class="p">):</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">moved</span><span class="p">(</span><span class="n">loc</span><span class="p">),</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">cadquery_object</span>
+        <span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="n">cq</span><span class="o">.</span><span class="n">Shape</span><span class="p">):</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="p">[(</span><span class="n">cadquery_object</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="p">[(</span><span class="n">cadquery_object</span><span class="o">.</span><span class="n">val</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)]</span>
+
+    <span class="c1"># Every occurrence of every solid, which Solids() would deduplicate</span>
+    <span class="n">owners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">cq</span><span class="o">.</span><span class="n">Shape</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">shape</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">placed</span><span class="p">:</span>
+        <span class="n">explorer</span> <span class="o">=</span> <span class="n">TopExp_Explorer</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">TopAbs_SOLID</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">explorer</span><span class="o">.</span><span class="n">More</span><span class="p">():</span>
+            <span class="n">owners</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">cq</span><span class="o">.</span><span class="n">Shape</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">explorer</span><span class="o">.</span><span class="n">Current</span><span class="p">()),</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">explorer</span><span class="o">.</span><span class="n">Next</span><span class="p">()</span>
+    <span class="n">repeated</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span> <span class="k">for</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">owners</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">repeated</span><span class="p">:</span>
+        <span class="n">earlier</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span> <span class="k">for</span> <span class="n">solid</span><span class="p">,</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">owners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">solid</span> <span class="ow">in</span> <span class="n">already_added</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">earlier</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">placed</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">which</span> <span class="o">=</span> <span class="s2">"The CadQuery object holds a solid"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="n">earlier</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">)]</span>
+                <span class="n">which</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Part </span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> holds a solid"</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="k">else</span> <span class="sa">f</span><span class="s2">"Parts </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="si">}</span><span class="s2"> hold solids"</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Overlapping solids in the CAD. </span><span class="si">{</span><span class="n">which</span><span class="si">}</span><span class="s2"> already added to the "</span>
+                <span class="s2">"model by an earlier add_cadquery_object call, "</span>
+                <span class="o">+</span> <span class="n">_REPEATED_SOLID_ADVICE</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">owners</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">placed</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="s2">"The CadQuery object holds the same solid more than once"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">repeated</span><span class="p">:</span>
+            <span class="n">unique</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">names</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Part </span><span class="si">{</span><span class="n">unique</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> holds the same solid more than once"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">listed</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unique</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">" and "</span> <span class="o">+</span> <span class="n">unique</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parts </span><span class="si">{</span><span class="n">listed</span><span class="si">}</span><span class="s2"> hold the same solid"</span><span class="p">)</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Overlapping solids in the CAD. </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2">, "</span> <span class="o">+</span> <span class="n">_REPEATED_SOLID_ADVICE</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_leaf_children</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>

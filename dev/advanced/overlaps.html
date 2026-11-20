@@ -460,6 +460,13 @@ pushed through a box, have no coincident faces and neither swallows the other,
 so they export with only the warning. Both refusals come from the imprint, so
 with <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code> only the warning is left. The Gmsh backend runs none of
 these checks and writes overlapping solids without an error.</p>
+<p>One check runs when the geometry is added rather than exported, whatever the
+backend or <code class="docutils literal notranslate"><span class="pre">imprint</span></code>: <code class="docutils literal notranslate"><span class="pre">add_cadquery_object()</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> naming the
+parts if the same solid is in two of them, or was already added to the model
+by an earlier call. Imprinting overlapping parts with
+CadQuery’s <code class="docutils literal notranslate"><span class="pre">Assembly.imprint</span></code> leaves them like that, with the region they share
+in both, so this catches those overlaps in an assembly you imprinted yourself
+and export with <code class="docutils literal notranslate"><span class="pre">imprint=False</span></code>.</p>
 </section>
 <section id="checking-every-pair">
 <h2>Checking every pair<a class="headerlink" href="#checking-every-pair" title="Link to this heading">#</a></h2>
