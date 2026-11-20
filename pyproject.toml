@@ -42,6 +42,7 @@ tests = [
     "pytest",
     "pytest-codeblocks",
     "assembly-mesh-plugin",
+    "dagmc-h5m-file-inspector",
 # TODO once on pypi include pydagmc here and remove from CI
 # "pydagmc @ git+https://github.com/svalinn/pydagmc",
 ]
