@@ -31,6 +31,47 @@ def test_the_same_solid_in_two_parts_is_rejected(material_tags):
     assert "Parts 'a' and 'b' hold the same solid" in str(error.value)
 
 
+def test_assembly_materials_are_checked_too():
+    solid = _box().val()
+    assembly = cq.Assembly()
+    assembly.add(solid, name="a", material=cq.Material("steel"))
+    assembly.add(solid, name="b", material=cq.Material("water"))
+    with pytest.raises(ValueError, match="Parts 'a' and 'b' hold the same solid"):
+        CadToDagmc().add_cadquery_object(assembly, material_tags="assembly_materials")
+
+
+def test_three_parts_holding_one_solid_are_all_named():
+    solid = _box().val()
+    assembly = cq.Assembly()
+    for name in "abc":
+        assembly.add(solid, name=name)
+    with pytest.raises(ValueError, match="Parts 'a', 'b' and 'c' hold the same solid"):
+        CadToDagmc().add_cadquery_object(assembly, material_tags="assembly_names")
+
+
+def test_every_repeated_solid_is_reported():
+    first, second = _box().val(), _box(20).val()
+    assembly = cq.Assembly()
+    for name, solid in [("a", first), ("b", first), ("c", second), ("d", second)]:
+        assembly.add(solid, name=name)
+    with pytest.raises(ValueError) as error:
+        CadToDagmc().add_cadquery_object(assembly, material_tags="assembly_names")
+    assert "Parts 'a' and 'b' hold the same solid; Parts 'c' and 'd' hold the same solid" in str(error.value)
+
+
+def test_a_rejected_object_leaves_the_model_unchanged():
+    model = CadToDagmc()
+    model.add_cadquery_object(_box(50), material_tags=["kept"])
+    solid = _box().val()
+    with pytest.raises(ValueError, match="Overlapping solids"):
+        model.add_cadquery_object(
+            cq.Assembly().add(solid, name="a").add(solid, name="b"),
+            material_tags="assembly_names",
+        )
+    assert model.material_tags == ["kept"]
+    assert len(model.parts) == 1
+
+
 def test_nested_parts_are_named_by_their_own_name():
     solid = _box().val()
     inner = cq.Assembly(name="group").add(solid, name="b").add(_box(20), name="c")
@@ -92,9 +133,9 @@ def test_touching_parts_imprinted_by_the_user_export_without_imprinting(tmp_path
     assert model.add_cadquery_object(assembly, material_tags="assembly_names") == 3
     assert model.material_tags == ["middle", "left", "right"]
     assert [round(part.Center().x, 6) for part in model.parts] == [10, 0, 20]
+    h5m = str(tmp_path / "imprinted.h5m")
     model.export_dagmc_h5m_file(
-        filename=str(tmp_path / "imprinted.h5m"),
-        meshing_backend="gmsh",
-        imprint=False,
-        max_mesh_size=5,
+        filename=h5m, meshing_backend="gmsh", imprint=False, max_mesh_size=5
     )
+    di = pytest.importorskip("dagmc_h5m_file_inspector")
+    assert di.get_volumes_and_materials(h5m) == {1: "middle", 2: "left", 3: "right"}
