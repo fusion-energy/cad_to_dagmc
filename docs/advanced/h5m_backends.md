@@ -1,32 +1,31 @@
-# H5M File Backends
+# h5m Backends
 
-cad_to_dagmc supports two backends for writing DAGMC h5m files: h5py (default) and pymoab.
+The `h5m_backend` argument chooses how the DAGMC h5m file is written: with h5py
+(the default) or with pymoab. `export_dagmc_h5m_file` takes it, and so do the
+Gmsh conversion functions `export_gmsh_file_to_dagmc_h5m_file` and
+`export_gmsh_object_to_dagmc_h5m_file`. The two backends do not write
+byte-for-byte identical files, but both load in DAGMC.
 
 ## h5py Backend (Default)
 
-The h5py backend writes h5m files using the h5py library directly. This is the default because it doesn't require MOAB to be installed.
+cad_to_dagmc writes the file itself with h5py, which is installed with it, so
+MOAB is not needed.
 
 <!--pytest-codeblocks:skip-->
 ```python
 model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    h5m_backend="h5py",  # Default
+    h5m_backend="h5py",  # the default
 )
 ```
 
-**Advantages:**
-- No MOAB/pymoab installation required
-- Available via simple `pip install cad_to_dagmc`
-- Produces DAGMC-compatible h5m files
-
-**When to use:**
-- When you can't or don't want to install MOAB
-- For most standard use cases
-- When deploying in environments without MOAB
-
 ## pymoab Backend
 
-The pymoab backend uses the official MOAB library to write h5m files.
+MOAB's own library writes the file, through its Python package pymoab. pymoab
+is not on PyPI, so it is not installed with cad_to_dagmc. The install commands
+are under [Optional packages](../installation.md#optional-packages). If DAGMC
+has trouble with a file, writing the same model with pymoab shows whether the
+h5py backend is the cause.
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -34,118 +33,24 @@ model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
     h5m_backend="pymoab",
 )
-```
-
-**Advantages:**
-- Uses the official MOAB library
-- May have better compatibility with some DAGMC tools
-
-**When to use:**
-- When you need guaranteed MOAB compatibility
-- When working with legacy DAGMC workflows
-- When pymoab is already installed
-
-## Installing pymoab
-
-pymoab/MOAB is not on PyPI itself, so it is not a dependency of the pip package and has
-to be installed separately. Both of the first two options below are one liners:
-
-**Option 1: Conda**
-
-<!--pytest-codeblocks:skip-->
-```bash
-conda install -c conda-forge moab
-```
-
-**Option 2: pip, from an extra index**
-
-<!--pytest-codeblocks:skip-->
-```bash
-pip install --extra-index-url https://shimwell.github.io/wheels moab
-```
-
-**Option 3: From source**
-
-<!--pytest-codeblocks:skip-->
-```bash
-pip install git+https://bitbucket.org/fathomteam/moab/
 ```
 
 ## Error Handling
 
-If you request pymoab but it's not installed:
+`h5m_backend="pymoab"` without pymoab installed raises `PyMoabNotFoundError`, a
+subclass of `ImportError`. Its message begins as follows, then lists the
+install commands:
 
-<!--pytest-codeblocks:skip-->
-```python
->>> model.export_dagmc_h5m_file(h5m_backend="pymoab")
+```text
 PyMoabNotFoundError: pymoab is not installed. pymoab/MOAB is not available
 on PyPI so it cannot be included as a dependency of cad-to-dagmc.
-
-You can install pymoab via one of these methods:
-  1. From conda-forge: conda install -c conda-forge moab
-  2. From extra index: pip install --extra-index-url https://shimwell.github.io/wheels moab
-  3. From source: https://bitbucket.org/fathomteam/moab
-
-Alternatively, use the h5py backend (the default) which does not require pymoab:
-  export_dagmc_h5m_file(..., h5m_backend='h5py')
 ```
 
-## Comparing Backends
-
-<!--pytest-codeblocks:skip-->
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-sphere1 = cq.Workplane().sphere(5)
-sphere2 = cq.Workplane().moveTo(10, 0).sphere(2)
-
-assembly = cq.Assembly()
-assembly.add(sphere1)
-assembly.add(sphere2)
-
-model = CadToDagmc()
-model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1", "mat2"])
-
-# Export using h5py backend
-model.export_dagmc_h5m_file(
-    filename="dagmc_h5py.h5m",
-    h5m_backend="h5py",
-)
-print("Created dagmc_h5py.h5m using h5py backend")
-
-# Export using pymoab backend (requires MOAB)
-model.export_dagmc_h5m_file(
-    filename="dagmc_pymoab.h5m",
-    h5m_backend="pymoab",
-)
-print("Created dagmc_pymoab.h5m using pymoab backend")
-```
-
-## File Compatibility
-
-Both backends produce semantically equivalent h5m files that work with DAGMC. The files may not be byte-for-byte identical due to:
-
-- Different HDF5 compression settings
-- Different internal data ordering
-- Different metadata
-
-However, both will work correctly with:
-- OpenMC with DAGMC
-- MCNP with DAGMC
-- Other DAGMC-enabled transport codes
-
-## Comparison Table
-
-| Feature | h5py Backend | pymoab Backend |
-|---------|--------------|----------------|
-| Installation | Included with pip install | Requires separate MOAB install |
-| PyPI availability | Yes | No (conda or source) |
-| DAGMC compatibility | Yes | Yes |
-| File size | Similar | Similar |
-| Performance | Similar | Similar |
+Any value other than `"h5py"` or `"pymoab"` raises `ValueError` ("method must be
+'pymoab' or 'h5py'"). Both errors come when the file is written, after meshing
+has finished, so on a large model check that `import pymoab` works before
+starting a long export.
 
 ## See Also
 
-- [Installation](../installation.md) - Installing cad_to_dagmc and optional dependencies
-- [DAGMC H5M Output](../outputs/dagmc_h5m.md) - Full export options
+- [DAGMC h5m Files](../outputs/dagmc_h5m.md): the other export options

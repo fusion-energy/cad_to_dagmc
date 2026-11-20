@@ -19,12 +19,15 @@ on:
 
 jobs:
   testing:
-    name: Python ${{ matrix.python-version }}
+    name: Python ${{ matrix.python-version }} / CadQuery ${{ matrix.cadquery }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.12]
+        # TODO drop assembly-imprint once a CadQuery release includes
+        # Assembly.imprint (CadQuery/cadquery#2128)
+        cadquery: [stable, master, assembly-imprint]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
@@ -44,9 +47,14 @@ jobs:
         run: |
           # Install openmc without moab - openmc tests will be skipped if DAGMC not available
           python -m pip install --extra-index-url https://shimwell.github.io/wheels openmc
-          # TODO install the CadQuery release once it includes Assembly.imprint
-          # (CadQuery/cadquery#2128), tracking the PR branch until then
-          python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@adam-assy-imprint-method"
+          if [[ "${{ matrix.cadquery }}" == "master" ]]; then
+            python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@master"
+          elif [[ "${{ matrix.cadquery }}" == "assembly-imprint" ]]; then
+            # the CadQuery/cadquery#2128 branch, which adds Assembly.imprint
+            python -m pip install "cadquery @ git+https://github.com/CadQuery/cadquery@adam-assy-imprint-method"
+          else
+            python -m pip install --upgrade cadquery
+          fi
           python -m pip install .[tests]
           python -c "import cad_to_dagmc"
           python -c "import cad_to_dagmc_mesher"

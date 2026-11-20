@@ -20,12 +20,14 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
-    # TODO set to >=2.9.0 once released, needs Assembly.imprint (CadQuery/cadquery#2128)
-    "cadquery>=2.9.0.dev0",
+    # TODO require the CadQuery release that includes Assembly.imprint
+    # (CadQuery/cadquery#2128) once it is out, and remove the fallback for
+    # older CadQuery in cad_to_dagmc.core.imprint_assembly
+    "cadquery>=2.8.0",
     "numpy",
     "gmsh",
     "h5py",
-    "cad-to-dagmc-mesher>=0.5.0"
+    "cad-to-dagmc-mesher>=0.7.0"
 # TODO if moab become available on pypi include moab here and remove from CI
 # python -m pip install --extra-index-url https://shimwell.github.io/wheels moab
 ]

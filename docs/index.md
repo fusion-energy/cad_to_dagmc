@@ -2,43 +2,47 @@
 
 A package that converts CAD geometry to [DAGMC](https://github.com/svalinn/DAGMC/) h5m files,
 [unstructured mesh](https://docs.openmc.org/en/latest/pythonapi/generated/openmc.UnstructuredMesh.html) files (VTK),
-and Gmsh (msh) files ready for use in neutronics simulations.
+and Gmsh mesh files (`.msh`) ready for use in neutronics simulations.
 
 ## Workflow
 
-CAD geometry is given a material tag per volume, meshed by one of three
-backends, then written out. The DAGMC h5m file is written by the h5py or pymoab
-writer, while the unstructured mesh vtk and GMSH msh files are written by the
-meshing backend itself. A GMSH mesh is already meshed, so it converts straight
-to a DAGMC h5m file.
+Each solid gets a material tag. A meshing backend, cad-to-dagmc-mesher (the
+default) or Gmsh, meshes the geometry. An h5m backend, h5py (the default) or
+pymoab, then writes the surface mesh to a DAGMC h5m file. Either meshing backend
+can also make a volume mesh of tetrahedra, written as a VTK file, and Gmsh can
+save its own `.msh` file. A Gmsh mesh you already have skips the meshing stage.
 
-`export_dagmc_h5m_file()` can write the DAGMC h5m file on its own, or write it
-together with a conformal unstructured mesh vtk file from a single meshing call.
-Pass `tet_volumes` and `target_edge_length` on the cad-to-dagmc-mesher backend,
-or `unstructured_volumes` on the gmsh backend, and it returns both filenames. See [Conformal Meshes](outputs/conformal_meshes.md).
+One `export_dagmc_h5m_file()` call can write the h5m file and the VTK file
+together, so that the tetrahedra share their boundary with the h5m surfaces; see
+[Conformal Meshes](outputs/conformal_meshes.md).
 
 ```{image} _static/workflow_light.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or Gmsh backend. Both write DAGMC h5m files through the h5py or pymoab h5m backend. Both meshing backends also write volume meshes of tetrahedra to VTK files, and Gmsh also writes Gmsh .msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A Gmsh mesh, from a file or the gmsh session, takes its tags from physical groups or a list, skips the meshing stage and goes straight to an h5m backend.
 :class: only-light
 :width: 100%
 ```
 
 ```{image} _static/workflow_dark.png
-:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or gmsh backend. Both write DAGMC h5m files through the h5py or pymoab writer. Both backends also write tetrahedra to unstructured mesh vtk files, and gmsh also writes GMSH msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A GMSH mesh input skips the meshing stage and goes straight to an h5m writer.
+:alt: CadQuery objects and STEP files are given material tags, then meshed by the cad-to-dagmc-mesher or Gmsh backend. Both write DAGMC h5m files through the h5py or pymoab h5m backend. Both meshing backends also write volume meshes of tetrahedra to VTK files, and Gmsh also writes Gmsh .msh files. The DAGMC geometry output names both files export_dagmc_h5m_file can write, the dagmc.h5m on its own or with a conformal umesh.vtk. A Gmsh mesh, from a file or the gmsh session, takes its tags from physical groups or a list, skips the meshing stage and goes straight to an h5m backend.
 :class: only-dark
 :width: 100%
 ```
 
-## Key Features
+## Features
 
-| | |
-|---|---|
-| **Multiple Input Formats** | **Flexible Material Tagging** |
-| - CadQuery objects<br>- STEP files<br>- GMSH mesh files | - Manual tags<br>- Assembly names<br>- CadQuery Materials<br>- GMSH physical groups |
-| **Two Meshing Backends** | **Multiple Output Formats** |
-| - cad-to-dagmc-mesher (purpose-built, surface and volume meshing)<br>- GMSH (full control, volume meshing) | - DAGMC h5m (surface mesh)<br>- Unstructured VTK (volume mesh)<br>- GMSH files |
-| **Two H5M Backends** | **Advanced Options** |
-| - h5py (default, no MOAB needed)<br>- pymoab (official MOAB) | - Per-volume mesh sizing<br>- Geometry scaling<br>- Parallel meshing |
+- [Inputs](inputs/index.md): CadQuery objects and assemblies, STEP files, and
+  Gmsh meshes from a `.msh` file or the current gmsh session.
+- [Material tagging](material_tagging/index.md): a list of tags, assembly part
+  names, `cq.Material`, or Gmsh physical groups.
+- [Meshing](meshing/index.md): cad-to-dagmc-mesher, the default, makes
+  curvature-adaptive surface meshes and tetrahedra. Gmsh has per-volume sizing
+  and several meshing algorithms.
+- [Outputs](outputs/index.md): a DAGMC h5m surface mesh, a VTK volume mesh, a
+  conformal h5m and VTK pair from one call, and Gmsh `.msh` files.
+- [h5m backends](advanced/h5m_backends.md): h5py (the default, which needs no
+  MOAB) or pymoab.
+- [Advanced options](advanced/index.md): unit scaling, imprinting, overlap
+  checking, implicit complement material, and thread and RAM limits.
 
 
 ```{toctree}
@@ -73,17 +77,6 @@ material_tagging/gmsh_physical_groups
 
 ```{toctree}
 :maxdepth: 2
-:caption: Outputs
-
-outputs/index
-outputs/dagmc_h5m
-outputs/unstructured_vtk
-outputs/gmsh_mesh
-outputs/conformal_meshes
-```
-
-```{toctree}
-:maxdepth: 2
 :caption: Meshing
 
 meshing/index
@@ -94,11 +87,23 @@ meshing/mesh_sizing
 
 ```{toctree}
 :maxdepth: 2
+:caption: Outputs
+
+outputs/index
+outputs/dagmc_h5m
+outputs/unstructured_vtk
+outputs/conformal_meshes
+outputs/gmsh_mesh
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: Advanced
 
 advanced/index
 advanced/geometry_scaling
 advanced/imprinting
+advanced/overlaps
 advanced/implicit_complement
 advanced/parallel_processing
 advanced/h5m_backends

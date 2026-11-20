@@ -1,21 +1,12 @@
 # Conformal Meshes
 
-Create both surface (h5m) and volume (vtk) meshes that share the same surface coordinates. This ensures the surface triangles exactly match the volume mesh boundaries.
+`export_dagmc_h5m_file()` can write a VTK volume mesh along with the DAGMC h5m file, from one meshing run, so that the tetrahedra share the surfaces that particles are tracked on.
 
-## Why Conformal Meshes?
-
-When running neutronics simulations with both:
-- DAGMC geometry (surface mesh for particle tracking)
-- Unstructured mesh tallies (volume mesh for scoring)
-
-The meshes should be **conformal** - the surface triangles of the DAGMC geometry should exactly match the boundary faces of the volume mesh. This avoids:
-- Particles crossing mesh boundaries incorrectly
-- Numerical artifacts at interfaces
-- Inconsistent tallying near surfaces
+OpenMC scores an unstructured mesh tally on the tetrahedra, independently of the DAGMC geometry. When the two meshes share their surfaces, each tetrahedron lies in one DAGMC volume and its result comes from one material. Separate `export_dagmc_h5m_file()` and `export_unstructured_mesh_file()` calls mesh the geometry twice and nothing makes their surfaces match, so tetrahedra near curved boundaries can straddle two volumes.
 
 ## Basic Usage
 
-Export both meshes in a single call with the cad-to-dagmc-mesher backend (the default) using `tet_volumes`, `target_edge_length` and `umesh_filename`:
+With the default cad-to-dagmc-mesher backend, pass `tet_volumes` and `target_edge_length`, and name the VTK file with `umesh_filename` (default `umesh.vtk`):
 
 ```python
 import cadquery as cq
@@ -40,27 +31,54 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 )
 ```
 
-For each volume listed in `tet_volumes` the surface is remeshed to near-equilateral triangles at `target_edge_length`, and that surface becomes both the DAGMC tracking surface and the tetrahedra boundary, so the two meshes share the same surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Volumes not listed keep the curvature-adaptive surface mesh and get no tetrahedra. See the [cad-to-dagmc-mesher backend](../meshing/cad_to_dagmc_mesher_backend.md) for the other options.
+Given `tet_volumes` and `target_edge_length`, the call returns a `(dagmc_filename, umesh_filename)` tuple. Without them it writes only the h5m file and returns its filename. One without the other raises `ValueError`, and so does `umesh_filename` without both.
 
-## Using the GMSH Backend
+For each volume in `tet_volumes` the surface is remeshed at a size based on `target_edge_length`. That surface is written to the h5m file and is also the boundary of the tetrahedra. The volume mesher may split some of its triangles, and on strongly curved faces the tetrahedra can deviate locally from it by up to the chordal error at the tetrahedron edge length. Volumes not in `tet_volumes` keep the curvature-adaptive surface mesh and get no tetrahedra.
 
-The [GMSH backend](../meshing/gmsh_backend.md) produces conformal meshes with the `unstructured_volumes` parameter instead:
+`tolerance` and `angular_tolerance` have no effect when every volume is in `tet_volumes`. When some volumes are left out, the two tolerances also size the surfaces of the filled volumes, and so their tetrahedra. The backend's arguments are listed under [cad-to-dagmc-mesher Parameters](../meshing/cad_to_dagmc_mesher_backend.md#parameters).
 
-<!--pytest-codeblocks:skip-->
+## Using the Gmsh Backend
+
+With the [Gmsh backend](../meshing/gmsh_backend.md), pass `unstructured_volumes` instead. It takes volume IDs, material tags or a mix, and a tag selects every volume that has it. Prefer tags, because [imprinting](../advanced/imprinting.md#imprinting-and-material-tag-order) can renumber the volumes.
+
 ```python
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+sphere = cq.Workplane("XY").sphere(10)
+box = cq.Workplane("XY").box(30, 30, 30).cut(sphere)
+
+assembly = cq.Assembly()
+assembly.add(sphere, name="sphere")
+assembly.add(box, name="box")
+
+model = CadToDagmc()
+model.add_cadquery_object(assembly, material_tags=["tungsten", "steel"])
+
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="dagmc.h5m",
-    unstructured_volumes=[1, 2],  # Volumes to include in VTK mesh
+    unstructured_volumes=[1, "steel"],  # volume 1 and every volume tagged steel
     umesh_filename="umesh.vtk",
     meshing_backend="gmsh",
 )
 ```
 
+Without `unstructured_volumes`, Gmsh writes no VTK file and the call returns only the h5m filename. A call whose only meshing argument is `umesh_filename` runs Gmsh, so it writes no VTK file either.
+
+### How It Works
+
+When you use `unstructured_volumes` on the Gmsh backend:
+
+1. Gmsh generates the surface mesh for all volumes, including shared interfaces
+2. Surface triangles are extracted and written to the DAGMC h5m file
+3. Any `volume_mesh_options` are applied, then Gmsh generates tetrahedra for the
+    selected volumes using the existing surface mesh as their boundary
+4. The tetrahedra are written to the VTK file, sharing the surface triangulation
+    with the DAGMC geometry
+
 ### Controlling the Conformal 3D Mesh
 
-`mesh_algorithm_3d` and `volume_mesh_options` apply to this combined export as
-well as standalone `export_unstructured_mesh_file()` and
-`export_gmsh_mesh_file(dimensions=3)` calls:
+`mesh_algorithm_3d` and `volume_mesh_options` work in the combined export too:
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -80,82 +98,11 @@ dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
 )
 ```
 
-The DAGMC surface is generated first with the normal surface sizing, then the
-overrides are applied before filling the selected volumes with tetrahedra.
-The existing surface triangulation is reused, not independently regenerated.
-These settings allow a coarser interior; they do not guarantee zero refinement.
-Avoid options that change element order, recombine elements or force remeshing
-when you need the first-order tetrahedral boundary to match the DAGMC triangles.
-
-Separate surface and volume export calls do not share mesh state, even when
-their sizes are identical. Use the combined export when matching the tracking
-and tally boundaries is required. See
-[3D algorithms and volume-only options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options)
-for defaults and precedence rules.
-
-### Selecting Volumes for Volume Mesh
-
-#### By Volume ID
-
-`unstructured_volumes` accepts volume IDs, material tag names, or a mix of both. Specify which volumes should have a volume mesh:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    unstructured_volumes=[2],  # Only volume 2 gets volume mesh
-    umesh_filename="umesh.vtk",
-    meshing_backend="gmsh",
-)
-```
-
-#### By Material Tag Name
-
-Use material tag names instead of IDs:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    unstructured_volumes=["steel"],  # All volumes with "steel" tag
-    umesh_filename="umesh.vtk",
-    meshing_backend="gmsh",
-)
-```
-
-#### Mixed IDs and Names
-
-Combine volume IDs and material tag names:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    unstructured_volumes=[1, "tungsten"],  # Volume 1 and all tungsten volumes
-    umesh_filename="umesh.vtk",
-    meshing_backend="gmsh",
-)
-```
-
-### How It Works
-
-When you use `unstructured_volumes` on the GMSH backend:
-
-1. GMSH generates the surface mesh for all volumes, including shared interfaces
-2. Surface triangles are extracted and written to the DAGMC h5m file
-3. Any `volume_mesh_options` are applied, then GMSH generates tetrahedra for the
-    selected volumes using the existing surface mesh as their boundary
-4. The tetrahedra are written to the VTK file, sharing the surface triangulation
-    with the DAGMC geometry
-
-This guarantees:
-- Surface triangles match volume mesh boundaries
-- No gaps or overlaps between meshes
-- Consistent particle tracking and tallying
+The surface mesh written to the h5m file is reused, not regenerated, so the options change only the tetrahedra inside it. Avoid options that change the element order, recombine elements or force a remesh, because the tetrahedra would then no longer match the DAGMC triangles. What each option does, and which settings take precedence, is described under [3D Algorithms and Volume-Only Options](../meshing/gmsh_backend.md#3d-algorithms-and-volume-only-options).
 
 ## Complete Example with OpenMC
 
-This example uses the GMSH backend so that `set_size` can give the middle sphere a finer mesh than its neighbours.
+This example uses the Gmsh backend so that `set_size` can give the middle sphere a finer mesh than its neighbours. Only the middle sphere gets tetrahedra.
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -176,18 +123,18 @@ assembly.add(inner_sphere, name="inner_sphere")
 assembly.add(middle_sphere, name="middle_sphere")
 assembly.add(outer_sphere, name="outer_sphere")
 
-# Create conformal meshes - only middle sphere gets volume mesh
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags=["mat1", "mat2", "mat3"])
 
+# Conformal meshes: only the middle sphere gets a volume mesh
 dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
     filename="surface_mesh.h5m",
     set_size={
-        1: 0.9,  # Coarse mesh for inner
-        2: 0.1,  # Fine mesh for middle (where we want detailed tallies)
-        3: 0.9,  # Coarse mesh for outer
+        "mat1": 0.9,  # coarse mesh for the inner sphere
+        "mat2": 0.1,  # fine mesh for the middle sphere, which is tallied
+        "mat3": 0.9,  # coarse mesh for the outer sphere
     },
-    unstructured_volumes=[2],  # Only middle sphere in volume mesh
+    unstructured_volumes=["mat2"],
     umesh_filename="volume_mesh.vtk",
     meshing_backend="gmsh",
 )
@@ -200,7 +147,7 @@ tally.filters = [mesh_filter]
 tally.scores = ["flux"]
 tallies = openmc.Tallies([tally])
 
-# Materials
+# Materials, named after the material tags
 mat1 = openmc.Material(name="mat1")
 mat1.add_nuclide("H1", 1, percent_type="ao")
 mat1.set_density("g/cm3", 0.001)
@@ -219,7 +166,7 @@ materials = openmc.Materials([mat1, mat2, mat3])
 dag_univ = openmc.DAGMCUniverse(filename=dagmc_filename)
 geometry = openmc.Geometry(root=dag_univ.bounded_universe())
 
-# Settings
+# Settings, with a 14 MeV point source at the centre of the bounding box
 settings = openmc.Settings()
 settings.batches = 10
 settings.particles = 5000
@@ -236,29 +183,8 @@ model = openmc.Model(geometry, materials, settings, tallies)
 sp_filename = model.run()
 ```
 
-## API Notes
-
-When `tet_volumes` and `target_edge_length` (or `unstructured_volumes` on the GMSH backend) are specified, `export_dagmc_h5m_file()` returns a tuple:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    tet_volumes=["steel"],
-    target_edge_length=2.0,
-    umesh_filename="umesh.vtk",
-)
-```
-
-Without them, it returns just the filename:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename = model.export_dagmc_h5m_file(filename="dagmc.h5m")
-```
-
 ## See Also
 
-- [DAGMC H5M](dagmc_h5m.md) - Surface mesh output details
-- [Unstructured VTK](unstructured_vtk.md) - Volume mesh output details
-- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md) - Control mesh density
+- [DAGMC h5m Files](dagmc_h5m.md): the arguments and return value of `export_dagmc_h5m_file()`
+- [Unstructured Mesh VTK Files](unstructured_vtk.md): a volume mesh on its own, and the OpenMC tally
+- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md): `set_size` on the Gmsh backend

@@ -1,6 +1,10 @@
 # Geometry Scaling
 
-Scale geometry using the `scale_factor` parameter. Useful when converting between units (e.g., mm to cm for neutronics).
+`scale_factor` scales the geometry about the origin. OpenMC and most other
+neutronics codes work in centimetres, while CAD tools usually save in
+millimetres, so the most common value is 0.1. CadQuery reads a STEP file in
+millimetres whatever unit it was saved in, so 0.1 gives centimetres for any
+STEP file.
 
 ## Basic Usage
 
@@ -8,8 +12,9 @@ Scale geometry using the `scale_factor` parameter. Useful when converting betwee
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-sphere = cq.Workplane().sphere(5)
-small_sphere = cq.Workplane().moveTo(10, 0).sphere(2)
+# Modelled in mm
+sphere = cq.Workplane().sphere(50)
+small_sphere = cq.Workplane().moveTo(100, 0).sphere(20)
 
 assembly = cq.Assembly()
 assembly.add(sphere)
@@ -18,48 +23,8 @@ assembly.add(small_sphere)
 model = CadToDagmc()
 model.add_cadquery_object(cadquery_object=assembly, material_tags=["mat1", "mat2"])
 
-# Scale geometry 10x (e.g., mm to cm)
-model.export_dagmc_h5m_file(
-    min_mesh_size=0.5,
-    max_mesh_size=1.0e6,
-    scale_factor=10.0,
-)
-```
-
-## Scaling at Different Stages
-
-### When Adding Geometry
-
-Scale when adding CadQuery objects or STEP files:
-
-<!--pytest-codeblocks:skip-->
-```python
-# Scale CadQuery object
-model.add_cadquery_object(
-    cadquery_object=assembly,
-    material_tags=["mat1"],
-    scale_factor=0.1,  # Scale down (mm to cm)
-)
-
-# Scale STEP file
-model.add_stp_file(
-    filename="geometry_in_mm.step",
-    material_tags=["mat1"],
-    scale_factor=0.1,  # Scale down (mm to cm)
-)
-```
-
-### When Exporting
-
-Scale at export time:
-
-<!--pytest-codeblocks:skip-->
-```python
-# Scale at export
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    scale_factor=0.1,
-)
+# mm to cm, so the spheres have radii of 5 cm and 2 cm in the h5m file
+model.export_dagmc_h5m_file(filename="dagmc.h5m", scale_factor=0.1)
 ```
 
 ## Common Scale Factors
@@ -73,14 +38,31 @@ model.export_dagmc_h5m_file(
 | inch | cm | 2.54 |
 | foot | cm | 30.48 |
 
+## Scaling at Different Stages
+
+`add_cadquery_object()` and `add_stp_file()` take a `scale_factor`, and so do
+the three export methods. The two multiply. Adding scales the stored solids
+and exporting scales them again, so a box added with `scale_factor=0.1` and
+exported with `scale_factor=10` comes out at its original size.
+
+Use one or the other. Scaling as you add suits sources in different units
+(next section). Scaling at export, as in Basic Usage, applies one factor to
+everything.
+
+[`check_overlaps()`](overlaps.md#checking-every-pair) scales the stored solids
+in the same way, so give it the `scale_factor` you export with, not the one you
+added with.
+
 ## Different Scales for Different Parts
 
-When combining geometry from different sources with different units:
+Sources in different units each take their own `scale_factor` when added:
 
-<!--pytest-codeblocks:skip-->
 ```python
-from cad_to_dagmc import CadToDagmc
 import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+# Stands in for a STEP file from a CAD tool, in mm
+cq.Workplane().box(300, 300, 300).export("component_in_mm.step")
 
 model = CadToDagmc()
 
@@ -91,8 +73,8 @@ model.add_stp_file(
     scale_factor=0.1,  # Convert mm to cm
 )
 
-# CadQuery object in cm (no scaling needed)
-sphere = cq.Workplane().sphere(10)  # 10 cm radius
+# CadQuery object in cm (no scaling needed), beside the 30 cm box
+sphere = cq.Workplane().sphere(10).translate((40, 0, 0))  # 10 cm radius
 model.add_cadquery_object(
     cadquery_object=sphere,
     material_tags=["tungsten"],
@@ -102,40 +84,38 @@ model.add_cadquery_object(
 model.export_dagmc_h5m_file(filename="combined.h5m")
 ```
 
-## Neutronics Unit Conventions
-
-Most neutronics codes (OpenMC, MCNP, etc.) work in **centimeters**. If your CAD software uses millimeters (common in mechanical engineering), apply a scale factor of 0.1:
-
-<!--pytest-codeblocks:skip-->
-```python
-# CAD created in mm, simulation needs cm
-model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    scale_factor=0.1,  # mm to cm
-)
-```
-
 ## Mesh Size and Scaling
 
-:::{warning}
-Mesh size parameters (`min_mesh_size`, `max_mesh_size`, `set_size`) are applied **after** scaling. Set them in the **output units**, not the input units.
-:::
+The geometry is scaled before it is meshed, so every linear sizing argument is
+in the units of the scaled geometry. On the Gmsh backend these are
+`min_mesh_size`, `max_mesh_size` and `set_size`. On the cad-to-dagmc-mesher
+backend they are `tolerance` and `target_edge_length`. `angular_tolerance` is
+an angle, in radians, and does not change with scaling.
 
-Example:
+With `scale_factor=100` (a model built in metres), the default `tolerance` of
+0.5 is a 5 mm deflection on the output, not 0.5 m. So a fixed size gets finer
+relative to the CAD as `scale_factor` grows, and on a large model the mesh may
+not fit in RAM. Scale the sizes along with the geometry.
 
-<!--pytest-codeblocks:skip-->
+For CAD in millimetres exported in centimetres:
+
 ```python
-# Geometry is 100mm sphere, scaling to cm
-# Want 0.5 cm mesh size (not 5 mm)
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+model = CadToDagmc()
+model.add_cadquery_object(cq.Workplane().sphere(100), material_tags=["steel"])  # mm
+
+# cad-to-dagmc-mesher backend: a 0.1 cm (1 mm) chordal deflection
+model.export_dagmc_h5m_file(filename="mesher.h5m", scale_factor=0.1, tolerance=0.1)
+
+# Gmsh backend: elements between 0.5 cm and 2 cm
 model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    scale_factor=0.1,      # mm to cm
-    min_mesh_size=0.5,     # 0.5 cm (in output units)
-    max_mesh_size=2.0,     # 2.0 cm (in output units)
+    filename="gmsh.h5m", scale_factor=0.1, min_mesh_size=0.5, max_mesh_size=2.0
 )
 ```
 
 ## See Also
 
-- [STEP Files](../inputs/step_files.md) - Scaling STEP file input
-- [CadQuery Objects](../inputs/cadquery_objects.md) - Scaling CadQuery input
+- [STEP Files](../inputs/step_files.md): `scale_factor` on `add_stp_file()`
+- [CadQuery Objects](../inputs/cadquery_objects.md): `scale_factor` on `add_cadquery_object()`

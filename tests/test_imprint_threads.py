@@ -19,6 +19,11 @@ from cad_to_dagmc.core import (
 )
 
 GLUES = ("partial", "full", None)
+# TODO remove HAS_ASSEMBLY_IMPRINT and HAS_GLUE, and the branches and tests that
+# use them, once CadQuery/cadquery#2128 is merged and released, and
+# pyproject.toml requires that CadQuery release. CadQuery 2.8.0 has neither.
+HAS_ASSEMBLY_IMPRINT = hasattr(cq.Assembly, "imprint")
+HAS_GLUE = "glue" in inspect.signature(cq.occ_impl.assembly.imprint).parameters
 IMPRINT_MODES = (*GLUES, False)
 INVALID_MODES = (True, 0, 1, 4, -1, 0.0, 1.0, "all", "off", "Partial", [], (), {},
                  {"threads": 1, "glue": "partial"})
@@ -91,7 +96,9 @@ def imprint_calls(monkeypatch):
     """Records (pool threads, glue) for each imprint.
 
     The gmsh paths imprint with Assembly.imprint, while cad-to-dagmc-mesher
-    calls cadquery's functional assembly imprint, so both are spied on.
+    calls cadquery's functional assembly imprint, so both are spied on. On a
+    CadQuery without Assembly.imprint the gmsh paths use the functional one
+    too. Its legacy signature has no glue, recorded as "legacy".
     """
     calls = []
 
@@ -100,12 +107,13 @@ def imprint_calls(monkeypatch):
 
         @functools.wraps(real)
         def spy(*args, **kwargs):
-            calls.append((_pool_threads(), kwargs.get("glue", "partial")))
+            calls.append((_pool_threads(), kwargs.get("glue", "partial" if HAS_GLUE else "legacy")))
             return real(*args, **kwargs)
 
         monkeypatch.setattr(owner, name, spy)
 
-    spy_on(cq.Assembly, "imprint")
+    if HAS_ASSEMBLY_IMPRINT:
+        spy_on(cq.Assembly, "imprint")
     spy_on(cq.occ_impl.assembly, "imprint")
     return calls
 
@@ -222,11 +230,12 @@ def test_imprint_failure_restores_pool_and_backend_state(tmp_path, monkeypatch, 
         raise RuntimeError("imprint failed")
 
     # gmsh paths use Assembly.imprint, cad-to-dagmc-mesher the functional one
-    monkeypatch.setattr(cq.Assembly, "imprint", failing_imprint)
+    if HAS_ASSEMBLY_IMPRINT:
+        monkeypatch.setattr(cq.Assembly, "imprint", failing_imprint)
     monkeypatch.setattr(cq.occ_impl.assembly, "imprint", failing_imprint)
     with pytest.raises(RuntimeError, match="imprint failed"):
         _export(path, _model(), tmp_path, imprint_threads=1)
-    assert cq.Assembly.imprint is failing_imprint
+    assert cq.occ_impl.assembly.imprint is failing_imprint
     assert _pool_threads() == before
     assert not gmsh.isInitialized()
     assert not list(tmp_path.iterdir())

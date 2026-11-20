@@ -255,6 +255,9 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
     every part keeps its own place in the assembly and the solids of the
     returned compound come out in the order the parts were added. Material
     tags given in that order therefore stay correct without any remapping.
+    On a CadQuery without Assembly.imprint, such as 2.8.0, the functional
+    imprint is used instead, the solids are put back in part order, and the
+    assembly is left as it was.
 
     Args:
         assembly: the cadquery assembly to imprint, one solid per part.
@@ -280,12 +283,25 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
     if len(assembly.toCompound().Solids()) < 2:
         return assembly.toCompound()
 
+    # TODO remove this fallback, and _imprint_assembly_without_assembly_imprint,
+    # once CadQuery/cadquery#2128 is merged and released, and pyproject.toml
+    # requires that CadQuery release.
+    if not hasattr(cq.Assembly, "imprint"):
+        return _imprint_assembly_without_assembly_imprint(assembly, threads, glue)
+
     with thread_limit(threads):
         assembly.imprint(glue=glue)
 
     # A part that overlaps another comes back as its own region plus the
     # region the two share, and that shared region has no single material.
-    overlapping = [name for obj, name, _, _ in assembly if len(obj.Solids()) > 1]
+    _raise_if_overlapping(
+        [name for obj, name, _, _ in assembly if len(obj.Solids()) > 1]
+    )
+    return assembly.toCompound()
+
+
+def _raise_if_overlapping(overlapping: list[str]) -> None:
+    """Raises a ValueError naming the overlapping parts, if there are any."""
     if overlapping:
         raise ValueError(
             f"Overlapping solids in the CAD. The parts {overlapping} overlap "
@@ -296,7 +312,53 @@ def imprint_assembly(assembly, threads: int | None = None, glue: str | None = "p
             "(outer = outer.cut(inner)) so the two share a surface instead of a "
             "volume."
         )
-    return assembly.toCompound()
+
+
+# TODO remove once CadQuery/cadquery#2128 is merged and released, and
+# pyproject.toml requires that CadQuery release (see imprint_assembly).
+def _imprint_assembly_without_assembly_imprint(assembly, threads, glue):
+    """Imprints with the functional imprint, for CadQuery without Assembly.imprint.
+
+    The functional imprint returns the imprinted solids in its own order, with
+    the names of the parts each one came from. The solids are put back in the
+    order the parts were added, so the result matches Assembly.imprint.
+    CadQuery 2.8.0's legacy MakeConnected imprint always uses partial glue
+    (BOPAlgo_GlueShift), so "full" and None raise RuntimeError with upgrade
+    advice there.
+    """
+    imprint = cq.occ_impl.assembly.imprint
+    if "glue" not in inspect.signature(imprint).parameters:
+        if glue != "partial":
+            raise RuntimeError(
+                f"CadQuery {cq.__version__} cannot honour imprint={glue!r}: "
+                "its legacy imprint always uses partial glue (BOPAlgo_GlueShift). "
+                "Use imprint='partial', "
+                "or upgrade CadQuery to a version "
+                "including CadQuery/cadquery#2069."
+            )
+        with thread_limit(threads):
+            _, origins = imprint(assembly)
+    else:
+        with thread_limit(threads):
+            _, origins = imprint(assembly, glue=glue)
+
+    names = [name for _, name, _, _ in assembly]
+    solids_by_part = {name: [] for name in names}
+    overlapping = []
+    for solid, origin in origins.items():
+        # A solid from two parts is a region the parts share. Its part gets
+        # more than one solid, its own region plus the shared one.
+        if len(origin) > 1:
+            overlapping.extend(n for n in origin if n not in overlapping)
+        for name in origin:
+            solids_by_part[name].append(solid)
+    overlapping.extend(
+        n for n in names if len(solids_by_part[n]) > 1 and n not in overlapping
+    )
+    _raise_if_overlapping(overlapping)
+    return cq.occ_impl.shapes.Compound.makeCompound(
+        [solids_by_part[name][0] for name in names]
+    )
 
 
 def define_moab_core_and_tags():
@@ -1239,12 +1301,45 @@ def check_material_tags(material_tags, iterable_solids):
             if not isinstance(material_tag, str):
                 msg = "material_tags should be an iterable of strings."
                 raise TypeError(msg)
-            if len(material_tag) > 28:
-                msg = (
-                    f"Material tag {material_tag} is too long. DAGMC will truncate this material tag "
-                    f"to 28 characters. The resulting tag in the h5m file will be {material_tag[:28]}"
-                )
-                warnings.warn(msg)
+        _check_tag_lengths(material_tags)
+
+
+# The h5m writers store each group name in 32 bytes and DAGMC reads it as a
+# null-terminated string, so "mat:", the tag and the null byte must fit in 32
+# bytes. The implicit complement group name also carries a "_comp" suffix.
+_MAX_MATERIAL_TAG_LENGTH = 32 - len("mat:") - 1
+_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH = _MAX_MATERIAL_TAG_LENGTH - len("_comp")
+
+
+def _check_tag_lengths(
+    material_tags=(), implicit_complement_material_tag: str | None = None
+) -> None:
+    """Warns about tags too long for the 32-byte group names in the h5m file.
+
+    A longer tag leaves no room for the null byte that ends the name, or is
+    cut short, and OpenMC then does not find the material.
+    """
+    for material_tag in material_tags:
+        if len(material_tag) > _MAX_MATERIAL_TAG_LENGTH:
+            warnings.warn(
+                f"Material tag {material_tag} is too long. It has "
+                f"{len(material_tag)} characters and must have "
+                f"{_MAX_MATERIAL_TAG_LENGTH} or fewer to fit in the h5m file, "
+                "otherwise DAGMC misreads it and OpenMC does not find the "
+                "material."
+            )
+    if (
+        implicit_complement_material_tag
+        and len(implicit_complement_material_tag) > _MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH
+    ):
+        warnings.warn(
+            "Implicit complement material tag "
+            f"{implicit_complement_material_tag} is too long. It has "
+            f"{len(implicit_complement_material_tag)} characters and must have "
+            f"{_MAX_IMPLICIT_COMPLEMENT_TAG_LENGTH} or fewer, because the h5m "
+            "file stores it with a _comp suffix. Otherwise DAGMC misreads it "
+            "and OpenMC does not find the material."
+        )
 
 
 def resolve_unstructured_volumes(
@@ -1402,6 +1497,8 @@ def export_gmsh_object_to_dagmc_h5m_file(
         msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
         raise ValueError(msg)
 
+    _check_tag_lengths(material_tags, implicit_complement_material_tag)
+
     vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
         dims_and_vol_ids=dims_and_vol_ids
     )
@@ -1466,22 +1563,27 @@ def export_gmsh_file_to_dagmc_h5m_file(
     """
 
     gmsh.initialize()
-    gmsh.open(gmsh_filename)
+    # finalize in a finally so a bad file or a tag count mismatch does not
+    # leave the gmsh session open
+    try:
+        gmsh.open(gmsh_filename)
 
-    if material_tags is None:
-        material_tags = _get_material_tags_from_gmsh()
+        if material_tags is None:
+            material_tags = _get_material_tags_from_gmsh()
 
-    dims_and_vol_ids = gmsh.model.getEntities(3)
+        dims_and_vol_ids = gmsh.model.getEntities(3)
 
-    if len(dims_and_vol_ids) != len(material_tags):
-        msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
-        raise ValueError(msg)
+        if len(dims_and_vol_ids) != len(material_tags):
+            msg = f"Number of volumes {len(dims_and_vol_ids)} is not equal to number of material tags {len(material_tags)}"
+            raise ValueError(msg)
 
-    vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
-        dims_and_vol_ids=dims_and_vol_ids
-    )
+        _check_tag_lengths(material_tags, implicit_complement_material_tag)
 
-    gmsh.finalize()
+        vertices, triangles_by_solid_by_face = mesh_to_vertices_and_triangles(
+            dims_and_vol_ids=dims_and_vol_ids
+        )
+    finally:
+        gmsh.finalize()
 
     h5m_filename = vertices_to_h5m(
         vertices=vertices,
@@ -1514,7 +1616,7 @@ class CadToDagmc:
         """Loads the parts from stp file into the model.
 
         Args:
-            filename: the filename used to save the html graph.
+            filename: the path of the STEP file to load.
             material_tags: the names of the DAGMC material tags to assign.
                 Can be a list of strings (one per volume), or one of the
                 special strings "assembly_names" or "assembly_materials" to
@@ -1579,7 +1681,7 @@ class CadToDagmc:
                 simulations.
 
         Returns:
-            int: number of volumes in the stp file.
+            int: number of volumes added from the CadQuery object.
         """
 
         if isinstance(material_tags, str) and material_tags not in [
@@ -1645,6 +1747,69 @@ class CadToDagmc:
         self.parts = self.parts + scaled_iterable_solids
 
         return len(scaled_iterable_solids)
+
+    def check_overlaps(
+        self,
+        scale_factor: float = 1.0,
+        *,
+        material_tags: Iterable[str] | None = None,
+        max_seconds: float | None = None,
+        progress: bool = True,
+    ):
+        """Finds every pair of solids that share volume, exactly.
+
+        Intersects each pair of solids whose bounding boxes overlap and reports
+        the material they share: how much, where, and whether it is a thin
+        layer along a contact surface. Run it on CAD you have not checked
+        before exporting. Exporting does not run it, because on a large model it
+        can take hours; the overlap checks exporting does run cost nothing but
+        do not see every overlap (two intersecting spheres, for instance).
+
+        Needs cad-to-dagmc-mesher.
+
+        Args:
+            scale_factor: the scale_factor you will export with, so the volumes
+                and lengths reported are those of the exported geometry.
+            material_tags: check only the pairs involving solids with these
+                material tags, against every solid. None (the default) checks
+                every pair.
+            max_seconds: stop starting new pairs after this many seconds and
+                report the rest as unchecked. None (the default) checks every
+                pair.
+            progress: print each overlap as it is found, and a progress line
+                about once a minute.
+
+        Returns:
+            The mesher's CadOverlapReport, with solids named by material tag and
+            their position in the model, as in ``'steel (solid 0)'``.
+            ``report.clean`` is True only when every pair was checked and none
+            overlaps; ``print(report)`` gives the details and what to do.
+        """
+        try:
+            from cad_to_dagmc_mesher.cad import check_cad_overlaps
+        except ImportError as e:
+            raise CadToDagmcMesherNotFoundError() from e
+
+        # Named as the report should read, so the progress lines printed as it
+        # runs and the report it returns both say 'steel (solid 0)'.
+        names = [
+            f"{tag} (solid {index})" for index, tag in enumerate(self.material_tags)
+        ]
+        solids = None
+        if material_tags is not None:
+            wanted = set(material_tags)
+            unknown = sorted(wanted - set(self.material_tags))
+            if unknown:
+                raise ValueError(f"No solid has the material tag(s) {unknown}")
+            solids = [
+                name for name, tag in zip(names, self.material_tags) if tag in wanted
+            ]
+        return check_cad_overlaps(
+            _build_assembly(self.parts, scale_factor, names=names),
+            solids=solids,
+            max_seconds=max_seconds,
+            progress=progress,
+        )
 
     def export_unstructured_mesh_file(
         self,
@@ -1714,8 +1879,9 @@ class CadToDagmc:
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                A single solid skips imprinting, but arguments are always
-                validated. True,
+                CadQuery 2.8.0 supports only partial glue; other modes raise
+                RuntimeError before imprinting multiple solids. A single solid
+                skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -1748,10 +1914,11 @@ class CadToDagmc:
             tolerance: linear deflection tolerance for the surface mesh, used by
                 the cad-to-dagmc-mesher backend. This is in the units of the
                 SCALED geometry, since scale_factor is applied before meshing,
-                so scale it alongside scale_factor. With scale_factor=100 the
-                0.01 default is a 0.1 mm deflection, which on a large model can
-                produce a very fine mesh and exhaust memory. The same applies to
-                min_mesh_size/max_mesh_size/set_size for the gmsh backend.
+                so scale it alongside scale_factor. The 0.5 default is a 5 mm
+                deflection when the scaled geometry is in cm. A small tolerance
+                on a large model can produce a very fine mesh and exhaust
+                memory. The same applies to min_mesh_size/max_mesh_size/set_size
+                for the gmsh backend.
             angular_tolerance: angular deflection tolerance for the surface mesh,
                 used by the cad-to-dagmc-mesher backend. An angle, so unaffected
                 by scale_factor.
@@ -1999,8 +2166,9 @@ class CadToDagmc:
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                A single solid skips imprinting, but arguments are always
-                validated. True,
+                CadQuery 2.8.0 supports only partial glue; other modes raise
+                RuntimeError before imprinting multiple solids. A single solid
+                skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -2104,17 +2272,19 @@ class CadToDagmc:
                 the SCALED geometry, so the same number means the same thing on
                 the output mesh whichever backend is used. For example with
                 scale_factor=100 (m to cm) a tolerance of 0.5 is a 5 mm
-                deflection. Note this means the defaults get finer as
-                scale_factor grows: the cad-to-dagmc-mesher tolerance default of
-                0.01 is a 0.1 mm deflection at scale_factor=100, which on a large
-                model can produce a very fine mesh and exhaust memory, so scale
-                the tolerance along with the geometry. angular_tolerance is an
-                angle and so is unaffected by scaling.
+                deflection. Note this means the defaults get finer, relative to
+                the geometry, as scale_factor grows: the cad-to-dagmc-mesher
+                tolerance default of 0.5 is a 5 mm deflection on geometry
+                scaled to cm, whatever the scale_factor. A small tolerance on a
+                large model can produce a very fine mesh and exhaust memory, so
+                scale the tolerance along with the geometry. angular_tolerance is an angle and so is
+                unaffected by scaling.
             imprint: "partial" (default) for non-overlapping contact, "full" for
                 exactly coincident whole faces, None to imprint without glue, or
                 False to skip imprinting entirely. None does not mean the default.
-                A single solid skips imprinting, but arguments are always
-                validated. True,
+                CadQuery 2.8.0 supports only partial glue; other modes raise
+                RuntimeError before imprinting multiple solids. A single solid
+                skips imprinting, but arguments are always validated. True,
                 integers, and dictionaries are not accepted.
             imprint_threads: keyword-only thread limit for imprinting: "all"
                 (default, all OCC logical processors) or a positive int.
@@ -2357,6 +2527,10 @@ class CadToDagmc:
                     "The following parameters are ignored when using "
                     f"cad-to-dagmc-mesher backend: {', '.join(unused_params)}"
                 )
+
+        _check_tag_lengths(
+            implicit_complement_material_tag=implicit_complement_material_tag
+        )
 
         if len(self.parts) != len(self.material_tags):
             msg = f"Number of volumes {len(self.parts)} is not equal to number of material tags {len(self.material_tags)}"
@@ -2691,35 +2865,35 @@ def _mesh_with_cad_to_dagmc_mesher(
             result.get("tet_data"),
         )
     except OverlappingSolidsError as e:
-        # Imprinting fused two or more solids together, which means they overlap.
-        # That geometry cannot be written as valid DAGMC: a region inside two
-        # volumes has no single material, and a DAGMC surface separates at most
-        # two volumes. It is better to say so than to mesh it, because the result
-        # is silently wrong rather than obviously broken -- it is watertight, it
-        # transports, and the material in the shared region is whichever volume
-        # DAGMC happens to resolve first.
+        # The input solids overlap. That geometry cannot be written as valid
+        # DAGMC: a region inside two volumes has no single material, and a DAGMC
+        # surface separates at most two volumes. It is better to say so than to
+        # mesh it, because the result is silently wrong rather than obviously
+        # broken -- it is watertight, it transports, and the material in the
+        # shared region is whichever volume DAGMC happens to resolve first.
         #
-        # The mesher names the solids it could not find, but those are the
-        # synthetic per-solid names from _solid_names, so they are re-expressed
-        # here as the material tags the caller actually supplied.
-        fused = sorted({
-            tag_by_name[name]
-            for name in names
-            if name in str(e) and name in tag_by_name
-        })
-        detail = (
-            f" The solids tagged {fused} could not be told apart after imprinting."
-            if fused else ""
+        # The mesher's message says which solids overlap, by how much, where,
+        # and what to do about it, so it is passed on whole. Only its names
+        # change, from the synthetic per-solid names of _solid_names to the
+        # caller's material tags, with the solid's position in the input at
+        # its first mention on each line.
+        lines = []
+        for line in str(e).splitlines():
+            for index, name in enumerate(names):
+                line = line.replace(
+                    repr(name), f"{tag_by_name[name]!r} (solid {index})", 1
+                ).replace(repr(name), repr(tag_by_name[name]))
+            lines.append(line)
+        # Pointed at the method a cad_to_dagmc user calls, with the same check.
+        detail = "\n".join(lines).replace(
+            "check_cad_overlaps(assembly)", "model.check_overlaps()"
         )
-        raise ValueError(
-            "Overlapping solids in the CAD." + detail + " Overlapping geometry is "
-            "invalid for DAGMC: a region inside two volumes has no single "
-            "material, so transport through it is not well defined. Resolve the "
-            "overlaps before meshing, for example by boolean-subtracting the "
-            "inner solid from the outer one "
-            "(outer = outer.cut(inner)) so the two share a surface instead of a "
-            "volume."
-        ) from e
+        header = "Overlapping solids in the input CAD:"
+        if detail.startswith(header):
+            message = "Overlapping solids in the CAD:" + detail[len(header):]
+        else:
+            message = "Overlapping solids in the CAD. " + detail
+        raise ValueError(message) from e
 
 
 def _get_all_leaf_children(assembly):

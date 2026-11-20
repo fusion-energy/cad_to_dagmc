@@ -1,24 +1,23 @@
 # cad-to-dagmc-mesher Backend
 
-The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend is a purpose-built mesher for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it can produce both DAGMC h5m files and unstructured volume mesh vtk files without GMSH. It is installed automatically with the pip package, but it is not on conda-forge, so a Conda/Mamba installation needs `pip install cad-to-dagmc-mesher` to use it. See [Installation](../installation.md#optional-packages).
+The [cad-to-dagmc-mesher](https://github.com/fusion-energy/cad-to-dagmc-mesher) backend, the default, is a mesher written for DAGMC geometry. It creates triangle surface meshes using constrained Delaunay triangulation and can also fill volumes with tetrahedra, so it produces both the DAGMC h5m file and a VTK volume mesh. It is installed by pip with cad_to_dagmc, but conda-forge does not have it; see [Optional packages](../installation.md#optional-packages).
 
 ## Why a Neutronics-Specific Mesh?
 
-Finite-element meshes generally aims for regularly sized, near-equilateral
-elements throughout every surface because element shape and size affect the
+Finite-element meshes generally aim for regularly sized, near-equilateral
+elements throughout every surface, because element shape and size affect the
 accuracy of field interpolation.
 
 DAGMC surface meshes serve a different purpose: particle tracking only needs
-a conforming, watertight representation of each boundary. A purpose-built
-neutronics mesh can therefore preserve curved geometry to the requested
-tolerance while representing large planar regions with very few triangles.
-Fewer triangles mean fewer candidate intersections during tracking and can
-improve particle throughput as shown by the plot on the right hand side of the diagram.
+a conforming, watertight representation of each boundary. A neutronics mesh
+can therefore preserve curved geometry to the requested tolerance while
+representing large planar regions with very few triangles. Fewer triangles
+mean fewer candidate intersections during tracking.
 
-The comparison below uses a simple cube with an embedded sphere to demonstrate that
-a neutronics specific mesh can get better volume accuracy with less triangles which
-results in faster and more accurate simulations.
-
+The comparison below meshes a cube with an embedded sphere both ways. The
+neutronics mesh gets closer to the true volumes with about half the triangles,
+and the right-hand panel shows OpenMC tracking speed falling as the triangle
+count grows.
 
 ```{image} ../_static/mesher_comparison.png
 :alt: Three-panel comparison. A uniformly triangulated FEM mesh with box and sphere volume accuracy is on the left, a curvature-adaptive neutronics mesh with minimally triangulated planar cube faces and volume accuracy is in the middle, and measured OpenMC particle throughput versus triangle count is on the right.
@@ -27,7 +26,9 @@ results in faster and more accurate simulations.
 
 ## Surface Mesh (h5m)
 
-<!--pytest-codeblocks:skip-->
+This backend and both tolerances below are the defaults, so
+`model.export_dagmc_h5m_file(filename="dagmc.h5m")` gives the same mesh.
+
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
@@ -46,21 +47,13 @@ model.export_dagmc_h5m_file(
 )
 ```
 
-## Volume Mesh (vtk)
+## Volume Mesh (VTK)
 
-The backend can write a tetrahedral unstructured volume mesh for use with
-`openmc.UnstructuredMesh(filename, library="moab")`:
-
-<!--pytest-codeblocks:skip-->
-```python
-model.export_unstructured_mesh_file(
-    filename="umesh.vtk",
-    meshing_backend="cad-to-dagmc-mesher",
-    target_edge_length=2.0,
-)
-```
-
-Passing `target_edge_length` (or `tet_volumes`) selects this backend automatically, so `meshing_backend` can be omitted:
+`export_unstructured_mesh_file` writes the tetrahedra to a VTK file for
+`openmc.UnstructuredMesh(filename, library="moab")`. `target_edge_length` is
+required and selects this backend. `tet_volumes` limits the mesh to the volumes
+with those material tags (default: every volume). Passing it without
+`target_edge_length` raises `ValueError`.
 
 <!--pytest-codeblocks:skip-->
 ```python
@@ -70,77 +63,58 @@ model.export_unstructured_mesh_file(
 )
 ```
 
-## Surface and Volume Mesh in One Call
-
-`export_dagmc_h5m_file` can write the DAGMC h5m file and the unstructured volume mesh vtk file from a single meshing call. The two meshes are conformal: for tet-meshed volumes the surface is remeshed to near-equilateral triangles at `target_edge_length`, that surface is used as the DAGMC tracking surface, and the volume mesher fills it with tetrahedra whose boundary follows that surface (individual surface triangles may be subdivided in the volume mesh, and on high curvature faces small local deviations up to the chordal error of the tetrahedron edge length can occur). Provide both `tet_volumes` and `target_edge_length` and the export returns a `(dagmc_filename, umesh_filename)` tuple:
-
-<!--pytest-codeblocks:skip-->
-```python
-dagmc_filename, umesh_filename = model.export_dagmc_h5m_file(
-    filename="dagmc.h5m",
-    tet_volumes=["mat1"],       # material tag names of volumes to fill with tets
-    target_edge_length=2.0,
-    umesh_filename="umesh.vtk",
-)
-```
+`export_dagmc_h5m_file` writes the h5m file and a conformal volume mesh from
+one meshing pass when given both `tet_volumes` and `target_edge_length`, and
+then returns a `(dagmc_filename, umesh_filename)` tuple. See
+[Conformal Meshes](../outputs/conformal_meshes.md).
 
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `tolerance` | float | 0.5 | Linear deflection tolerance for the surface mesh, in cm after `scale_factor` |
-| `angular_tolerance` | float | 0.2 | Angular deflection tolerance for the surface mesh |
-| `target_edge_length` | float | None | Target tetrahedron edge length for the volume mesh, in the units of the scaled geometry |
-| `tet_volumes` | Iterable[str] | None | Material tag names of the volumes to fill with tetrahedra |
+| `tolerance` | float | 0.5 | Largest distance between the surface mesh and the CAD surface (linear deflection), in the units of the scaled geometry |
+| `angular_tolerance` | float | 0.2 | Largest angle, in radians, between the normals of neighbouring facets on a curved face (angular deflection) |
+| `target_edge_length` | float | None | Target edge length of the tetrahedra, in the units of the scaled geometry. Needed for a volume mesh. A length that would put more than 20 million points inside one solid raises `ValueError` |
+| `tet_volumes` | list of str | None | Material tags of the volumes to fill with tetrahedra. Their surfaces are remeshed for `target_edge_length`, and `tolerance` and `angular_tolerance` affect them only when some volumes are left unfilled. None means every volume in `export_unstructured_mesh_file`. In `export_dagmc_h5m_file` None means no volume mesh, and `target_edge_length` without `tet_volumes` raises `ValueError` |
+| `mesh_threads` | int or "all" | "all" | Threads for the meshing after the imprint; fewer threads lower the peak RAM. See [Parallel Processing](../advanced/parallel_processing.md#limiting-cad-to-dagmc-mesher-meshing-threads) |
 
-**Tolerance explanation:**
-- `tolerance` controls how far the surface mesh can deviate from the true surface (linear distance)
-- `angular_tolerance` controls the maximum angle between adjacent facet normals
-- `target_edge_length` controls the size of the tetrahedra in the volume mesh
+`scale_factor` is applied before meshing, so with `scale_factor=100` (metres
+to centimetres) the default `tolerance` of 0.5 is 5 mm.
+[Mesh Size and Scaling](../advanced/geometry_scaling.md#mesh-size-and-scaling)
+has the details.
 
-:::{important}
-`tolerance` and `target_edge_length` are lengths in the units of the **scaled**
-geometry, because this backend applies `scale_factor` to the geometry before
-meshing it.
+Passing `tolerance`, `angular_tolerance`, `target_edge_length` or `tet_volumes`
+makes `export_dagmc_h5m_file` use this backend. `export_unstructured_mesh_file`
+switches to it only for `target_edge_length` or `tet_volumes`. See
+[How the Backend Is Chosen](index.md#how-the-backend-is-chosen).
 
-So if you pass `scale_factor=100` to convert a model from metres to centimetres,
-`tolerance` is in centimetres, and the `0.5` default means a 5 mm deflection. On
-large imported B-spline models, `tolerance=0.5` with
-`angular_tolerance=0.2` kept every solid's volume within 0.2% and lost no
-particles. The angular tolerance is what bounds the facets on curved faces; above
-about 0.3 rad the two faces of a thin wall can cross and particles are lost.
+### Choosing Tolerances
 
-The gmsh backend takes its linear mesh sizes in scaled-geometry
-units too, so a given number means the same deflection whichever backend you use.
-`angular_tolerance` is an angle and is unaffected by scaling.
-:::
+The defaults, `tolerance=0.5` and `angular_tolerance=0.2`, kept every solid's
+volume within 0.2% and lost no particles on large imported B-spline models. On
+curved faces it is the angular tolerance that limits the facets. Set it too
+loose and the two faces of a thin wall can be meshed through each other: at
+0.5 rad, a 0.7 cm wall's faces crossed. The mesher finds such solids and
+refines them, but a smaller angular tolerance avoids the extra rounds.
 
-## Backend Auto-Selection
-
-When `meshing_backend` is not given, the tet arguments select this backend automatically:
-
-- `export_unstructured_mesh_file(..., target_edge_length=...)` uses cad-to-dagmc-mesher; without tet arguments it uses gmsh.
-- `export_dagmc_h5m_file(...)` uses cad-to-dagmc-mesher when given any of its arguments (`tolerance`, `angular_tolerance`, `tet_volumes`, `target_edge_length`) or no backend-specific arguments at all; mixing these with gmsh-specific arguments (for example `min_mesh_size`) raises an error asking for an explicit `meshing_backend`. If cad-to-dagmc-mesher is not installed, a call with no backend-specific arguments falls back to gmsh and warns.
-
-## Advantages
-
-| Advantage | Explanation |
-|-----------|-------------|
-| Volume meshes without GMSH | Writes the vtk file directly |
-| One meshing call for both outputs | h5m and vtk come from the same mesh |
-| Simple configuration | Two surface tolerances plus one tet edge length |
-| Installed with cad_to_dagmc | No extra dependency to install |
+After meshing, any solid whose facets fold back, or whose surface crosses
+itself, is meshed again at a finer tolerance, up to four more times, and the
+best mesh is kept. If a round would not fit in the free memory, the export
+raises `RefinementMemoryError` rather than return a less refined mesh.
+`model.refinement` holds the report of the last `export_dagmc_h5m_file` call:
+the rounds used, whether it converged, and each solid's final tolerances. It is
+None after a Gmsh export.
 
 ## Limitations
 
 | Limitation | Impact |
 |------------|--------|
-| No per-volume sizing | `set_size` parameter is not supported |
-| Single tet size | One `target_edge_length` for all volumes |
+| No per-volume sizing | `set_size` is not supported; the tolerances apply to every solid |
+| Single tetrahedron size | One `target_edge_length` for all volumes |
 | No mesh algorithm choice | One built-in method |
 
 ## See Also
 
-- [GMSH Backend](gmsh_backend.md) - Full-featured meshing backend
-- [Unstructured VTK](../outputs/unstructured_vtk.md) - Volume mesh output details
-- [Conformal Meshes](../outputs/conformal_meshes.md) - Matching surface and volume meshes
+- [Gmsh Backend](gmsh_backend.md): the other meshing backend
+- [Unstructured Mesh VTK Files](../outputs/unstructured_vtk.md): writing and using the volume mesh
+- [Conformal Meshes](../outputs/conformal_meshes.md): surface and volume meshes from one call

@@ -1,10 +1,8 @@
 # Assembly Names as Material Tags
 
-Use CadQuery assembly part names automatically as material tags. This avoids manual tag ordering.
+With `material_tags="assembly_names"`, each part of a CadQuery assembly is tagged with its name, so there is no list to keep in the order of the volumes. `add_stp_file` takes it too and reads the part names stored in a STEP file; [Tags from Named STEP Parts](../inputs/step_files.md#tags-from-named-step-parts) has an example and a warning about part names that end in `_part`.
 
 ## Basic Usage
-
-Name your assembly parts, then use `material_tags="assembly_names"`:
 
 ```python
 import cadquery as cq
@@ -14,66 +12,19 @@ sphere = cq.Workplane().sphere(5)
 small_sphere = cq.Workplane().moveTo(10, 0).sphere(2)
 
 assembly = cq.Assembly()
-assembly.add(sphere, name="tungsten")      # Name becomes material tag
-assembly.add(small_sphere, name="steel")   # Name becomes material tag
+assembly.add(sphere, name="tungsten")
+assembly.add(small_sphere, name="steel")
 
 model = CadToDagmc()
-model.add_cadquery_object(
-    cadquery_object=assembly,
-    material_tags="assembly_names"  # Use names as tags
-)
-model.export_dagmc_h5m_file(min_mesh_size=0.5, max_mesh_size=1.0e6)
+model.add_cadquery_object(cadquery_object=assembly, material_tags="assembly_names")
+model.export_dagmc_h5m_file()
 ```
 
-This creates volumes tagged with `mat:tungsten` and `mat:steel`.
-
-## Why Use Assembly Names?
-
-| Advantage | Explanation |
-|-----------|-------------|
-| No ordering issues | Tags come from the part, not position in a list |
-| Self-documenting | Code shows what each part is |
-| Works with set_size | Tag names can reference mesh sizing |
-| Refactoring safe | Adding/removing parts won't break tag assignment |
-
-## Using Names with Mesh Sizing
-
-Assembly names work seamlessly with the `set_size` parameter:
-
-```python
-import cadquery as cq
-from cad_to_dagmc import CadToDagmc
-
-coarse_box = cq.Workplane().box(1, 1, 2)
-fine_box = cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5)
-default_box = cq.Workplane().moveTo(2, 1).box(1, 1, 1)
-
-assembly = cq.Assembly()
-assembly.add(coarse_box, name="coarse")
-assembly.add(fine_box, name="fine")
-assembly.add(default_box, name="global")
-
-model = CadToDagmc()
-model.add_cadquery_object(assembly, material_tags="assembly_names")
-
-# Check available material tags
-print("Material tags:", model.material_tags)
-# Output: Material tags: ['coarse', 'fine', 'global']
-
-model.export_dagmc_h5m_file(
-    min_mesh_size=0.01,
-    max_mesh_size=10,
-    set_size={
-        "coarse": 0.9,  # Reference by name
-        "fine": 0.1,
-        # "global" uses default min/max
-    },
-)
-```
+This writes volumes tagged `mat:tungsten` and `mat:steel`. Because the tag travels with the part, adding or removing parts cannot shift the other tags, and the code shows what each part is made of. Only the name is read; a part's `color` or `material` does not change its tag. Names become tags unchanged and must follow the [tag name guidelines](index.md#tag-name-guidelines).
 
 ## Unnamed Parts
 
-Parts without explicit names receive auto-generated UUIDs:
+CadQuery names a part added without `name` with a UUID:
 
 ```python
 import cadquery as cq
@@ -82,67 +33,46 @@ from cad_to_dagmc import CadToDagmc
 sphere = cq.Workplane().sphere(5)
 
 assembly = cq.Assembly()
-assembly.add(sphere, name="named_part")
+assembly.add(sphere, name="sphere")
 # cut the sphere out of the box so the two solids do not overlap
-assembly.add(cq.Workplane().box(10, 10, 10).cut(sphere))  # No name!
+assembly.add(cq.Workplane().box(10, 10, 10).cut(sphere))  # no name
 
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_names")
 
 print(model.material_tags)
-# Output: ['named_part', 'a1b2c3d4-e5f6-...']  # UUID for unnamed part
+# ['sphere', '<a new UUID>']
 ```
 
-:::{warning}
-Always name your assembly parts to ensure meaningful, predictable material tags. UUID tags are hard to reference in simulations.
-:::
+The UUID changes every time the assembly is built. At 36 characters it is also over the length limit, so cad_to_dagmc warns and the h5m file keeps only its first 28 characters. Name every part.
 
-## Naming Conventions
+## Repeated Names and Nested Assemblies
 
-Recommended naming practices:
+Parts added to the same assembly need different names. CadQuery rejects a repeat with a `ValueError` that starts "Unique name is required". To give several solids one tag, put them in one part (every solid in a part gets the part's name) or tag them with [assembly materials](assembly_materials.md).
 
-<!--pytest-codeblocks:skip-->
-```python
-# Good names - descriptive, match OpenMC materials
-assembly.add(inner_wall, name="tungsten")
-assembly.add(cooling_channel, name="water")
-assembly.add(outer_shell, name="steel")
-
-# Avoid - too generic
-assembly.add(part1, name="part1")
-assembly.add(part2, name="part2")
-
-# Avoid - too long (may be truncated)
-assembly.add(component, name="plasma_facing_component_tungsten_armor")
-```
-
-## Using Colors for Visualization
-
-You can add colors without affecting material tags:
+In a nested assembly, each part is tagged with its own name and the sub-assembly names are not used. Parts in different sub-assemblies can therefore share a name, and a tag:
 
 ```python
 import cadquery as cq
 from cad_to_dagmc import CadToDagmc
 
-assembly = cq.Assembly()
-assembly.add(
-    cq.Workplane().box(1, 1, 2),
-    name="coarse",
-    color=cq.Color(0, 0, 1),  # Blue - for visualization only
-)
-assembly.add(
-    cq.Workplane().moveTo(1, 0.5).box(1, 1, 1.5),
-    name="fine",
-    color=cq.Color(0, 1, 0),  # Green
-)
+left = cq.Assembly(name="left")
+left.add(cq.Workplane().moveTo(-5, 0).box(1, 1, 1), name="pin")
 
-# Material tags are still "coarse" and "fine"
+right = cq.Assembly(name="right")
+right.add(cq.Workplane().moveTo(5, 0).box(1, 1, 1), name="pin")
+
+assembly = cq.Assembly()
+assembly.add(left)
+assembly.add(right)
+
 model = CadToDagmc()
 model.add_cadquery_object(assembly, material_tags="assembly_names")
+print(model.material_tags)  # ['pin', 'pin']
 ```
 
 ## See Also
 
-- [Assembly Materials](assembly_materials.md) - Alternative: use cq.Material objects
-- [CadQuery Assemblies](../inputs/cadquery_assemblies.md) - Assembly input guide
-- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md) - Using tag names for mesh control
+- [Assembly Materials](assembly_materials.md): tags from `cq.Material`, for parts that share a material
+- [CadQuery Assemblies](../inputs/cadquery_assemblies.md): adding assemblies to a model
+- [Per-Volume Mesh Sizing](../meshing/mesh_sizing.md): `set_size` gives a target mesh size per volume, keyed by material tag or volume ID (Gmsh backend only)
