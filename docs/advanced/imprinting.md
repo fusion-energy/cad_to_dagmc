@@ -139,6 +139,111 @@ neighbouring volume. Nothing reports this. The file is written as normal.
 imprint, so run `model.check_overlaps()` on the imprinted geometry first; see
 [Checking every pair](overlaps.md#checking-every-pair).
 
+<!-- TODO once a CadQuery release includes Assembly.imprint
+(CadQuery/cadquery#2128), name that release here instead of the PR. The
+examples below skip themselves until the installed CadQuery has it. -->
+
+### Imprinting an Assembly in Memory
+
+CadQuery's `Assembly.imprint`, from
+[cadquery#2128](https://github.com/CadQuery/cadquery/pull/2128) and not yet in
+a CadQuery release, imprints an assembly in place. Every part keeps its name
+and its place in the assembly, so you can pass the imprinted assembly straight
+to cad_to_dagmc, take the material tags from the part names, and skip the BREP
+file.
+
+<!--pytest.mark.skipif(not hasattr(__import__("cadquery").Assembly, "imprint"), reason="needs a CadQuery with Assembly.imprint")-->
+```python
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+big = cq.Workplane("XY").box(10, 10, 10)
+small = cq.Workplane("XY").transformed(offset=(0, 0, 7)).box(4, 4, 4)
+
+assembly = cq.Assembly()
+assembly.add(big, name="steel")
+assembly.add(small, name="tungsten")
+
+# Imprints in place: the parts keep their names and their order
+assembly.imprint(glue="partial")
+
+model = CadToDagmc()
+model.add_cadquery_object(assembly, material_tags="assembly_names")
+
+# The assembly is already imprinted, so do not imprint it again
+model.export_dagmc_h5m_file(filename="imprinted_in_memory.h5m", imprint=False)
+```
+
+An assembly with a single part has nothing to imprint, and `Assembly.imprint`
+fails on it, so only imprint assemblies of two or more parts.
+
+### Different Glue for Different Subassemblies
+
+The [glue](#choosing-the-imprint-glue) is one setting for the whole imprint,
+so a model whose contacts mostly coincide exactly still pays for `"partial"`
+everywhere if a few contacts need it. Imprinting it yourself lets each
+subassembly use the glue its own contacts need:
+
+1. Imprint each subassembly with its own glue.
+2. Add the imprinted subassemblies to one assembly.
+3. Imprint that assembly once more, to connect the subassemblies to each other.
+
+The last imprint uses the glue the contacts between the subassemblies need.
+Where those faces coincide exactly, `"full"` is enough, even for a subassembly
+imprinted with `"partial"`: its own faces were already split, so they now
+coincide exactly too.
+
+<!--pytest.mark.skipif(not hasattr(__import__("cadquery").Assembly, "imprint"), reason="needs a CadQuery with Assembly.imprint")-->
+```python
+import cadquery as cq
+from cad_to_dagmc import CadToDagmc
+
+
+def box(x, z=0, size=10):
+    return cq.Workplane("XY").transformed(offset=(x, 0, z)).box(size, size, size)
+
+
+# Two boxes whose touching faces coincide exactly, so full glue is enough
+first = cq.Assembly(name="first")
+first.add(box(0), name="armour")
+first.add(box(10), name="structure")
+
+# A small box on part of a big box's top face, which needs partial glue. The
+# big box also touches "structure" in the first subassembly, face to face.
+second = cq.Assembly(name="second")
+second.add(box(20), name="blanket")
+second.add(box(20, z=7, size=4), name="pipe")
+
+# Imprint each subassembly BEFORE adding it: add() stores a copy, so imprinting
+# the original afterwards does not change the combined assembly
+first.imprint(glue="full")
+second.imprint(glue="partial")
+
+combined = cq.Assembly()
+combined.add(first)
+combined.add(second)
+
+# Connect the subassemblies. Their contact coincides exactly, so full glue is
+# enough here; use "partial" if a contact between them is only partial.
+combined.imprint(glue="full")
+
+model = CadToDagmc()
+model.add_cadquery_object(combined, material_tags="assembly_names")
+model.export_dagmc_h5m_file(filename="mixed_glue.h5m", imprint=False)
+```
+
+:::{warning}
+`Assembly.add` stores a copy of a subassembly. Calling `imprint` on the
+original after adding it changes the original only, and the combined assembly
+is left unimprinted. Nothing reports this. Either imprint each subassembly
+before adding it, as above, or imprint the copy held by the combined assembly,
+`combined.objects["first"].imprint(glue="full")`. Skipping the last imprint
+leaves the subassemblies unconnected, also without an error.
+:::
+
+The parts keep their names and their order through every imprint, so
+`material_tags="assembly_names"` gives each volume its own part's name.
+
 ## Imprinting and Material Tag Order
 
 Imprinting can change the order of the volumes. cad_to_dagmc reorders the
