@@ -177,6 +177,11 @@ model.export_dagmc_h5m_file(filename="imprinted_in_memory.h5m", imprint=False)
 An assembly with a single part has nothing to imprint, and `Assembly.imprint`
 fails on it, so only imprint assemblies of two or more parts.
 
+If two parts overlap, `Assembly.imprint` puts the region they share in both of
+them. `add_cadquery_object()` finds that and raises a `ValueError` naming the
+parts, even though exporting with `imprint=False` skips the overlap checks of
+the export's own imprint; see [What exporting checks](overlaps.md#what-exporting-checks).
+
 ### Different Glue for Different Subassemblies
 
 The [glue](#choosing-the-imprint-glue) is one setting for the whole imprint,
