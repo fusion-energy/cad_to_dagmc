@@ -28,7 +28,8 @@ these checks and writes overlapping solids without an error.
 
 One check runs when the geometry is added rather than exported, whatever the
 backend or `imprint`: `add_cadquery_object()` raises a `ValueError` naming the
-parts if the same solid is in two of them. Imprinting overlapping parts with
+parts if the same solid is in two of them, or was already added to the model
+by an earlier call. Imprinting overlapping parts with
 CadQuery's `Assembly.imprint` leaves them like that, with the region they share
 in both, so this catches those overlaps in an assembly you imprinted yourself
 and export with `imprint=False`.

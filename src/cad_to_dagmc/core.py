@@ -1565,6 +1565,9 @@ class CadToDagmc:
     def __init__(self):
         self.parts = []
         self.material_tags = []
+        # The solids given to add_cadquery_object, before scaling, so that a
+        # solid added again by a later call is caught as an overlap
+        self._added_solids: set[cq.Shape] = set()
         # The cad-to-dagmc-mesher refinement report from the last export, or
         # None when no refinement ran.
         self.refinement = None
@@ -1654,7 +1657,7 @@ class CadToDagmc:
                 f"If material_tags is a string it must be 'assembly_materials' or 'assembly_names' but got {material_tags}"
             )
 
-        _check_no_repeated_solids(cadquery_object)
+        added_solids = _check_no_repeated_solids(cadquery_object, self._added_solids)
 
         if isinstance(cadquery_object, cq.assembly.Assembly):
             # look for materials in each part of the assembly
@@ -1709,6 +1712,7 @@ class CadToDagmc:
         if material_tags:
             self.material_tags = self.material_tags + material_tags
         self.parts = self.parts + scaled_iterable_solids
+        self._added_solids |= added_solids
 
         return len(scaled_iterable_solids)
 
@@ -2874,8 +2878,21 @@ def _mesh_with_cad_to_dagmc_mesher(
         raise ValueError(message) from e
 
 
-def _check_no_repeated_solids(cadquery_object) -> None:
-    """Raises a ValueError if the same solid is in the CadQuery object twice.
+_REPEATED_SOLID_ADVICE = (
+    "so more than one volume claims the same region. Overlapping geometry is "
+    "invalid for DAGMC: a region inside two volumes has no single material, so "
+    "transport through it is not well defined. An assembly of overlapping parts "
+    "imprinted with Assembly.imprint is left like this, with the region the "
+    "parts share in each of them. Resolve the overlaps before imprinting, for "
+    "example by boolean-subtracting the inner solid from the outer one "
+    "(outer = outer.cut(inner)) so the two share a surface instead of a "
+    "volume, and run model.check_overlaps() to find others."
+)
+
+
+def _check_no_repeated_solids(cadquery_object, already_added=frozenset()) -> set:
+    """Raises a ValueError if a solid is in the CadQuery object twice, or was
+    already added to the model.
 
     A solid held by two parts is a region both parts claim, so it is an
     overlap whatever the geometry looks like. Assembly.imprint leaves
@@ -2887,6 +2904,13 @@ def _check_no_repeated_solids(cadquery_object) -> None:
 
     The same shape placed at two locations is two different solids, so
     reusing one part several times in an assembly is fine.
+
+    Args:
+        cadquery_object: the object being added to the model.
+        already_added: the solids added to the model by earlier calls.
+
+    Returns:
+        The solids in the object, to add to already_added once it is added.
     """
     if isinstance(cadquery_object, cq.assembly.Assembly):
         placed = [
@@ -2907,7 +2931,22 @@ def _check_no_repeated_solids(cadquery_object) -> None:
             explorer.Next()
     repeated = [names for names in owners.values() if len(names) > 1]
     if not repeated:
-        return
+        earlier = [names for solid, names in owners.items() if solid in already_added]
+        if earlier:
+            if placed[0][1] is None:
+                which = "The CadQuery object holds a solid"
+            else:
+                parts = [repr(n) for n in dict.fromkeys(n for ns in earlier for n in ns)]
+                which = (
+                    f"Part {parts[0]} holds a solid" if len(parts) == 1
+                    else f"Parts {', '.join(parts)} hold solids"
+                )
+            raise ValueError(
+                f"Overlapping solids in the CAD. {which} already added to the "
+                "model by an earlier add_cadquery_object call, "
+                + _REPEATED_SOLID_ADVICE
+            )
+        return set(owners)
 
     if placed[0][1] is None:
         where = "The CadQuery object holds the same solid more than once"
@@ -2922,15 +2961,7 @@ def _check_no_repeated_solids(cadquery_object) -> None:
                 groups.append(f"Parts {listed} hold the same solid")
         where = "; ".join(dict.fromkeys(groups))
     raise ValueError(
-        f"Overlapping solids in the CAD. {where}, so more than one volume "
-        "claims the same region. Overlapping geometry is invalid for DAGMC: a "
-        "region inside two volumes has no single material, so transport "
-        "through it is not well defined. An assembly of overlapping parts "
-        "imprinted with Assembly.imprint is left like this, with the region "
-        "the parts share in each of them. Resolve the overlaps before "
-        "imprinting, for example by boolean-subtracting the inner solid from "
-        "the outer one (outer = outer.cut(inner)) so the two share a surface "
-        "instead of a volume, and run model.check_overlaps() to find others."
+        f"Overlapping solids in the CAD. {where}, " + _REPEATED_SOLID_ADVICE
     )
 
 

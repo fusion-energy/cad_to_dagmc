@@ -141,3 +141,47 @@ def test_touching_parts_imprinted_by_the_user_export_without_imprinting(tmp_path
     assert get_volumes_and_materials_from_h5m(h5m) == {
         1: "mat:middle", 2: "mat:left", 3: "mat:right"
     }
+
+
+@pytest.mark.parametrize("scale_factor", [1.0, 10.0])
+def test_a_solid_added_by_an_earlier_call_is_rejected(scale_factor):
+    """Scaling makes new solids, so the check compares what was given."""
+    solid = _box().val()
+    model = CadToDagmc()
+    model.add_cadquery_object(solid, material_tags=["first"], scale_factor=scale_factor)
+    with pytest.raises(ValueError, match="already added to the model by an earlier"):
+        model.add_cadquery_object(solid, material_tags=["second"], scale_factor=scale_factor)
+    assert model.material_tags == ["first"]
+    assert len(model.parts) == 1
+
+
+def test_a_part_repeating_an_earlier_solid_is_named():
+    solid = _box().val()
+    model = CadToDagmc()
+    model.add_cadquery_object(solid, material_tags=["first"])
+    assembly = cq.Assembly().add(_box(20), name="new").add(solid, name="again")
+    with pytest.raises(ValueError, match="Part 'again' holds a solid already added"):
+        model.add_cadquery_object(assembly, material_tags="assembly_names")
+
+
+def test_a_rejected_call_does_not_stop_later_checks():
+    first, second = _box().val(), _box(20).val()
+    model = CadToDagmc()
+    model.add_cadquery_object(first, material_tags=["first"])
+    with pytest.raises(ValueError, match="Overlapping solids"):
+        model.add_cadquery_object(
+            cq.Assembly().add(second, name="a").add(second, name="b"),
+            material_tags="assembly_names",
+        )
+    model.add_cadquery_object(second, material_tags=["second"])
+    with pytest.raises(ValueError, match="already added"):
+        model.add_cadquery_object(second, material_tags=["third"])
+    assert model.material_tags == ["first", "second"]
+
+
+def test_the_same_shape_moved_in_a_later_call_is_fine():
+    solid = _box().val()
+    model = CadToDagmc()
+    model.add_cadquery_object(solid, material_tags=["first"])
+    model.add_cadquery_object(solid.moved(cq.Location((20, 0, 0))), material_tags=["second"])
+    assert model.material_tags == ["first", "second"]
