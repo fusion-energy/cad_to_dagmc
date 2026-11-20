@@ -34,6 +34,7 @@ model.export_dagmc_h5m_file(
 | `scale_factor` | The CAD is in different units from the simulation |
 | `imprint=False` | Solids that do not touch (this also skips the overlap checks that come with the imprint). A single solid is never imprinted anyway. |
 | `imprint=False` with a BREP | Geometry you [imprinted yourself](imprinting.md#meshing-geometry-you-imprinted-yourself) |
+| `imprint=False` with an assembly | An assembly you [imprinted with `Assembly.imprint`](imprinting.md#imprinting-an-assembly-in-memory), for example with [different glue per subassembly](imprinting.md#different-glue-for-different-subassemblies) (needs a CadQuery with `Assembly.imprint`) |
 | `imprint_threads=1` | Imprinting runs out of RAM on a large model |
 | `mesh_threads=4` | cad-to-dagmc-mesher meshing runs out of RAM on a large model |
 | `implicit_complement_material_tag` | The space between and around the volumes is not vacuum (air, water) |
