@@ -80,7 +80,7 @@ def test_public_methods_validate_before_side_effects(
     tmp_path, monkeypatch, method, suffix, backend, threads,
 ):
     guard = Mock(side_effect=AssertionError("geometry or meshing ran before validation"))
-    for name in ("get_ids_from_assembly", "imprint_assembly", "init_gmsh",
+    for name in ("_build_assembly", "imprint_assembly", "init_gmsh",
                  "_mesh_with_cad_to_dagmc_mesher"):
         monkeypatch.setattr(f"cad_to_dagmc.core.{name}", guard)
     monkeypatch.setattr(CadToDagmc, "_export_unstructured_mesh_file_with_mesher", guard)

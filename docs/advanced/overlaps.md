@@ -23,8 +23,10 @@ penetrate each other.
 These checks do not see every overlap. Two intersecting spheres, or a rod
 pushed through a box, have no coincident faces and neither swallows the other,
 so they export with only the warning. Both refusals come from the imprint, so
-with `imprint=False` only the warning is left. The Gmsh backend runs none of
-these checks and writes overlapping solids without an error.
+with `imprint=False` only the warning is left. The Gmsh backend's imprint
+refuses the same two kinds of overlap with a `ValueError`, as each splits a
+part into several solids. It has no mesh penetration warning, so with
+`imprint=False` it writes overlapping solids without an error.
 
 One check runs when the geometry is added rather than exported, whatever the
 backend or `imprint`: `add_cadquery_object()` raises a `ValueError` naming the

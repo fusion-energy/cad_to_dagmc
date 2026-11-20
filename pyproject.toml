@@ -20,6 +20,9 @@ classifiers = [
 dependencies = [
     "trimesh",
     "networkx",
+    # TODO require the CadQuery release that includes Assembly.imprint
+    # (CadQuery/cadquery#2128) once it is out, and remove the fallback for
+    # older CadQuery in cad_to_dagmc.core.imprint_assembly
     "cadquery>=2.8.0",
     "numpy",
     "gmsh",

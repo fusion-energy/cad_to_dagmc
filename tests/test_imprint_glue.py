@@ -9,6 +9,8 @@ import pytest
 from OCP.BOPAlgo import BOPAlgo_GlueEnum
 from test_imprint_threads import (
     GLUES,
+    HAS_ASSEMBLY_IMPRINT,
+    HAS_GLUE,
     IMPRINT_MODES,
     IMPRINT_PATHS,
     _assert_outputs,
@@ -26,14 +28,31 @@ from cad_to_dagmc.core import (
     imprint_assembly,
 )
 
-HAS_GLUE = "glue" in inspect.signature(cq.occ_impl.assembly.imprint).parameters
 pytestmark = pytest.mark.filterwarnings("error::UserWarning")
 
 
+# TODO remove _expected_response, without_assembly_imprint and the tests that
+# use them once CadQuery/cadquery#2128 is merged and released, and
+# pyproject.toml requires that CadQuery release.
 def _expected_response(imprint):
     if not HAS_GLUE and imprint is not False and imprint != "partial":
         return pytest.raises(RuntimeError, match="legacy imprint always uses partial glue")
     return nullcontext()
+
+
+@pytest.fixture
+def without_assembly_imprint(monkeypatch):
+    """Imprints as on a CadQuery without Assembly.imprint, such as 2.8.0."""
+    monkeypatch.delattr(cq.Assembly, "imprint", raising=False)
+
+
+def _origins(assembly):
+    """The functional imprint's origins, for solids the imprint did not change."""
+    return {
+        solid: (name,)
+        for obj, name, loc, _ in assembly
+        for solid in obj.moved(loc).Solids()
+    }
 
 
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
@@ -55,18 +74,10 @@ def test_every_export_passes_scalar_mode_and_thread_limit(tmp_path, imprint_call
 
 
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
-@pytest.mark.parametrize("imprint", IMPRINT_MODES)
-def test_single_solid_exports_skip_imprint_for_all_modes(tmp_path, imprint_calls, path, imprint):
-    before = _pool_threads()
-    _export(path, _model(single_solid=True), tmp_path, imprint, imprint_threads=1)
-    assert imprint_calls == []
-    assert _pool_threads() == before
-    _assert_outputs(path, tmp_path)
-
-
-@pytest.mark.parametrize("path", IMPRINT_PATHS)
 @pytest.mark.parametrize("imprint", ["full", None])
-def test_legacy_signature_rejects_unsupported_modes_without_outputs(tmp_path, monkeypatch, path, imprint):
+def test_legacy_signature_rejects_unsupported_modes_without_outputs(
+    tmp_path, monkeypatch, without_assembly_imprint, path, imprint
+):
     calls = []
 
     def legacy(assembly):
@@ -81,20 +92,21 @@ def test_legacy_signature_rejects_unsupported_modes_without_outputs(tmp_path, mo
     assert "imprint='partial'" in str(error.value)
     assert calls == []
     assert _pool_threads() == before
-    assert cq.occ_impl.assembly.imprint is legacy
     assert not gmsh.isInitialized()
     assert not list(tmp_path.iterdir())
 
 
 @pytest.mark.parametrize("supports_glue", [False, True])
 @pytest.mark.parametrize("glue", GLUES)
-def test_modern_and_legacy_signatures(monkeypatch, supports_glue, glue):
-    calls, sentinel = [], object()
+def test_functional_imprint_signatures_without_assembly_imprint(
+    monkeypatch, without_assembly_imprint, supports_glue, glue
+):
+    calls = []
 
     def modern(assembly, *, glue="partial"):
         calls.append(glue)
         assert _pool_threads() == 1
-        return sentinel
+        return None, _origins(assembly)
 
     def legacy(assembly):
         return modern(assembly, glue="legacy")
@@ -106,8 +118,36 @@ def test_modern_and_legacy_signatures(monkeypatch, supports_glue, glue):
             imprint_assembly(_two_touching_boxes(), threads=1, glue=glue)
         assert calls == []
     else:
-        assert imprint_assembly(_two_touching_boxes(), threads=1, glue=glue) is sentinel
+        shape = imprint_assembly(_two_touching_boxes(), threads=1, glue=glue)
+        assert len(shape.Solids()) == 2
         assert calls == [glue if supports_glue else "legacy"]
+    assert _pool_threads() == before
+
+
+@pytest.mark.parametrize("path", IMPRINT_PATHS)
+@pytest.mark.parametrize("imprint", IMPRINT_MODES)
+def test_single_solid_exports_skip_imprint_for_all_modes(tmp_path, imprint_calls, path, imprint):
+    before = _pool_threads()
+    _export(path, _model(single_solid=True), tmp_path, imprint, imprint_threads=1)
+    assert imprint_calls == []
+    assert _pool_threads() == before
+    _assert_outputs(path, tmp_path)
+
+
+@pytest.mark.skipif(not HAS_ASSEMBLY_IMPRINT, reason="CadQuery has no Assembly.imprint")
+@pytest.mark.parametrize("glue", GLUES)
+def test_glue_and_thread_limit_reach_assembly_imprint(monkeypatch, glue):
+    calls = []
+
+    def imprint(self, *, glue="partial"):
+        calls.append(glue)
+        assert _pool_threads() == 1
+        return self
+
+    monkeypatch.setattr(cq.Assembly, "imprint", imprint)
+    before = _pool_threads()
+    imprint_assembly(_two_touching_boxes(), threads=1, glue=glue)
+    assert calls == [glue]
     assert _pool_threads() == before
 
 
@@ -117,23 +157,24 @@ def test_low_level_imprint_rejects_invalid_glue(glue):
         imprint_assembly(_two_touching_boxes(), glue=glue)
 
 
-@pytest.mark.parametrize("supports_glue", [False, True])
-def test_imprint_error_restores_thread_pool(monkeypatch, supports_glue):
-    def modern(assembly, *, glue=None):
+@pytest.mark.parametrize("has_assembly_imprint", [True, False])
+def test_imprint_error_restores_thread_pool(monkeypatch, has_assembly_imprint):
+    def failing(*args, glue=None):
         assert _pool_threads() == 1
         raise RuntimeError("imprint failed")
 
-    def legacy(assembly):
-        return modern(assembly)
-
-    monkeypatch.setattr(cq.occ_impl.assembly, "imprint", modern if supports_glue else legacy)
+    if has_assembly_imprint:
+        monkeypatch.setattr(cq.Assembly, "imprint", failing, raising=False)
+    else:
+        monkeypatch.delattr(cq.Assembly, "imprint", raising=False)
+        monkeypatch.setattr(cq.occ_impl.assembly, "imprint", failing)
     before = _pool_threads()
     with pytest.raises(RuntimeError, match="imprint failed"):
         imprint_assembly(_two_touching_boxes(), threads=1, glue="partial")
     assert _pool_threads() == before
 
 
-@pytest.mark.skipif(not HAS_GLUE, reason="legacy imprint has no selectable glue API")
+@pytest.mark.skipif(not HAS_ASSEMBLY_IMPRINT, reason="CadQuery has no Assembly.imprint")
 @pytest.mark.parametrize("options, mode", [
     ({}, BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
     ({"glue": "partial"}, BOPAlgo_GlueEnum.BOPAlgo_GlueShift),
@@ -141,14 +182,13 @@ def test_imprint_error_restores_thread_pool(monkeypatch, supports_glue):
     ({"glue": None}, BOPAlgo_GlueEnum.BOPAlgo_GlueOff),
 ], ids=["omitted-default", "partial", "full", "explicit-none"])
 def test_modern_imprint_uses_actual_occ_glue_enum(monkeypatch, options, mode):
-    real_builder, builders = cq.occ_impl.assembly.BOPAlgo_Builder, []
+    real_set_glue, builders = cq.occ_impl.shapes._set_glue, []
 
-    def recording_builder():
-        builder = real_builder()
+    def recording_set_glue(builder, glue):
         builders.append(builder)
-        return builder
+        real_set_glue(builder, glue)
 
-    monkeypatch.setattr(cq.occ_impl.assembly, "BOPAlgo_Builder", recording_builder)
+    monkeypatch.setattr(cq.occ_impl.shapes, "_set_glue", recording_set_glue)
     imprint_assembly(_two_touching_boxes(), **options)
     assert len(builders) == 1
     assert builders[0].Glue() == mode
@@ -176,7 +216,7 @@ def test_full_and_partial_face_contact_topology(
         assembly.add(cq.Workplane().box(10, 10, 10))
         assembly.add(cq.Workplane().transformed(offset=(0, 0, 7)).box(4, 4, 4))
     with _expected_response(glue):
-        shape, _ = imprint_assembly(assembly, glue=glue)
+        shape = imprint_assembly(assembly, glue=glue)
     if not HAS_GLUE and glue != "partial":
         return
     assert len(shape.Solids()) == 2

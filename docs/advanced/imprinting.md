@@ -141,10 +141,12 @@ imprint, so run `model.check_overlaps()` on the imprinted geometry first; see
 
 ## Imprinting and Material Tag Order
 
-Imprinting can change the order of the volumes. cad_to_dagmc reorders the
-material tags to match, so each tag stays with its solid. Volume IDs given to
-`set_size` or `unstructured_volumes` are the IDs after imprinting, which may not
-follow the order you added the solids in, so give material tags there instead.
+Imprinting keeps the volumes in the order the solids were added in, so each
+material tag stays on its own volume.
+
+Giving material tags rather than volume IDs to `set_size` or
+`unstructured_volumes` is still more robust, as the IDs change whenever solids
+are added or removed.
 
 ## See Also
 

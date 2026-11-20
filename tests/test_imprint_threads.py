@@ -19,6 +19,11 @@ from cad_to_dagmc.core import (
 )
 
 GLUES = ("partial", "full", None)
+# TODO remove HAS_ASSEMBLY_IMPRINT and HAS_GLUE, and the branches and tests that
+# use them, once CadQuery/cadquery#2128 is merged and released, and
+# pyproject.toml requires that CadQuery release. CadQuery 2.8.0 has neither.
+HAS_ASSEMBLY_IMPRINT = hasattr(cq.Assembly, "imprint")
+HAS_GLUE = "glue" in inspect.signature(cq.occ_impl.assembly.imprint).parameters
 IMPRINT_MODES = (*GLUES, False)
 INVALID_MODES = (True, 0, 1, 4, -1, 0.0, 1.0, "all", "off", "Partial", [], (), {},
                  {"threads": 1, "glue": "partial"})
@@ -88,16 +93,28 @@ def _assert_outputs(path, tmp_path):
 
 @pytest.fixture
 def imprint_calls(monkeypatch):
-    real_imprint = cq.occ_impl.assembly.imprint
+    """Records (pool threads, glue) for each imprint.
+
+    The gmsh paths imprint with Assembly.imprint, while cad-to-dagmc-mesher
+    calls cadquery's functional assembly imprint, so both are spied on. On a
+    CadQuery without Assembly.imprint the gmsh paths use the functional one
+    too. Its legacy signature has no glue, recorded as "legacy".
+    """
     calls = []
 
-    # Signature detection must still see whether CadQuery supports glue.
-    @functools.wraps(real_imprint)
-    def spy(*args, **kwargs):
-        calls.append((_pool_threads(), kwargs.get("glue", "legacy")))
-        return real_imprint(*args, **kwargs)
+    def spy_on(owner, name):
+        real = getattr(owner, name)
 
-    monkeypatch.setattr(cq.occ_impl.assembly, "imprint", spy)
+        @functools.wraps(real)
+        def spy(*args, **kwargs):
+            calls.append((_pool_threads(), kwargs.get("glue", "partial" if HAS_GLUE else "legacy")))
+            return real(*args, **kwargs)
+
+        monkeypatch.setattr(owner, name, spy)
+
+    if HAS_ASSEMBLY_IMPRINT:
+        spy_on(cq.Assembly, "imprint")
+    spy_on(cq.occ_impl.assembly, "imprint")
     return calls
 
 
@@ -159,8 +176,8 @@ def test_thread_limit_restores_the_pool(threads, fail):
 
 
 def test_thread_count_does_not_change_topology():
-    all_threads, _ = imprint_assembly(_two_touching_boxes())
-    one_thread, _ = imprint_assembly(_two_touching_boxes(), threads=1)
+    all_threads = imprint_assembly(_two_touching_boxes())
+    one_thread = imprint_assembly(_two_touching_boxes(), threads=1)
     assert len(one_thread.Solids()) == len(all_threads.Solids()) == 2
     assert len(one_thread.Faces()) == len(all_threads.Faces()) == 11
 
@@ -206,14 +223,15 @@ def test_all_overrides_and_restores_a_previously_limited_pool(tmp_path, imprint_
 
 @pytest.mark.parametrize("path", IMPRINT_PATHS)
 def test_imprint_failure_restores_pool_and_backend_state(tmp_path, monkeypatch, path):
-    real_imprint = cq.occ_impl.assembly.imprint
     before = _pool_threads()
 
-    @functools.wraps(real_imprint)
     def failing_imprint(*args, **kwargs):
         assert _pool_threads() == 1
         raise RuntimeError("imprint failed")
 
+    # gmsh paths use Assembly.imprint, cad-to-dagmc-mesher the functional one
+    if HAS_ASSEMBLY_IMPRINT:
+        monkeypatch.setattr(cq.Assembly, "imprint", failing_imprint)
     monkeypatch.setattr(cq.occ_impl.assembly, "imprint", failing_imprint)
     with pytest.raises(RuntimeError, match="imprint failed"):
         _export(path, _model(), tmp_path, imprint_threads=1)
@@ -226,7 +244,7 @@ def test_imprint_failure_restores_pool_and_backend_state(tmp_path, monkeypatch, 
 @pytest.fixture
 def no_export_side_effects(monkeypatch):
     guard = Mock(side_effect=AssertionError("geometry or meshing ran before validation"))
-    for name in ("get_ids_from_assembly", "imprint_assembly", "init_gmsh", "_mesh_with_cad_to_dagmc_mesher"):
+    for name in ("_build_assembly", "imprint_assembly", "init_gmsh", "_mesh_with_cad_to_dagmc_mesher"):
         monkeypatch.setattr(f"cad_to_dagmc.core.{name}", guard)
     monkeypatch.setattr(CadToDagmc, "_export_unstructured_mesh_file_with_mesher", guard)
     return guard
