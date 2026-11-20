@@ -26,6 +26,14 @@ so they export with only the warning. Both refusals come from the imprint, so
 with `imprint=False` only the warning is left. The Gmsh backend runs none of
 these checks and writes overlapping solids without an error.
 
+One check runs when the geometry is added rather than exported, whatever the
+backend or `imprint`: `add_cadquery_object()` raises a `ValueError` naming the
+parts if the same solid is in two of them, or was already added to the model
+by an earlier call. Imprinting overlapping parts with
+CadQuery's `Assembly.imprint` leaves them like that, with the region they share
+in both, so this catches those overlaps in an assembly you imprinted yourself
+and export with `imprint=False`.
+
 ## Checking every pair
 
 `check_overlaps` intersects every pair of solids whose bounding boxes overlap,
