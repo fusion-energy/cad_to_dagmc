@@ -9,6 +9,7 @@ the user got a mismatch between the numbers of volumes and material tags.
 
 import cadquery as cq
 import pytest
+from test_python_api import get_volumes_and_materials_from_h5m
 
 from cad_to_dagmc import CadToDagmc
 
@@ -137,5 +138,6 @@ def test_touching_parts_imprinted_by_the_user_export_without_imprinting(tmp_path
     model.export_dagmc_h5m_file(
         filename=h5m, meshing_backend="gmsh", imprint=False, max_mesh_size=5
     )
-    di = pytest.importorskip("dagmc_h5m_file_inspector")
-    assert di.get_volumes_and_materials(h5m) == {1: "middle", 2: "left", 3: "right"}
+    assert get_volumes_and_materials_from_h5m(h5m) == {
+        1: "mat:middle", 2: "mat:left", 3: "mat:right"
+    }
